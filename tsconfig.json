@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "sourceMap": false,
+        "outDir": "./js/"
+    },
+    "exclude": [
+        "typings/browser.d.ts",
+        "typings/browser",
+        "node_modules"
+    ]
+}

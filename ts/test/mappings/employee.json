@@ -1,0 +1,21 @@
+{
+    "name": "employee",
+    "tableName": "employee",
+    "columns": [
+        {
+            "name": "id",
+            "columnName": "id",
+            "type": "int"
+        },
+        {
+            "name": "name",
+            "columnName": "name",
+            "type": "string"
+        },
+        {
+            "name": "description",
+            "columnName": "Emp_Description",
+            "type": "string"
+        }
+    ]
+}
