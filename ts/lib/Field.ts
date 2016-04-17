@@ -1,6 +1,6 @@
 class Field {
+    modified: boolean;
     constructor() {
-
     }
 }
 

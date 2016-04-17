@@ -1,11 +1,13 @@
 import * as es from "./../../index";
 
-export default class extends es.entity {
+class Employee extends es.Entity {
     constructor() {
         super();
     }
 
-    id: es.field;
-    name: es.field;
-    description: es.field;
+    id: es.Field;
+    name: es.Field;
+    description: es.Field;
 }
+
+export default Employee;

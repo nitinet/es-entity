@@ -1,20 +1,20 @@
 {
     "name": "employee",
-    "tableName": "employee",
-    "columns": [
+    "entityName": "employee",
+    "fields": [
         {
             "name": "id",
-            "columnName": "id",
+            "fieldName": "id",
             "type": "int"
         },
         {
             "name": "name",
-            "columnName": "name",
+            "fieldName": "name",
             "type": "string"
         },
         {
             "name": "description",
-            "columnName": "Emp_Description",
+            "fieldName": "Emp_Description",
             "type": "string"
         }
     ]

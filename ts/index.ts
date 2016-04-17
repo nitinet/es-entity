@@ -1,13 +1,11 @@
 /// <reference path="../typings/main/ambient/node/index.d.ts" />
 
-import entity from "./lib/Entity";
-import context from "./lib/Context";
-import field from "./lib/Field";
-import queryable from "./lib/Queryable";
-import loader from "./lib/Loader";
+import Entity from "./lib/Entity";
+import Context from "./lib/Context";
+import Field from "./lib/Field";
+import Queryable from "./lib/Queryable";
 
-export {entity};
-export {context};
-export {field};
-export {queryable};
-export {loader};
+export {Entity};
+export {Context};
+export {Field};
+export {Queryable};

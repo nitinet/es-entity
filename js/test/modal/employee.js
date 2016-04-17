@@ -1,9 +1,9 @@
 "use strict";
 const es = require("./../../index");
-class default_1 extends es.entity {
+class Employee extends es.Entity {
     constructor() {
         super();
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = default_1;
+exports.default = Employee;

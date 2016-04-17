@@ -4,7 +4,6 @@ interface IEntityType<T extends Entity> {
 
 class Entity {
     constructor() {
-
     }
 }
 

@@ -1,7 +1,12 @@
 import * as es from "./../../index";
-import employee from "./employee";
+import employee from "./Employee";
 
-export default class extends es.context {
+class EmpContext extends es.Context {
+    constructor(config?: any, mappingPath?: string) {
+        super(config, mappingPath);
+    }
 
-    employees: es.queryable = new es.queryable(employee);
+    employees: es.Queryable = new es.Queryable(employee);
 }
+
+export default EmpContext;

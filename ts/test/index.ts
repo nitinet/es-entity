@@ -3,7 +3,8 @@
 
 import * as es from "./../index";
 
-import empContext from "./modal/empContext";
+import empContext from "./modal/EmpContext";
 
-var context = es.loader.load(empContext, __dirname + "/mappings");
-context.setConfig(null);
+var context = new empContext(null, __dirname + "/mappings");
+context.bind();
+
