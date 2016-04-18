@@ -1,6 +1,7 @@
 {
     "name": "employee",
     "entityName": "employee",
+    "primaryKeyField": "id",
     "fields": [
         {
             "name": "id",

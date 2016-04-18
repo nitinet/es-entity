@@ -2,13 +2,15 @@
 "use strict";
 const Reflect = require("harmony-reflect");
 const Queryable_1 = require("./Queryable");
+const Handler_1 = require("./Handler");
 class Context {
     constructor(config, mappingPath) {
-        this.config = config;
         this.mappingPath = mappingPath;
+        this.setConfig(config);
+        this.bind();
     }
     setConfig(config) {
-        this.config = config;
+        this.handler = Handler_1.default.getHandler(config);
     }
     bind() {
         let keys = Reflect.ownKeys(this);
@@ -18,6 +20,9 @@ class Context {
                 e.bind(this);
             }
         });
+    }
+    execute(query) {
+        return this.handler.run(query);
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

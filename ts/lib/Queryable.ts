@@ -25,9 +25,22 @@ class Queryable {
         });
     }
 
-    insert(entity: Entity) {
+    insert(entity: Entity): void {
+    }
+
+    update(entity: Entity): void {
+    }
+
+    insertOrUpdate(entity: Entity): void {
+    }
+
+    findById(id: any): Entity {
         let a = new this.entityType();
         return a;
+    }
+
+    query(q: string): Promise<any> {
+        return this.context.execute(q);
     }
 
 }

@@ -16,8 +16,17 @@ class Queryable {
         });
     }
     insert(entity) {
+    }
+    update(entity) {
+    }
+    insertOrUpdate(entity) {
+    }
+    findById(id) {
         let a = new this.entityType();
         return a;
+    }
+    query(q) {
+        return this.context.execute(q);
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

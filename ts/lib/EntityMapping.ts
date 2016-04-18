@@ -15,6 +15,7 @@ class EntityMapping {
     entityName: string = null;
     dynamicInsert: boolean = false;
     dynamicUpdate: boolean = false;
+    primaryKeyField: string = null;
     fields: Array<FieldMapping> = new Array<FieldMapping>();
 
     constructor(data: string) {

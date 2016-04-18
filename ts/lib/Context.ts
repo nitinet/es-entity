@@ -1,24 +1,22 @@
 /// <reference path="./../../typings/main/ambient/node/index.d.ts" />
 
-import fs = require("fs");
 import Reflect = require("harmony-reflect");
 
 import Queryable from "./Queryable";
-
-interface IContextType<T extends Context> {
-    new (): T;
-}
+import Handler, {ConnectionConfig} from "./Handler";
 
 class Context {
     mappingPath: string;
-    config: any;
-    constructor(config?: any, mappingPath?: string) {
-        this.config = config;
+    handler: Handler;
+
+    constructor(config?: ConnectionConfig, mappingPath?: string) {
         this.mappingPath = mappingPath;
+        this.setConfig(config);
+        this.bind();
     }
 
-    setConfig(config: any): void {
-        this.config = config;
+    setConfig(config: ConnectionConfig): void {
+        this.handler = Handler.getHandler(config);
     }
 
     bind(): void {
@@ -31,7 +29,10 @@ class Context {
         });
     }
 
+    execute(query: string): Promise<any> {
+        return this.handler.run(query);
+    }
+
 }
 
 export default Context;
-export {IContextType};
