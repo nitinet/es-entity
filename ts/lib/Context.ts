@@ -1,7 +1,5 @@
 /// <reference path="./../../typings/main/ambient/node/index.d.ts" />
 
-import Reflect = require("harmony-reflect");
-
 import Queryable from "./Queryable";
 import Handler, {ConnectionConfig} from "./Handler";
 
@@ -20,7 +18,7 @@ class Context {
     }
 
     bind(): void {
-        let keys: string[] = Reflect.ownKeys(this);
+        let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
         keys.forEach(key => {
             let e: Queryable = Reflect.get(this, key);
             if (e instanceof Queryable) {
@@ -32,6 +30,8 @@ class Context {
     execute(query: string): Promise<any> {
         return this.handler.run(query);
     }
+    
+    flush():void{}
 
 }
 

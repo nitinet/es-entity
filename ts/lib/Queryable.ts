@@ -38,7 +38,7 @@ class Queryable {
         let a = new this.entityType();
         return a;
     }
-
+    
     query(q: string): Promise<any> {
         return this.context.execute(q);
     }

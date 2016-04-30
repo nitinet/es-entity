@@ -3,7 +3,7 @@
 import mysql = require("mysql");
 
 import Handler from "./../Handler";
-import Query from "./../Query";
+import * as Query from "./../Sql/Query";
 
 class MysqlHandler extends Handler {
 
@@ -25,26 +25,24 @@ class MysqlHandler extends Handler {
             password: this.config.password,
             database: this.config.database
         });
+        connection.connect(function (err) {
+            if (err)
+                throw err;
+            else
+                return;
+        });
         return connection;
     }
 
-    run(query: string | Query): Promise<any> {
-        let q = "";
+    run(query: string | Query.ISqlNode, connection = this.defaultConnection): Promise<any> {
+        let q: any = null;
         if (typeof query === "string") {
             q = query;
-        } else if (typeof query === "Query") {
-            q = this.parse(query);
+        } else if (query instanceof Query.SqlStatement) {
+            q = query.eval();
         }
-        let p = new Promise((res, rej) => {
-            this.defaultConnection.connect(function (err) {
-                if (err)
-                    rej();
-                else
-                    res();
-            });
-        });
-        p.then(() => {
-            this.defaultConnection.query(q, function (err, rows, fields) {
+        let p = Promise.race<string>(q).then((val: string) => {
+            connection.query(val, function (err, rows, fields) {
                 if (err)
                     throw err;
                 else

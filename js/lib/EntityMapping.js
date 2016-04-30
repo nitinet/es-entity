@@ -16,6 +16,7 @@ class EntityMapping {
         this.dynamicInsert = false;
         this.dynamicUpdate = false;
         this.primaryKeyField = null;
+        this.cacheEnabled = false;
         this.fields = new Array();
         Object.assign(this, data);
     }

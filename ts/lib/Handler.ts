@@ -1,4 +1,4 @@
-import Query, {QueryType} from "./Query";
+import * as Query from "./Sql/Query";
 
 import MysqlHandler from "./handlers/MysqlHandler";
 
@@ -27,22 +27,9 @@ abstract class Handler {
         this.config = config;
     }
 
-    public evalQuery(query: Query): string {
-        let res:string="";
-        switch (query.type) {
-            case QueryType.statement: {
-                //res = this.evalStatement(query);
-                break;
-            }
-            default:
-                break;
-        }
-        return res;
-    }
-    
     abstract init(): void;
     abstract getConnection(): any;
-    abstract run(query: string | Query): Promise<any>;
+    abstract run(query: string | Query.ISqlNode): Promise<any>;
 
 }
 

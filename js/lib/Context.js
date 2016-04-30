@@ -1,6 +1,5 @@
 /// <reference path="./../../typings/main/ambient/node/index.d.ts" />
 "use strict";
-const Reflect = require("harmony-reflect");
 const Queryable_1 = require("./Queryable");
 const Handler_1 = require("./Handler");
 class Context {
@@ -24,6 +23,7 @@ class Context {
     execute(query) {
         return this.handler.run(query);
     }
+    flush() { }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Context;
