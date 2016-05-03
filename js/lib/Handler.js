@@ -11,6 +11,14 @@ class ConnectionConfig {
     }
 }
 exports.ConnectionConfig = ConnectionConfig;
+class ResultSet {
+    constructor() {
+        this.rowCount = 0;
+        this.rows = null;
+        this.error = null;
+    }
+}
+exports.ResultSet = ResultSet;
 class Handler {
     static getHandler(config) {
         let handler = null;

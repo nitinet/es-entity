@@ -1,7 +1,8 @@
 /// <reference path="./../../typings/main/ambient/node/index.d.ts" />
 
 import Queryable from "./Queryable";
-import Handler, {ConnectionConfig} from "./Handler";
+import Handler, {ConnectionConfig, ResultSet} from "./Handler";
+import * as Query from "./Sql/Query";
 
 class Context {
     mappingPath: string;
@@ -27,11 +28,11 @@ class Context {
         });
     }
 
-    execute(query: string): Promise<any> {
+    execute(query: string | Query.ISqlNode): Promise<ResultSet> {
         return this.handler.run(query);
     }
-    
-    flush():void{}
+
+    flush(): void { }
 
 }
 

@@ -35,12 +35,21 @@ class MysqlHandler extends Handler_1.default {
         else if (query instanceof Query.SqlStatement) {
             q = query.eval();
         }
-        let p = Promise.race(q).then((val) => {
-            connection.query(val, function (err, rows, fields) {
-                if (err)
-                    throw err;
-                else
-                    return rows;
+        let p = new Promise((resolve, reject) => {
+            let r = new Handler_1.ResultSet();
+            Promise.resolve(q).then((val) => {
+                connection.query(val, function (err, result, fields) {
+                    if (err)
+                        reject(err.code);
+                    else if (result.changedRows) {
+                        r.rowCount = result.changedRows;
+                    }
+                    else if (Array.isArray(result)) {
+                        r.rows = result;
+                        r.rowCount = result.length;
+                    }
+                    resolve(r);
+                });
             });
         });
         return p;

@@ -2,7 +2,7 @@
 
 import mysql = require("mysql");
 
-import Handler from "./../Handler";
+import Handler, {ResultSet} from "./../Handler";
 import * as Query from "./../Sql/Query";
 
 class MysqlHandler extends Handler {
@@ -34,19 +34,28 @@ class MysqlHandler extends Handler {
         return connection;
     }
 
-    run(query: string | Query.ISqlNode, connection = this.defaultConnection): Promise<any> {
+    run(query: string | Query.ISqlNode, connection = this.defaultConnection): Promise<ResultSet> {
         let q: any = null;
         if (typeof query === "string") {
             q = query;
         } else if (query instanceof Query.SqlStatement) {
             q = query.eval();
         }
-        let p = Promise.race<string>(q).then((val: string) => {
-            connection.query(val, function (err, rows, fields) {
-                if (err)
-                    throw err;
-                else
-                    return rows;
+
+        let p = new Promise<ResultSet>((resolve, reject) => {
+            let r: ResultSet = new ResultSet();
+            Promise.resolve(q).then((val) => {
+                connection.query(val, function (err, result, fields) {
+                    if (err)
+                        reject(err.code);
+                    else if (result.changedRows) {
+                        r.rowCount = result.changedRows;
+                    } else if (Array.isArray(result)) {
+                        r.rows = <Array<any>>result;
+                        r.rowCount = (<Array<any>>result).length;
+                    }
+                    resolve(r);
+                });
             });
         });
         return p;

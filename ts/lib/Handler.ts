@@ -2,13 +2,22 @@ import * as Query from "./Sql/Query";
 
 import MysqlHandler from "./handlers/MysqlHandler";
 
-class ConnectionConfig {
+export class ConnectionConfig {
     name: string = "";
     handler: string = "";
     hostname: string = "";  // Default Mysql
     username: string = "";
     password: string = "";
     database: string = "";
+}
+
+export class ResultSet {
+    rowCount: number = 0;
+    rows: Array<any> = null;
+    error: string = null;
+
+    constructor() {
+    }
 }
 
 abstract class Handler {
@@ -29,9 +38,7 @@ abstract class Handler {
 
     abstract init(): void;
     abstract getConnection(): any;
-    abstract run(query: string | Query.ISqlNode): Promise<any>;
-
+    abstract run(query: string | Query.ISqlNode): Promise<ResultSet>;
 }
 
 export default Handler;
-export {ConnectionConfig};

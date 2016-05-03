@@ -4,48 +4,13 @@
  */
 class SqlStatement {
     constructor() {
-        this._command = "";
-        this._columns = new Array();
-        this._collection = new SqlCollection();
-        this._where = new SqlExpression();
-        this._groupBy = new Array();
-        this._orderBy = new Array();
-    }
-    get command() {
-        return this._command;
-    }
-    set command(val) {
-        this._command = val;
-    }
-    get columns() {
-        return this._columns;
-    }
-    set columns(val) {
-        this._columns = val;
-    }
-    get collection() {
-        return this._collection;
-    }
-    set collection(val) {
-        this._collection = val;
-    }
-    get where() {
-        return this._where;
-    }
-    set where(val) {
-        this._where = val;
-    }
-    get groupBy() {
-        return this._groupBy;
-    }
-    set groupBy(val) {
-        this._groupBy = val;
-    }
-    get orderBy() {
-        return this._orderBy;
-    }
-    set orderBy(val) {
-        this._orderBy = val;
+        this.command = "";
+        this.columns = new Array();
+        this.values = new Array();
+        this.collection = new SqlCollection();
+        this.where = new SqlExpression();
+        this.groupBy = new Array();
+        this.orderBy = new Array();
     }
     eval() {
         let p = new Promise((resolve) => {
@@ -53,47 +18,51 @@ class SqlStatement {
             let promises = new Array();
             // Column Promises
             let columnStrArr = new Array();
-            for (let i = 0; i < this._columns.length; i++) {
-                let element = this._columns[i];
-                let p1 = element.eval();
-                p1.then((val) => {
+            for (let i = 0; i < this.columns.length; i++) {
+                let element = this.columns[i];
+                let p1 = element.eval().then((val) => {
                     columnStrArr[i] = val;
                 });
                 promises.push(p1);
             }
             // Collection Promise
             let collectionStr = "";
-            let p2 = this._collection.eval();
-            p2.then((val) => {
+            let p2 = this.collection.eval().then((val) => {
                 collectionStr = val;
             });
             promises.push(p2);
             // Where promise
             let whereStr = "";
-            let p3 = this._where.eval();
-            p3.then((val) => {
+            let p3 = this.where.eval().then((val) => {
                 whereStr = val;
             });
             promises.push(p3);
             // Group By Promises
             let groupByStrArr = new Array();
-            for (let i = 0; i < this._groupBy.length; i++) {
-                let element = this._groupBy[i];
-                let p4 = element.eval();
-                p4.then((val) => {
+            for (let i = 0; i < this.groupBy.length; i++) {
+                let element = this.groupBy[i];
+                let p4 = element.eval().then((val) => {
                     groupByStrArr[i] = val;
                 });
                 promises.push(p4);
             }
             // Order By Promises
             let orderByStrArr = new Array();
-            for (let i = 0; i < this._orderBy.length; i++) {
-                let element = this._orderBy[i];
-                let p5 = element.eval();
-                p5.then((val) => {
+            for (let i = 0; i < this.orderBy.length; i++) {
+                let element = this.orderBy[i];
+                let p5 = element.eval().then((val) => {
                     orderByStrArr[i] = val;
                 });
                 promises.push(p5);
+            }
+            // Column Promises
+            let valueStrArr = new Array();
+            for (let i = 0; i < this.values.length; i++) {
+                let element = this.values[i];
+                let p6 = element.eval().then((val) => {
+                    valueStrArr[i] = val;
+                });
+                promises.push(p6);
             }
             Promise.all(promises).then(() => {
                 let columnStr = "";
@@ -120,17 +89,25 @@ class SqlStatement {
                     else
                         orderByStr.concat(", " + element);
                 }
-                this._command = this._command.toLowerCase();
-                if (this._command === "insert") {
-                    result.concat("insert into ", collectionStr, " values (", columnStr, ")");
+                let valueStr = "";
+                for (let i = 0; i < valueStrArr.length; i++) {
+                    let element = valueStrArr[i];
+                    if (i == 0)
+                        valueStr.concat(" " + element);
+                    else
+                        valueStr.concat(", " + element);
                 }
-                else if (this._command == "select") {
+                this.command = this.command.toLowerCase();
+                if (this.command === "insert") {
+                    result.concat("insert into ", collectionStr, "(", columnStr, ") values (", valueStr, ")");
+                }
+                else if (this.command == "select") {
                     result.concat("select", columnStr, " from ", collectionStr, " where ", whereStr, " group by ", groupByStr, " order by ", orderByStr);
                 }
-                else if (this._command === "update") {
+                else if (this.command === "update") {
                     result.concat("update ", collectionStr, " set ", columnStr, " where ", whereStr);
                 }
-                else if (this._command === "delete") {
+                else if (this.command === "delete") {
                     result.concat("delete from ", collectionStr, " where ", whereStr);
                 }
                 resolve(result);
@@ -146,34 +123,22 @@ exports.SqlStatement = SqlStatement;
  */
 class SqlCollection {
     constructor() {
-        this._value = null;
-        this._alias = null;
-    }
-    get value() {
-        return this._value;
-    }
-    set value(val) {
-        this._value = val;
-    }
-    get alias() {
-        return this._alias;
-    }
-    set alias(val) {
-        this._alias = val;
+        this.value = null;
+        this.alias = null;
     }
     eval() {
         let p = new Promise((resolve, reject) => {
-            if (!this._value) {
+            if (!this.value) {
                 reject();
             }
-            else if (typeof this._value === "string")
-                resolve(this._value);
-            else if ((this._value instanceof SqlStatement) || (this._value instanceof SqlExpression)) {
-                resolve("(" + this._value.eval() + ")");
+            else if (typeof this.value === "string")
+                resolve(this.value);
+            else if (this.value instanceof SqlStatement) {
+                resolve("(" + this.value.eval() + ")");
             }
         }).then((val) => {
-            if (this._alias)
-                val = val + " as " + this._alias;
+            if (this.alias)
+                val = val + " as " + this.alias;
             return val;
         });
         return p;
@@ -199,6 +164,7 @@ exports.SqlCollection = SqlCollection;
     SqlOperator[SqlOperator["Asc"] = 16] = "Asc";
     SqlOperator[SqlOperator["Desc"] = 17] = "Desc";
     SqlOperator[SqlOperator["Limit"] = 18] = "Limit";
+    SqlOperator[SqlOperator["Comma"] = 19] = "Comma";
 })(exports.SqlOperator || (exports.SqlOperator = {}));
 var SqlOperator = exports.SqlOperator;
 /**
@@ -228,8 +194,9 @@ class SqlExpression {
             if (!this._exps) {
                 resolve();
             }
-            else if (typeof this._exps === "string")
+            else if (typeof this._exps === "string") {
                 resolve(this._exps);
+            }
             else if (this._exps instanceof SqlExpression) {
                 resolve(this._exps.eval());
             }
@@ -294,12 +261,7 @@ class SqlExpression {
                             r = " exists (" + val0 + ")";
                             break;
                         case SqlOperator.In:
-                            {
-                                r = val0 + " in [";
-                                for (let i = 1; i < values.length; i++)
-                                    r = r + values[i] + ", ";
-                                r = r.slice(0, r.length - 2) + "]";
-                            }
+                            r = val0 + " in (" + val1 + ")";
                             break;
                         case SqlOperator.Like:
                             r = val0 + " like " + val1;
@@ -319,6 +281,13 @@ class SqlExpression {
                         case SqlOperator.Limit:
                             {
                                 r = "limit " + val0 + (val1 ? "," + val1 : "");
+                            }
+                            break;
+                        case SqlOperator.Comma:
+                            {
+                                for (let i = 0; i < values.length; i++)
+                                    r.concat(r, values[i], ", ");
+                                r = r.slice(0, r.length - 2);
                             }
                             break;
                         default:
