@@ -17,18 +17,62 @@ class Queryable {
         });
     }
     insert(entity) {
-        return null;
+        let stat = new Query.SqlStatement();
+        stat.command = "insert";
+        stat.collection.value = this.mapping.name;
+        for (var i = 0; i < this.mapping.fields.length; i++) {
+            var element = this.mapping.fields[i];
+            let c = new Query.SqlCollection();
+            c.value = element.name;
+            stat.columns.push(c);
+            let v = new Query.SqlExpression();
+            v.exps = Reflect.get(entity, element.fieldName);
+            stat.values.push(v);
+        }
+        return this.context.execute(stat).then((result) => {
+            return this.get(result.rowCount);
+        });
     }
     update(entity) {
-        return null;
+        let stat = new Query.SqlStatement();
+        stat.command = "update";
+        stat.collection.value = this.mapping.name;
+        for (var i = 0; i < this.mapping.fields.length; i++) {
+            var element = this.mapping.fields[i];
+            if (element != this.mapping.primaryKeyField) {
+                let c1 = new Query.SqlExpression(element.name);
+                let c2 = new Query.SqlExpression(Reflect.get(entity, element.fieldName));
+                let c = new Query.SqlExpression(null, Query.SqlOperator.Equal, c1, c2);
+                stat.columns.push(c);
+            }
+        }
+        let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+        let w2 = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
+        return this.context.execute(stat).then((result) => {
+            return this.get(result.rowCount);
+        });
     }
     insertOrUpdate(entity) {
-        return null;
+        if (Reflect.get(entity, this.mapping.primaryKeyField.fieldName)) {
+            return this.update(entity);
+        }
+        else {
+            return this.insert(entity);
+        }
     }
     delete(entity) {
-        return null;
+        let stat = new Query.SqlStatement();
+        stat.command = "update";
+        stat.collection.value = this.mapping.name;
+        let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+        let w2 = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
+        return this.context.execute(stat).then((result) => {
+            return this.get(result.rowCount);
+        });
     }
-    findById(id) {
+    get(id) {
         if (!this.mapping.primaryKeyField)
             throw "No Primary Field Found";
         if (!id)
@@ -45,11 +89,9 @@ class Queryable {
             c.alias = element.fieldName;
             stat.columns.push(c);
         }
-        stat.where.operator = Query.SqlOperator.Equal;
-        let exps = new Array();
-        exps.push(this.mapping.primaryKeyField.name);
-        exps.push(id.toString());
-        stat.where.exps = exps;
+        let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+        let w2 = new Query.SqlExpression(id.toString());
+        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
         return this.context.execute(stat).then((result) => {
             if (!result.rows[0])
                 throw "No Result Found";

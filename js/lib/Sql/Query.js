@@ -124,6 +124,7 @@ exports.SqlStatement = SqlStatement;
 class SqlCollection {
     constructor() {
         this.value = null;
+        this.stat = null;
         this.alias = null;
     }
     eval() {
@@ -131,10 +132,10 @@ class SqlCollection {
             if (!this.value) {
                 reject();
             }
-            else if (typeof this.value === "string")
+            else if (this.value)
                 resolve(this.value);
-            else if (this.value instanceof SqlStatement) {
-                resolve("(" + this.value.eval() + ")");
+            else if (this.stat) {
+                resolve("(" + this.stat.eval() + ")");
             }
         }).then((val) => {
             if (this.alias)
@@ -171,38 +172,22 @@ var SqlOperator = exports.SqlOperator;
  * SqlExpression
  */
 class SqlExpression {
-    constructor(operator, ...expressions) {
-        this._exps = null;
-        this._operator = null;
-        this._exps = expressions;
-        this._operator = operator;
-    }
-    get exps() {
-        return this._exps;
-    }
-    set exps(val) {
-        this._exps = val;
-    }
-    get operator() {
-        return this._operator;
-    }
-    set operator(val) {
-        this._operator = val;
+    constructor(value, operator, ...expressions) {
+        this.value = null;
+        this.exps = null;
+        this.operator = null;
+        this.value = value;
+        this.exps = expressions;
+        this.operator = operator;
     }
     eval() {
         let p = new Promise((resolve) => {
-            if (!this._exps) {
-                resolve();
+            if (this.value) {
+                resolve(this.value);
             }
-            else if (typeof this._exps === "string") {
-                resolve(this._exps);
-            }
-            else if (this._exps instanceof SqlExpression) {
-                resolve(this._exps.eval());
-            }
-            else if (Array.isArray(this._exps)) {
+            else if (this.exps) {
                 let promises = new Array();
-                let temp = this._exps;
+                let temp = this.exps;
                 for (let i = 0; i < temp.length; i++) {
                     let p = new Promise((res) => {
                         if (!temp[i]) {
@@ -220,7 +205,7 @@ class SqlExpression {
                     let val0 = values[0] ? values[0] : "";
                     let val1 = values[1] ? values[1] : "";
                     let r = "";
-                    switch (this._operator) {
+                    switch (this.operator) {
                         case SqlOperator.Equal:
                             r = val0 + " = " + val1;
                             break;

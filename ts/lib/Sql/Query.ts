@@ -7,7 +7,7 @@ export interface ISqlNode {
  */
 export class SqlStatement implements ISqlNode {
     command: string = "";
-    columns: Array<SqlCollection | SqlExpression> = new Array<SqlCollection | SqlExpression>();
+    columns: Array<ISqlNode> = new Array<ISqlNode>();
     values: Array<SqlExpression> = new Array<SqlExpression>();
     collection: SqlCollection = new SqlCollection();
     where: SqlExpression = new SqlExpression();
@@ -135,7 +135,8 @@ export class SqlStatement implements ISqlNode {
  * Used for tables and columns
  */
 export class SqlCollection implements ISqlNode {
-    value: string | SqlStatement = null;
+    value: string = null;
+    stat: SqlStatement = null;
     alias: string = null;
 
     constructor() {
@@ -145,10 +146,10 @@ export class SqlCollection implements ISqlNode {
         let p: Promise<string> = new Promise<string>((resolve, reject) => {
             if (!this.value) {
                 reject();
-            } else if (typeof this.value === "string")
-                resolve(<string>this.value);
-            else if (this.value instanceof SqlStatement) {
-                resolve("(" + (<SqlStatement>this.value).eval() + ")");
+            } else if (this.value)
+                resolve(this.value);
+            else if (this.stat) {
+                resolve("(" + this.stat.eval() + ")");
             }
         }).then<string>((val): string => {
             if (this.alias)
@@ -185,43 +186,25 @@ export enum SqlOperator {
  * SqlExpression
  */
 export class SqlExpression implements ISqlNode {
-    _exps: string | SqlExpression | Array<SqlExpression | string> = null;
-    _operator: SqlOperator = null;
+    value: string = null;
+    exps: Array<SqlExpression> = null;
+    operator: SqlOperator = null;
 
 
-    constructor(operator?: SqlOperator, ...expressions: Array<SqlExpression | string>) {
-        this._exps = expressions;
-        this._operator = operator;
-    }
-
-    get exps(): string | SqlExpression | Array<SqlExpression | string> {
-        return this._exps;
-    }
-
-    set exps(val: string | SqlExpression | Array<SqlExpression | string>) {
-        this._exps = val;
-    }
-
-    get operator(): SqlOperator {
-        return this._operator;
-    }
-
-    set operator(val: SqlOperator) {
-        this._operator = val;
+    constructor(value?: string, operator?: SqlOperator, ...expressions: Array<SqlExpression>) {
+        this.value = value;
+        this.exps = expressions;
+        this.operator = operator;
     }
 
     eval(): Promise<string> {
         let p: Promise<string> = new Promise<string>((resolve) => {
-            if (!this._exps) {
-                resolve();
-            } else if (typeof this._exps === "string") {
-                resolve(<string>this._exps);
-            } else if (this._exps instanceof SqlExpression) {
-                resolve((<SqlExpression>this._exps).eval());
-            } else if (Array.isArray(this._exps)) {
+            if (this.value) {
+                resolve(this.value);
+            } else if (this.exps) {
                 let promises: Array<Promise<string>> = new Array<Promise<string>>();
 
-                let temp: Array<SqlExpression | string> = <Array<SqlExpression | string>>this._exps;
+                let temp: Array<SqlExpression | string> = <Array<SqlExpression | string>>this.exps;
                 for (let i = 0; i < temp.length; i++) {
                     let p: Promise<string> = new Promise<string>((res) => {
                         if (!temp[i]) {
@@ -240,7 +223,7 @@ export class SqlExpression implements ISqlNode {
                     let val1: string = values[1] ? values[1] : "";
 
                     let r: string = "";
-                    switch (this._operator) {
+                    switch (this.operator) {
                         case SqlOperator.Equal:
                             r = val0 + " = " + val1;
                             break;

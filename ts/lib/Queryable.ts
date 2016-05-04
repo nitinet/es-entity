@@ -28,22 +28,72 @@ class Queryable {
     }
 
     insert(entity: Entity): Promise<Entity> {
-        return null;
+        let stat: Query.SqlStatement = new Query.SqlStatement();
+        stat.command = "insert";
+        stat.collection.value = this.mapping.name;
+        for (var i = 0; i < this.mapping.fields.length; i++) {
+            var element = this.mapping.fields[i];
+            let c: Query.SqlCollection = new Query.SqlCollection();
+            c.value = element.name;
+            stat.columns.push(c);
+
+            let v: Query.SqlExpression = new Query.SqlExpression();
+            v.exps = Reflect.get(entity, element.fieldName);
+            stat.values.push(v);
+        }
+
+        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
+            return this.get(result.rowCount);
+        });
     }
 
     update(entity: Entity): Promise<Entity> {
-        return null;
+        let stat: Query.SqlStatement = new Query.SqlStatement();
+        stat.command = "update";
+        stat.collection.value = this.mapping.name;
+        for (var i = 0; i < this.mapping.fields.length; i++) {
+            var element = this.mapping.fields[i];
+            if (element != this.mapping.primaryKeyField) {
+                let c1: Query.SqlExpression = new Query.SqlExpression(element.name);
+                let c2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, element.fieldName));
+
+                let c: Query.SqlExpression = new Query.SqlExpression(null, Query.SqlOperator.Equal, c1, c2);
+                stat.columns.push(c);
+            }
+        }
+
+        let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+        let w2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
+
+        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
+            return this.get(result.rowCount);
+        });
     }
 
     insertOrUpdate(entity: Entity): Promise<Entity> {
-        return null;
-    }
-    
-    delete(entity: Entity): Promise<Entity> {
-        return null;
+        if (Reflect.get(entity, this.mapping.primaryKeyField.fieldName)) {
+            return this.update(entity);
+        } else {
+            return this.insert(entity);
+        }
     }
 
-    findById(id: any): Promise<Entity> {
+    delete(entity: Entity): Promise<Entity> {
+        let stat: Query.SqlStatement = new Query.SqlStatement();
+        stat.command = "update";
+        stat.collection.value = this.mapping.name;
+
+        let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+        let w2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
+
+        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
+            return this.get(result.rowCount);
+        });
+    }
+
+    get(id: any): Promise<Entity> {
         if (!this.mapping.primaryKeyField)
             throw "No Primary Field Found";
 
@@ -65,11 +115,9 @@ class Queryable {
             stat.columns.push(c);
         }
 
-        stat.where.operator = Query.SqlOperator.Equal;
-        let exps: Array<string> = new Array<string>();
-        exps.push(this.mapping.primaryKeyField.name);
-        exps.push(id.toString());
-        stat.where.exps = exps;
+        let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+        let w2: Query.SqlExpression = new Query.SqlExpression(id.toString());
+        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
 
         return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
             if (!result.rows[0])

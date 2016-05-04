@@ -3,11 +3,11 @@
         "target": "ES6",
         "module": "commonjs",
         "sourceMap": false,
-        "outDir": "./js/"
+        "outDir": "./js/",
+        "allowSyntheticDefaultImports": true
     },
     "exclude": [
-        "typings/browser.d.ts",
-        "typings/browser",
+        "typings",
         "node_modules"
     ]
 }

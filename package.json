@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/InHeap/es6-entity#readme",
   "dependencies": {
-    "harmony-reflect": "*",
     "mysql": "*"
   }
 }
