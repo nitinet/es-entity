@@ -5,6 +5,7 @@ import MysqlHandler from "./handlers/MysqlHandler";
 export class ConnectionConfig {
     name: string = "";
     handler: string = "";
+    driver: any = null;
     hostname: string = "";  // Default Mysql
     username: string = "";
     password: string = "";
@@ -13,6 +14,7 @@ export class ConnectionConfig {
 
 export class ResultSet {
     rowCount: number = 0;
+    id: any = null;
     rows: Array<any> = null;
     error: string = null;
 

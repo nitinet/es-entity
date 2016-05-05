@@ -4,6 +4,7 @@ class ConnectionConfig {
     constructor() {
         this.name = "";
         this.handler = "";
+        this.driver = null;
         this.hostname = ""; // Default Mysql
         this.username = "";
         this.password = "";
@@ -14,6 +15,7 @@ exports.ConnectionConfig = ConnectionConfig;
 class ResultSet {
     constructor() {
         this.rowCount = 0;
+        this.id = null;
         this.rows = null;
         this.error = null;
     }

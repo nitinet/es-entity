@@ -30,7 +30,7 @@ class Queryable {
             stat.values.push(v);
         }
         return this.context.execute(stat).then((result) => {
-            return this.get(result.rowCount);
+            return this.get(result.id);
         });
     }
     update(entity) {
@@ -50,7 +50,7 @@ class Queryable {
         let w2 = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
         return this.context.execute(stat).then((result) => {
-            return this.get(result.rowCount);
+            return this.get(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
         });
     }
     insertOrUpdate(entity) {
@@ -68,9 +68,7 @@ class Queryable {
         let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
         let w2 = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
-        return this.context.execute(stat).then((result) => {
-            return this.get(result.rowCount);
-        });
+        return this.context.execute(stat).then(() => { });
     }
     get(id) {
         if (!this.mapping.primaryKeyField)

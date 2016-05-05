@@ -43,7 +43,7 @@ class Queryable {
         }
 
         return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
-            return this.get(result.rowCount);
+            return this.get(result.id);
         });
     }
 
@@ -67,7 +67,7 @@ class Queryable {
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
 
         return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
-            return this.get(result.rowCount);
+            return this.get(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
         });
     }
 
@@ -79,7 +79,7 @@ class Queryable {
         }
     }
 
-    delete(entity: Entity): Promise<Entity> {
+    delete(entity: Entity): Promise<void> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "update";
         stat.collection.value = this.mapping.name;
@@ -87,10 +87,7 @@ class Queryable {
         let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
         let w2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
-
-        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
-            return this.get(result.rowCount);
-        });
+        return this.context.execute(stat).then(()=>{});
     }
 
     get(id: any): Promise<Entity> {

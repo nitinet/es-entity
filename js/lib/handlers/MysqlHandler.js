@@ -1,11 +1,17 @@
 /// <reference path="./../../../typings/main/ambient/mysql/index.d.ts" />
 "use strict";
-const mysql = require("mysql");
+// import mysql = require("mysql");
 const Handler_1 = require("./../Handler");
 const Query = require("./../Sql/Query");
 class MysqlHandler extends Handler_1.default {
+    constructor(...args) {
+        super(...args);
+        this.defaultConnection = null;
+        this.driver = null;
+    }
     init() {
-        this.defaultConnection = mysql.createConnection({
+        this.driver = this.config.driver;
+        this.defaultConnection = this.driver.createConnection({
             host: this.config.hostname,
             user: this.config.username,
             password: this.config.password,
@@ -13,7 +19,7 @@ class MysqlHandler extends Handler_1.default {
         });
     }
     getConnection() {
-        let connection = mysql.createConnection({
+        let connection = this.driver.createConnection({
             host: this.config.hostname,
             user: this.config.username,
             password: this.config.password,
@@ -41,12 +47,16 @@ class MysqlHandler extends Handler_1.default {
                 connection.query(val, function (err, result, fields) {
                     if (err)
                         reject(err.code);
-                    else if (result.changedRows) {
-                        r.rowCount = result.changedRows;
-                    }
-                    else if (Array.isArray(result)) {
-                        r.rows = result;
-                        r.rowCount = result.length;
+                    else {
+                        if (result.insertId)
+                            r.id = result.insertId;
+                        if (result.changedRows) {
+                            r.rowCount = result.changedRows;
+                        }
+                        else if (Array.isArray(result)) {
+                            r.rows = result;
+                            r.rowCount = result.length;
+                        }
                     }
                     resolve(r);
                 });
