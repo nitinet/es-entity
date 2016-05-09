@@ -1,9 +1,16 @@
 "use strict";
+class ISqlNode {
+    constructor() {
+        this.args = new Array();
+    }
+}
+exports.ISqlNode = ISqlNode;
 /**
  * SqlStatement
  */
-class SqlStatement {
+class SqlStatement extends ISqlNode {
     constructor() {
+        super();
         this.command = "";
         this.columns = new Array();
         this.values = new Array();
@@ -13,107 +20,77 @@ class SqlStatement {
         this.orderBy = new Array();
     }
     eval() {
-        let p = new Promise((resolve) => {
-            let result = "";
-            let promises = new Array();
-            // Column Promises
-            let columnStrArr = new Array();
-            for (let i = 0; i < this.columns.length; i++) {
-                let element = this.columns[i];
-                let p1 = element.eval().then((val) => {
-                    columnStrArr[i] = val;
-                });
-                promises.push(p1);
-            }
-            // Collection Promise
-            let collectionStr = "";
-            let p2 = this.collection.eval().then((val) => {
-                collectionStr = val;
-            });
-            promises.push(p2);
-            // Where promise
-            let whereStr = "";
-            let p3 = this.where.eval().then((val) => {
-                whereStr = val;
-            });
-            promises.push(p3);
-            // Group By Promises
-            let groupByStrArr = new Array();
-            for (let i = 0; i < this.groupBy.length; i++) {
-                let element = this.groupBy[i];
-                let p4 = element.eval().then((val) => {
-                    groupByStrArr[i] = val;
-                });
-                promises.push(p4);
-            }
-            // Order By Promises
-            let orderByStrArr = new Array();
-            for (let i = 0; i < this.orderBy.length; i++) {
-                let element = this.orderBy[i];
-                let p5 = element.eval().then((val) => {
-                    orderByStrArr[i] = val;
-                });
-                promises.push(p5);
-            }
-            // Column Promises
-            let valueStrArr = new Array();
-            for (let i = 0; i < this.values.length; i++) {
-                let element = this.values[i];
-                let p6 = element.eval().then((val) => {
-                    valueStrArr[i] = val;
-                });
-                promises.push(p6);
-            }
-            Promise.all(promises).then(() => {
-                let columnStr = "";
-                for (let i = 0; i < columnStrArr.length; i++) {
-                    let element = columnStrArr[i];
-                    if (i == 0)
-                        columnStr.concat(" " + element);
-                    else
-                        columnStr.concat(", " + element);
-                }
-                let groupByStr = "";
-                for (let i = 0; i < groupByStrArr.length; i++) {
-                    let element = groupByStrArr[i];
-                    if (i == 0)
-                        groupByStr.concat(" " + element);
-                    else
-                        groupByStr.concat(", " + element);
-                }
-                let orderByStr = "";
-                for (let i = 0; i < orderByStrArr.length; i++) {
-                    let element = orderByStrArr[i];
-                    if (i == 0)
-                        orderByStr.concat(" " + element);
-                    else
-                        orderByStr.concat(", " + element);
-                }
-                let valueStr = "";
-                for (let i = 0; i < valueStrArr.length; i++) {
-                    let element = valueStrArr[i];
-                    if (i == 0)
-                        valueStr.concat(" " + element);
-                    else
-                        valueStr.concat(", " + element);
-                }
-                this.command = this.command.toLowerCase();
-                if (this.command === "insert") {
-                    result.concat("insert into ", collectionStr, "(", columnStr, ") values (", valueStr, ")");
-                }
-                else if (this.command == "select") {
-                    result.concat("select", columnStr, " from ", collectionStr, " where ", whereStr, " group by ", groupByStr, " order by ", orderByStr);
-                }
-                else if (this.command === "update") {
-                    result.concat("update ", collectionStr, " set ", columnStr, " where ", whereStr);
-                }
-                else if (this.command === "delete") {
-                    result.concat("delete from ", collectionStr, " where ", whereStr);
-                }
-                resolve(result);
-            });
-        });
-        return p;
+        let result = "";
+        // Column
+        let columnStr = "";
+        for (let i = 0; i < this.columns.length; i++) {
+            let element = this.columns[i];
+            let val = element.eval();
+            if (i == 0)
+                columnStr = columnStr.concat(" " + val);
+            else
+                columnStr = columnStr.concat(", " + val);
+            this.args = this.args.concat(element.args);
+        }
+        // Collection
+        let collectionStr = this.collection.eval();
+        this.args = this.args.concat(this.collection.args);
+        // Where
+        let whereStr = this.where.eval();
+        this.args = this.args.concat(this.where.args);
+        // Group By
+        let groupByStr = "";
+        for (let i = 0; i < this.groupBy.length; i++) {
+            let element = this.groupBy[i];
+            let val = element.eval();
+            if (i == 0)
+                groupByStr = groupByStr.concat(" " + val);
+            else
+                groupByStr = groupByStr.concat(", " + val);
+            this.args = this.args.concat(element.args);
+        }
+        // Order By
+        let orderByStr = "";
+        for (let i = 0; i < this.orderBy.length; i++) {
+            let element = this.orderBy[i];
+            let val = element.eval();
+            if (i == 0)
+                orderByStr = orderByStr.concat(" " + val);
+            else
+                orderByStr = orderByStr.concat(", " + val);
+            this.args = this.args.concat(element.args);
+        }
+        // Values
+        let valueStr = "";
+        for (let i = 0; i < this.values.length; i++) {
+            let element = this.values[i];
+            let val = element.eval();
+            if (i == 0)
+                valueStr = valueStr.concat(" " + val);
+            else
+                valueStr = valueStr.concat(", " + val);
+            this.args = this.args.concat(element.args);
+        }
+        this.command = this.command.toLowerCase();
+        if (this.command === "insert") {
+            result = result.concat("insert into ", collectionStr, "(", columnStr, ") values (", valueStr, ")");
+        }
+        else if (this.command == "select") {
+            result = result.concat("select", columnStr, " from ", collectionStr);
+            if (whereStr)
+                result = result.concat(" where ", whereStr);
+            if (groupByStr)
+                result = result.concat(" group by ", groupByStr);
+            if (orderByStr)
+                result = result.concat(" order by ", orderByStr);
+        }
+        else if (this.command === "update") {
+            result = result.concat("update ", collectionStr, " set ", columnStr, " where ", whereStr);
+        }
+        else if (this.command === "delete") {
+            result = result.concat("delete from ", collectionStr, " where ", whereStr);
+        }
+        return result;
     }
 }
 exports.SqlStatement = SqlStatement;
@@ -121,28 +98,27 @@ exports.SqlStatement = SqlStatement;
  * SqlCollection
  * Used for tables and columns
  */
-class SqlCollection {
+class SqlCollection extends ISqlNode {
     constructor() {
+        super();
         this.value = null;
         this.stat = null;
         this.alias = null;
     }
     eval() {
-        let p = new Promise((resolve, reject) => {
-            if (!this.value) {
-                reject();
-            }
-            else if (this.value)
-                resolve(this.value);
-            else if (this.stat) {
-                resolve("(" + this.stat.eval() + ")");
-            }
-        }).then((val) => {
-            if (this.alias)
-                val = val + " as " + this.alias;
-            return val;
-        });
-        return p;
+        let result = "";
+        if (!this.value) {
+            throw "No Collection Found";
+        }
+        else if (this.value)
+            result = this.value;
+        else if (this.stat) {
+            this.args = this.args.concat(this.stat.args);
+            result = "(" + this.stat.eval() + ")";
+        }
+        if (this.alias)
+            result = result + " as " + this.alias;
+        return result;
     }
 }
 exports.SqlCollection = SqlCollection;
@@ -171,8 +147,9 @@ var SqlOperator = exports.SqlOperator;
 /**
  * SqlExpression
  */
-class SqlExpression {
+class SqlExpression extends ISqlNode {
     constructor(value, operator, ...expressions) {
+        super();
         this.value = null;
         this.exps = null;
         this.operator = null;
@@ -181,108 +158,93 @@ class SqlExpression {
         this.operator = operator;
     }
     eval() {
-        let p = new Promise((resolve) => {
-            if (this.value) {
-                resolve(this.value);
+        if (this.value) {
+            return this.value;
+        }
+        else if (this.exps) {
+            let values = new Array();
+            for (let i = 0; i < this.exps.length; i++) {
+                this.args = this.args.concat(this.exps[i].args);
+                values[i] = this.exps[i].eval();
             }
-            else if (this.exps) {
-                let promises = new Array();
-                let temp = this.exps;
-                for (let i = 0; i < temp.length; i++) {
-                    let p = new Promise((res) => {
-                        if (!temp[i]) {
-                            res();
-                        }
-                        else if (typeof temp[i] === "string")
-                            res(temp[i]);
-                        else if (temp[i] instanceof SqlExpression) {
-                            res(temp[i].eval());
-                        }
-                    });
-                    promises.push(p);
-                }
-                Promise.all(promises).then((values) => {
-                    let val0 = values[0] ? values[0] : "";
-                    let val1 = values[1] ? values[1] : "";
-                    let r = "";
-                    switch (this.operator) {
-                        case SqlOperator.Equal:
-                            r = val0 + " = " + val1;
-                            break;
-                        case SqlOperator.NotEqual:
-                            r = val0 + " != " + val1;
-                            break;
-                        case SqlOperator.LessThan:
-                            r = val0 + " < " + val1;
-                            break;
-                        case SqlOperator.LessThanEqual:
-                            r = val0 + " <= " + val1;
-                            break;
-                        case SqlOperator.GreaterThan:
-                            r = val0 + " > " + val1;
-                            break;
-                        case SqlOperator.GreaterThanEqual:
-                            r = val0 + " >= " + val1;
-                            break;
-                        case SqlOperator.And:
-                            r = "(" + val0;
-                            for (let i = 1; i < values.length; i++)
-                                r = r + ") and (" + values[i];
-                            r = r + ")";
-                            break;
-                        case SqlOperator.Or:
-                            r = "(" + val0;
-                            for (let i = 1; i < values.length; i++)
-                                r = r + ") or (" + values[i];
-                            r = r + ")";
-                            break;
-                        case SqlOperator.Not:
-                            r = " not " + val0;
-                            break;
-                        case SqlOperator.Between:
-                            r = val0 + " between " + val1 + " and " + values[2];
-                            break;
-                        case SqlOperator.Exists:
-                            r = " exists (" + val0 + ")";
-                            break;
-                        case SqlOperator.In:
-                            r = val0 + " in (" + val1 + ")";
-                            break;
-                        case SqlOperator.Like:
-                            r = val0 + " like " + val1;
-                            break;
-                        case SqlOperator.IsNull:
-                            r = val0 + " is null";
-                            break;
-                        case SqlOperator.IsNotNull:
-                            r = val0 + " is not null";
-                            break;
-                        case SqlOperator.Asc:
-                            r = val0 + " asc";
-                            break;
-                        case SqlOperator.Desc:
-                            r = val0 + " desc";
-                            break;
-                        case SqlOperator.Limit:
-                            {
-                                r = "limit " + val0 + (val1 ? "," + val1 : "");
-                            }
-                            break;
-                        case SqlOperator.Comma:
-                            {
-                                for (let i = 0; i < values.length; i++)
-                                    r.concat(r, values[i], ", ");
-                                r = r.slice(0, r.length - 2);
-                            }
-                            break;
-                        default:
-                            break;
+            let val0 = values[0] ? values[0] : "";
+            let val1 = values[1] ? values[1] : "";
+            let r = "";
+            switch (this.operator) {
+                case SqlOperator.Equal:
+                    r = val0 + " = " + val1;
+                    break;
+                case SqlOperator.NotEqual:
+                    r = val0 + " != " + val1;
+                    break;
+                case SqlOperator.LessThan:
+                    r = val0 + " < " + val1;
+                    break;
+                case SqlOperator.LessThanEqual:
+                    r = val0 + " <= " + val1;
+                    break;
+                case SqlOperator.GreaterThan:
+                    r = val0 + " > " + val1;
+                    break;
+                case SqlOperator.GreaterThanEqual:
+                    r = val0 + " >= " + val1;
+                    break;
+                case SqlOperator.And:
+                    r = "(" + val0;
+                    for (let i = 1; i < values.length; i++)
+                        r = r + ") and (" + values[i];
+                    r = r + ")";
+                    break;
+                case SqlOperator.Or:
+                    r = "(" + val0;
+                    for (let i = 1; i < values.length; i++)
+                        r = r + ") or (" + values[i];
+                    r = r + ")";
+                    break;
+                case SqlOperator.Not:
+                    r = " not " + val0;
+                    break;
+                case SqlOperator.Between:
+                    r = val0 + " between " + val1 + " and " + values[2];
+                    break;
+                case SqlOperator.Exists:
+                    r = " exists (" + val0 + ")";
+                    break;
+                case SqlOperator.In:
+                    r = val0 + " in (" + val1 + ")";
+                    break;
+                case SqlOperator.Like:
+                    r = val0 + " like " + val1;
+                    break;
+                case SqlOperator.IsNull:
+                    r = val0 + " is null";
+                    break;
+                case SqlOperator.IsNotNull:
+                    r = val0 + " is not null";
+                    break;
+                case SqlOperator.Asc:
+                    r = val0 + " asc";
+                    break;
+                case SqlOperator.Desc:
+                    r = val0 + " desc";
+                    break;
+                case SqlOperator.Limit:
+                    {
+                        r = "limit " + val0 + (val1 ? "," + val1 : "");
                     }
-                    resolve(r);
-                });
+                    break;
+                case SqlOperator.Comma:
+                    {
+                        for (let i = 0; i < values.length; i++)
+                            r = r.concat(r, values[i], ", ");
+                        r = r.slice(0, r.length - 2);
+                    }
+                    break;
+                default:
+                    break;
             }
-        });
-        return p;
+            return r;
+        }
     }
 }
 exports.SqlExpression = SqlExpression;

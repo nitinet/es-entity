@@ -1,7 +1,5 @@
 import * as Query from "./Sql/Query";
 
-import MysqlHandler from "./handlers/MysqlHandler";
-
 export class ConnectionConfig {
     name: string = "";
     handler: string = "";
@@ -23,15 +21,6 @@ export class ResultSet {
 }
 
 abstract class Handler {
-    static getHandler(config: ConnectionConfig): Handler {
-        let handler: Handler = null;
-        if (config.handler.toLowerCase() === "mysql")
-            handler = new MysqlHandler();
-        handler.setconfig(config);
-        handler.init();
-        return handler;
-    }
-
     public config: ConnectionConfig;
 
     setconfig(config: ConnectionConfig) {

@@ -2,8 +2,8 @@
 const es = require("./../../index");
 const Employee_1 = require("./Employee");
 class EmpContext extends es.Context {
-    constructor(config, mappingPath) {
-        super(config, mappingPath);
+    constructor() {
+        super();
         this.employees = new es.Queryable(Employee_1.default);
     }
 }

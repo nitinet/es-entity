@@ -1,5 +1,4 @@
 "use strict";
-const MysqlHandler_1 = require("./handlers/MysqlHandler");
 class ConnectionConfig {
     constructor() {
         this.name = "";
@@ -22,14 +21,6 @@ class ResultSet {
 }
 exports.ResultSet = ResultSet;
 class Handler {
-    static getHandler(config) {
-        let handler = null;
-        if (config.handler.toLowerCase() === "mysql")
-            handler = new MysqlHandler_1.default();
-        handler.setconfig(config);
-        handler.init();
-        return handler;
-    }
     setconfig(config) {
         this.config = config;
     }

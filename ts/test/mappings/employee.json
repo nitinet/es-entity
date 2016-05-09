@@ -15,7 +15,7 @@
         },
         {
             "name": "description",
-            "fieldName": "Emp_Description",
+            "fieldName": "description",
             "type": "string"
         }
     ]

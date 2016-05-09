@@ -21,8 +21,8 @@ class EntityMapping {
         this.cacheEnabled = false;
         this.fields = new Array();
         Object.assign(this, data);
-        for (var i = 0; i < this.fields.length; i++) {
-            var element = this.fields[i];
+        for (let i = 0; i < this.fields.length; i++) {
+            let element = this.fields[i];
             if (element.fieldName === this.primaryKey) {
                 this.primaryKeyField = element;
             }

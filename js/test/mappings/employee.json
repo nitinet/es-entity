@@ -1,7 +1,7 @@
 {
     "name": "employee",
     "entityName": "employee",
-    "primaryKeyField": "id",
+    "primaryKey": "id",
     "fields": [
         {
             "name": "id",
@@ -15,7 +15,7 @@
         },
         {
             "name": "description",
-            "fieldName": "Emp_Description",
+            "fieldName": "description",
             "type": "string"
         }
     ]

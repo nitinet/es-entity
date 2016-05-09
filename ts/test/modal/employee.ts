@@ -5,9 +5,9 @@ class Employee extends es.Entity {
         super();
     }
 
-    id: es.Field;
-    name: es.Field;
-    description: es.Field;
+    id: number;
+    name: string;
+    description: string;
 }
 
 export default Employee;

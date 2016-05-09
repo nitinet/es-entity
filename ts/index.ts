@@ -2,10 +2,11 @@
 
 import Entity from "./lib/Entity";
 import Context from "./lib/Context";
-import Field from "./lib/Field";
 import Queryable from "./lib/Queryable";
+import Handler, {ConnectionConfig, ResultSet} from "./lib/Handler";
 
 export {Entity};
 export {Context};
-export {Field};
 export {Queryable};
+export {ConnectionConfig};
+export {ResultSet};

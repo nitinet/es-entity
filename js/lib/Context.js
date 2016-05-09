@@ -1,17 +1,25 @@
 /// <reference path="./../../typings/main/ambient/node/index.d.ts" />
 "use strict";
 const Queryable_1 = require("./Queryable");
-const Handler_1 = require("./Handler");
+const MysqlHandler_1 = require("./handlers/MysqlHandler");
+function getHandler(config) {
+    let handler = null;
+    if (config.handler.toLowerCase() === "mysql")
+        handler = new MysqlHandler_1.default();
+    handler.setconfig(config);
+    handler.init();
+    return handler;
+}
+exports.getHandler = getHandler;
 class Context {
-    constructor(config, mappingPath) {
-        this.mappingPath = mappingPath;
-        this.setConfig(config);
-        this.bind();
+    constructor() {
     }
     setConfig(config) {
-        this.handler = Handler_1.default.getHandler(config);
+        this.handler = getHandler(config);
     }
-    bind() {
+    bind(config, mappingPath) {
+        this.mappingPath = mappingPath;
+        this.setConfig(config);
         let keys = Reflect.ownKeys(this);
         keys.forEach(key => {
             let e = Reflect.get(this, key);

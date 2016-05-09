@@ -9,12 +9,12 @@ import * as Mapping from "./Mapping";
 import * as Query from "./Sql/Query";
 import * as Handler from "./Handler";
 
-class Queryable {
-    entityType: IEntityType<Entity>;
+class Queryable<T extends Entity> {
+    entityType: IEntityType<T>;
     context: Context;
     mapping: Mapping.EntityMapping;
 
-    constructor(entityType: IEntityType<Entity>) {
+    constructor(entityType: IEntityType<T>) {
         this.entityType = entityType;
     }
 
@@ -22,40 +22,58 @@ class Queryable {
         this.context = context;
         let entityName: string = this.entityType.name;
         let filePath: string = path.join(context.mappingPath, entityName + ".json");
-        fs.readFile(filePath, "utf-8", (err, data) => {
-            this.mapping = new Mapping.EntityMapping(JSON.parse(data));
-        });
+        let data = fs.readFileSync(filePath, "utf-8");
+        this.mapping = new Mapping.EntityMapping(JSON.parse(data));
     }
 
-    insert(entity: Entity): Promise<Entity> {
+    getEntity(): T {
+        let a = new this.entityType();
+        this.mapping.fields.forEach(k => {
+            Object.defineProperty(a, k.fieldName, {
+                get:function () {
+                    return this._valMap[k.fieldName];
+                },
+                set: function (val) {
+                    this._updateMap[k.fieldName] = true;
+                    this._valMap[k.fieldName] = val;
+                }
+            });
+        });
+        return a;
+    }
+
+    insert(entity: T): Promise<T> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "insert";
         stat.collection.value = this.mapping.name;
-        for (var i = 0; i < this.mapping.fields.length; i++) {
-            var element = this.mapping.fields[i];
-            let c: Query.SqlCollection = new Query.SqlCollection();
-            c.value = element.name;
-            stat.columns.push(c);
+        for (let i = 0; i < this.mapping.fields.length; i++) {
+            let element = this.mapping.fields[i];
+            if (entity.isUpdated(element.fieldName)) {
+                let c: Query.SqlCollection = new Query.SqlCollection();
+                c.value = element.name;
+                stat.columns.push(c);
 
-            let v: Query.SqlExpression = new Query.SqlExpression();
-            v.exps = Reflect.get(entity, element.fieldName);
-            stat.values.push(v);
+                let v: Query.SqlExpression = new Query.SqlExpression("?");
+                v.args.push(entity.getValue(element.fieldName));
+                stat.values.push(v);
+            }
         }
 
-        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
+        return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
             return this.get(result.id);
         });
     }
 
-    update(entity: Entity): Promise<Entity> {
+    update(entity: T): Promise<T> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "update";
         stat.collection.value = this.mapping.name;
-        for (var i = 0; i < this.mapping.fields.length; i++) {
-            var element = this.mapping.fields[i];
-            if (element != this.mapping.primaryKeyField) {
+        for (let i = 0; i < this.mapping.fields.length; i++) {
+            let element = this.mapping.fields[i];
+            if (entity.isUpdated(element.fieldName) && element != this.mapping.primaryKeyField) {
                 let c1: Query.SqlExpression = new Query.SqlExpression(element.name);
-                let c2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, element.fieldName));
+                let c2: Query.SqlExpression = new Query.SqlExpression("?");
+                c2.args.push(entity.getValue(element.fieldName));
 
                 let c: Query.SqlExpression = new Query.SqlExpression(null, Query.SqlOperator.Equal, c1, c2);
                 stat.columns.push(c);
@@ -63,34 +81,39 @@ class Queryable {
         }
 
         let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-        let w2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        let w2: Query.SqlExpression = new Query.SqlExpression("?");
+        w2.args.push(entity.getValue(this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
 
-        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
-            return this.get(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
+            if (result.error)
+                throw result.error;
+            else
+                return this.get(entity.getValue(this.mapping.primaryKeyField.fieldName));
         });
     }
 
-    insertOrUpdate(entity: Entity): Promise<Entity> {
-        if (Reflect.get(entity, this.mapping.primaryKeyField.fieldName)) {
+    insertOrUpdate(entity: T): Promise<T> {
+        if (entity.getValue(this.mapping.primaryKeyField.fieldName)) {
             return this.update(entity);
         } else {
             return this.insert(entity);
         }
     }
 
-    delete(entity: Entity): Promise<void> {
+    delete(entity: T): Promise<void> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "update";
         stat.collection.value = this.mapping.name;
 
         let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-        let w2: Query.SqlExpression = new Query.SqlExpression(Reflect.get(entity, this.mapping.primaryKeyField.fieldName));
+        let w2: Query.SqlExpression = new Query.SqlExpression("?");
+        w2.args.push(entity.getValue(this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
-        return this.context.execute(stat).then(()=>{});
+        return this.context.execute(stat).then(() => { });
     }
 
-    get(id: any): Promise<Entity> {
+    get(id: any): Promise<T> {
         if (!this.mapping.primaryKeyField)
             throw "No Primary Field Found";
 
@@ -112,18 +135,22 @@ class Queryable {
             stat.columns.push(c);
         }
 
-        let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-        let w2: Query.SqlExpression = new Query.SqlExpression(id.toString());
+        let w1: Query.SqlExpression = new Query.SqlExpression(alias + "." + this.mapping.primaryKeyField.name);
+        let w2: Query.SqlExpression = new Query.SqlExpression("?");
+        w2.args.push(id);
         stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
 
-        return this.context.execute(stat).then<Entity>((result: Handler.ResultSet) => {
+        return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
             if (!result.rows[0])
                 throw "No Result Found";
             else if (result.rowCount != 1)
                 throw "Non Unique Result";
             else {
-                let a = new this.entityType();
-                Object.assign(a, result.rows[0]);
+                let a = this.getEntity();
+                for (var i = 0; i < this.mapping.fields.length; i++) {
+                    var r = this.mapping.fields[i];
+                    a.setValue(r.fieldName, result.rows[0][r.fieldName]);
+                }
                 return a;
             }
         });
