@@ -8,10 +8,10 @@ class Entity {
         return this._updateMap.get(key) ? true : false;
     }
     getValue(key) {
-        return Reflect.get(this, key);
+        return this._valMap.get(key);
     }
     setValue(key, value) {
-        this._valMap[key] = value;
+        this._valMap.set(key, value);
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

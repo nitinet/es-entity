@@ -46,6 +46,7 @@ class MysqlHandler extends Handler {
         let p = new Promise<ResultSet>((resolve, reject) => {
             let r: ResultSet = new ResultSet();
             Promise.resolve<string>(q).then((val) => {
+                // console.log("query:" + val);
                 connection.query(val, args, function (err, result) {
                     if (err)
                         reject(err.code);

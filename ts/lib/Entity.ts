@@ -14,11 +14,11 @@ class Entity {
     }
 
     getValue(key: string): any {
-        return Reflect.get(this, key);
+        return this._valMap.get(key);
     }
 
     setValue(key: string, value: any): void {
-        this._valMap[key] = value;
+        this._valMap.set(key, value);
     }
 }
 

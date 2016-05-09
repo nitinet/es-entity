@@ -20,11 +20,11 @@ class Queryable {
         this.mapping.fields.forEach(k => {
             Object.defineProperty(a, k.fieldName, {
                 get: function () {
-                    return this._valMap[k.fieldName];
+                    return this._valMap.get(k.fieldName);
                 },
                 set: function (val) {
-                    this._updateMap[k.fieldName] = true;
-                    this._valMap[k.fieldName] = val;
+                    this._updateMap.set(k.fieldName, true);
+                    this._valMap.set(k.fieldName, val);
                 }
             });
         });
@@ -84,7 +84,7 @@ class Queryable {
     }
     delete(entity) {
         let stat = new Query.SqlStatement();
-        stat.command = "update";
+        stat.command = "delete";
         stat.collection.value = this.mapping.name;
         let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
         let w2 = new Query.SqlExpression("?");

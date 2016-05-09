@@ -30,12 +30,12 @@ class Queryable<T extends Entity> {
         let a = new this.entityType();
         this.mapping.fields.forEach(k => {
             Object.defineProperty(a, k.fieldName, {
-                get:function () {
-                    return this._valMap[k.fieldName];
+                get: function () {
+                    return this._valMap.get(k.fieldName);
                 },
                 set: function (val) {
-                    this._updateMap[k.fieldName] = true;
-                    this._valMap[k.fieldName] = val;
+                    this._updateMap.set(k.fieldName, true);
+                    this._valMap.set(k.fieldName, val);
                 }
             });
         });
@@ -103,7 +103,7 @@ class Queryable<T extends Entity> {
 
     delete(entity: T): Promise<void> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
-        stat.command = "update";
+        stat.command = "delete";
         stat.collection.value = this.mapping.name;
 
         let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
