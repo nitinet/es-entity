@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/InHeap/es6-entity#readme",
   "dependencies": {
-    "mysql": "*"
+    "mysql": "*",
+    "operator-overloading": "*",
+    "reflect-metadata": "*"
   }
 }

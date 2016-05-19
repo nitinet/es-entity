@@ -3,7 +3,7 @@
 import Queryable from "./Queryable";
 import Handler, {ConnectionConfig, ResultSet} from "./Handler";
 import MysqlHandler from "./handlers/MysqlHandler";
-import * as Query from "./Sql/Query";
+import * as Query from "./Query";
 
 export function getHandler(config: ConnectionConfig): Handler {
     let handler: Handler = null;

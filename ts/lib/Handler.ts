@@ -1,4 +1,4 @@
-import * as Query from "./Sql/Query";
+import * as Query from "./Query";
 
 export class ConnectionConfig {
     name: string = "";

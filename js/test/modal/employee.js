@@ -1,8 +1,10 @@
 "use strict";
 const es = require("./../../index");
-class Employee extends es.Entity {
+class Employee {
     constructor() {
-        super();
+        this.id = new es.Field();
+        this.name = new es.Field();
+        this.description = new es.Field();
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

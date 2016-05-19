@@ -2,7 +2,7 @@
 "use strict";
 const mysql = require("mysql");
 const Handler_1 = require("./../Handler");
-const Query = require("./../Sql/Query");
+const Query = require("./../Query");
 class MysqlHandler extends Handler_1.default {
     constructor(...args) {
         super(...args);

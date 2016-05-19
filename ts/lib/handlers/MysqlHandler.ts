@@ -3,7 +3,7 @@
 import mysql = require("mysql");
 
 import Handler, {ResultSet} from "./../Handler";
-import * as Query from "./../Sql/Query";
+import * as Query from "./../Query";
 
 class MysqlHandler extends Handler {
     defaultConnection: mysql.IConnection = null;

@@ -1,25 +1,137 @@
-export interface IEntityType<T extends Entity> {
+import * as Query from "./Query";
+
+export interface IEntityType<T> {
     new (): T;
 }
 
-class Entity {
-    protected _updateMap: Map<string, boolean> = new Map<string, boolean>();
-    protected _valMap: Map<string, any> = new Map<string, any>();
+export class Field {
+    _name: string = "";
+    _value: any = null;
+    _updated: boolean = false;
 
     constructor() {
     }
 
-    isUpdated(key: string): boolean {
-        return this._updateMap.get(key) ? true : false;
+    get val() {
+        return this._value;
     }
 
-    getValue(key: string): any {
-        return this._valMap.get(key);
+    set val(value: any) {
+        this._updated = true;
+        this._value = value;
     }
 
-    setValue(key: string, value: any): void {
-        this._valMap.set(key, value);
+    _createExpr(leftOperand: any): Query.SqlExpression[] {
+        let w1: Query.SqlExpression = new Query.SqlExpression(this._name);
+        let w2: Query.SqlExpression = new Query.SqlExpression("?");
+        w2.args.push(leftOperand);
+
+        let res: Query.SqlExpression[] = new Array(w1, w2);
+        return res;
+    }
+
+    __doubleEqual(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, res[0], res[1]);
+        return expr;
+    }
+
+    __notEqual(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.NotEqual, res[0], res[1]);
+        return expr;
+    }
+
+    __lessThan(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.GreaterThan, res[0], res[1]);
+        return expr;
+    }
+
+    __greaterThan(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.LessThan, res[0], res[1]);
+        return expr;
+    }
+
+    __lessThanEqual(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, res[0], res[1]);
+        return expr;
+    }
+
+    __greaterThanEqual(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.LessThanEqual, res[0], res[1]);
+        return expr;
+    }
+
+    __in(operand: any): Query.SqlExpression {
+        let res: Query.SqlExpression[] = this._createExpr(operand);
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.In, res[0], res[1]);
+        return expr;
+    }
+
+}
+
+class ValOperators {
+    __doubleEqual(leftOperand: any): Query.SqlExpression | boolean {
+        if (leftOperand instanceof Field) {
+            return (<Field>leftOperand).__doubleEqual(this);
+        } else {
+            return leftOperand == this;
+        }
+    }
+
+    __notEqual(leftOperand: any): Query.SqlExpression | boolean {
+        if (leftOperand instanceof Field) {
+            return (<Field>leftOperand).__notEqual(this);
+        } else {
+            return leftOperand != this;
+        }
+    }
+
+    __lessThan(leftOperand: any): Query.SqlExpression | boolean {
+        if (leftOperand instanceof Field) {
+            return (<Field>leftOperand).__greaterThan(this);
+        } else {
+            return leftOperand < this;
+        }
+    }
+
+    __greaterThan(leftOperand: any): Query.SqlExpression | boolean {
+        if (leftOperand instanceof Field) {
+            return (<Field>leftOperand).__lessThan(this);
+        } else {
+            return leftOperand > this;
+        }
+    }
+
+    __lessThanEqual(leftOperand: any): Query.SqlExpression | boolean {
+        if (leftOperand instanceof Field) {
+            return (<Field>leftOperand).__greaterThanEqual(this);
+        } else {
+            return leftOperand == this;
+        }
+    }
+
+    __greaterThanEqual(leftOperand: any): Query.SqlExpression | boolean {
+        if (leftOperand instanceof Field) {
+            return (<Field>leftOperand).__lessThanEqual(this);
+        } else {
+            return leftOperand == this;
+        }
     }
 }
 
-export default Entity;
+function applyMixins(derivedCtor: any, ...baseCtors: any[]) {
+    baseCtors.forEach(baseCtor => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+            derivedCtor.prototype[name] = baseCtor.prototype[name];
+        });
+    });
+}
+
+applyMixins(String, ValOperators);
+applyMixins(Number, ValOperators);
+applyMixins(Boolean, ValOperators);

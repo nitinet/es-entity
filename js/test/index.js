@@ -13,20 +13,26 @@ var context = new EmpContext_1.default();
 context.bind(config, __dirname + "/mappings");
 let p = context.employees.get(2);
 p.then((v) => {
-    console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
-    v.description = "test update 1";
+    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+    v.description.val = "test update 1";
     return context.employees.update(v);
 }).then((v) => {
-    console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
+    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
     console.log("updated");
     let a = context.employees.getEntity();
-    a.name = "name 2";
-    a.description = "desc insert 2";
+    a.name.val = "name 2";
+    a.description.val = "desc insert 2";
     return context.employees.insert(a);
 }).then((v) => {
     console.log("inserted");
-    console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
+    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
     context.employees.delete(v);
 }).then(() => {
     console.log("deleted");
+}).then(() => {
+    return context.employees.where(function (a, id) {
+        return id == a.id;
+    }, 1);
+}).then((v) => {
+    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
 });

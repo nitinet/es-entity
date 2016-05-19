@@ -1,18 +1,119 @@
 "use strict";
-class Entity {
+const Query = require("./Query");
+class Field {
     constructor() {
-        this._updateMap = new Map();
-        this._valMap = new Map();
+        this._name = "";
+        this._value = null;
+        this._updated = false;
     }
-    isUpdated(key) {
-        return this._updateMap.get(key) ? true : false;
+    get val() {
+        return this._value;
     }
-    getValue(key) {
-        return this._valMap.get(key);
+    set val(value) {
+        this._updated = true;
+        this._value = value;
     }
-    setValue(key, value) {
-        this._valMap.set(key, value);
+    _createExpr(leftOperand) {
+        let w1 = new Query.SqlExpression(this._name);
+        let w2 = new Query.SqlExpression("?");
+        w2.args.push(leftOperand);
+        let res = new Array(w1, w2);
+        return res;
+    }
+    __doubleEqual(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.Equal, res[0], res[1]);
+        return expr;
+    }
+    __notEqual(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.NotEqual, res[0], res[1]);
+        return expr;
+    }
+    __lessThan(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.GreaterThan, res[0], res[1]);
+        return expr;
+    }
+    __greaterThan(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.LessThan, res[0], res[1]);
+        return expr;
+    }
+    __lessThanEqual(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, res[0], res[1]);
+        return expr;
+    }
+    __greaterThanEqual(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.LessThanEqual, res[0], res[1]);
+        return expr;
+    }
+    __in(operand) {
+        let res = this._createExpr(operand);
+        let expr = new Query.SqlExpression(null, Query.Operator.In, res[0], res[1]);
+        return expr;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Entity;
+exports.Field = Field;
+class ValOperators {
+    __doubleEqual(leftOperand) {
+        if (leftOperand instanceof Field) {
+            return leftOperand.__doubleEqual(this);
+        }
+        else {
+            return leftOperand == this;
+        }
+    }
+    __notEqual(leftOperand) {
+        if (leftOperand instanceof Field) {
+            return leftOperand.__notEqual(this);
+        }
+        else {
+            return leftOperand != this;
+        }
+    }
+    __lessThan(leftOperand) {
+        if (leftOperand instanceof Field) {
+            return leftOperand.__greaterThan(this);
+        }
+        else {
+            return leftOperand < this;
+        }
+    }
+    __greaterThan(leftOperand) {
+        if (leftOperand instanceof Field) {
+            return leftOperand.__lessThan(this);
+        }
+        else {
+            return leftOperand > this;
+        }
+    }
+    __lessThanEqual(leftOperand) {
+        if (leftOperand instanceof Field) {
+            return leftOperand.__greaterThanEqual(this);
+        }
+        else {
+            return leftOperand == this;
+        }
+    }
+    __greaterThanEqual(leftOperand) {
+        if (leftOperand instanceof Field) {
+            return leftOperand.__lessThanEqual(this);
+        }
+        else {
+            return leftOperand == this;
+        }
+    }
+}
+function applyMixins(derivedCtor, ...baseCtors) {
+    baseCtors.forEach(baseCtor => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+            derivedCtor.prototype[name] = baseCtor.prototype[name];
+        });
+    });
+}
+applyMixins(String, ValOperators);
+applyMixins(Number, ValOperators);
+applyMixins(Boolean, ValOperators);

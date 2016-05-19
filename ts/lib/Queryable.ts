@@ -2,14 +2,20 @@
 
 import fs = require("fs");
 import path = require("path");
+import "reflect-metadata";
+var overload = require("operator-overloading");
 
 import Context from "./Context";
-import Entity, {IEntityType} from "./Entity";
+import Entity, {IEntityType, Field} from "./Entity";
 import * as Mapping from "./Mapping";
-import * as Query from "./Sql/Query";
+import * as Query from "./Query";
 import * as Handler from "./Handler";
 
-class Queryable<T extends Entity> {
+interface whereFunc<T> {
+    (source: T, ...args: any[]): boolean;
+}
+
+class Queryable<T> {
     entityType: IEntityType<T>;
     context: Context;
     mapping: Mapping.EntityMapping;
@@ -26,20 +32,29 @@ class Queryable<T extends Entity> {
         this.mapping = new Mapping.EntityMapping(JSON.parse(data));
     }
 
-    getEntity(): T {
+    getEntity(alias?: string): T {
         let a = new this.entityType();
+
         this.mapping.fields.forEach(k => {
-            Object.defineProperty(a, k.fieldName, {
-                get: function () {
-                    return this._valMap.get(k.fieldName);
-                },
-                set: function (val) {
-                    this._updateMap.set(k.fieldName, true);
-                    this._valMap.set(k.fieldName, val);
-                }
-            });
+            let q: any = a[k.fieldName];
+            if (q instanceof Field) {
+                let name = alias ? alias + "." + k.name : k.name;
+                (<Field>q)._name = name;
+            }
         });
         return a;
+    }
+
+    isUpdated(obj: any, key: string): boolean {
+        return (<Field>obj[key])._updated ? true : false;
+    }
+
+    setValue(obj: any, key: string, value: any): void {
+        (<Field>obj[key])._value = value;
+    }
+
+    getValue(obj: any, key: string): any {
+        return (<Field>obj[key]).val;
     }
 
     insert(entity: T): Promise<T> {
@@ -48,13 +63,13 @@ class Queryable<T extends Entity> {
         stat.collection.value = this.mapping.name;
         for (let i = 0; i < this.mapping.fields.length; i++) {
             let element = this.mapping.fields[i];
-            if (entity.isUpdated(element.fieldName)) {
+            if (this.isUpdated(entity, element.fieldName)) {
                 let c: Query.SqlCollection = new Query.SqlCollection();
                 c.value = element.name;
                 stat.columns.push(c);
 
                 let v: Query.SqlExpression = new Query.SqlExpression("?");
-                v.args.push(entity.getValue(element.fieldName));
+                v.args.push(this.getValue(entity, element.fieldName));
                 stat.values.push(v);
             }
         }
@@ -70,31 +85,31 @@ class Queryable<T extends Entity> {
         stat.collection.value = this.mapping.name;
         for (let i = 0; i < this.mapping.fields.length; i++) {
             let element = this.mapping.fields[i];
-            if (entity.isUpdated(element.fieldName) && element != this.mapping.primaryKeyField) {
+            if (this.isUpdated(entity, element.fieldName) && element != this.mapping.primaryKeyField) {
                 let c1: Query.SqlExpression = new Query.SqlExpression(element.name);
                 let c2: Query.SqlExpression = new Query.SqlExpression("?");
-                c2.args.push(entity.getValue(element.fieldName));
+                c2.args.push(this.getValue(entity, element.fieldName));
 
-                let c: Query.SqlExpression = new Query.SqlExpression(null, Query.SqlOperator.Equal, c1, c2);
+                let c: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
                 stat.columns.push(c);
             }
         }
 
         let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
         let w2: Query.SqlExpression = new Query.SqlExpression("?");
-        w2.args.push(entity.getValue(this.mapping.primaryKeyField.fieldName));
-        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
+        w2.args.push(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+        stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 
         return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
             if (result.error)
                 throw result.error;
             else
-                return this.get(entity.getValue(this.mapping.primaryKeyField.fieldName));
+                return this.get(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
         });
     }
 
     insertOrUpdate(entity: T): Promise<T> {
-        if (entity.getValue(this.mapping.primaryKeyField.fieldName)) {
+        if (this.getValue(entity, this.mapping.primaryKeyField.fieldName)) {
             return this.update(entity);
         } else {
             return this.insert(entity);
@@ -108,8 +123,8 @@ class Queryable<T extends Entity> {
 
         let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
         let w2: Query.SqlExpression = new Query.SqlExpression("?");
-        w2.args.push(entity.getValue(this.mapping.primaryKeyField.fieldName));
-        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
+        w2.args.push(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+        stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
         return this.context.execute(stat).then(() => { });
     }
 
@@ -120,12 +135,18 @@ class Queryable<T extends Entity> {
         if (!id)
             throw "Id parameter cannot be null";
 
+        return this.where(function (a: any, id) {
+            return id == a.id;
+        }, id);
+    }
+
+    where(func: whereFunc<T>, ...args: any[]): Promise<T> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "select";
 
         let alias = this.mapping.name.charAt(0);
         stat.collection.value = this.mapping.name;
-        stat.collection.alias = alias
+        stat.collection.alias = alias;
 
         for (let i = 0; i < this.mapping.fields.length; i++) {
             let element = this.mapping.fields[i];
@@ -135,25 +156,27 @@ class Queryable<T extends Entity> {
             stat.columns.push(c);
         }
 
-        let w1: Query.SqlExpression = new Query.SqlExpression(alias + "." + this.mapping.primaryKeyField.name);
-        let w2: Query.SqlExpression = new Query.SqlExpression("?");
-        w2.args.push(id);
-        stat.where = new Query.SqlExpression(null, Query.SqlOperator.Equal, w1, w2);
-
-        return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
-            if (!result.rows[0])
-                throw "No Result Found";
-            else if (result.rowCount != 1)
-                throw "Non Unique Result";
-            else {
-                let a = this.getEntity();
-                for (var i = 0; i < this.mapping.fields.length; i++) {
-                    var r = this.mapping.fields[i];
-                    a.setValue(r.fieldName, result.rows[0][r.fieldName]);
+        let a = this.getEntity(alias);
+        let res = overload(func)(a, args);
+        if (res instanceof Query.SqlExpression) {
+            stat.where = res;
+            return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
+                if (!result.rows[0])
+                    throw "No Result Found";
+                else if (result.rowCount != 1)
+                    throw "Non Unique Result";
+                else {
+                    let a = this.getEntity();
+                    for (var i = 0; i < this.mapping.fields.length; i++) {
+                        var r = this.mapping.fields[i];
+                        this.setValue(a, r.fieldName, result.rows[0][r.fieldName]);
+                    }
+                    return a;
                 }
-                return a;
-            }
-        });
+            });
+        } else {
+            null;
+        }
     }
 
 }

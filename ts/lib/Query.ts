@@ -1,28 +1,51 @@
-"use strict";
-class ISqlNode {
-    constructor() {
-        this.args = new Array();
-    }
+export enum Operator {
+    Equal = 1,
+    NotEqual,
+    LessThan,
+    LessThanEqual,
+    GreaterThan,
+    GreaterThanEqual,
+    And,
+    Or,
+    Not,
+    Between,
+    Exists,
+    In,
+    Like,
+    IsNull,
+    IsNotNull,
+    Asc,
+    Desc,
+    Limit,
+    Comma
 }
-exports.ISqlNode = ISqlNode;
+
+export abstract class ISqlNode {
+    args: Array<any> = new Array<any>();
+    abstract eval(): string;
+}
+
 /**
  * SqlStatement
  */
-class SqlStatement extends ISqlNode {
+export class SqlStatement extends ISqlNode {
+    command: string = "";
+    columns: Array<ISqlNode> = new Array<ISqlNode>();
+    values: Array<SqlExpression> = new Array<SqlExpression>();
+    collection: SqlCollection = new SqlCollection();
+    where: SqlExpression = new SqlExpression();
+    groupBy: Array<SqlExpression> = new Array<SqlExpression>();
+    orderBy: Array<SqlExpression> = new Array<SqlExpression>();
+
     constructor() {
         super();
-        this.command = "";
-        this.columns = new Array();
-        this.values = new Array();
-        this.collection = new SqlCollection();
-        this.where = new SqlExpression();
-        this.groupBy = new Array();
-        this.orderBy = new Array();
     }
-    eval() {
-        let result = "";
+
+    eval(): string {
+        let result: string = "";
+
         // Column
-        let columnStr = "";
+        let columnStr: string = "";
         for (let i = 0; i < this.columns.length; i++) {
             let element = this.columns[i];
             let val = element.eval();
@@ -32,14 +55,17 @@ class SqlStatement extends ISqlNode {
                 columnStr = columnStr.concat(", " + val);
             this.args = this.args.concat(element.args);
         }
+
         // Collection
-        let collectionStr = this.collection.eval();
+        let collectionStr: string = this.collection.eval();
         this.args = this.args.concat(this.collection.args);
+
         // Where
-        let whereStr = this.where.eval();
+        let whereStr: string = this.where.eval();
         this.args = this.args.concat(this.where.args);
+
         // Group By
-        let groupByStr = "";
+        let groupByStr: string = "";
         for (let i = 0; i < this.groupBy.length; i++) {
             let element = this.groupBy[i];
             let val = element.eval();
@@ -49,8 +75,9 @@ class SqlStatement extends ISqlNode {
                 groupByStr = groupByStr.concat(", " + val);
             this.args = this.args.concat(element.args);
         }
+
         // Order By
-        let orderByStr = "";
+        let orderByStr: string = "";
         for (let i = 0; i < this.orderBy.length; i++) {
             let element = this.orderBy[i];
             let val = element.eval();
@@ -60,8 +87,9 @@ class SqlStatement extends ISqlNode {
                 orderByStr = orderByStr.concat(", " + val);
             this.args = this.args.concat(element.args);
         }
+
         // Values
-        let valueStr = "";
+        let valueStr: string = "";
         for (let i = 0; i < this.values.length; i++) {
             let element = this.values[i];
             let val = element.eval();
@@ -71,11 +99,11 @@ class SqlStatement extends ISqlNode {
                 valueStr = valueStr.concat(", " + val);
             this.args = this.args.concat(element.args);
         }
+
         this.command = this.command.toLowerCase();
         if (this.command === "insert") {
             result = result.concat("insert into ", collectionStr, "(", columnStr, ") values (", valueStr, ")");
-        }
-        else if (this.command == "select") {
+        } else if (this.command == "select") {
             result = result.concat("select", columnStr, " from ", collectionStr);
             if (whereStr)
                 result = result.concat(" where ", whereStr);
@@ -83,34 +111,33 @@ class SqlStatement extends ISqlNode {
                 result = result.concat(" group by ", groupByStr);
             if (orderByStr)
                 result = result.concat(" order by ", orderByStr);
-        }
-        else if (this.command === "update") {
+        } else if (this.command === "update") {
             result = result.concat("update ", collectionStr, " set ", columnStr, " where ", whereStr);
-        }
-        else if (this.command === "delete") {
+        } else if (this.command === "delete") {
             result = result.concat("delete from ", collectionStr, " where ", whereStr);
         }
         return result;
     }
 }
-exports.SqlStatement = SqlStatement;
+
 /**
  * SqlCollection
  * Used for tables and columns
  */
-class SqlCollection extends ISqlNode {
+export class SqlCollection extends ISqlNode {
+    value: string = null;
+    stat: SqlStatement = null;
+    alias: string = null;
+
     constructor() {
-        super();
-        this.value = null;
-        this.stat = null;
-        this.alias = null;
+        super()
     }
-    eval() {
-        let result = "";
+
+    eval(): string {
+        let result: string = "";
         if (!this.value) {
             throw "No Collection Found";
-        }
-        else if (this.value)
+        } else if (this.value)
             result = this.value;
         else if (this.stat) {
             this.args = this.args.concat(this.stat.args);
@@ -121,125 +148,114 @@ class SqlCollection extends ISqlNode {
         return result;
     }
 }
-exports.SqlCollection = SqlCollection;
-(function (SqlOperator) {
-    SqlOperator[SqlOperator["Equal"] = 1] = "Equal";
-    SqlOperator[SqlOperator["NotEqual"] = 2] = "NotEqual";
-    SqlOperator[SqlOperator["LessThan"] = 3] = "LessThan";
-    SqlOperator[SqlOperator["LessThanEqual"] = 4] = "LessThanEqual";
-    SqlOperator[SqlOperator["GreaterThan"] = 5] = "GreaterThan";
-    SqlOperator[SqlOperator["GreaterThanEqual"] = 6] = "GreaterThanEqual";
-    SqlOperator[SqlOperator["And"] = 7] = "And";
-    SqlOperator[SqlOperator["Or"] = 8] = "Or";
-    SqlOperator[SqlOperator["Not"] = 9] = "Not";
-    SqlOperator[SqlOperator["Between"] = 10] = "Between";
-    SqlOperator[SqlOperator["Exists"] = 11] = "Exists";
-    SqlOperator[SqlOperator["In"] = 12] = "In";
-    SqlOperator[SqlOperator["Like"] = 13] = "Like";
-    SqlOperator[SqlOperator["IsNull"] = 14] = "IsNull";
-    SqlOperator[SqlOperator["IsNotNull"] = 15] = "IsNotNull";
-    SqlOperator[SqlOperator["Asc"] = 16] = "Asc";
-    SqlOperator[SqlOperator["Desc"] = 17] = "Desc";
-    SqlOperator[SqlOperator["Limit"] = 18] = "Limit";
-    SqlOperator[SqlOperator["Comma"] = 19] = "Comma";
-})(exports.SqlOperator || (exports.SqlOperator = {}));
-var SqlOperator = exports.SqlOperator;
+
 /**
  * SqlExpression
  */
-class SqlExpression extends ISqlNode {
-    constructor(value, operator, ...expressions) {
-        super();
-        this.value = null;
-        this.exps = null;
-        this.operator = null;
+export class SqlExpression extends ISqlNode {
+    value: string = null;
+    exps: Array<SqlExpression> = null;
+    operator: Operator = null;
+
+    add(...expressions: Array<SqlExpression>): SqlExpression {
+        this.exps = this.exps.concat(expressions);
+        return this;
+    }
+
+    constructor(value?: string, operator?: Operator, ...expressions: Array<SqlExpression>) {
+        super()
         this.value = value;
         this.exps = expressions;
         this.operator = operator;
     }
-    eval() {
+
+    eval(): string {
         if (this.value) {
             return this.value;
-        }
-        else if (this.exps) {
-            let values = new Array();
+        } else if (this.exps) {
+            let values: Array<string> = new Array<string>();
             for (let i = 0; i < this.exps.length; i++) {
                 this.args = this.args.concat(this.exps[i].args);
                 values[i] = this.exps[i].eval();
             }
-            let val0 = values[0] ? values[0] : "";
-            let val1 = values[1] ? values[1] : "";
-            let r = "";
+
+            if (!this.operator && this.exps.length > 1) {
+                this.operator = Operator.And;
+            }
+
+            let val0: string = values[0] ? values[0] : "";
+            let val1: string = values[1] ? values[1] : "";
+
+            let r: string = "";
             switch (this.operator) {
-                case SqlOperator.Equal:
+                case Operator.Equal:
                     r = val0 + " = " + val1;
                     break;
-                case SqlOperator.NotEqual:
+                case Operator.NotEqual:
                     r = val0 + " != " + val1;
                     break;
-                case SqlOperator.LessThan:
+                case Operator.LessThan:
                     r = val0 + " < " + val1;
                     break;
-                case SqlOperator.LessThanEqual:
+                case Operator.LessThanEqual:
                     r = val0 + " <= " + val1;
                     break;
-                case SqlOperator.GreaterThan:
+                case Operator.GreaterThan:
                     r = val0 + " > " + val1;
                     break;
-                case SqlOperator.GreaterThanEqual:
+                case Operator.GreaterThanEqual:
                     r = val0 + " >= " + val1;
                     break;
-                case SqlOperator.And:
+                case Operator.And:
                     r = "(" + val0;
                     for (let i = 1; i < values.length; i++)
                         r = r + ") and (" + values[i];
                     r = r + ")";
                     break;
-                case SqlOperator.Or:
+                case Operator.Or:
                     r = "(" + val0;
                     for (let i = 1; i < values.length; i++)
                         r = r + ") or (" + values[i];
                     r = r + ")";
                     break;
-                case SqlOperator.Not:
+                case Operator.Not:
                     r = " not " + val0;
                     break;
-                case SqlOperator.Between:
+                case Operator.Between:
                     r = val0 + " between " + val1 + " and " + values[2];
                     break;
-                case SqlOperator.Exists:
+                case Operator.Exists:
                     r = " exists (" + val0 + ")";
                     break;
-                case SqlOperator.In:
+                case Operator.In:
                     r = val0 + " in (" + val1 + ")";
                     break;
-                case SqlOperator.Like:
+                case Operator.Like:
                     r = val0 + " like " + val1;
                     break;
-                case SqlOperator.IsNull:
+                case Operator.IsNull:
                     r = val0 + " is null";
                     break;
-                case SqlOperator.IsNotNull:
+                case Operator.IsNotNull:
                     r = val0 + " is not null";
                     break;
-                case SqlOperator.Asc:
+                case Operator.Asc:
                     r = val0 + " asc";
                     break;
-                case SqlOperator.Desc:
+                case Operator.Desc:
                     r = val0 + " desc";
                     break;
-                case SqlOperator.Limit:
-                    {
-                        r = "limit " + val0 + (val1 ? "," + val1 : "");
-                    }
+                case Operator.Limit: {
+                    r = "limit " + val0 + (val1 ? "," + val1 : "");
+                }
                     break;
-                case SqlOperator.Comma:
-                    {
-                        for (let i = 0; i < values.length; i++)
-                            r = r.concat(r, values[i], ", ");
-                        r = r.slice(0, r.length - 2);
-                    }
+                case Operator.Comma: {
+                    for (let i = 0; i < values.length; i++)
+                        r = r.concat(r, values[i], ", ");
+                    r = r.slice(0, r.length - 2);
+                }
                     break;
+
                 default:
                     break;
             }
@@ -247,4 +263,3 @@ class SqlExpression extends ISqlNode {
         }
     }
 }
-exports.SqlExpression = SqlExpression;
