@@ -161,6 +161,18 @@ class SqlExpression extends ISqlNode {
         this.exps = this.exps.concat(expressions);
         return this;
     }
+    __logicalAND(operand) {
+        let expr = new SqlExpression(null, Operator.And, operand, this);
+        return expr;
+    }
+    __logicalOR(operand) {
+        let expr = new SqlExpression(null, Operator.Or, operand, this);
+        return expr;
+    }
+    __unaryNOT() {
+        let expr = new SqlExpression(null, Operator.Not, this);
+        return expr;
+    }
     eval() {
         if (this.value) {
             return this.value;
@@ -168,8 +180,8 @@ class SqlExpression extends ISqlNode {
         else if (this.exps) {
             let values = new Array();
             for (let i = 0; i < this.exps.length; i++) {
-                this.args = this.args.concat(this.exps[i].args);
                 values[i] = this.exps[i].eval();
+                this.args = this.args.concat(this.exps[i].args);
             }
             if (!this.operator && this.exps.length > 1) {
                 this.operator = Operator.And;

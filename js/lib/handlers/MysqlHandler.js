@@ -1,4 +1,4 @@
-/// <reference path="./../../../typings/main/ambient/mysql/index.d.ts" />
+/// <reference path="./../../../typings/globals/mysql/index.d.ts" />
 "use strict";
 const mysql = require("mysql");
 const Handler_1 = require("./../Handler");
@@ -44,7 +44,10 @@ class MysqlHandler extends Handler_1.default {
         let p = new Promise((resolve, reject) => {
             let r = new Handler_1.ResultSet();
             Promise.resolve(q).then((val) => {
-                // console.log("query:" + val);
+                console.log("query:" + val);
+                for (let i = 0; i < args.length; i++) {
+                    console.log("Argument: " + args[i]);
+                }
                 connection.query(val, args, function (err, result) {
                     if (err)
                         reject(err.code);

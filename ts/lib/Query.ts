@@ -169,14 +169,29 @@ export class SqlExpression extends ISqlNode {
         this.operator = operator;
     }
 
+    __logicalAND(operand: SqlExpression): SqlExpression {
+        let expr: SqlExpression = new SqlExpression(null, Operator.And, operand, this);
+        return expr;
+    }
+
+    __logicalOR(operand: SqlExpression): SqlExpression {
+        let expr: SqlExpression = new SqlExpression(null, Operator.Or, operand, this);
+        return expr;
+    }
+
+    __unaryNOT(): SqlExpression {
+        let expr: SqlExpression = new SqlExpression(null, Operator.Not, this);
+        return expr;
+    }
+
     eval(): string {
         if (this.value) {
             return this.value;
         } else if (this.exps) {
             let values: Array<string> = new Array<string>();
             for (let i = 0; i < this.exps.length; i++) {
-                this.args = this.args.concat(this.exps[i].args);
                 values[i] = this.exps[i].eval();
+                this.args = this.args.concat(this.exps[i].args);
             }
 
             if (!this.operator && this.exps.length > 1) {

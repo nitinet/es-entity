@@ -16,7 +16,7 @@ class Field {
     _createExpr(leftOperand) {
         let w1 = new Query.SqlExpression(this._name);
         let w2 = new Query.SqlExpression("?");
-        w2.args.push(leftOperand);
+        w2.args = w2.args.concat(leftOperand);
         let res = new Array(w1, w2);
         return res;
     }
@@ -114,6 +114,6 @@ function applyMixins(derivedCtor, ...baseCtors) {
         });
     });
 }
-applyMixins(String, ValOperators);
-applyMixins(Number, ValOperators);
-applyMixins(Boolean, ValOperators);
+// applyMixins(String, ValOperators);
+// applyMixins(Number, ValOperators);
+// applyMixins(Boolean, ValOperators);

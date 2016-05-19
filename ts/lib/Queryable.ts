@@ -1,8 +1,7 @@
-/// <reference path="./../../typings/main/ambient/node/index.d.ts" />
+/// <reference path="./../../typings/globals/node/index.d.ts" />
 
 import fs = require("fs");
 import path = require("path");
-import "reflect-metadata";
 var overload = require("operator-overloading");
 
 import Context from "./Context";
@@ -100,12 +99,16 @@ class Queryable<T> {
         w2.args.push(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 
-        return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
-            if (result.error)
-                throw result.error;
-            else
-                return this.get(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
-        });
+        if (stat.columns.length > 0) {
+            return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
+                if (result.error)
+                    throw result.error;
+                else
+                    return this.get(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+            });
+        } else {
+            return null;
+        }
     }
 
     insertOrUpdate(entity: T): Promise<T> {
@@ -137,10 +140,12 @@ class Queryable<T> {
 
         return this.where(function (a: any, id) {
             return id == a.id;
-        }, id);
+        }, id).then<T>((res) => {
+            return res[0];
+        });
     }
 
-    where(func: whereFunc<T>, ...args: any[]): Promise<T> {
+    where(func: whereFunc<T>, ...args: any[]): Promise<Array<T>> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "select";
 
@@ -160,18 +165,21 @@ class Queryable<T> {
         let res = overload(func)(a, args);
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
-            return this.context.execute(stat).then<T>((result: Handler.ResultSet) => {
-                if (!result.rows[0])
+            return this.context.execute(stat).then<Array<T>>((result: Handler.ResultSet) => {
+                if (result.rows.length == 0)
                     throw "No Result Found";
-                else if (result.rowCount != 1)
-                    throw "Non Unique Result";
                 else {
-                    let a = this.getEntity();
-                    for (var i = 0; i < this.mapping.fields.length; i++) {
-                        var r = this.mapping.fields[i];
-                        this.setValue(a, r.fieldName, result.rows[0][r.fieldName]);
+                    let data: Array<T> = new Array();
+                    for (var j = 0; j < result.rows.length; j++) {
+                        var row = result.rows[j];
+                        let a = this.getEntity();
+                        for (var i = 0; i < this.mapping.fields.length; i++) {
+                            var r = this.mapping.fields[i];
+                            this.setValue(a, r.fieldName, row[r.fieldName]);
+                        }
+                        data.push(a);
                     }
-                    return a;
+                    return data;
                 }
             });
         } else {

@@ -17,7 +17,7 @@ context.bind(config, __dirname + "/mappings");
 let p = context.employees.get(2);
 p.then((v) => {
     console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-    v.description.val = "test update 1";
+    v.description.val = "test update 2";
     return context.employees.update(v);
 }).then((v) => {
     console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
@@ -33,9 +33,12 @@ p.then((v) => {
 }).then(() => {
     console.log("deleted");
 }).then(() => {
-    return context.employees.where(function (a, id) {
-        return id == a.id;
-    }, 1);
-}).then((v)=>{
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+    return context.employees.where(function (a, i, j) {
+        return i == a.id || j == a.id;
+    }, 1, 2);
+}).then((v) => {
+    for (var i = 0; i < v.length; i++) {
+        var j = v[i];
+        console.log("id: " + j.id.val + ", name: " + j.name.val + ", desc: " + j.description.val);
+    }
 });

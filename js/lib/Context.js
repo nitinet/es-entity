@@ -1,4 +1,4 @@
-/// <reference path="./../../typings/main/ambient/node/index.d.ts" />
+/// <reference path="./../../typings/globals/node/index.d.ts" />
 "use strict";
 const Queryable_1 = require("./Queryable");
 const MysqlHandler_1 = require("./handlers/MysqlHandler");

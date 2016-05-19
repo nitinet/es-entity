@@ -1,8 +1,7 @@
-/// <reference path="./../../typings/main/ambient/node/index.d.ts" />
+/// <reference path="./../../typings/globals/node/index.d.ts" />
 "use strict";
 const fs = require("fs");
 const path = require("path");
-require("reflect-metadata");
 var overload = require("operator-overloading");
 const Entity_1 = require("./Entity");
 const Mapping = require("./Mapping");
@@ -75,12 +74,17 @@ class Queryable {
         let w2 = new Query.SqlExpression("?");
         w2.args.push(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
         stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
-        return this.context.execute(stat).then((result) => {
-            if (result.error)
-                throw result.error;
-            else
-                return this.get(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
-        });
+        if (stat.columns.length > 0) {
+            return this.context.execute(stat).then((result) => {
+                if (result.error)
+                    throw result.error;
+                else
+                    return this.get(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+            });
+        }
+        else {
+            return null;
+        }
     }
     insertOrUpdate(entity) {
         if (this.getValue(entity, this.mapping.primaryKeyField.fieldName)) {
@@ -107,7 +111,9 @@ class Queryable {
             throw "Id parameter cannot be null";
         return this.where(function (a, id) {
             return id == a.id;
-        }, id);
+        }, id).then((res) => {
+            return res[0];
+        });
     }
     where(func, ...args) {
         let stat = new Query.SqlStatement();
@@ -127,17 +133,20 @@ class Queryable {
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
             return this.context.execute(stat).then((result) => {
-                if (!result.rows[0])
+                if (result.rows.length == 0)
                     throw "No Result Found";
-                else if (result.rowCount != 1)
-                    throw "Non Unique Result";
                 else {
-                    let a = this.getEntity();
-                    for (var i = 0; i < this.mapping.fields.length; i++) {
-                        var r = this.mapping.fields[i];
-                        this.setValue(a, r.fieldName, result.rows[0][r.fieldName]);
+                    let data = new Array();
+                    for (var j = 0; j < result.rows.length; j++) {
+                        var row = result.rows[j];
+                        let a = this.getEntity();
+                        for (var i = 0; i < this.mapping.fields.length; i++) {
+                            var r = this.mapping.fields[i];
+                            this.setValue(a, r.fieldName, row[r.fieldName]);
+                        }
+                        data.push(a);
                     }
-                    return a;
+                    return data;
                 }
             });
         }

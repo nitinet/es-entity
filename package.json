@@ -23,7 +23,6 @@
   "homepage": "https://github.com/InHeap/es6-entity#readme",
   "dependencies": {
     "mysql": "*",
-    "operator-overloading": "*",
-    "reflect-metadata": "*"
+    "operator-overloading": "*"
   }
 }
