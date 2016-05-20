@@ -2,7 +2,6 @@
 "use strict";
 const fs = require("fs");
 const path = require("path");
-var overload = require("operator-overloading");
 const Entity_1 = require("./Entity");
 const Mapping = require("./Mapping");
 const Query = require("./Query");
@@ -109,8 +108,8 @@ class Queryable {
             throw "No Primary Field Found";
         if (!id)
             throw "Id parameter cannot be null";
-        return this.where(function (a, id) {
-            return id == a.id;
+        return this.where((a, id) => {
+            return a[this.mapping.primaryKeyField.fieldName].eq(id);
         }, id).then((res) => {
             return res[0];
         });
@@ -129,7 +128,7 @@ class Queryable {
             stat.columns.push(c);
         }
         let a = this.getEntity(alias);
-        let res = overload(func)(a, args);
+        let res = func(a, args);
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
             return this.context.execute(stat).then((result) => {

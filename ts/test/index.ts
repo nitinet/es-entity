@@ -33,9 +33,9 @@ p.then((v) => {
 }).then(() => {
     console.log("deleted");
 }).then(() => {
-    return context.employees.where(function (a, i, j) {
-        return i == a.id || j == a.id;
-    }, 1, 2);
+    return context.employees.where((a) => {
+        return (a.id.eq(1)).or(a.id.eq(2));
+    });
 }).then((v) => {
     for (var i = 0; i < v.length; i++) {
         var j = v[i];

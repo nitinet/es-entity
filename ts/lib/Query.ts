@@ -169,17 +169,17 @@ export class SqlExpression extends ISqlNode {
         this.operator = operator;
     }
 
-    __logicalAND(operand: SqlExpression): SqlExpression {
+    and(operand: SqlExpression): SqlExpression {
         let expr: SqlExpression = new SqlExpression(null, Operator.And, operand, this);
         return expr;
     }
 
-    __logicalOR(operand: SqlExpression): SqlExpression {
+    or(operand: SqlExpression): SqlExpression {
         let expr: SqlExpression = new SqlExpression(null, Operator.Or, operand, this);
         return expr;
     }
 
-    __unaryNOT(): SqlExpression {
+    not(): SqlExpression {
         let expr: SqlExpression = new SqlExpression(null, Operator.Not, this);
         return expr;
     }

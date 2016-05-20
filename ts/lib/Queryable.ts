@@ -2,7 +2,6 @@
 
 import fs = require("fs");
 import path = require("path");
-var overload = require("operator-overloading");
 
 import Context from "./Context";
 import Entity, {IEntityType, Field} from "./Entity";
@@ -11,7 +10,7 @@ import * as Query from "./Query";
 import * as Handler from "./Handler";
 
 interface whereFunc<T> {
-    (source: T, ...args: any[]): boolean;
+    (source: T, ...args: any[]): Query.SqlExpression;
 }
 
 class Queryable<T> {
@@ -138,8 +137,8 @@ class Queryable<T> {
         if (!id)
             throw "Id parameter cannot be null";
 
-        return this.where(function (a: any, id) {
-            return id == a.id;
+        return this.where((a: T, id) => {
+            return (<Field>a[this.mapping.primaryKeyField.fieldName]).eq(id);
         }, id).then<T>((res) => {
             return res[0];
         });
@@ -162,7 +161,7 @@ class Queryable<T> {
         }
 
         let a = this.getEntity(alias);
-        let res = overload(func)(a, args);
+        let res = func(a, args);
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
             return this.context.execute(stat).then<Array<T>>((result: Handler.ResultSet) => {

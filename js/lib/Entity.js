@@ -20,100 +20,100 @@ class Field {
         let res = new Array(w1, w2);
         return res;
     }
-    __doubleEqual(operand) {
+    eq(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.Equal, res[0], res[1]);
         return expr;
     }
-    __notEqual(operand) {
+    neq(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.NotEqual, res[0], res[1]);
         return expr;
     }
-    __lessThan(operand) {
+    lt(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.GreaterThan, res[0], res[1]);
         return expr;
     }
-    __greaterThan(operand) {
+    gt(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.LessThan, res[0], res[1]);
         return expr;
     }
-    __lessThanEqual(operand) {
+    lteq(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, res[0], res[1]);
         return expr;
     }
-    __greaterThanEqual(operand) {
+    gteq(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.LessThanEqual, res[0], res[1]);
         return expr;
     }
-    __in(operand) {
+    in(operand) {
         let res = this._createExpr(operand);
         let expr = new Query.SqlExpression(null, Query.Operator.In, res[0], res[1]);
         return expr;
     }
 }
 exports.Field = Field;
-class ValOperators {
-    __doubleEqual(leftOperand) {
+/* class ValOperators {
+    __doubleEqual(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
-            return leftOperand.__doubleEqual(this);
-        }
-        else {
+            return (<Field>leftOperand).__doubleEqual(this);
+        } else {
             return leftOperand == this;
         }
     }
-    __notEqual(leftOperand) {
+
+    __notEqual(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
-            return leftOperand.__notEqual(this);
-        }
-        else {
+            return (<Field>leftOperand).__notEqual(this);
+        } else {
             return leftOperand != this;
         }
     }
-    __lessThan(leftOperand) {
+
+    __lessThan(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
-            return leftOperand.__greaterThan(this);
-        }
-        else {
+            return (<Field>leftOperand).__greaterThan(this);
+        } else {
             return leftOperand < this;
         }
     }
-    __greaterThan(leftOperand) {
+
+    __greaterThan(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
-            return leftOperand.__lessThan(this);
-        }
-        else {
+            return (<Field>leftOperand).__lessThan(this);
+        } else {
             return leftOperand > this;
         }
     }
-    __lessThanEqual(leftOperand) {
+
+    __lessThanEqual(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
-            return leftOperand.__greaterThanEqual(this);
-        }
-        else {
+            return (<Field>leftOperand).__greaterThanEqual(this);
+        } else {
             return leftOperand == this;
         }
     }
-    __greaterThanEqual(leftOperand) {
+
+    __greaterThanEqual(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
-            return leftOperand.__lessThanEqual(this);
-        }
-        else {
+            return (<Field>leftOperand).__lessThanEqual(this);
+        } else {
             return leftOperand == this;
         }
     }
 }
-function applyMixins(derivedCtor, ...baseCtors) {
+
+function applyMixins(derivedCtor: any, ...baseCtors: any[]) {
     baseCtors.forEach(baseCtor => {
         Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
             derivedCtor.prototype[name] = baseCtor.prototype[name];
         });
     });
-}
+}*/
 // applyMixins(String, ValOperators);
 // applyMixins(Number, ValOperators);
 // applyMixins(Boolean, ValOperators);

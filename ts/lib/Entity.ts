@@ -30,43 +30,43 @@ export class Field {
         return res;
     }
 
-    __doubleEqual(operand: any): Query.SqlExpression {
+    eq(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, res[0], res[1]);
         return expr;
     }
 
-    __notEqual(operand: any): Query.SqlExpression {
+    neq(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.NotEqual, res[0], res[1]);
         return expr;
     }
 
-    __lessThan(operand: any): Query.SqlExpression {
+    lt(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.GreaterThan, res[0], res[1]);
         return expr;
     }
 
-    __greaterThan(operand: any): Query.SqlExpression {
+    gt(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.LessThan, res[0], res[1]);
         return expr;
     }
 
-    __lessThanEqual(operand: any): Query.SqlExpression {
+    lteq(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, res[0], res[1]);
         return expr;
     }
 
-    __greaterThanEqual(operand: any): Query.SqlExpression {
+    gteq(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.LessThanEqual, res[0], res[1]);
         return expr;
     }
 
-    __in(operand: any): Query.SqlExpression {
+    in(operand: any): Query.SqlExpression {
         let res: Query.SqlExpression[] = this._createExpr(operand);
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.In, res[0], res[1]);
         return expr;
@@ -74,7 +74,7 @@ export class Field {
 
 }
 
-class ValOperators {
+/* class ValOperators {
     __doubleEqual(leftOperand: any): Query.SqlExpression | boolean {
         if (leftOperand instanceof Field) {
             return (<Field>leftOperand).__doubleEqual(this);
@@ -130,7 +130,7 @@ function applyMixins(derivedCtor: any, ...baseCtors: any[]) {
             derivedCtor.prototype[name] = baseCtor.prototype[name];
         });
     });
-}
+}*/
 
 // applyMixins(String, ValOperators);
 // applyMixins(Number, ValOperators);

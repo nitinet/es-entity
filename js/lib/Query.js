@@ -161,15 +161,15 @@ class SqlExpression extends ISqlNode {
         this.exps = this.exps.concat(expressions);
         return this;
     }
-    __logicalAND(operand) {
+    and(operand) {
         let expr = new SqlExpression(null, Operator.And, operand, this);
         return expr;
     }
-    __logicalOR(operand) {
+    or(operand) {
         let expr = new SqlExpression(null, Operator.Or, operand, this);
         return expr;
     }
-    __unaryNOT() {
+    not() {
         let expr = new SqlExpression(null, Operator.Not, this);
         return expr;
     }
