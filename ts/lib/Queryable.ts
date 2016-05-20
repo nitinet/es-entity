@@ -36,8 +36,8 @@ class Queryable<T> {
         this.mapping.fields.forEach(k => {
             let q: any = a[k.fieldName];
             if (q instanceof Field) {
-                let name = alias ? alias + "." + k.name : k.name;
-                (<Field>q)._name = name;
+                (<Field>q)._name = k.name;
+                (<Field>q)._alias = alias;
             }
         });
         return a;
@@ -60,14 +60,14 @@ class Queryable<T> {
         stat.command = "insert";
         stat.collection.value = this.mapping.name;
         for (let i = 0; i < this.mapping.fields.length; i++) {
-            let element = this.mapping.fields[i];
-            if (this.isUpdated(entity, element.fieldName)) {
+            let f = this.mapping.fields[i];
+            if (this.isUpdated(entity, f.fieldName)) {
                 let c: Query.SqlCollection = new Query.SqlCollection();
-                c.value = element.name;
+                c.value = f.name;
                 stat.columns.push(c);
 
                 let v: Query.SqlExpression = new Query.SqlExpression("?");
-                v.args.push(this.getValue(entity, element.fieldName));
+                v.args.push(this.getValue(entity, f.fieldName));
                 stat.values.push(v);
             }
         }
@@ -82,11 +82,11 @@ class Queryable<T> {
         stat.command = "update";
         stat.collection.value = this.mapping.name;
         for (let i = 0; i < this.mapping.fields.length; i++) {
-            let element = this.mapping.fields[i];
-            if (this.isUpdated(entity, element.fieldName) && element != this.mapping.primaryKeyField) {
-                let c1: Query.SqlExpression = new Query.SqlExpression(element.name);
+            let f = this.mapping.fields[i];
+            if (this.isUpdated(entity, f.fieldName) && f != this.mapping.primaryKeyField) {
+                let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
                 let c2: Query.SqlExpression = new Query.SqlExpression("?");
-                c2.args.push(this.getValue(entity, element.fieldName));
+                c2.args.push(this.getValue(entity, f.fieldName));
 
                 let c: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
                 stat.columns.push(c);
@@ -155,7 +155,8 @@ class Queryable<T> {
         for (let i = 0; i < this.mapping.fields.length; i++) {
             let element = this.mapping.fields[i];
             let c: Query.SqlCollection = new Query.SqlCollection();
-            c.value = alias + "." + element.name;
+            c.colAlias = alias;
+            c.value = element.name;
             c.alias = element.fieldName;
             stat.columns.push(c);
         }

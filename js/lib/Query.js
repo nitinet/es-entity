@@ -123,23 +123,24 @@ exports.SqlStatement = SqlStatement;
 class SqlCollection extends ISqlNode {
     constructor() {
         super();
+        this.colAlias = null;
         this.value = null;
         this.stat = null;
         this.alias = null;
     }
     eval() {
         let result = "";
-        if (!this.value) {
-            throw "No Collection Found";
-        }
-        else if (this.value)
-            result = this.value;
+        if (this.value)
+            result = this.colAlias ? this.colAlias + "." + this.value : this.value;
         else if (this.stat) {
             this.args = this.args.concat(this.stat.args);
             result = "(" + this.stat.eval() + ")";
         }
+        if (!result) {
+            throw "No Collection Found";
+        }
         if (this.alias)
-            result = result + " as " + this.alias;
+            result = result.concat(" as ", this.alias);
         return result;
     }
 }
@@ -255,7 +256,7 @@ class SqlExpression extends ISqlNode {
                 case Operator.Comma:
                     {
                         for (let i = 0; i < values.length; i++)
-                            r = r.concat(r, values[i], ", ");
+                            r = r.concat(values[i], ", ");
                         r = r.slice(0, r.length - 2);
                     }
                     break;
