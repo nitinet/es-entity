@@ -23,7 +23,7 @@ class Context {
         let keys = Reflect.ownKeys(this);
         keys.forEach(key => {
             let e = Reflect.get(this, key);
-            if (e instanceof Queryable_1.default) {
+            if (e instanceof Queryable_1.DBSet) {
                 e.bind(this);
             }
         });

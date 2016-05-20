@@ -13,7 +13,24 @@ interface whereFunc<T> {
     (source: T, ...args: any[]): Query.SqlExpression;
 }
 
-class Queryable<T> {
+interface arrFieldFunc<T> {
+    (source: T): (Query.SqlExpression | Field)[];
+}
+
+interface Queryable<T> {
+    // Selection Functions
+    select(func: arrFieldFunc<T>): Promise<Array<any>>;
+    get(id: any): Promise<T>;
+    unique(): Promise<T>;
+    list(): Promise<Array<T>>;
+
+    // Conditional Functions
+    where(func: whereFunc<T>, ...args: any[]): Queryable<T>;
+    groupBy(func: arrFieldFunc<T>): Queryable<T>;
+    orderBy(func: arrFieldFunc<T>): Queryable<T>;
+}
+
+class DBSet<T> {
     entityType: IEntityType<T>;
     context: Context;
     mapping: Mapping.EntityMapping;
@@ -144,7 +161,7 @@ class Queryable<T> {
         });
     }
 
-    where(func: whereFunc<T>, ...args: any[]): Promise<Array<T>> {
+    getStatement(): Query.SqlStatement {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "select";
 
@@ -160,8 +177,12 @@ class Queryable<T> {
             c.alias = element.fieldName;
             stat.columns.push(c);
         }
+        return stat;
+    }
 
-        let a = this.getEntity(alias);
+    where(func: whereFunc<T>, ...args: any[]): Promise<Array<T>> {
+        let stat = this.getStatement();
+        let a = this.getEntity(stat.collection.alias);
         let res = func(a, args);
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
@@ -170,11 +191,11 @@ class Queryable<T> {
                     throw "No Result Found";
                 else {
                     let data: Array<T> = new Array();
-                    for (var j = 0; j < result.rows.length; j++) {
-                        var row = result.rows[j];
+                    for (let j = 0; j < result.rows.length; j++) {
+                        let row = result.rows[j];
                         let a = this.getEntity();
-                        for (var i = 0; i < this.mapping.fields.length; i++) {
-                            var r = this.mapping.fields[i];
+                        for (let i = 0; i < this.mapping.fields.length; i++) {
+                            let r = this.mapping.fields[i];
                             this.setValue(a, r.fieldName, row[r.fieldName]);
                         }
                         data.push(a);
@@ -189,4 +210,5 @@ class Queryable<T> {
 
 }
 
+export {DBSet};
 export default Queryable;

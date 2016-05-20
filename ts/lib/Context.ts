@@ -1,6 +1,6 @@
 /// <reference path="./../../typings/globals/node/index.d.ts" />
 
-import Queryable from "./Queryable";
+import Queryable,{DBSet} from "./Queryable";
 import Handler, {ConnectionConfig, ResultSet} from "./Handler";
 import MysqlHandler from "./handlers/MysqlHandler";
 import * as Query from "./Query";
@@ -31,8 +31,8 @@ class Context {
         let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
         keys.forEach(key => {
             let e: any = Reflect.get(this, key);
-            if (e instanceof Queryable) {
-                (<Queryable<any>>e).bind(this);
+            if (e instanceof DBSet) {
+                (<DBSet<any>>e).bind(this);
             }
         });
     }

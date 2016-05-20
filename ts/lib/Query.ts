@@ -17,7 +17,12 @@ export enum Operator {
     Asc,
     Desc,
     Limit,
-    Comma
+    Comma,
+    Count,
+    Sum,
+    Min,
+    Max,
+    Average
 }
 
 export abstract class ISqlNode {

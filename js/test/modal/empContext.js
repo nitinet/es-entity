@@ -4,7 +4,7 @@ const Employee_1 = require("./Employee");
 class EmpContext extends es.Context {
     constructor() {
         super();
-        this.employees = new es.Queryable(Employee_1.default);
+        this.employees = new es.DBSet(Employee_1.default);
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

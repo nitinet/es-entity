@@ -6,7 +6,7 @@ class EmpContext extends es.Context {
         super();
     }
 
-    employees: es.Queryable<Employee> = new es.Queryable<Employee>(Employee);
+    employees: es.DBSet<Employee> = new es.DBSet<Employee>(Employee);
 }
 
 export default EmpContext;

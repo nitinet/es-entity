@@ -19,6 +19,11 @@
     Operator[Operator["Desc"] = 17] = "Desc";
     Operator[Operator["Limit"] = 18] = "Limit";
     Operator[Operator["Comma"] = 19] = "Comma";
+    Operator[Operator["Count"] = 20] = "Count";
+    Operator[Operator["Sum"] = 21] = "Sum";
+    Operator[Operator["Min"] = 22] = "Min";
+    Operator[Operator["Max"] = 23] = "Max";
+    Operator[Operator["Average"] = 24] = "Average";
 })(exports.Operator || (exports.Operator = {}));
 var Operator = exports.Operator;
 class ISqlNode {

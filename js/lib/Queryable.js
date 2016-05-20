@@ -5,7 +5,7 @@ const path = require("path");
 const Entity_1 = require("./Entity");
 const Mapping = require("./Mapping");
 const Query = require("./Query");
-class Queryable {
+class DBSet {
     constructor(entityType) {
         this.entityType = entityType;
     }
@@ -114,7 +114,7 @@ class Queryable {
             return res[0];
         });
     }
-    where(func, ...args) {
+    getStatement() {
         let stat = new Query.SqlStatement();
         stat.command = "select";
         let alias = this.mapping.name.charAt(0);
@@ -128,7 +128,11 @@ class Queryable {
             c.alias = element.fieldName;
             stat.columns.push(c);
         }
-        let a = this.getEntity(alias);
+        return stat;
+    }
+    where(func, ...args) {
+        let stat = this.getStatement();
+        let a = this.getEntity(stat.collection.alias);
         let res = func(a, args);
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
@@ -137,11 +141,11 @@ class Queryable {
                     throw "No Result Found";
                 else {
                     let data = new Array();
-                    for (var j = 0; j < result.rows.length; j++) {
-                        var row = result.rows[j];
+                    for (let j = 0; j < result.rows.length; j++) {
+                        let row = result.rows[j];
                         let a = this.getEntity();
-                        for (var i = 0; i < this.mapping.fields.length; i++) {
-                            var r = this.mapping.fields[i];
+                        for (let i = 0; i < this.mapping.fields.length; i++) {
+                            let r = this.mapping.fields[i];
                             this.setValue(a, r.fieldName, row[r.fieldName]);
                         }
                         data.push(a);
@@ -155,5 +159,4 @@ class Queryable {
         }
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Queryable;
+exports.DBSet = DBSet;

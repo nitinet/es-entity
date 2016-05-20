@@ -27,9 +27,16 @@ export class Field {
         return new Query.SqlExpression(name);
     }
 
-    _argExp(leftOperand: any): Query.SqlExpression {
-        let w: Query.SqlExpression = new Query.SqlExpression("?");
-        w.args = w.args.concat(leftOperand);
+    _argExp(operand: any): Query.SqlExpression {
+        let w: Query.SqlExpression = null;
+        if (operand instanceof Field) {
+            w = (<Field>operand)._createExpr();
+        } else if (operand instanceof Query.SqlExpression) {
+            w = (<Query.SqlExpression>operand);
+        } else {
+            w = new Query.SqlExpression("?");
+            w.args = w.args.concat(operand);
+        }
         return w;
     }
 
@@ -113,5 +120,49 @@ export class Field {
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.IsNotNull, w1);
         return expr;
     }
+
+    asc(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Asc, w1);
+        return expr;
+    }
+
+    desc(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Desc, w1);
+        return expr;
+    }
+
+    sum(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Sum, w1);
+        return expr;
+    }
+
+    min(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Min, w1);
+        return expr;
+    }
+
+    max(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Max, w1);
+        return expr;
+    }
+
+    count(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Count, w1);
+        return expr;
+    }
+
+    average(): Query.SqlExpression {
+        let w1: Query.SqlExpression = this._createExpr();
+        let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Average, w1);
+        return expr;
+    }
+
+
 
 }
