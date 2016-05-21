@@ -9,21 +9,25 @@
     Operator[Operator["And"] = 7] = "And";
     Operator[Operator["Or"] = 8] = "Or";
     Operator[Operator["Not"] = 9] = "Not";
-    Operator[Operator["Between"] = 10] = "Between";
-    Operator[Operator["Exists"] = 11] = "Exists";
-    Operator[Operator["In"] = 12] = "In";
-    Operator[Operator["Like"] = 13] = "Like";
-    Operator[Operator["IsNull"] = 14] = "IsNull";
-    Operator[Operator["IsNotNull"] = 15] = "IsNotNull";
-    Operator[Operator["Asc"] = 16] = "Asc";
-    Operator[Operator["Desc"] = 17] = "Desc";
-    Operator[Operator["Limit"] = 18] = "Limit";
-    Operator[Operator["Comma"] = 19] = "Comma";
-    Operator[Operator["Count"] = 20] = "Count";
-    Operator[Operator["Sum"] = 21] = "Sum";
-    Operator[Operator["Min"] = 22] = "Min";
-    Operator[Operator["Max"] = 23] = "Max";
-    Operator[Operator["Average"] = 24] = "Average";
+    Operator[Operator["Plus"] = 10] = "Plus";
+    Operator[Operator["Minus"] = 11] = "Minus";
+    Operator[Operator["Multiply"] = 12] = "Multiply";
+    Operator[Operator["Devide"] = 13] = "Devide";
+    Operator[Operator["Between"] = 14] = "Between";
+    Operator[Operator["Exists"] = 15] = "Exists";
+    Operator[Operator["In"] = 16] = "In";
+    Operator[Operator["Like"] = 17] = "Like";
+    Operator[Operator["IsNull"] = 18] = "IsNull";
+    Operator[Operator["IsNotNull"] = 19] = "IsNotNull";
+    Operator[Operator["Asc"] = 20] = "Asc";
+    Operator[Operator["Desc"] = 21] = "Desc";
+    Operator[Operator["Limit"] = 22] = "Limit";
+    Operator[Operator["Comma"] = 23] = "Comma";
+    Operator[Operator["Count"] = 24] = "Count";
+    Operator[Operator["Sum"] = 25] = "Sum";
+    Operator[Operator["Min"] = 26] = "Min";
+    Operator[Operator["Max"] = 27] = "Max";
+    Operator[Operator["Average"] = 28] = "Average";
 })(exports.Operator || (exports.Operator = {}));
 var Operator = exports.Operator;
 class ISqlNode {
@@ -167,18 +171,6 @@ class SqlExpression extends ISqlNode {
         this.exps = this.exps.concat(expressions);
         return this;
     }
-    and(operand) {
-        let expr = new SqlExpression(null, Operator.And, operand, this);
-        return expr;
-    }
-    or(operand) {
-        let expr = new SqlExpression(null, Operator.Or, operand, this);
-        return expr;
-    }
-    not() {
-        let expr = new SqlExpression(null, Operator.Not, this);
-        return expr;
-    }
     eval() {
         if (this.value) {
             return this.value;
@@ -270,6 +262,91 @@ class SqlExpression extends ISqlNode {
             }
             return r;
         }
+    }
+    // Column Interface functions
+    // Comparison Operators
+    eq(operand) {
+        return null;
+    }
+    neq(operand) {
+        return null;
+    }
+    lt(operand) {
+        return null;
+    }
+    gt(operand) {
+        return null;
+    }
+    lteq(operand) {
+        return null;
+    }
+    gteq(operand) {
+        return null;
+    }
+    // Logical Operators
+    and(operand) {
+        let expr = new SqlExpression(null, Operator.And, this, operand);
+        return expr;
+    }
+    or(operand) {
+        let expr = new SqlExpression(null, Operator.Or, this, operand);
+        return expr;
+    }
+    not() {
+        let expr = new SqlExpression(null, Operator.Not, this);
+        return expr;
+    }
+    // Inclusion Funtions
+    in(...operand) {
+        return null;
+    }
+    between(first, second) {
+        return null;
+    }
+    like(operand) {
+        return null;
+    }
+    IsNull() {
+        return null;
+    }
+    IsNotNull() {
+        return null;
+    }
+    // Arithmatic Operators
+    plus(operand) {
+        return null;
+    }
+    minus(operand) {
+        return null;
+    }
+    multiply(operand) {
+        return null;
+    }
+    devide(operand) {
+        return null;
+    }
+    // Sorting Operators
+    asc() {
+        return null;
+    }
+    desc() {
+        return null;
+    }
+    // Group Functions
+    sum() {
+        return null;
+    }
+    min() {
+        return null;
+    }
+    max() {
+        return null;
+    }
+    count() {
+        return null;
+    }
+    average() {
+        return null;
     }
 }
 exports.SqlExpression = SqlExpression;

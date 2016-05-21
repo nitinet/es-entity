@@ -6,6 +6,10 @@ import Handler, {ResultSet} from "./../Handler";
 import * as Query from "./../Query";
 
 class MysqlHandler extends Handler {
+    constructor() {
+        super();
+    }
+
     defaultConnection: mysql.IConnection = null;
 
     init(): void {

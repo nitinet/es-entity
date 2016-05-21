@@ -4,7 +4,7 @@ export interface IEntityType<T> {
     new (): T;
 }
 
-export class Field {
+export class Field implements Query.Column {
     _alias: string = "";
     _name: string = "";
     _value: any = null;
@@ -40,6 +40,8 @@ export class Field {
         return w;
     }
 
+    // Column Interface functions
+    // Comparison Operators
     eq(operand: any): Query.SqlExpression {
         let w1: Query.SqlExpression = this._createExpr();
         let w2: Query.SqlExpression = this._argExp(operand);
@@ -82,6 +84,18 @@ export class Field {
         return expr;
     }
 
+    // Logical Operators
+    and(operand: Query.Column): Query.SqlExpression {
+        return null
+    }
+    or(operand: Query.Column): Query.SqlExpression {
+        return null;
+    }
+    not(): Query.SqlExpression {
+        return null;
+    }
+
+    // Inclusion Funtions
     in(...operand: any[]): Query.SqlExpression {
         let w1: Query.SqlExpression = this._createExpr();
 
@@ -120,7 +134,21 @@ export class Field {
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.IsNotNull, w1);
         return expr;
     }
+    // Arithmatic Operators
+    plus(operand: any): Query.SqlExpression {
+        return null;
+    }
+    minus(operand: any): Query.SqlExpression {
+        return null;
+    }
+    multiply(operand: any): Query.SqlExpression {
+        return null;
+    }
+    devide(operand: any): Query.SqlExpression {
+        return null;
+    }
 
+    // Sorting Operators
     asc(): Query.SqlExpression {
         let w1: Query.SqlExpression = this._createExpr();
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Asc, w1);
@@ -133,6 +161,7 @@ export class Field {
         return expr;
     }
 
+    // Group Functions
     sum(): Query.SqlExpression {
         let w1: Query.SqlExpression = this._createExpr();
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Sum, w1);
@@ -162,7 +191,5 @@ export class Field {
         let expr: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Average, w1);
         return expr;
     }
-
-
 
 }

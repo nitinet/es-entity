@@ -4,8 +4,8 @@ const mysql = require("mysql");
 const Handler_1 = require("./../Handler");
 const Query = require("./../Query");
 class MysqlHandler extends Handler_1.default {
-    constructor(...args) {
-        super(...args);
+    constructor() {
+        super();
         this.defaultConnection = null;
     }
     init() {

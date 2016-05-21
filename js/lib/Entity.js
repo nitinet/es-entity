@@ -32,6 +32,8 @@ class Field {
         }
         return w;
     }
+    // Column Interface functions
+    // Comparison Operators
     eq(operand) {
         let w1 = this._createExpr();
         let w2 = this._argExp(operand);
@@ -68,6 +70,17 @@ class Field {
         let expr = new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, w1, w2);
         return expr;
     }
+    // Logical Operators
+    and(operand) {
+        return null;
+    }
+    or(operand) {
+        return null;
+    }
+    not() {
+        return null;
+    }
+    // Inclusion Funtions
     in(...operand) {
         let w1 = this._createExpr();
         let w2 = new Query.SqlExpression(null, Query.Operator.Comma);
@@ -100,6 +113,20 @@ class Field {
         let expr = new Query.SqlExpression(null, Query.Operator.IsNotNull, w1);
         return expr;
     }
+    // Arithmatic Operators
+    plus(operand) {
+        return null;
+    }
+    minus(operand) {
+        return null;
+    }
+    multiply(operand) {
+        return null;
+    }
+    devide(operand) {
+        return null;
+    }
+    // Sorting Operators
     asc() {
         let w1 = this._createExpr();
         let expr = new Query.SqlExpression(null, Query.Operator.Asc, w1);
@@ -110,6 +137,7 @@ class Field {
         let expr = new Query.SqlExpression(null, Query.Operator.Desc, w1);
         return expr;
     }
+    // Group Functions
     sum() {
         let w1 = this._createExpr();
         let expr = new Query.SqlExpression(null, Query.Operator.Sum, w1);
