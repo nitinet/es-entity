@@ -1,6 +1,6 @@
 {
   "name": "es-entity",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ORM framework for Node js using ecmascript 6",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/InHeap/es6-entity.git"
+    "url": "git+https://github.com/InHeap/es-entity.git"
   },
   "keywords": [
     "Nodejs",
@@ -18,9 +18,9 @@
   "author": "Nitin Bansal",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/InHeap/es6-entity/issues"
+    "url": "https://github.com/InHeap/es-entity/issues"
   },
-  "homepage": "https://github.com/InHeap/es6-entity#readme",
+  "homepage": "https://github.com/InHeap/es-entity#readme",
   "dependencies": {
     "mysql": "*"
   }
