@@ -1,34 +1,3 @@
-export enum Operator {
-    Equal = 1,
-    NotEqual,
-    LessThan,
-    LessThanEqual,
-    GreaterThan,
-    GreaterThanEqual,
-    And,
-    Or,
-    Not,
-    Plus,
-    Minus,
-    Multiply,
-    Devide,
-    Between,
-    Exists,
-    In,
-    Like,
-    IsNull,
-    IsNotNull,
-    Asc,
-    Desc,
-    Limit,
-    Comma,
-    Count,
-    Sum,
-    Min,
-    Max,
-    Average
-}
-
 export abstract class ISqlNode {
     args: Array<any> = new Array<any>();
     abstract eval(): string;
@@ -160,43 +129,77 @@ export class SqlCollection extends ISqlNode {
     }
 }
 
-export interface Column {
+export abstract class Column {
+    abstract _createExpr(): SqlExpression
+    abstract _argExp(operand: any): SqlExpression
+
     // Comparison Operators
-    eq(operand: any): SqlExpression;
-    neq(operand: any): SqlExpression;
-    lt(operand: any): SqlExpression;
-    gt(operand: any): SqlExpression;
-    lteq(operand: any): SqlExpression;
-    gteq(operand: any): SqlExpression;
+    abstract eq(operand: any): SqlExpression;
+    abstract neq(operand: any): SqlExpression;
+    abstract lt(operand: any): SqlExpression;
+    abstract gt(operand: any): SqlExpression;
+    abstract lteq(operand: any): SqlExpression;
+    abstract gteq(operand: any): SqlExpression;
 
     // Logical Operators
-    and(operand: Column): SqlExpression;
-    or(operand: Column): SqlExpression;
-    not(): SqlExpression;
+    abstract and(operand: Column): SqlExpression;
+    abstract or(operand: Column): SqlExpression;
+    abstract not(): SqlExpression;
 
     // Inclusion Funtions
-    in(...operand: any[]): SqlExpression;
-    between(first: any, second: any): SqlExpression;
-    like(operand: any): SqlExpression;
-    IsNull(): SqlExpression;
-    IsNotNull(): SqlExpression;
+    abstract in(...operand: any[]): SqlExpression;
+    abstract between(first: any, second: any): SqlExpression;
+    abstract like(operand: any): SqlExpression;
+    abstract IsNull(): SqlExpression;
+    abstract IsNotNull(): SqlExpression;
 
     // Arithmatic Operators
-    plus(operand: any): SqlExpression;
-    minus(operand: any): SqlExpression;
-    multiply(operand: any): SqlExpression;
-    devide(operand: any): SqlExpression;
+    abstract plus(operand: any): SqlExpression;
+    abstract minus(operand: any): SqlExpression;
+    abstract multiply(operand: any): SqlExpression;
+    abstract devide(operand: any): SqlExpression;
 
     // Sorting Operators
-    asc(): SqlExpression;
-    desc(): SqlExpression;
+    abstract asc(): SqlExpression;
+    abstract desc(): SqlExpression;
 
     // Group Functions
-    sum(): SqlExpression;
-    min(): SqlExpression;
-    max(): SqlExpression;
-    count(): SqlExpression;
-    average(): SqlExpression;
+    abstract sum(): SqlExpression;
+    abstract min(): SqlExpression;
+    abstract max(): SqlExpression;
+    abstract count(): SqlExpression;
+    abstract average(): SqlExpression;
+}
+
+export enum Operator {
+    Equal = 1,
+    NotEqual,
+    LessThan,
+    LessThanEqual,
+    GreaterThan,
+    GreaterThanEqual,
+    And,
+    Or,
+    Not,
+    Plus,
+    Minus,
+    Multiply,
+    Devide,
+    Between,
+    Exists,
+    In,
+    Like,
+    IsNull,
+    IsNotNull,
+    Asc,
+    Desc,
+    Limit,
+    Comma,
+    Count,
+    Sum,
+    Min,
+    Max,
+    Avg
 }
 
 /**
@@ -208,8 +211,16 @@ export class SqlExpression extends ISqlNode implements Column {
     operator: Operator = null;
 
     add(...expressions: Array<SqlExpression>): SqlExpression {
-        this.exps = this.exps.concat(expressions);
-        return this;
+        if (this.operator == Operator.And) {
+            this.exps = this.exps.concat(expressions);
+            return this;
+        } else {
+            let exp: SqlExpression = new SqlExpression(null, Operator.And, this);
+            for (var i = 0; i < expressions.length; i++) {
+                exp.add(expressions[i]);
+            }
+            return exp;
+        }
     }
 
     constructor(value?: string, operator?: Operator, ...expressions: Array<SqlExpression>) {
@@ -271,6 +282,18 @@ export class SqlExpression extends ISqlNode implements Column {
                 case Operator.Not:
                     r = " not " + val0;
                     break;
+                case Operator.Plus:
+                    r = val0 + " + " + val1;
+                    break;
+                case Operator.Minus:
+                    r = val0 + " - " + val1;
+                    break;
+                case Operator.Multiply:
+                    r = val0 + " * " + val1;
+                    break;
+                case Operator.Devide:
+                    r = val0 + " / " + val1;
+                    break;
                 case Operator.Between:
                     r = val0 + " between " + val1 + " and " + values[2];
                     break;
@@ -305,6 +328,21 @@ export class SqlExpression extends ISqlNode implements Column {
                     r = r.slice(0, r.length - 2);
                 }
                     break;
+                case Operator.Count:
+                    r = "count(" + val0 + ")";
+                    break;
+                case Operator.Sum:
+                    r = "sum(" + val0 + ")";
+                    break;
+                case Operator.Min:
+                    r = "min(" + val0 + ")";
+                    break;
+                case Operator.Max:
+                    r = "max(" + val0 + ")";
+                    break;
+                case Operator.Avg:
+                    r = "avg(" + val0 + ")";
+                    break;
 
                 default:
                     break;
@@ -313,95 +351,111 @@ export class SqlExpression extends ISqlNode implements Column {
         }
     }
 
+    _createExpr(): SqlExpression {
+        return this;
+    }
+
+    _argExp(operand: any): SqlExpression {
+        let w: SqlExpression = null;
+        if (operand instanceof Column) {
+            w = (<Column>operand)._createExpr();
+        } else {
+            w = new SqlExpression("?");
+            w.args = w.args.concat(operand);
+        }
+        return w;
+    }
+
     // Column Interface functions
     // Comparison Operators
     eq(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Equal, this._createExpr(), this._argExp(operand));
     }
     neq(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.NotEqual, this._createExpr(), this._argExp(operand));
     }
     lt(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.LessThan, this._createExpr(), this._argExp(operand));
     }
     gt(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.GreaterThan, this._createExpr(), this._argExp(operand));
     }
     lteq(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.LessThanEqual, this._createExpr(), this._argExp(operand));
     }
     gteq(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.GreaterThanEqual, this._createExpr(), this._argExp(operand));
     }
 
     // Logical Operators
     and(operand: SqlExpression): SqlExpression {
-        let expr: SqlExpression = new SqlExpression(null, Operator.And, this, operand);
-        return expr;
+        return new SqlExpression(null, Operator.And, this._createExpr(), this._argExp(operand));
     }
     or(operand: SqlExpression): SqlExpression {
-        let expr: SqlExpression = new SqlExpression(null, Operator.Or, this, operand);
-        return expr;
+        return new SqlExpression(null, Operator.Or, this._createExpr(), this._argExp(operand));
     }
     not(): SqlExpression {
-        let expr: SqlExpression = new SqlExpression(null, Operator.Not, this);
-        return expr;
+        return new SqlExpression(null, Operator.Not, this._createExpr());
     }
 
     // Inclusion Funtions
     in(...operand: any[]): SqlExpression {
-        return null;
+        let arg: SqlExpression = new SqlExpression(null, Operator.Comma);
+        for (let i = 0; i < operand.length; i++) {
+            arg.exps.push(this._argExp(operand[i]));
+        }
+        return new SqlExpression(null, Operator.In, this._createExpr(), arg);
     }
     between(first: any, second: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Between, this._createExpr(), this._argExp(first), this._argExp(second));
     }
     like(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Like, this._createExpr(), this._argExp(operand));
     }
     IsNull(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.IsNull, this._createExpr());
     }
     IsNotNull(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.IsNotNull, this._createExpr());
     }
 
     // Arithmatic Operators
     plus(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Plus, this._createExpr(), this._argExp(operand));
     }
     minus(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Minus, this._createExpr(), this._argExp(operand));
     }
     multiply(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Multiply, this._createExpr(), this._argExp(operand));
     }
     devide(operand: any): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Devide, this._createExpr(), this._argExp(operand));
     }
 
     // Sorting Operators
     asc(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Asc, this._createExpr());
     }
     desc(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Desc, this._createExpr());
     }
 
     // Group Functions
     sum(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Sum, this._createExpr());
     }
     min(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Min, this._createExpr());
     }
     max(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Max, this._createExpr());
     }
     count(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Count, this._createExpr());
     }
     average(): SqlExpression {
-        return null;
+        return new SqlExpression(null, Operator.Avg, this._createExpr());
     }
 
 }

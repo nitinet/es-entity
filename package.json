@@ -1,6 +1,6 @@
 {
-  "name": "es6-entity",
-  "version": "1.0.0",
+  "name": "es-entity",
+  "version": "1.0.1",
   "description": "ORM framework for Node js using ecmascript 6",
   "main": "index.js",
   "scripts": {

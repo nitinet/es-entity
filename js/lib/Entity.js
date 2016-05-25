@@ -20,11 +20,8 @@ class Field {
     }
     _argExp(operand) {
         let w = null;
-        if (operand instanceof Field) {
+        if (operand instanceof Query.Column) {
             w = operand._createExpr();
-        }
-        else if (operand instanceof Query.SqlExpression) {
-            w = operand;
         }
         else {
             w = new Query.SqlExpression("?");
@@ -35,133 +32,88 @@ class Field {
     // Column Interface functions
     // Comparison Operators
     eq(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Equal, this._createExpr(), this._argExp(operand));
     }
     neq(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.NotEqual, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.NotEqual, this._createExpr(), this._argExp(operand));
     }
     lt(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.LessThan, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.LessThan, this._createExpr(), this._argExp(operand));
     }
     gt(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.GreaterThan, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.GreaterThan, this._createExpr(), this._argExp(operand));
     }
     lteq(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.LessThanEqual, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.LessThanEqual, this._createExpr(), this._argExp(operand));
     }
     gteq(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, this._createExpr(), this._argExp(operand));
     }
     // Logical Operators
     and(operand) {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.And, this._createExpr(), this._argExp(operand));
     }
     or(operand) {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.Or, this._createExpr(), this._argExp(operand));
     }
     not() {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.Not, this._createExpr());
     }
     // Inclusion Funtions
     in(...operand) {
-        let w1 = this._createExpr();
-        let w2 = new Query.SqlExpression(null, Query.Operator.Comma);
+        let arg = new Query.SqlExpression(null, Query.Operator.Comma);
         for (let i = 0; i < operand.length; i++) {
-            w2.exps.push(this._argExp(operand[i]));
+            arg.exps.push(this._argExp(operand[i]));
         }
-        let expr = new Query.SqlExpression(null, Query.Operator.In, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.In, this._createExpr(), arg);
     }
     between(first, second) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(first);
-        let w3 = this._argExp(second);
-        let expr = new Query.SqlExpression(null, Query.Operator.Between, w1, w2, w3);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Between, this._createExpr(), this._argExp(first), this._argExp(second));
     }
     like(operand) {
-        let w1 = this._createExpr();
-        let w2 = this._argExp(operand);
-        let expr = new Query.SqlExpression(null, Query.Operator.Like, w1, w2);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Like, this._createExpr(), this._argExp(operand));
     }
     IsNull() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.IsNull, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.IsNull, this._createExpr());
     }
     IsNotNull() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.IsNotNull, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.IsNotNull, this._createExpr());
     }
     // Arithmatic Operators
     plus(operand) {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.Plus, this._createExpr(), this._argExp(operand));
     }
     minus(operand) {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.Minus, this._createExpr(), this._argExp(operand));
     }
     multiply(operand) {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.Multiply, this._createExpr(), this._argExp(operand));
     }
     devide(operand) {
-        return null;
+        return new Query.SqlExpression(null, Query.Operator.Devide, this._createExpr(), this._argExp(operand));
     }
     // Sorting Operators
     asc() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Asc, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Asc, this._createExpr());
     }
     desc() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Desc, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Desc, this._createExpr());
     }
     // Group Functions
     sum() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Sum, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Sum, this._createExpr());
     }
     min() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Min, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Min, this._createExpr());
     }
     max() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Max, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Max, this._createExpr());
     }
     count() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Count, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Count, this._createExpr());
     }
     average() {
-        let w1 = this._createExpr();
-        let expr = new Query.SqlExpression(null, Query.Operator.Average, w1);
-        return expr;
+        return new Query.SqlExpression(null, Query.Operator.Avg, this._createExpr());
     }
 }
 exports.Field = Field;

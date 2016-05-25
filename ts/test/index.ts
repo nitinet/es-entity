@@ -19,7 +19,7 @@ let q = 4;
 let p = context.employees.get(1);
 p.then((v) => {
     console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-    /*v.description.val = "test update 2";
+    v.description.val = "test update 2";
     return context.employees.update(v);
 }).then((v) => {
     console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
@@ -34,11 +34,11 @@ p.then((v) => {
     context.employees.delete(v);
 }).then(() => {
     console.log("deleted");
-}).then(() => {*/
+}).then(() => {
     return context.employees.where((a) => {
         return a.name.IsNull();
         // return (a.id.lt(q)).or(a.id.eq(2));
-    });
+    }).list();
 }).then((v) => {
     for (var i = 0; i < v.length; i++) {
         var j = v[i];

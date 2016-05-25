@@ -1,6 +1,6 @@
 /// <reference path="./../../../typings/globals/mysql/index.d.ts" />
 
-import mysql = require("mysql");
+import * as mysql from "mysql";
 
 import Handler, {ResultSet} from "./../Handler";
 import * as Query from "./../Query";

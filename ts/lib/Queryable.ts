@@ -14,23 +14,21 @@ interface whereFunc<T> {
 }
 
 interface arrFieldFunc<T> {
-    (source: T): (Query.SqlExpression | Field)[];
+    (source: T): Query.SqlExpression[];
 }
 
 interface Queryable<T> {
     // Selection Functions
-    select(func: arrFieldFunc<T>): Promise<Array<any>>;
-    get(id: any): Promise<T>;
-    unique(): Promise<T>;
     list(): Promise<Array<T>>;
+    unique(): Promise<T>;
 
     // Conditional Functions
-    where(func: whereFunc<T>, ...args: any[]): Queryable<T>;
-    groupBy(func: arrFieldFunc<T>): Queryable<T>;
-    orderBy(func: arrFieldFunc<T>): Queryable<T>;
+    where(func?: whereFunc<T>, ...args: any[]): Queryable<T>;
+    groupBy(func?: arrFieldFunc<T>): Queryable<T>;
+    orderBy(func?: arrFieldFunc<T>): Queryable<T>;
 }
 
-class DBSet<T> {
+class DBSet<T> implements Queryable<T> {
     entityType: IEntityType<T>;
     context: Context;
     mapping: Mapping.EntityMapping;
@@ -70,6 +68,10 @@ class DBSet<T> {
 
     getValue(obj: any, key: string): any {
         return (<Field>obj[key]).val;
+    }
+
+    executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
+        return this.context.execute(stat);
     }
 
     insert(entity: T): Promise<T> {
@@ -156,12 +158,10 @@ class DBSet<T> {
 
         return this.where((a: T, id) => {
             return (<Field>a[this.mapping.primaryKeyField.fieldName]).eq(id);
-        }, id).then<T>((res) => {
-            return res[0];
-        });
+        }, id).unique();
     }
 
-    getStatement(): Query.SqlStatement {
+    where(func?: whereFunc<T>, ...args: any[]): Queryable<T> {
         let stat: Query.SqlStatement = new Query.SqlStatement();
         stat.command = "select";
 
@@ -169,43 +169,172 @@ class DBSet<T> {
         stat.collection.value = this.mapping.name;
         stat.collection.alias = alias;
 
-        for (let i = 0; i < this.mapping.fields.length; i++) {
-            let element = this.mapping.fields[i];
-            let c: Query.SqlCollection = new Query.SqlCollection();
-            c.colAlias = alias;
-            c.value = element.name;
-            c.alias = element.fieldName;
-            stat.columns.push(c);
-        }
-        return stat;
-    }
-
-    where(func: whereFunc<T>, ...args: any[]): Promise<Array<T>> {
-        let stat = this.getStatement();
         let a = this.getEntity(stat.collection.alias);
-        let res = func(a, args);
+        let res: any = null;
+        if (func) {
+            res = func(a, args);
+        }
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
-            return this.context.execute(stat).then<Array<T>>((result: Handler.ResultSet) => {
-                if (result.rows.length == 0)
-                    throw "No Result Found";
-                else {
-                    let data: Array<T> = new Array();
-                    for (let j = 0; j < result.rows.length; j++) {
-                        let row = result.rows[j];
-                        let a = this.getEntity();
-                        for (let i = 0; i < this.mapping.fields.length; i++) {
-                            let r = this.mapping.fields[i];
-                            this.setValue(a, r.fieldName, row[r.fieldName]);
-                        }
-                        data.push(a);
-                    }
-                    return data;
-                }
-            });
-        } else {
-            null;
         }
+        let s: SimpleQueryable<T> = new SimpleQueryable(stat, this);
+        return s;
+    }
+
+    groupBy(func?: arrFieldFunc<T>): Queryable<T> {
+        let q = this.where();
+        return q.groupBy(func);
+    }
+
+    orderBy(func?: arrFieldFunc<T>): Queryable<T> {
+        let q = this.where();
+        return q.orderBy(func);
+    }
+
+    list(): Promise<Array<any>> {
+        let q = this.where();
+        return q.list();
+    }
+
+    unique(): Promise<T> {
+        let q = this.where();
+        return q.unique();
+    }
+
+}
+
+/**
+ * SimpleQueryable
+ */
+class SimpleQueryable<T> implements Queryable<T> {
+    dbSet: DBSet<T> = null;
+    stat: Query.SqlStatement = null;
+
+    constructor(stat: Query.SqlStatement, dbSet: DBSet<T>) {
+        this.stat = stat;
+        this.dbSet = dbSet;
+    }
+
+    // Selection Functions
+    list(): Promise<Array<any>> {
+        let alias: string = this.stat.collection.alias;
+        for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+            let e = this.dbSet.mapping.fields[i];
+            let c: Query.SqlCollection = new Query.SqlCollection();
+            c.colAlias = alias;
+            c.value = e.name;
+            c.alias = e.fieldName;
+            this.stat.columns.push(c);
+        }
+
+        return this.dbSet.executeStatement(this.stat).then<Array<T>>((result: Handler.ResultSet) => {
+            let data: Array<T> = new Array();
+            for (let j = 0; j < result.rows.length; j++) {
+                let row = result.rows[j];
+                let a = this.dbSet.getEntity();
+                for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+                    let r = this.dbSet.mapping.fields[i];
+                    this.dbSet.setValue(a, r.fieldName, row[r.fieldName]);
+                }
+                data.push(a);
+            }
+            return data;
+        });
+    }
+
+    // Selection Functions
+    select(func?: arrFieldFunc<T>): Promise<Array<any>> {
+        let cols: Query.SqlExpression[] = new Array();
+        if (func) {
+            let a = this.dbSet.getEntity(this.stat.collection.alias);
+            let temp = func(a);
+            for (var i = 0; i < temp.length; i++) {
+                var e = temp[i];
+                cols.push(e._createExpr());
+            }
+        } else {
+            let alias: string = this.stat.collection.alias;
+            for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+                let e = this.dbSet.mapping.fields[i];
+                let c: Query.SqlCollection = new Query.SqlCollection();
+                c.colAlias = alias;
+                c.value = e.name;
+                c.alias = e.fieldName;
+                this.stat.columns.push(c);
+            }
+        }
+
+        return this.dbSet.executeStatement(this.stat).then<Array<T>>((result: Handler.ResultSet) => {
+            if (result.rows.length == 0)
+                throw "No Result Found";
+            else {
+                let data: Array<T> = new Array();
+                for (let j = 0; j < result.rows.length; j++) {
+                    let row = result.rows[j];
+                    let a = this.dbSet.getEntity();
+                    for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+                        let r = this.dbSet.mapping.fields[i];
+                        this.dbSet.setValue(a, r.fieldName, row[r.fieldName]);
+                    }
+                    data.push(a);
+                }
+                return data;
+            }
+        });
+    }
+
+    unique(): Promise<T> {
+        return this.list().then<T>((l) => {
+            if (l.length > 1) {
+                throw "More than one row found";
+            } else {
+                return l[0];
+            }
+        });
+    }
+
+    // Conditional Functions
+    where(func?: whereFunc<T>, ...args: any[]): Queryable<T> {
+        let a = this.dbSet.getEntity(this.stat.collection.alias);
+        let res: any = null;
+        if (func) {
+            res = func(a, args);
+        }
+        if (res instanceof Query.SqlExpression) {
+            this.stat.where.add(res);
+        }
+        let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
+        return s;
+    }
+
+    groupBy(func?: arrFieldFunc<T>): Queryable<T> {
+        let a = this.dbSet.getEntity(this.stat.collection.alias);
+        let res: any = null;
+        if (func) {
+            res = func(a);
+        }
+        if (res instanceof Array) {
+            for (let i = 0; i < res.length; i++) {
+                this.stat.groupBy.push((<Query.Column>res[i])._createExpr());
+            }
+        }
+        let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
+        return s;
+    }
+
+    orderBy(func?: arrFieldFunc<T>): Queryable<T> {
+        let a = this.dbSet.getEntity(this.stat.collection.alias);
+        let res: any = null;
+        if (func) {
+            res = func(a);
+        }
+        if (res instanceof Array) {
+            for (let i = 0; i < res.length; i++) {
+                this.stat.orderBy.push((<Query.Column>res[i])._createExpr());
+            }
+        }
+        let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
+        return s;
     }
 
 }

@@ -36,6 +36,9 @@ class DBSet {
     getValue(obj, key) {
         return obj[key].val;
     }
+    executeStatement(stat) {
+        return this.context.execute(stat);
+    }
     insert(entity) {
         let stat = new Query.SqlStatement();
         stat.command = "insert";
@@ -110,53 +113,167 @@ class DBSet {
             throw "Id parameter cannot be null";
         return this.where((a, id) => {
             return a[this.mapping.primaryKeyField.fieldName].eq(id);
-        }, id).then((res) => {
-            return res[0];
-        });
+        }, id).unique();
     }
-    getStatement() {
+    where(func, ...args) {
         let stat = new Query.SqlStatement();
         stat.command = "select";
         let alias = this.mapping.name.charAt(0);
         stat.collection.value = this.mapping.name;
         stat.collection.alias = alias;
-        for (let i = 0; i < this.mapping.fields.length; i++) {
-            let element = this.mapping.fields[i];
-            let c = new Query.SqlCollection();
-            c.colAlias = alias;
-            c.value = element.name;
-            c.alias = element.fieldName;
-            stat.columns.push(c);
-        }
-        return stat;
-    }
-    where(func, ...args) {
-        let stat = this.getStatement();
         let a = this.getEntity(stat.collection.alias);
-        let res = func(a, args);
+        let res = null;
+        if (func) {
+            res = func(a, args);
+        }
         if (res instanceof Query.SqlExpression) {
             stat.where = res;
-            return this.context.execute(stat).then((result) => {
-                if (result.rows.length == 0)
-                    throw "No Result Found";
-                else {
-                    let data = new Array();
-                    for (let j = 0; j < result.rows.length; j++) {
-                        let row = result.rows[j];
-                        let a = this.getEntity();
-                        for (let i = 0; i < this.mapping.fields.length; i++) {
-                            let r = this.mapping.fields[i];
-                            this.setValue(a, r.fieldName, row[r.fieldName]);
-                        }
-                        data.push(a);
-                    }
-                    return data;
-                }
-            });
         }
-        else {
-            null;
-        }
+        let s = new SimpleQueryable(stat, this);
+        return s;
+    }
+    groupBy(func) {
+        let q = this.where();
+        return q.groupBy(func);
+    }
+    orderBy(func) {
+        let q = this.where();
+        return q.orderBy(func);
+    }
+    list() {
+        let q = this.where();
+        return q.list();
+    }
+    unique() {
+        let q = this.where();
+        return q.unique();
     }
 }
 exports.DBSet = DBSet;
+/**
+ * SimpleQueryable
+ */
+class SimpleQueryable {
+    constructor(stat, dbSet) {
+        this.dbSet = null;
+        this.stat = null;
+        this.stat = stat;
+        this.dbSet = dbSet;
+    }
+    // Selection Functions
+    list() {
+        let alias = this.stat.collection.alias;
+        for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+            let e = this.dbSet.mapping.fields[i];
+            let c = new Query.SqlCollection();
+            c.colAlias = alias;
+            c.value = e.name;
+            c.alias = e.fieldName;
+            this.stat.columns.push(c);
+        }
+        return this.dbSet.executeStatement(this.stat).then((result) => {
+            let data = new Array();
+            for (let j = 0; j < result.rows.length; j++) {
+                let row = result.rows[j];
+                let a = this.dbSet.getEntity();
+                for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+                    let r = this.dbSet.mapping.fields[i];
+                    this.dbSet.setValue(a, r.fieldName, row[r.fieldName]);
+                }
+                data.push(a);
+            }
+            return data;
+        });
+    }
+    // Selection Functions
+    select(func) {
+        let cols = new Array();
+        if (func) {
+            let a = this.dbSet.getEntity(this.stat.collection.alias);
+            let temp = func(a);
+            for (var i = 0; i < temp.length; i++) {
+                var e = temp[i];
+                cols.push(e._createExpr());
+            }
+        }
+        else {
+            let alias = this.stat.collection.alias;
+            for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+                let e = this.dbSet.mapping.fields[i];
+                let c = new Query.SqlCollection();
+                c.colAlias = alias;
+                c.value = e.name;
+                c.alias = e.fieldName;
+                this.stat.columns.push(c);
+            }
+        }
+        return this.dbSet.executeStatement(this.stat).then((result) => {
+            if (result.rows.length == 0)
+                throw "No Result Found";
+            else {
+                let data = new Array();
+                for (let j = 0; j < result.rows.length; j++) {
+                    let row = result.rows[j];
+                    let a = this.dbSet.getEntity();
+                    for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
+                        let r = this.dbSet.mapping.fields[i];
+                        this.dbSet.setValue(a, r.fieldName, row[r.fieldName]);
+                    }
+                    data.push(a);
+                }
+                return data;
+            }
+        });
+    }
+    unique() {
+        return this.list().then((l) => {
+            if (l.length > 1) {
+                throw "More than one row found";
+            }
+            else {
+                return l[0];
+            }
+        });
+    }
+    // Conditional Functions
+    where(func, ...args) {
+        let a = this.dbSet.getEntity(this.stat.collection.alias);
+        let res = null;
+        if (func) {
+            res = func(a, args);
+        }
+        if (res instanceof Query.SqlExpression) {
+            this.stat.where.add(res);
+        }
+        let s = new SimpleQueryable(this.stat, this.dbSet);
+        return s;
+    }
+    groupBy(func) {
+        let a = this.dbSet.getEntity(this.stat.collection.alias);
+        let res = null;
+        if (func) {
+            res = func(a);
+        }
+        if (res instanceof Array) {
+            for (let i = 0; i < res.length; i++) {
+                this.stat.groupBy.push(res[i]._createExpr());
+            }
+        }
+        let s = new SimpleQueryable(this.stat, this.dbSet);
+        return s;
+    }
+    orderBy(func) {
+        let a = this.dbSet.getEntity(this.stat.collection.alias);
+        let res = null;
+        if (func) {
+            res = func(a);
+        }
+        if (res instanceof Array) {
+            for (let i = 0; i < res.length; i++) {
+                this.stat.orderBy.push(res[i]._createExpr());
+            }
+        }
+        let s = new SimpleQueryable(this.stat, this.dbSet);
+        return s;
+    }
+}
