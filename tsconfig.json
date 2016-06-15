@@ -3,7 +3,7 @@
         "target": "ES6",
         "module": "commonjs",
         "sourceMap": false,
-        "outDir": "./js/",
+        "outDir": "./",
         "allowSyntheticDefaultImports": true
     },
     "exclude": [

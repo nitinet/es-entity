@@ -1,14 +1,18 @@
-/// <reference path="./../../../typings/globals/mysql/index.d.ts" />
-"use strict";
-const mysql = require("mysql");
-const Handler_1 = require("./../Handler");
-const Query = require("./../Query");
-class MysqlHandler extends Handler_1.default {
+/// <reference path="/usr/local/lib/typings/globals/mysql/index.d.ts" />
+
+import * as mysql from "mysql";
+
+import Handler, {ResultSet} from "./../Handler";
+import * as Query from "./../Query";
+
+class MysqlHandler extends Handler {
     constructor() {
         super();
-        this.defaultConnection = null;
     }
-    init() {
+
+    defaultConnection: mysql.IConnection = null;
+
+    init(): void {
         this.defaultConnection = mysql.createConnection({
             host: this.config.hostname,
             user: this.config.username,
@@ -16,7 +20,8 @@ class MysqlHandler extends Handler_1.default {
             database: this.config.database
         });
     }
-    getConnection() {
+
+    getConnection(): any {
         let connection = mysql.createConnection({
             host: this.config.hostname,
             user: this.config.username,
@@ -31,19 +36,20 @@ class MysqlHandler extends Handler_1.default {
         });
         return connection;
     }
-    run(query, connection = this.defaultConnection) {
-        let q = null;
-        let args = null;
+
+    run(query: string | Query.ISqlNode, connection = this.defaultConnection): Promise<ResultSet> {
+        let q: string = null;
+        let args: Array<any> = null;
         if (typeof query === "string") {
             q = query;
-        }
-        else if (query instanceof Query.SqlStatement) {
+        } else if (query instanceof Query.SqlStatement) {
             q = query.eval();
             args = query.args;
         }
-        let p = new Promise((resolve, reject) => {
-            let r = new Handler_1.ResultSet();
-            Promise.resolve(q).then((val) => {
+
+        let p = new Promise<ResultSet>((resolve, reject) => {
+            let r: ResultSet = new ResultSet();
+            Promise.resolve<string>(q).then((val) => {
                 // console.log("query:" + val);
                 /* for (let i = 0; i < args.length; i++) {
                     console.log("Argument: " + args[i]);
@@ -56,10 +62,9 @@ class MysqlHandler extends Handler_1.default {
                             r.id = result.insertId;
                         if (result.changedRows) {
                             r.rowCount = result.changedRows;
-                        }
-                        else if (Array.isArray(result)) {
-                            r.rows = result;
-                            r.rowCount = result.length;
+                        } else if (Array.isArray(result)) {
+                            r.rows = <Array<any>>result;
+                            r.rowCount = (<Array<any>>result).length;
                         }
                     }
                     resolve(r);
@@ -68,6 +73,7 @@ class MysqlHandler extends Handler_1.default {
         });
         return p;
     }
+
 }
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = MysqlHandler;
+
+export default MysqlHandler;
