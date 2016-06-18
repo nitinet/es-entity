@@ -81,9 +81,10 @@ Context class is created which extends from es.Context. This class works as data
 ```js
 const Employee_1 = require("./Employee");
 class EmpContext extends es.Context {
-    constructor() {
-        super();
+    constructor(config, entityPath) {
+        super(config, entityPath);
         this.employees = new es.DBSet(Employee_1.default);
+        this.init();
     }
 }
 ```
@@ -92,8 +93,7 @@ Provide the database config object and mapping folder object to the context obje
 
 ```js
 const EmpContext_1 = require("./modal/EmpContext");
-var context = new EmpContext_1.default();
-context.bind(config, __dirname + "/mappings");
+var context = new EmpContext_1.default(config, __dirname + "/mappings");
 ```
 
 ## Operations
