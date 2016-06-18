@@ -40,7 +40,7 @@ class DBSet<T> implements Queryable<T> {
     bind(context: Context): void {
         this.context = context;
         let entityName: string = this.entityType.name;
-        let filePath: string = path.join(context.mappingPath, entityName + ".json");
+        let filePath: string = path.join(context.entityPath, entityName + ".json");
         let data = fs.readFileSync(filePath, "utf-8");
         this.mapping = new Mapping.EntityMapping(JSON.parse(data));
     }

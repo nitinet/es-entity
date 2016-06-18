@@ -1,8 +1,9 @@
-import Handler, {ResultSet} from "./../Handler";
+import Handler, {ResultSet, ConnectionConfig} from "./../Handler";
 import * as Query from "./../Query";
 
 class OracleDbHandler extends Handler {
-    init(): void {
+    constructor(config: ConnectionConfig) {
+        super();
     }
 
     getConnection(): any {

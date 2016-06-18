@@ -9,8 +9,7 @@ config.name = "mysql";
 config.username = "root";
 config.password = "Application~";
 config.database = "test";
-var context = new EmpContext_1.default();
-context.bind(config, __dirname + "/mappings");
+var context = new EmpContext_1.default(config, __dirname + "/mappings");
 let q = 4;
 let p = context.employees.get(1);
 p.then((v) => {

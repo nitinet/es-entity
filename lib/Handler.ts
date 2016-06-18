@@ -4,6 +4,7 @@ export class ConnectionConfig {
     name: string = "";
     handler: string = "";
     driver: any = null;
+    connectionLimit = 25;
     hostname: string = "";  // Default Mysql
     username: string = "";
     password: string = "";
@@ -23,11 +24,6 @@ export class ResultSet {
 abstract class Handler {
     public config: ConnectionConfig;
 
-    setconfig(config: ConnectionConfig) {
-        this.config = config;
-    }
-
-    abstract init(): void;
     abstract getConnection(): any;
     abstract run(query: string | Query.ISqlNode): Promise<ResultSet>;
 }

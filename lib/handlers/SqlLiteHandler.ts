@@ -1,10 +1,11 @@
-import Handler, {ResultSet} from "./../Handler";
+import Handler, {ResultSet, ConnectionConfig} from "./../Handler";
 import * as Query from "./../Query";
 
 class SqlLiteHandler extends Handler {
-    init(): void {
+    constructor(config: ConnectionConfig) {
+        super();
     }
-
+    
     getConnection(): any {
         return null;
     }

@@ -2,9 +2,10 @@
 const es = require("./../../index");
 const Employee_1 = require("./Employee");
 class EmpContext extends es.Context {
-    constructor() {
-        super();
+    constructor(config, entityPath) {
+        super(config, entityPath);
         this.employees = new es.DBSet(Employee_1.default);
+        this.init();
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

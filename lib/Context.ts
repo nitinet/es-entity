@@ -12,37 +12,35 @@ import * as Query from "./Query";
 export function getHandler(config: ConnectionConfig): Handler {
     let handler: Handler = null;
     if (config.handler.toLowerCase() === "mysql") {
-        handler = new MysqlHandler();
+        handler = new MysqlHandler(config);
     } else if (config.handler.toLowerCase() === "oracle") {
-        handler = new OracleHandler();
+        handler = new OracleHandler(config);
     } else if (config.handler.toLowerCase() === "postgre") {
-        handler = new PostGreHandler();
+        handler = new PostGreHandler(config);
     } else if (config.handler.toLowerCase() === "sqlserver") {
-        handler = new MsSqlServerHandler();
+        handler = new MsSqlServerHandler(config);
     } else if (config.handler.toLowerCase() === "sqllite") {
-        handler = new SqlLiteHandler();
+        handler = new SqlLiteHandler(config);
     } else {
         throw "No Handler Found";
     }
-    handler.setconfig(config);
-    handler.init();
     return handler;
 }
 
 class Context {
-    mappingPath: string;
+    entityPath: string;
     handler: Handler;
 
-    constructor() {
+    constructor(config?: ConnectionConfig, entityPath?: string) {
+        if (config) {
+            this.setConfig(config);
+        }
+        if (entityPath) {
+            this.setEntityPath(entityPath);
+        }
     }
 
-    setConfig(config: ConnectionConfig): void {
-        this.handler = getHandler(config);
-    }
-
-    bind(config?: ConnectionConfig, mappingPath?: string): void {
-        this.mappingPath = mappingPath;
-        this.setConfig(config);
+    init() {
         let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
         keys.forEach(key => {
             let e: any = Reflect.get(this, key);
@@ -50,6 +48,14 @@ class Context {
                 (<DBSet<any>>e).bind(this);
             }
         });
+    }
+
+    setConfig(config: ConnectionConfig): void {
+        this.handler = getHandler(config);
+    }
+
+    setEntityPath(entityPath: string): void {
+        this.entityPath = entityPath;
     }
 
     execute(query: string | Query.ISqlNode): Promise<ResultSet> {

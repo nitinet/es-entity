@@ -11,8 +11,7 @@ config.name = "mysql";
 config.username = "root";
 config.password = "Application~";
 config.database = "test";
-var context = new empContext();
-context.bind(config, __dirname + "/mappings");
+var context = new empContext(config, __dirname + "/mappings");
 
 let q = 4;
 

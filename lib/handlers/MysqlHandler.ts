@@ -2,18 +2,17 @@
 
 import * as mysql from "mysql";
 
-import Handler, {ResultSet} from "./../Handler";
+import Handler, {ResultSet, ConnectionConfig} from "./../Handler";
 import * as Query from "./../Query";
 
 class MysqlHandler extends Handler {
-    constructor() {
+    connectionPool: mysql.IPool = null;
+
+    constructor(config: ConnectionConfig) {
         super();
-    }
-
-    defaultConnection: mysql.IConnection = null;
-
-    init(): void {
-        this.defaultConnection = mysql.createConnection({
+        this.config = config;
+        this.connectionPool = mysql.createPool({
+            connectionLimit: this.config.connectionLimit,
             host: this.config.hostname,
             user: this.config.username,
             password: this.config.password,
@@ -37,7 +36,7 @@ class MysqlHandler extends Handler {
         return connection;
     }
 
-    run(query: string | Query.ISqlNode, connection = this.defaultConnection): Promise<ResultSet> {
+    run(query: string | Query.ISqlNode, connection?: any): Promise<ResultSet> {
         let q: string = null;
         let args: Array<any> = null;
         if (typeof query === "string") {
@@ -54,21 +53,39 @@ class MysqlHandler extends Handler {
                 /* for (let i = 0; i < args.length; i++) {
                     console.log("Argument: " + args[i]);
                 }*/
-                connection.query(val, args, function (err, result) {
-                    if (err)
-                        reject(err.code);
-                    else {
-                        if (result.insertId)
-                            r.id = result.insertId;
-                        if (result.changedRows) {
-                            r.rowCount = result.changedRows;
-                        } else if (Array.isArray(result)) {
-                            r.rows = <Array<any>>result;
-                            r.rowCount = (<Array<any>>result).length;
+                if (connection) {
+                    (<mysql.IConnection>connection).query(val, args, function (err, result) {
+                        if (err)
+                            reject(err.code);
+                        else {
+                            if (result.insertId)
+                                r.id = result.insertId;
+                            if (result.changedRows) {
+                                r.rowCount = result.changedRows;
+                            } else if (Array.isArray(result)) {
+                                r.rows = <Array<any>>result;
+                                r.rowCount = (<Array<any>>result).length;
+                            }
                         }
-                    }
-                    resolve(r);
-                });
+                        resolve(r);
+                    });
+                } else {
+                    this.connectionPool.query(val, args, function (err, result) {
+                        if (err)
+                            reject(err.code);
+                        else {
+                            if (result.insertId)
+                                r.id = result.insertId;
+                            if (result.changedRows) {
+                                r.rowCount = result.changedRows;
+                            } else if (Array.isArray(result)) {
+                                r.rows = <Array<any>>result;
+                                r.rowCount = (<Array<any>>result).length;
+                            }
+                        }
+                        resolve(r);
+                    });
+                }
             });
         });
         return p;
