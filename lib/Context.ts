@@ -58,7 +58,7 @@ class Context {
         this.entityPath = entityPath;
     }
 
-    execute(query: string | Query.ISqlNode): Promise<ResultSet> {
+    async execute(query: string | Query.ISqlNode): Promise<ResultSet> {
         return this.handler.run(query);
     }
 

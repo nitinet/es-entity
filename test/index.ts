@@ -15,32 +15,29 @@ var context = new empContext(config, __dirname + "/mappings");
 
 let q = 4;
 
-let p = context.employees.get(1);
-p.then((v) => {
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-    v.description.val = "test update 2";
-    return context.employees.update(v);
-}).then((v) => {
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-    console.log("updated");
-    let a = context.employees.getEntity();
-    a.name.val = "name 2";
-    a.description.val = "desc insert 2";
-    return context.employees.insert(a);
-}).then((v) => {
-    console.log("inserted");
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-    context.employees.delete(v);
-}).then(() => {
-    console.log("deleted");
-}).then(() => {
-    return context.employees.where((a) => {
-        return a.name.IsNull();
-        // return (a.id.lt(q)).or(a.id.eq(2));
-    }).list();
-}).then((v) => {
-    for (var i = 0; i < v.length; i++) {
-        var j = v[i];
-        console.log("id: " + j.id.val + ", name: " + j.name.val + ", desc: " + j.description.val);
-    }
-});
+async function run() {
+	let v = await context.employees.get(1);
+	console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+	v.description.val = "test update 2";
+	v = await context.employees.update(v);
+	console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+	console.log("updated");
+	let a = context.employees.getEntity();
+	a.name.val = "name 2";
+	a.description.val = "desc insert 2";
+	v = await context.employees.insert(a);
+	console.log("inserted");
+	console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+	await context.employees.delete(v);
+	console.log("deleted");
+	let q = await context.employees.where((a) => {
+		return a.name.IsNull();
+		// return (a.id.lt(q)).or(a.id.eq(2));
+	}).list();
+	for (let i = 0; i < q.length; i++) {
+		let j = q[i];
+		console.log("id: " + j.id.val + ", name: " + j.name.val + ", desc: " + j.description.val);
+	}
+}
+
+run();

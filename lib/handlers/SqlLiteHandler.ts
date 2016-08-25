@@ -2,17 +2,17 @@ import Handler, {ResultSet, ConnectionConfig} from "./../Handler";
 import * as Query from "./../Query";
 
 class SqlLiteHandler extends Handler {
-    constructor(config: ConnectionConfig) {
-        super();
-    }
-    
-    getConnection(): any {
-        return null;
-    }
+	constructor(config: ConnectionConfig) {
+		super();
+	}
 
-    run(query: string | Query.ISqlNode): Promise<ResultSet> {
-        return null
-    }
+	getConnection(): any {
+		return null;
+	}
+
+	async run(query: string | Query.ISqlNode): Promise<ResultSet> {
+		return null
+	}
 }
 
 export default SqlLiteHandler;

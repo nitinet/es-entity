@@ -3,17 +3,17 @@ import * as Query from "./../Query";
 
 class MsSqlServerHandler extends Handler {
 
-    constructor(config: ConnectionConfig) {
-        super();
-    }
+	constructor(config: ConnectionConfig) {
+		super();
+	}
 
-    getConnection(): any {
-        return null;
-    }
+	getConnection(): any {
+		return null;
+	}
 
-    run(query: string | Query.ISqlNode): Promise<ResultSet> {
-        return null
-    }
+	async run(query: string | Query.ISqlNode): Promise<ResultSet> {
+		return null
+	}
 
 }
 

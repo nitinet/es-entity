@@ -1,4 +1,3 @@
-/// <reference path="/usr/local/lib/typings/globals/node/index.d.ts" />
 "use strict";
 const Entity_1 = require("./lib/Entity");
 exports.Field = Entity_1.Field;

@@ -1,32 +1,32 @@
 export class FieldMapping {
-    name: string = null;
-    fieldName: string = null;
-    type: string = null;
-    skipInsert: boolean = false;
-    skipUpdate: boolean = false;
+	name: string = null;
+	fieldName: string = null;
+	type: string = null;
+	skipInsert: boolean = false;
+	skipUpdate: boolean = false;
 
-    constructor(data: string) {
-        Object.assign(this, data);
-    }
+	constructor(data: string) {
+		Object.assign(this, data);
+	}
 }
 
 export class EntityMapping {
-    name: string = null;
-    entityName: string = null;
-    dynamicInsert: boolean = false;
-    dynamicUpdate: boolean = false;
-    primaryKey: string = "";
-    primaryKeyField: FieldMapping = null;
-    cacheEnabled: boolean = false;
-    fields: Array<FieldMapping> = new Array<FieldMapping>();
+	name: string = null;
+	entityName: string = null;
+	dynamicInsert: boolean = false;
+	dynamicUpdate: boolean = false;
+	primaryKey: string = "";
+	primaryKeyField: FieldMapping = null;
+	cacheEnabled: boolean = false;
+	fields: Array<FieldMapping> = new Array<FieldMapping>();
 
-    constructor(data: string) {
-        Object.assign(this, data);
-        for (let i = 0; i < this.fields.length; i++) {
-            let element = this.fields[i];
-            if (element.fieldName === this.primaryKey) {
-                this.primaryKeyField = element;
-            }
-        }
-    }
+	constructor(data: string) {
+		Object.assign(this, data);
+		for (let i = 0; i < this.fields.length; i++) {
+			let element = this.fields[i];
+			if (element.fieldName === this.primaryKey) {
+				this.primaryKeyField = element;
+			}
+		}
+	}
 }
