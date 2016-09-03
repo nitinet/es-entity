@@ -21,17 +21,17 @@ let q = 4;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         let v = yield context.employees.get(1);
-        console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-        v.description.val = "test update 2";
+        console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
+        v.description.set("test update 2");
         v = yield context.employees.update(v);
-        console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+        console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
         console.log("updated");
         let a = context.employees.getEntity();
-        a.name.val = "name 2";
-        a.description.val = "desc insert 2";
+        a.name.set("name 2");
+        a.description.set("desc insert 2");
         v = yield context.employees.insert(a);
         console.log("inserted");
-        console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+        console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
         yield context.employees.delete(v);
         console.log("deleted");
         let q = yield context.employees.where((a) => {
@@ -39,7 +39,7 @@ function run() {
         }).list();
         for (let i = 0; i < q.length; i++) {
             let j = q[i];
-            console.log("id: " + j.id.val + ", name: " + j.name.val + ", desc: " + j.description.val);
+            console.log("id: " + j.id + ", name: " + j.name + ", desc: " + j.description);
         }
     });
 }

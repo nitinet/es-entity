@@ -4,9 +4,9 @@ class Employee {
     constructor() {
     }
 
-    id: es.Field = new es.Field();
-    name: es.Field = new es.Field();
-    description: es.Field = new es.Field();
+    id: es.Number = new es.Number();
+    name: es.String = new es.String();
+    description: es.String = new es.String();
 }
 
 export default Employee;

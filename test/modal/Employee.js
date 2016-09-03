@@ -2,9 +2,9 @@
 const es = require("./../../index");
 class Employee {
     constructor() {
-        this.id = new es.Field();
-        this.name = new es.Field();
-        this.description = new es.Field();
+        this.id = new es.Number();
+        this.name = new es.String();
+        this.description = new es.String();
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

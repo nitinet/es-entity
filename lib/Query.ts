@@ -130,6 +130,12 @@ export class SqlCollection extends ISqlNode {
 }
 
 export abstract class Column {
+	_alias: string = "";
+	_name: string = "";
+	_updated: boolean = false;
+
+	abstract set(value: any): void
+	abstract get(): any;
 	abstract _createExpr(): SqlExpression
 	abstract _argExp(operand: any): SqlExpression
 
@@ -206,9 +212,18 @@ export enum Operator {
  * SqlExpression
  */
 export class SqlExpression extends ISqlNode implements Column {
+	_alias: string = "";
+	_name: string = "";
+	_updated: boolean = false;
+
 	value: string = null;
 	exps: Array<SqlExpression> = null;
 	operator: Operator = null;
+
+	set() { }
+	get() {
+		return null;
+	}
 
 	add(...expressions: Array<SqlExpression>): SqlExpression {
 		if (this.operator == Operator.And) {

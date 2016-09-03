@@ -4,7 +4,7 @@ import fs = require("fs");
 import path = require("path");
 
 import Context from "./Context";
-import Entity, {IEntityType, Field} from "./Entity";
+import Entity, {IEntityType, StringField, NumberField} from "./Entity";
 import * as Mapping from "./Mapping";
 import * as Query from "./Query";
 import * as Handler from "./Handler";
@@ -23,15 +23,15 @@ interface Queryable<T> {
 	unique(): Promise<T>;
 
 	// Conditional Functions
-	where(func?: whereFunc<T>, ...args: any[]): Queryable<T>;
-	groupBy(func?: arrFieldFunc<T>): Queryable<T>;
-	orderBy(func?: arrFieldFunc<T>): Queryable<T>;
+	where(func?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T>;
+	groupBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T>;
+	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T>;
 }
 
 class DBSet<T> implements Queryable<T> {
 	entityType: IEntityType<T>;
 	context: Context;
-	mapping: Mapping.EntityMapping;
+	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 
 	constructor(entityType: IEntityType<T>) {
 		this.entityType = entityType;
@@ -50,24 +50,30 @@ class DBSet<T> implements Queryable<T> {
 
 		this.mapping.fields.forEach(k => {
 			let q: any = a[k.fieldName];
-			if (q instanceof Field) {
-				(<Field>q)._name = k.name;
-				(<Field>q)._alias = alias;
+			if (q instanceof StringField || q instanceof NumberField) {
+				(<Query.Column>q)._name = k.name;
+				(<Query.Column>q)._alias = alias;
 			}
 		});
 		return a;
 	}
 
 	isUpdated(obj: any, key: string): boolean {
-		return (<Field>obj[key])._updated ? true : false;
+		return (<Query.Column>obj[key])._updated ? true : false;
 	}
 
 	setValue(obj: any, key: string, value: any): void {
-		(<Field>obj[key])._value = value;
+		if (obj[key] instanceof String) {
+			obj[key] = new StringField(value);
+			// (<StringField>q).set(value);
+		} else if (obj[key] instanceof Number) {
+			obj[key] = new NumberField(value);
+			// (<NumberField>q).set(value);
+		}
 	}
 
 	getValue(obj: any, key: string): any {
-		return (<Field>obj[key]).val;
+		return (<Query.Column>obj[key]).get();
 	}
 
 	async executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
@@ -154,12 +160,13 @@ class DBSet<T> implements Queryable<T> {
 		if (!id)
 			throw "Id parameter cannot be null";
 
+		let fieldName = this.mapping.primaryKeyField.fieldName;
 		return await this.where((a: T, id) => {
-			return (<Field>a[this.mapping.primaryKeyField.fieldName]).eq(id);
+			return (<Query.Column>a[fieldName]).eq(id);
 		}, id).unique();
 	}
 
-	where(func?: whereFunc<T>, ...args: any[]): Queryable<T> {
+	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
 		let stat: Query.SqlStatement = new Query.SqlStatement();
 		stat.command = "select";
 
@@ -169,8 +176,12 @@ class DBSet<T> implements Queryable<T> {
 
 		let a = this.getEntity(stat.collection.alias);
 		let res: any = null;
-		if (func) {
-			res = func(a, args);
+		if (param) {
+			if (param instanceof Function) {
+				res = param(a, args);
+			} else if (param instanceof Query.SqlExpression) {
+				res = param;
+			}
 		}
 		if (res instanceof Query.SqlExpression) {
 			stat.where = res;
@@ -179,12 +190,12 @@ class DBSet<T> implements Queryable<T> {
 		return s;
 	}
 
-	groupBy(func?: arrFieldFunc<T>): Queryable<T> {
+	groupBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let q = this.where();
 		return q.groupBy(func);
 	}
 
-	orderBy(func?: arrFieldFunc<T>): Queryable<T> {
+	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let q = this.where();
 		return q.orderBy(func);
 	}
@@ -289,11 +300,15 @@ class SimpleQueryable<T> implements Queryable<T> {
 	}
 
 	// Conditional Functions
-	where(func?: whereFunc<T>, ...args: any[]): Queryable<T> {
+	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
-		if (func) {
-			res = func(a, args);
+		if (param) {
+			if (param instanceof Function) {
+				res = param(a, args);
+			} else if (param instanceof Query.SqlExpression) {
+				res = param;
+			}
 		}
 		if (res instanceof Query.SqlExpression) {
 			this.stat.where.add(res);
@@ -302,30 +317,42 @@ class SimpleQueryable<T> implements Queryable<T> {
 		return s;
 	}
 
-	groupBy(func?: arrFieldFunc<T>): Queryable<T> {
+	groupBy(param?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
-		if (func) {
-			res = func(a);
+		if (param) {
+			if (param instanceof Function) {
+				res = param(a);
+			} else if (param instanceof Array) {
+				res = param;
+			}
 		}
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
-				this.stat.groupBy.push((<Query.Column>res[i])._createExpr());
+				if (res[i] instanceof Query.SqlExpression) {
+					this.stat.groupBy.push((<Query.SqlExpression>res[i])._createExpr());
+				}
 			}
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
 	}
 
-	orderBy(func?: arrFieldFunc<T>): Queryable<T> {
+	orderBy(param?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
-		if (func) {
-			res = func(a);
+		if (param) {
+			if (param instanceof Function) {
+				res = param(a);
+			} else if (param instanceof Array) {
+				res = param;
+			}
 		}
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
-				this.stat.orderBy.push((<Query.Column>res[i])._createExpr());
+				if (res[i] instanceof Query.SqlExpression) {
+					this.stat.orderBy.push((<Query.SqlExpression>res[i])._createExpr());
+				}
 			}
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);

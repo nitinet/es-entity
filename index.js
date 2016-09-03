@@ -1,6 +1,7 @@
 "use strict";
 const Entity_1 = require("./lib/Entity");
-exports.Field = Entity_1.Field;
+exports.String = Entity_1.StringField;
+exports.Number = Entity_1.NumberField;
 const Context_1 = require("./lib/Context");
 exports.Context = Context_1.default;
 const Queryable_1 = require("./lib/Queryable");

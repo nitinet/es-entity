@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/InHeap/es-entity#readme",
   "dependencies": {
+    "case": "*",
     "mysql": "*"
   }
 }

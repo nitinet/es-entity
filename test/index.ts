@@ -17,17 +17,17 @@ let q = 4;
 
 async function run() {
 	let v = await context.employees.get(1);
-	console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
-	v.description.val = "test update 2";
+	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
+	v.description.set("test update 2");
 	v = await context.employees.update(v);
-	console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	console.log("updated");
 	let a = context.employees.getEntity();
-	a.name.val = "name 2";
-	a.description.val = "desc insert 2";
+	a.name.set("name 2");
+	a.description.set("desc insert 2");
 	v = await context.employees.insert(a);
 	console.log("inserted");
-	console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	await context.employees.delete(v);
 	console.log("deleted");
 	let q = await context.employees.where((a) => {
@@ -36,7 +36,7 @@ async function run() {
 	}).list();
 	for (let i = 0; i < q.length; i++) {
 		let j = q[i];
-		console.log("id: " + j.id.val + ", name: " + j.name.val + ", desc: " + j.description.val);
+		console.log("id: " + j.id + ", name: " + j.name + ", desc: " + j.description);
 	}
 }
 

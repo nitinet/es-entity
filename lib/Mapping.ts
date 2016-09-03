@@ -2,8 +2,6 @@ export class FieldMapping {
 	name: string = null;
 	fieldName: string = null;
 	type: string = null;
-	skipInsert: boolean = false;
-	skipUpdate: boolean = false;
 
 	constructor(data: string) {
 		Object.assign(this, data);
@@ -20,13 +18,16 @@ export class EntityMapping {
 	cacheEnabled: boolean = false;
 	fields: Array<FieldMapping> = new Array<FieldMapping>();
 
-	constructor(data: string) {
-		Object.assign(this, data);
-		for (let i = 0; i < this.fields.length; i++) {
-			let element = this.fields[i];
-			if (element.fieldName === this.primaryKey) {
-				this.primaryKeyField = element;
+	constructor(data?: any) {
+		if (data) {
+			Object.assign(this, data);
+			for (let i = 0; i < this.fields.length; i++) {
+				let element = this.fields[i];
+				if (element.fieldName === this.primaryKey) {
+					this.primaryKeyField = element;
+				}
 			}
 		}
 	}
+
 }
