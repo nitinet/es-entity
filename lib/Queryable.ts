@@ -2,9 +2,10 @@
 
 import fs = require("fs");
 import path = require("path");
+import Case = require("case");
 
 import Context from "./Context";
-import Entity, {IEntityType, StringField, NumberField} from "./Entity";
+import Entity, {IEntityType, Field, StringField, NumberField, BooleanField, DateField} from "./Entity";
 import * as Mapping from "./Mapping";
 import * as Query from "./Query";
 import * as Handler from "./Handler";
@@ -37,24 +38,52 @@ class DBSet<T> implements Queryable<T> {
 		this.entityType = entityType;
 	}
 
-	bind(context: Context): void {
+	async bind(context: Context): Promise<void> {
 		this.context = context;
 		let entityName: string = this.entityType.name;
 		let filePath: string = path.join(context.entityPath, entityName + ".json");
 		let data = fs.readFileSync(filePath, "utf-8");
-		this.mapping = new Mapping.EntityMapping(JSON.parse(data));
+		if (data) {
+			this.mapping = new Mapping.EntityMapping(JSON.parse(data));
+		} else {
+			this.mapping = new Mapping.EntityMapping();
+			this.mapping.entityName = entityName;
+			this.mapping.name = Case.snake(entityName);
+
+			let a = new this.entityType();
+			await Reflect.ownKeys(a).forEach((key) => {
+				let f = a[key];
+				if (f instanceof Field) {
+					let name = Case.snake(key);
+					let type = new String();
+					if (f instanceof StringField) {
+						type = "string";
+					} else if (f instanceof NumberField) {
+						type = "number";
+					} else if (f instanceof BooleanField) {
+						type = "boolean";
+					} else if (f instanceof DateField) {
+						type = "date";
+					}
+					this.mapping.fields.set(<string>key, new Mapping.FieldMapping({ name: name, type: type }));
+				}
+			});
+		}
 	}
 
 	getEntity(alias?: string): T {
 		let a = new this.entityType();
-
-		this.mapping.fields.forEach(k => {
-			let q: any = a[k.fieldName];
-			if (q instanceof StringField || q instanceof NumberField) {
-				(<Query.Column>q)._name = k.name;
+		let name = null;
+		Reflect.ownKeys(a).forEach((key) => {
+			let q: any = a[key];
+			if (q instanceof Field) {
+				let field = this.mapping.fields.get(<string>key);
+				name = field.name;
+				(<Query.Column>q)._name = name;
 				(<Query.Column>q)._alias = alias;
 			}
 		});
+
 		return a;
 	}
 
@@ -63,20 +92,21 @@ class DBSet<T> implements Queryable<T> {
 	}
 
 	setValue(obj: any, key: string, value: any): void {
-		if (obj[key] instanceof String) {
-			obj[key] = new StringField(value);
-			// (<StringField>q).set(value);
-		} else if (obj[key] instanceof Number) {
-			obj[key] = new NumberField(value);
-			// (<NumberField>q).set(value);
-		}
+		(<Field>obj[key]).set(value);
+		// if (obj[key] instanceof StringField) {
+		// 	obj[key] = new StringField(value);
+		// 	// (<StringField>q).set(value);
+		// } else if (obj[key] instanceof NumberField) {
+		// 	obj[key] = new NumberField(value);
+		// 	// (<NumberField>q).set(value);
+		// }
 	}
 
 	getValue(obj: any, key: string): any {
 		return (<Query.Column>obj[key]).get();
 	}
 
-	async executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
+	executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
 		return this.context.execute(stat);
 	}
 
@@ -84,18 +114,33 @@ class DBSet<T> implements Queryable<T> {
 		let stat: Query.SqlStatement = new Query.SqlStatement();
 		stat.command = "insert";
 		stat.collection.value = this.mapping.name;
-		for (let i = 0; i < this.mapping.fields.length; i++) {
-			let f = this.mapping.fields[i];
-			if (this.isUpdated(entity, f.fieldName)) {
+
+		await Reflect.ownKeys(entity).forEach((key) => {
+			let q: any = entity[key];
+			if (q instanceof Field) {
+				let f = this.mapping.fields.get(<string>key);
 				let c: Query.SqlCollection = new Query.SqlCollection();
 				c.value = f.name;
 				stat.columns.push(c);
 
 				let v: Query.SqlExpression = new Query.SqlExpression("?");
-				v.args.push(this.getValue(entity, f.fieldName));
+				v.args.push(this.getValue(entity, <string>key));
 				stat.values.push(v);
 			}
-		}
+		});
+
+		// for (let i = 0; i < this.mapping.fields.length; i++) {
+		// 	let f = this.mapping.fields[i];
+		// 	if (this.isUpdated(entity, f.fieldName)) {
+		// 		let c: Query.SqlCollection = new Query.SqlCollection();
+		// 		c.value = f.name;
+		// 		stat.columns.push(c);
+
+		// 		let v: Query.SqlExpression = new Query.SqlExpression("?");
+		// 		v.args.push(this.getValue(entity, f.fieldName));
+		// 		stat.values.push(v);
+		// 	}
+		// }
 
 		let result = await this.context.execute(stat);
 		return await this.get(result.id);
@@ -105,21 +150,34 @@ class DBSet<T> implements Queryable<T> {
 		let stat: Query.SqlStatement = new Query.SqlStatement();
 		stat.command = "update";
 		stat.collection.value = this.mapping.name;
-		for (let i = 0; i < this.mapping.fields.length; i++) {
-			let f = this.mapping.fields[i];
-			if (this.isUpdated(entity, f.fieldName) && f != this.mapping.primaryKeyField) {
+
+		await Reflect.ownKeys(entity).forEach((key) => {
+			let f = this.mapping.fields.get(<string>key);
+			if (this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
 				let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
 				let c2: Query.SqlExpression = new Query.SqlExpression("?");
-				c2.args.push(this.getValue(entity, f.fieldName));
+				c2.args.push(this.getValue(entity, <string>key));
 
 				let c: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
 				stat.columns.push(c);
 			}
-		}
+		});
+
+		// for (let i = 0; i < this.mapping.fields.length; i++) {
+		// 	let f = this.mapping.fields[i];
+		// 	if (this.isUpdated(entity, f.fieldName) && f != this.mapping.primaryKeyField) {
+		// 		let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
+		// 		let c2: Query.SqlExpression = new Query.SqlExpression("?");
+		// 		c2.args.push(this.getValue(entity, f.fieldName));
+
+		// 		let c: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
+		// 		stat.columns.push(c);
+		// 	}
+		// }
 
 		let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
 		let w2: Query.SqlExpression = new Query.SqlExpression("?");
-		w2.args.push(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
 		stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 
 		if (stat.columns.length > 0) {
@@ -127,14 +185,14 @@ class DBSet<T> implements Queryable<T> {
 			if (result.error)
 				throw result.error;
 			else
-				return await this.get(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+				return await this.get(this.getValue(entity, this.mapping.primaryKey));
 		} else {
 			return null;
 		}
 	}
 
-	async insertOrUpdate(entity: T): Promise<T> {
-		if (this.getValue(entity, this.mapping.primaryKeyField.fieldName)) {
+	insertOrUpdate(entity: T): Promise<T> {
+		if (this.getValue(entity, this.mapping.primaryKey)) {
 			return this.update(entity);
 		} else {
 			return this.insert(entity);
@@ -148,7 +206,7 @@ class DBSet<T> implements Queryable<T> {
 
 		let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
 		let w2: Query.SqlExpression = new Query.SqlExpression("?");
-		w2.args.push(this.getValue(entity, this.mapping.primaryKeyField.fieldName));
+		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
 		stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 		await this.context.execute(stat);
 	}
@@ -160,7 +218,7 @@ class DBSet<T> implements Queryable<T> {
 		if (!id)
 			throw "Id parameter cannot be null";
 
-		let fieldName = this.mapping.primaryKeyField.fieldName;
+		let fieldName = this.mapping.primaryKey;
 		return await this.where((a: T, id) => {
 			return (<Query.Column>a[fieldName]).eq(id);
 		}, id).unique();
@@ -198,16 +256,16 @@ class DBSet<T> implements Queryable<T> {
 	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let q = this.where();
 		return q.orderBy(func);
+		}
+
+	list(): Promise<Array<any>> {
+				let q = this.where();
+				return q.list();
 	}
 
-	async list(): Promise<Array<any>> {
-		let q = this.where();
-		return q.list();
-	}
-
-	async unique(): Promise<T> {
-		let q = this.where();
-		return q.unique();
+	unique(): Promise<T> {
+				let q = this.where();
+				return q.unique();
 	}
 
 }
@@ -227,24 +285,23 @@ class SimpleQueryable<T> implements Queryable<T> {
 	// Selection Functions
 	async list(): Promise<Array<any>> {
 		let alias: string = this.stat.collection.alias;
-		for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
-			let e = this.dbSet.mapping.fields[i];
+
+		this.dbSet.mapping.fields.forEach((field, fieldName) => {
 			let c: Query.SqlCollection = new Query.SqlCollection();
 			c.colAlias = alias;
-			c.value = e.name;
-			c.alias = e.fieldName;
+			c.value = field.name;
+			c.alias = fieldName;
 			this.stat.columns.push(c);
-		}
+		});
 
 		let result = await this.dbSet.executeStatement(this.stat);
 		let data: Array<T> = new Array();
 		for (let j = 0; j < result.rows.length; j++) {
 			let row = result.rows[j];
 			let a = this.dbSet.getEntity();
-			for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
-				let r = this.dbSet.mapping.fields[i];
-				this.dbSet.setValue(a, r.fieldName, row[r.fieldName]);
-			}
+			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
+				this.dbSet.setValue(a, fieldName, row[fieldName]);
+			});
 			data.push(a);
 		}
 		return data;
@@ -262,14 +319,13 @@ class SimpleQueryable<T> implements Queryable<T> {
 			}
 		} else {
 			let alias: string = this.stat.collection.alias;
-			for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
-				let e = this.dbSet.mapping.fields[i];
+			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
 				let c: Query.SqlCollection = new Query.SqlCollection();
 				c.colAlias = alias;
-				c.value = e.name;
-				c.alias = e.fieldName;
+				c.value = field.name;
+				c.alias = fieldName;
 				this.stat.columns.push(c);
-			}
+			});
 		}
 
 		let result = await this.dbSet.executeStatement(this.stat);
@@ -280,10 +336,9 @@ class SimpleQueryable<T> implements Queryable<T> {
 			for (let j = 0; j < result.rows.length; j++) {
 				let row = result.rows[j];
 				let a = this.dbSet.getEntity();
-				for (let i = 0; i < this.dbSet.mapping.fields.length; i++) {
-					let r = this.dbSet.mapping.fields[i];
-					this.dbSet.setValue(a, r.fieldName, row[r.fieldName]);
-				}
+				await this.dbSet.mapping.fields.forEach((field, fieldName) => {
+					this.dbSet.setValue(a, fieldName, row[fieldName]);
+				});
 				data.push(a);
 			}
 			return data;
@@ -321,18 +376,18 @@ class SimpleQueryable<T> implements Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
 		if (param) {
-			if (param instanceof Function) {
+						if (param instanceof Function) {
 				res = param(a);
-			} else if (param instanceof Array) {
+						} else if (param instanceof Array) {
 				res = param;
-			}
+						}
 		}
 		if (res instanceof Array) {
-			for (let i = 0; i < res.length; i++) {
+						for (let i = 0; i < res.length; i++) {
 				if (res[i] instanceof Query.SqlExpression) {
 					this.stat.groupBy.push((<Query.SqlExpression>res[i])._createExpr());
 				}
-			}
+						}
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
@@ -357,7 +412,7 @@ class SimpleQueryable<T> implements Queryable<T> {
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
-	}
+		}
 
 }
 

@@ -1,22 +1,19 @@
 {
-    "name": "employee",
-    "entityName": "employee",
-    "primaryKey": "id",
-    "fields": [
-        {
-            "name": "id",
-            "fieldName": "id",
-            "type": "int"
-        },
-        {
-            "name": "name",
-            "fieldName": "name",
-            "type": "string"
-        },
-        {
-            "name": "description",
-            "fieldName": "description",
-            "type": "string"
-        }
-    ]
+	"name": "employee",
+	"entityName": "employee",
+	"primaryKey": "id",
+	"fields": {
+		"id": {
+			"name": "id",
+			"type": "int"
+		},
+		"name": {
+			"name": "name",
+			"type": "string"
+		},
+		"description": {
+			"name": "description",
+			"type": "string"
+		}
+	}
 }

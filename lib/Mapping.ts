@@ -1,32 +1,29 @@
 export class FieldMapping {
 	name: string = null;
-	fieldName: string = null;
 	type: string = null;
 
-	constructor(data: string) {
+	constructor(data: any) {
 		Object.assign(this, data);
 	}
 }
 
 export class EntityMapping {
-	name: string = null;
-	entityName: string = null;
-	dynamicInsert: boolean = false;
-	dynamicUpdate: boolean = false;
+	name: string = "";
+	entityName: string = "";
 	primaryKey: string = "";
 	primaryKeyField: FieldMapping = null;
-	cacheEnabled: boolean = false;
-	fields: Array<FieldMapping> = new Array<FieldMapping>();
+	fields: Map<string, FieldMapping> = new Map<string, FieldMapping>();
 
 	constructor(data?: any) {
 		if (data) {
-			Object.assign(this, data);
-			for (let i = 0; i < this.fields.length; i++) {
-				let element = this.fields[i];
-				if (element.fieldName === this.primaryKey) {
-					this.primaryKeyField = element;
-				}
-			}
+			this.name = data.name;
+			this.entityName = data.entityName;
+			this.primaryKey = data.primaryKey;
+			Reflect.ownKeys(data.fields).forEach((key) => {
+				let val = data.fields[key];
+				this.fields.set(<string>key, new FieldMapping(val));
+			});
+			this.primaryKeyField = this.fields.get(this.primaryKey);
 		}
 	}
 

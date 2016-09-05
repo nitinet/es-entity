@@ -36,7 +36,7 @@ async function run() {
 	}).list();
 	for (let i = 0; i < q.length; i++) {
 		let j = q[i];
-		console.log("id: " + j.id + ", name: " + j.name + ", desc: " + j.description);
+		console.log("id: " + j.id + ", desc: " + j.description);
 	}
 }
 
