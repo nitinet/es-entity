@@ -21,6 +21,7 @@ const es = require("es-entity");
 
 ### Entity Class
 Entity class is the reference to the table in the database. The property in this class are field objects which refers to the columns of the table.
+
 Note: The class members are camel cased from the snake case database columns. Annotation for custom column name will be implemented in future.
 
 ```js
