@@ -11,11 +11,12 @@ config.name = "mysql";
 config.username = "root";
 config.password = "Application~";
 config.database = "test";
-var context = new empContext(config, __dirname + "/mappings");
+var context = new empContext(config);
 
 let q = 4;
 
 async function run() {
+	await context.init();
 	let v = await context.employees.get(1);
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	v.description.set("test update 2");

@@ -21,10 +21,20 @@ export class ResultSet {
 	}
 }
 
+export class ColumnInfo {
+	field: string = "";
+	type: string = "";
+	nullable: boolean = false;
+	primaryKey: boolean = false;
+	default: string = "";
+	extra: string = "";
+}
+
 abstract class Handler {
 	public config: ConnectionConfig;
 
 	abstract getConnection(): any;
+	abstract async getTableInfo(tableName: string): Promise<Array<ColumnInfo>>;
 	abstract async run(query: string | Query.ISqlNode): Promise<ResultSet>;
 }
 

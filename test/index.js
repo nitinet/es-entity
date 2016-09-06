@@ -16,10 +16,11 @@ config.name = "mysql";
 config.username = "root";
 config.password = "Application~";
 config.database = "test";
-var context = new EmpContext_1.default(config, __dirname + "/mappings");
+var context = new EmpContext_1.default(config);
 let q = 4;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        yield context.init();
         let v = yield context.employees.get(1);
         console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
         v.description.set("test update 2");

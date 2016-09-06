@@ -20,14 +20,15 @@ const es = require("es-entity");
 ```
 
 ### Entity Class
-Entity class is the reference to the table in the database. The property in this class are field objects which refers to the columns of the table. 
+Entity class is the reference to the table in the database. The property in this class are field objects which refers to the columns of the table.
+Note: The class members are camel cased from the snake case database columns. Annotation for custom column name will be implemented in future.
 
 ```js
 class Employee {
     constructor() {
-        this.id = new es.Field();
-        this.name = new es.Field();
-        this.description = new es.Field();
+        this.id = new es.Number();
+        this.name = new es.String();
+        this.description = new es.String();
     }
 }
 ```
@@ -43,36 +44,6 @@ config.name = "mysql";
 config.username = "root";
 config.password = "application";
 config.database = "test";
-```
-
-### Mapping
-The json mapping of each class is provided to the context. All mapping files are placed inside a folder and the folder path is binded to the context. The mapping file name should be like : 'Entity Class Name'.json
-
-Eg: Employee.json
-
-```js
-{
-    "name": "employee",
-    "entityName": "employee",
-    "primaryKey": "id",
-    "fields": [
-        {
-            "name": "id",
-            "fieldName": "id",
-            "type": "int"
-        },
-        {
-            "name": "name",
-            "fieldName": "name",
-            "type": "string"
-        },
-        {
-            "name": "description",
-            "fieldName": "description",
-            "type": "string"
-        }
-    ]
-}
 ```
 
 ### Context
@@ -93,7 +64,7 @@ Provide the database config object and mapping folder object to the context obje
 
 ```js
 const EmpContext_1 = require("./modal/EmpContext");
-var context = new EmpContext_1.default(config, __dirname + "/mappings");
+var context = new EmpContext_1.default(config);
 ```
 
 ## Operations
@@ -108,7 +79,7 @@ let p = context.employees.where((a) => {
 p.then((v) => {
     for (var i = 0; i < v.length; i++) {
         var j = v[i];
-        console.log("id: " + j.id.val + ", name: " + j.name.val + ", desc: " + j.description.val);
+        console.log("id: " + j.id + ", name: " + j.name + ", desc: " + j.description);
     }
 });
 ```
@@ -118,16 +89,16 @@ p.then((v) => {
 let p = context.employees.get(1);
 
 p.then((v) => {
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+    console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 });
 ```
 
 ### Updating Entity
 ```js
-v.description.val = "test update 2";
+v.description.set("test update 2");
 let p = context.employees.update(v);
 p.then((v) => {
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+    console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
     console.log("updated");
 });
 ```
@@ -135,11 +106,11 @@ p.then((v) => {
 ### Inserting Entity
 ```js
 let a = context.employees.getEntity();
-a.name.val = "name 2";
-a.description.val = "desc insert 2";
+a.name.set("name 2");
+a.description.set("desc insert 2");
 let p = context.employees.insert(a);
 p.then((v) => {
-    console.log("id: " + v.id.val + ", name: " + v.name.val + ", desc: " + v.description.val);
+    console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
     console.log("inserted");
 });
 ```

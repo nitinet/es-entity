@@ -1,8 +1,8 @@
-import Handler, {ResultSet, ConnectionConfig} from "./../Handler";
+import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class OracleDbHandler extends Handler {
-	constructor(config: ConnectionConfig) {
+class OracleDbHandler extends Handler.default {
+	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}
 
@@ -10,7 +10,11 @@ class OracleDbHandler extends Handler {
 		return null;
 	}
 
-	async run(query: string | Query.ISqlNode): Promise<ResultSet> {
+	async getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+		return null;
+	}
+
+	async run(query: string | Query.ISqlNode): Promise<Handler.ResultSet> {
 		return null
 	}
 }

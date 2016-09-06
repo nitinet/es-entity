@@ -1,9 +1,9 @@
-import Handler, {ResultSet, ConnectionConfig} from "./../Handler";
+import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class MsSqlServerHandler extends Handler {
+class MsSqlServerHandler extends Handler.default {
 
-	constructor(config: ConnectionConfig) {
+	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}
 
@@ -11,7 +11,11 @@ class MsSqlServerHandler extends Handler {
 		return null;
 	}
 
-	async run(query: string | Query.ISqlNode): Promise<ResultSet> {
+	async getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+		return null;
+	}
+
+	async run(query: string | Query.ISqlNode): Promise<Handler.ResultSet> {
 		return null
 	}
 

@@ -41,33 +41,58 @@ class DBSet<T> implements Queryable<T> {
 	async bind(context: Context): Promise<void> {
 		this.context = context;
 		let entityName: string = this.entityType.name;
-		let filePath: string = path.join(context.entityPath, entityName + ".json");
-		let data = fs.readFileSync(filePath, "utf-8");
-		if (data) {
+		let filePath: string = null;
+		if (this.context.entityPath) {
+			filePath = path.join(this.context.entityPath, entityName + ".json");
+		}
+		if (filePath && fs.statSync(filePath).isFile()) {
+			let data = fs.readFileSync(filePath, "utf-8");
 			this.mapping = new Mapping.EntityMapping(JSON.parse(data));
 		} else {
 			this.mapping = new Mapping.EntityMapping();
 			this.mapping.entityName = entityName;
 			this.mapping.name = Case.snake(entityName);
 
+			// get info from describe db
+			let columns = await this.context.handler.getTableInfo(this.mapping.name);
+
 			let a = new this.entityType();
-			await Reflect.ownKeys(a).forEach((key) => {
+			let keys = Reflect.ownKeys(a);
+			for (let i = 0; i < keys.length; i++) {
+				let key = keys[i];
 				let f = a[key];
 				if (f instanceof Field) {
 					let name = Case.snake(key);
-					let type = new String();
-					if (f instanceof StringField) {
-						type = "string";
-					} else if (f instanceof NumberField) {
-						type = "number";
-					} else if (f instanceof BooleanField) {
-						type = "boolean";
-					} else if (f instanceof DateField) {
-						type = "date";
+					let column: Handler.ColumnInfo = null;
+					for (var j = 0; j < columns.length; j++) {
+						var c = columns[j];
+						if (c.field == name) {
+							column = c;
+						}
 					}
-					this.mapping.fields.set(<string>key, new Mapping.FieldMapping({ name: name, type: type }));
+					if (column) {
+						let type = new String();
+						if (f instanceof StringField && column.type == "string") {
+							type = "string";
+						} else if (f instanceof NumberField && column.type == "number") {
+							type = "number";
+						} else if (f instanceof BooleanField && column.type == "boolean") {
+							type = "boolean";
+						} else if (f instanceof DateField && column.type == "date") {
+							type = "date";
+						} else {
+							throw "Tyep mismatch found for column " + name;
+						}
+						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({ name: name, type: type }));
+						if (column.primaryKey) {
+							this.mapping.primaryKey = <string>key;
+							this.mapping.primaryKeyField = this.mapping.fields.get(<string>key);
+						}
+					} else {
+						throw "Column " + name + " not found";
+					}
 				}
-			});
+			}
 		}
 	}
 
@@ -83,7 +108,6 @@ class DBSet<T> implements Queryable<T> {
 				(<Query.Column>q)._alias = alias;
 			}
 		});
-
 		return a;
 	}
 
@@ -93,13 +117,6 @@ class DBSet<T> implements Queryable<T> {
 
 	setValue(obj: any, key: string, value: any): void {
 		(<Field>obj[key]).set(value);
-		// if (obj[key] instanceof StringField) {
-		// 	obj[key] = new StringField(value);
-		// 	// (<StringField>q).set(value);
-		// } else if (obj[key] instanceof NumberField) {
-		// 	obj[key] = new NumberField(value);
-		// 	// (<NumberField>q).set(value);
-		// }
 	}
 
 	getValue(obj: any, key: string): any {
@@ -129,19 +146,6 @@ class DBSet<T> implements Queryable<T> {
 			}
 		});
 
-		// for (let i = 0; i < this.mapping.fields.length; i++) {
-		// 	let f = this.mapping.fields[i];
-		// 	if (this.isUpdated(entity, f.fieldName)) {
-		// 		let c: Query.SqlCollection = new Query.SqlCollection();
-		// 		c.value = f.name;
-		// 		stat.columns.push(c);
-
-		// 		let v: Query.SqlExpression = new Query.SqlExpression("?");
-		// 		v.args.push(this.getValue(entity, f.fieldName));
-		// 		stat.values.push(v);
-		// 	}
-		// }
-
 		let result = await this.context.execute(stat);
 		return await this.get(result.id);
 	}
@@ -162,18 +166,6 @@ class DBSet<T> implements Queryable<T> {
 				stat.columns.push(c);
 			}
 		});
-
-		// for (let i = 0; i < this.mapping.fields.length; i++) {
-		// 	let f = this.mapping.fields[i];
-		// 	if (this.isUpdated(entity, f.fieldName) && f != this.mapping.primaryKeyField) {
-		// 		let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
-		// 		let c2: Query.SqlExpression = new Query.SqlExpression("?");
-		// 		c2.args.push(this.getValue(entity, f.fieldName));
-
-		// 		let c: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
-		// 		stat.columns.push(c);
-		// 	}
-		// }
 
 		let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
 		let w2: Query.SqlExpression = new Query.SqlExpression("?");

@@ -5,7 +5,6 @@ class EmpContext extends es.Context {
     constructor(config, entityPath) {
         super(config, entityPath);
         this.employees = new es.DBSet(Employee_1.default);
-        this.init();
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
