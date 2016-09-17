@@ -444,7 +444,7 @@ export class NumberField extends Field implements Number {
 		this._value = data;
 	}
 
-	get(): Number {
+	get(): number {
 		return this._value;
 	}
 
@@ -500,7 +500,7 @@ export class BooleanField extends Field implements Boolean {
 		this._value = data;
 	}
 
-	get(): Boolean {
+	get(): boolean {
 		return this._value;
 	}
 
