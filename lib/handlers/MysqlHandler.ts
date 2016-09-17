@@ -43,12 +43,12 @@ class MysqlHandler extends Handler.default {
 			let a: Handler.ColumnInfo = new Handler.ColumnInfo();
 			a.field = row["Field"];
 			let columnType: string = (<string>row["Type"]).toLowerCase();
-			if (columnType.includes("int")) {
+			if (columnType.includes("tinyint(1)")) {
+				a.type = "boolean";
+			} else if (columnType.includes("int")) {
 				a.type = "number";
 			} else if (columnType.includes("varchar")) {
 				a.type = "string";
-			} else if (columnType.includes("tinyint")) {
-				a.type = "boolean";
 			} else if (columnType.includes("timestamp")) {
 				a.type = "date";
 			}

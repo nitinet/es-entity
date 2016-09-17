@@ -68,6 +68,7 @@ class DBSet<T> implements Queryable<T> {
 						var c = columns[j];
 						if (c.field == name) {
 							column = c;
+							break;
 						}
 					}
 					if (column) {
@@ -99,7 +100,9 @@ class DBSet<T> implements Queryable<T> {
 	getEntity(alias?: string): T {
 		let a = new this.entityType();
 		let name = null;
-		Reflect.ownKeys(a).forEach((key) => {
+		let keys = Reflect.ownKeys(a);
+		for (let i = 0; i < keys.length; i++) {
+			let key = keys[i];
 			let q: any = a[key];
 			if (q instanceof Field) {
 				let field = this.mapping.fields.get(<string>key);
@@ -107,7 +110,7 @@ class DBSet<T> implements Queryable<T> {
 				(<Query.Column>q)._name = name;
 				(<Query.Column>q)._alias = alias;
 			}
-		});
+		}
 		return a;
 	}
 
