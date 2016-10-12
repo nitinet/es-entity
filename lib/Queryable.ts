@@ -5,7 +5,7 @@ import path = require("path");
 import Case = require("case");
 
 import Context from "./Context";
-import Entity, {IEntityType, Field, StringField, NumberField, BooleanField, DateField} from "./Entity";
+import * as Type from "./Type";
 import * as Mapping from "./Mapping";
 import * as Query from "./Query";
 import * as Handler from "./Handler";
@@ -30,11 +30,11 @@ interface Queryable<T> {
 }
 
 class DBSet<T> implements Queryable<T> {
-	entityType: IEntityType<T>;
+	entityType: Type.IEntityType<T>;
 	context: Context;
 	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 
-	constructor(entityType: IEntityType<T>) {
+	constructor(entityType: Type.IEntityType<T>) {
 		this.entityType = entityType;
 	}
 
@@ -61,7 +61,7 @@ class DBSet<T> implements Queryable<T> {
 			for (let i = 0; i < keys.length; i++) {
 				let key = keys[i];
 				let f = a[key];
-				if (f instanceof Field) {
+				if (f instanceof Type.Field) {
 					let name = Case.snake(key);
 					let column: Handler.ColumnInfo = null;
 					for (var j = 0; j < columns.length; j++) {
@@ -73,13 +73,13 @@ class DBSet<T> implements Queryable<T> {
 					}
 					if (column) {
 						let type = new String();
-						if (f instanceof StringField && column.type == "string") {
+						if (f instanceof Type.String && column.type == "string") {
 							type = "string";
-						} else if (f instanceof NumberField && column.type == "number") {
+						} else if (f instanceof Type.Number && column.type == "number") {
 							type = "number";
-						} else if (f instanceof BooleanField && column.type == "boolean") {
+						} else if (f instanceof Type.Boolean && column.type == "boolean") {
 							type = "boolean";
-						} else if (f instanceof DateField && column.type == "date") {
+						} else if (f instanceof Type.Date && column.type == "date") {
 							type = "date";
 						} else {
 							throw "Tyep mismatch found for column " + name;
@@ -104,7 +104,7 @@ class DBSet<T> implements Queryable<T> {
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
 			let q: any = a[key];
-			if (q instanceof Field) {
+			if (q instanceof Type.Field) {
 				let field = this.mapping.fields.get(<string>key);
 				name = field.name;
 				(<Query.Column>q)._name = name;
@@ -119,7 +119,7 @@ class DBSet<T> implements Queryable<T> {
 	}
 
 	setValue(obj: any, key: string, value: any): void {
-		(<Field>obj[key]).set(value);
+		(<Type.Field>obj[key]).set(value);
 	}
 
 	getValue(obj: any, key: string): any {
@@ -137,7 +137,7 @@ class DBSet<T> implements Queryable<T> {
 
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let q: any = entity[key];
-			if (q instanceof Field) {
+			if (q instanceof Type.Field) {
 				let f = this.mapping.fields.get(<string>key);
 				let c: Query.SqlCollection = new Query.SqlCollection();
 				c.value = f.name;

@@ -4,7 +4,7 @@ export interface IEntityType<T> {
 	new (): T;
 }
 
-export class Field extends Query.Column {
+class Field extends Query.Column {
 	_alias: string = "";
 	_name: string = "";
 	_updated: boolean = false;
@@ -130,7 +130,7 @@ export class Field extends Query.Column {
 	}
 }
 
-export class StringField extends Field implements String {
+class StringField extends Field implements String {
 	_value: string = "";
 
 	constructor(data?: string) {
@@ -436,7 +436,7 @@ export class StringField extends Field implements String {
 
 }
 
-export class NumberField extends Field implements Number {
+class NumberField extends Field implements Number {
 	_value: number = 0;
 
 	constructor(data?: number) {
@@ -492,7 +492,7 @@ export class NumberField extends Field implements Number {
 
 }
 
-export class BooleanField extends Field implements Boolean {
+class BooleanField extends Field implements Boolean {
 	_value: boolean = false;
 
 	constructor(data?: boolean) {
@@ -515,7 +515,7 @@ export class BooleanField extends Field implements Boolean {
 	}
 }
 
-export class DateField extends Field implements Date {
+class DateField extends Field implements Date {
 	_value: Date = new Date();
 
 	constructor(data?: Date) {
@@ -533,6 +533,18 @@ export class DateField extends Field implements Date {
 	}
 
 	/**
+	 * Converts a Date object to a string.
+	 */
+	[Symbol.toPrimitive](hint: "default"): string;
+	/**
+	 * Converts a Date object to a string.
+	 */
+	[Symbol.toPrimitive](hint: "string"): string;
+	/**
+	 * Converts a Date object to a number.
+	 */
+	[Symbol.toPrimitive](hint: "number"): number;
+	/**
 	 * Converts a Date object to a string or number.
 	 *
 	 * @param hint The strings "number", "string", or "default" to specify what primitive to return.
@@ -544,30 +556,31 @@ export class DateField extends Field implements Date {
 		return this._value[Symbol.toPrimitive](hint);
 	}
 
+
 	/** Returns a string representation of a date. The format of the string depends on the locale. */
 	toString(): string {
 		return this._value.toString();
-		}
+	}
 	/** Returns a date as a string value. */
 	toDateString(): string {
 		return this._value.toDateString();
-		}
+	}
 	/** Returns a time as a string value. */
 	toTimeString(): string {
 		return this._value.toTimeString();
-		}
+	}
 	/** Returns a value as a string value appropriate to the host environment's current locale. */
 	toLocaleString(): string {
 		return this._value.toLocaleString();
-		}
+	}
 	/** Returns a date as a string value appropriate to the host environment's current locale. */
 	toLocaleDateString(): string {
 		return this._value.toLocaleDateString();
-		}
+	}
 	/** Returns a time as a string value appropriate to the host environment's current locale. */
 	toLocaleTimeString(): string {
 		return this._value.toLocaleTimeString();
-		}
+	}
 	/** Returns the stored time value in milliseconds since midnight, January 1, 1970 UTC. */
 	valueOf(): number {
 		return this._value.valueOf();
@@ -575,39 +588,39 @@ export class DateField extends Field implements Date {
 	/** Gets the time value in milliseconds. */
 	getTime(): number {
 		return this._value.getTime();
-		}
+	}
 	/** Gets the year, using local time. */
 	getFullYear(): number {
 		return this._value.getFullYear();
-		}
+	}
 	/** Gets the year using Universal Coordinated Time (UTC). */
 	getUTCFullYear(): number {
 		return this._value.getUTCFullYear();
-		}
+	}
 	/** Gets the month, using local time. */
 	getMonth(): number {
 		return this._value.getMonth();
-		}
+	}
 	/** Gets the month of a Date object using Universal Coordinated Time (UTC). */
 	getUTCMonth(): number {
 		return this._value.getUTCMonth();
-		}
+	}
 	/** Gets the day-of-the-month, using local time. */
 	getDate(): number {
 		return this._value.getDate();
-		}
+	}
 	/** Gets the day-of-the-month, using Universal Coordinated Time (UTC). */
 	getUTCDate(): number {
 		return this._value.getUTCDate();
-		}
+	}
 	/** Gets the day of the week, using local time. */
 	getDay(): number {
 		return this._value.getDay();
-		}
+	}
 	/** Gets the day of the week using Universal Coordinated Time (UTC). */
 	getUTCDay(): number {
 		return this._value.getUTCDay();
-		}
+	}
 	/** Gets the hours in a date, using local time. */
 	getHours(): number {
 		return this._value.getHours();
@@ -781,4 +794,14 @@ export class DateField extends Field implements Date {
 		return this._value.toJSON();
 	}
 
+	getVarDate(): VarDate {
+		return this._value.getVarDate();
+	}
+
 }
+
+export { Field };
+export { StringField as String };
+export { NumberField as Number };
+export { BooleanField as Boolean };
+export { DateField as Date };
