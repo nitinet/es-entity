@@ -82,7 +82,7 @@ class DBSet<T> implements Queryable<T> {
 						} else if (f instanceof Type.Date && column.type == "date") {
 							type = "date";
 						} else {
-							throw "Tyep mismatch found for column " + name;
+							throw new Error("Tyep mismatch found for Column: " + name + "in Table:" + this.mapping.name);
 						}
 						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({ name: name, type: type }));
 						if (column.primaryKey) {
@@ -90,7 +90,7 @@ class DBSet<T> implements Queryable<T> {
 							this.mapping.primaryKeyField = this.mapping.fields.get(<string>key);
 						}
 					} else {
-						throw "Column " + name + " not found";
+						throw new Error("Column: " + name + " not found in Table: " + this.mapping.name);
 					}
 				}
 			}
@@ -208,10 +208,10 @@ class DBSet<T> implements Queryable<T> {
 
 	async get(id: any): Promise<T> {
 		if (!this.mapping.primaryKeyField)
-			throw "No Primary Field Found";
+			throw new Error("No Primary Field Found in Table: " + this.mapping.name);
 
 		if (!id)
-			throw "Id parameter cannot be null";
+			throw new Error("Id parameter cannot be null");
 
 		let fieldName = this.mapping.primaryKey;
 		return await this.where((a: T, id) => {
@@ -325,7 +325,7 @@ class SimpleQueryable<T> implements Queryable<T> {
 
 		let result = await this.dbSet.executeStatement(this.stat);
 		if (result.rows.length == 0)
-			throw "No Result Found";
+			throw new Error("No Result Found");
 		else {
 			let data: Array<T> = new Array();
 			for (let j = 0; j < result.rows.length; j++) {
@@ -343,7 +343,7 @@ class SimpleQueryable<T> implements Queryable<T> {
 	async unique(): Promise<T> {
 		let l = await this.list();
 		if (l.length > 1) {
-			throw "More than one row found";
+			throw new Error("More than one row found in unique call");
 		} else {
 			return l[0];
 		}
@@ -411,5 +411,5 @@ class SimpleQueryable<T> implements Queryable<T> {
 
 }
 
-export {DBSet};
+export { DBSet };
 export default Queryable;

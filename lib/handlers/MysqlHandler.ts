@@ -45,7 +45,10 @@ class MysqlHandler extends Handler.default {
 			let columnType: string = (<string>row["Type"]).toLowerCase();
 			if (columnType.includes("tinyint(1)")) {
 				a.type = "boolean";
-			} else if (columnType.includes("int")) {
+			} else if (columnType.includes("int")
+				|| columnType.includes("float")
+				|| columnType.includes("double")
+				|| columnType.includes("decimal")) {
 				a.type = "number";
 			} else if (columnType.includes("varchar")) {
 				a.type = "string";

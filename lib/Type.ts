@@ -5,6 +5,7 @@ export interface IEntityType<T> {
 }
 
 class Field extends Query.Column {
+	_value: any = null;
 	_alias: string = "";
 	_name: string = "";
 	_updated: boolean = false;
@@ -19,6 +20,14 @@ class Field extends Query.Column {
 
 	set(value: any) {
 		this._updated = true;
+	}
+
+	toJSON() {
+		if (this._value) {
+			return this._value.valueOf();
+		} else {
+			return null;
+		}
 	}
 
 	_createExpr(): Query.SqlExpression {
@@ -584,7 +593,7 @@ class DateField extends Field implements Date {
 	/** Returns the stored time value in milliseconds since midnight, January 1, 1970 UTC. */
 	valueOf(): number {
 		return this._value.valueOf();
-		}
+	}
 	/** Gets the time value in milliseconds. */
 	getTime(): number {
 		return this._value.getTime();
