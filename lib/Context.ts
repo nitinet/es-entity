@@ -1,13 +1,14 @@
 /// <reference path="/usr/local/lib/typings/globals/node/index.d.ts" />
 
-import Queryable, {DBSet} from "./Queryable";
-import Handler, {ConnectionConfig, ResultSet} from "./Handler";
+import Queryable, { DBSet } from "./Queryable";
+import Handler, { ConnectionConfig, ResultSet } from "./Handler";
 import MysqlHandler from "./handlers/MysqlHandler";
 import OracleHandler from "./handlers/OracleDbHandler";
 import MsSqlServerHandler from "./handlers/MsSqlServerHandler";
 import PostGreHandler from "./handlers/PostGreHandler";
 import SqlLiteHandler from "./handlers/SqlLiteHandler";
 import * as Query from "./Query";
+import * as Type from "./Type";
 
 export function getHandler(config: ConnectionConfig): Handler {
 	let handler: Handler = null;
@@ -61,6 +62,23 @@ class Context {
 
 	execute(query: string | Query.ISqlNode): Promise<ResultSet> {
 		return this.handler.run(query);
+	}
+
+	assign(target: any, ...sources: any[]) {
+		sources.forEach(source => {
+			let keys = Reflect.ownKeys(source);
+			keys.forEach(key => {
+				if (Reflect.has(target, key.toString())) {
+					let value = Reflect.get(source, key);
+					if (target[key.toString()] instanceof Type.Date) {
+						target[key.toString()].set(new Date(value));
+					} else {
+						target[key.toString()].set(value);
+					}
+				}
+			});
+		});
+		return target;
 	}
 
 	flush(): void { }
