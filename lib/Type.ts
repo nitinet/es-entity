@@ -15,11 +15,14 @@ class Field extends Query.Column {
 	}
 
 	get(): any {
-		return null;
+		return this._value;
 	}
 
 	set(value: any) {
-		this._updated = true;
+		if (value !== this._value) {
+			this._updated = true;
+			this._value = value;
+		}
 	}
 
 	toJSON() {
@@ -145,15 +148,6 @@ class StringField extends Field implements String {
 	constructor(data?: string) {
 		super();
 		this._value = data;
-	}
-
-	get(): string {
-		return this._value;
-	}
-
-	set(value: string) {
-		this._updated = true;
-		this._value = value;
 	}
 
 	/** Iterator */
@@ -453,15 +447,6 @@ class NumberField extends Field implements Number {
 		this._value = data;
 	}
 
-	get(): number {
-		return this._value;
-	}
-
-	set(value: number) {
-		this._updated = true;
-		this._value = value;
-	}
-
 	/**
 	* Returns a string representation of an object.
 	* @param radix Specifies a radix for converting numeric values to strings. This value is only used for numbers.
@@ -509,15 +494,6 @@ class BooleanField extends Field implements Boolean {
 		this._value = data;
 	}
 
-	get(): boolean {
-		return this._value;
-	}
-
-	set(value: boolean) {
-		this._updated = true;
-		this._value = value;
-	}
-
 	/** Returns the primitive value of the specified object. */
 	valueOf(): boolean {
 		return this._value.valueOf();
@@ -530,15 +506,6 @@ class DateField extends Field implements Date {
 	constructor(data?: Date) {
 		super();
 		this._value = data;
-	}
-
-	get(): Date {
-		return this._value;
-	}
-
-	set(value: Date) {
-		this._updated = true;
-		this._value = value;
 	}
 
 	/**

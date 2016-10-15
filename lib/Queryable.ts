@@ -361,7 +361,7 @@ class SimpleQueryable<T> implements Queryable<T> {
 			}
 		}
 		if (res instanceof Query.SqlExpression) {
-			this.stat.where.add(res);
+			this.stat.where = this.stat.where.add(res);
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
