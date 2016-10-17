@@ -15,7 +15,7 @@ interface whereFunc<T> {
 }
 
 interface arrFieldFunc<T> {
-	(source: T): Query.SqlExpression[];
+	(source: T): Query.SqlExpression | Query.SqlExpression[];
 }
 
 interface Queryable<T> {
@@ -25,8 +25,9 @@ interface Queryable<T> {
 
 	// Conditional Functions
 	where(func?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T>;
-	groupBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T>;
-	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T>;
+	groupBy(func?: arrFieldFunc<T> | Query.SqlExpression | Query.SqlExpression[]): Queryable<T>;
+	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression | Query.SqlExpression[]): Queryable<T>;
+	limit(size: number, index?: number): Queryable<T>;
 }
 
 class DBSet<T> implements Queryable<T> {
@@ -64,8 +65,8 @@ class DBSet<T> implements Queryable<T> {
 				if (f instanceof Type.Field) {
 					let name = Case.snake(key);
 					let column: Handler.ColumnInfo = null;
-					for (var j = 0; j < columns.length; j++) {
-						var c = columns[j];
+					for (let j = 0; j < columns.length; j++) {
+						let c = columns[j];
 						if (c.field == name) {
 							column = c;
 							break;
@@ -84,7 +85,10 @@ class DBSet<T> implements Queryable<T> {
 						} else {
 							throw new Error("Tyep mismatch found for Column: " + name + "in Table:" + this.mapping.name);
 						}
-						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({ name: name, type: type }));
+						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({
+							name: name,
+							type: type
+						}));
 						if (column.primaryKey) {
 							this.mapping.primaryKey = <string>key;
 							this.mapping.primaryKeyField = this.mapping.fields.get(<string>key);
@@ -137,7 +141,7 @@ class DBSet<T> implements Queryable<T> {
 
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let q: any = entity[key];
-			if (q instanceof Type.Field) {
+			if (q instanceof Type.Field && this.isUpdated(entity, <string>key)) {
 				let f = this.mapping.fields.get(<string>key);
 				let c: Query.SqlCollection = new Query.SqlCollection();
 				c.value = f.name;
@@ -160,7 +164,8 @@ class DBSet<T> implements Queryable<T> {
 
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let f = this.mapping.fields.get(<string>key);
-			if (this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
+			let q: any = entity[key];
+			if (q instanceof Type.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
 				let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
 				let c2: Query.SqlExpression = new Query.SqlExpression("?");
 				c2.args.push(this.getValue(entity, <string>key));
@@ -251,16 +256,21 @@ class DBSet<T> implements Queryable<T> {
 	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let q = this.where();
 		return q.orderBy(func);
-		}
+	}
+
+	limit(size: number, index?: number): Queryable<T> {
+		let q = this.where();
+		return q.limit(size, index);
+	}
 
 	list(): Promise<Array<any>> {
-				let q = this.where();
-				return q.list();
+		let q = this.where();
+		return q.list();
 	}
 
 	unique(): Promise<T> {
-				let q = this.where();
-				return q.unique();
+		let q = this.where();
+		return q.unique();
 	}
 
 }
@@ -308,9 +318,12 @@ class SimpleQueryable<T> implements Queryable<T> {
 		if (func) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
 			let temp = func(a);
-			for (var i = 0; i < temp.length; i++) {
-				var e = temp[i];
-				cols.push(e._createExpr());
+			if (temp instanceof Array) {
+				for (let i = 0; i < temp.length; i++) {
+					cols.push(temp[i]._createExpr());
+				}
+			} else {
+				cols.push(temp._createExpr());
 			}
 		} else {
 			let alias: string = this.stat.collection.alias;
@@ -371,18 +384,22 @@ class SimpleQueryable<T> implements Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
 		if (param) {
-						if (param instanceof Function) {
+			if (param instanceof Function) {
 				res = param(a);
-						} else if (param instanceof Array) {
+			} else if (param instanceof Array) {
 				res = param;
-						}
+			}
 		}
 		if (res instanceof Array) {
-						for (let i = 0; i < res.length; i++) {
+			for (let i = 0; i < res.length; i++) {
 				if (res[i] instanceof Query.SqlExpression) {
 					this.stat.groupBy.push((<Query.SqlExpression>res[i])._createExpr());
 				}
-						}
+			}
+		} else {
+			if (res instanceof Query.SqlExpression) {
+				this.stat.groupBy.push(res._createExpr());
+			}
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
@@ -404,10 +421,24 @@ class SimpleQueryable<T> implements Queryable<T> {
 					this.stat.orderBy.push((<Query.SqlExpression>res[i])._createExpr());
 				}
 			}
+		} else {
+			if (res instanceof Query.SqlExpression) {
+				this.stat.orderBy.push(res._createExpr());
+			}
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
+	}
+
+	limit(size: number, index?: number): Queryable<T> {
+		this.stat.limit = new Query.SqlExpression(null, Query.Operator.Limit);
+		if (index) {
+			this.stat.limit.exps.push(new Query.SqlExpression(index.toString()));
 		}
+		this.stat.limit.exps.push(new Query.SqlExpression(size.toString()));
+		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
+		return s;
+	}
 
 }
 

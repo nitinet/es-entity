@@ -64,23 +64,6 @@ class Context {
 		return this.handler.run(query);
 	}
 
-	assign(target: any, ...sources: any[]) {
-		sources.forEach(source => {
-			let keys = Reflect.ownKeys(source);
-			keys.forEach(key => {
-				if (Reflect.has(target, key.toString())) {
-					let value = Reflect.get(source, key);
-					if (target[key.toString()] instanceof Type.Date) {
-						target[key.toString()].set(new Date(value));
-					} else {
-						target[key.toString()].set(value);
-					}
-				}
-			});
-		});
-		return target;
-	}
-
 	flush(): void { }
 
 }

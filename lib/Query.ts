@@ -14,6 +14,7 @@ export class SqlStatement extends ISqlNode {
 	where: SqlExpression = new SqlExpression();
 	groupBy: Array<SqlExpression> = new Array<SqlExpression>();
 	orderBy: Array<SqlExpression> = new Array<SqlExpression>();
+	limit: SqlExpression = new SqlExpression();
 
 	constructor() {
 		super();
@@ -66,6 +67,10 @@ export class SqlStatement extends ISqlNode {
 			this.args = this.args.concat(element.args);
 		}
 
+		// Where
+		let limitStr: string = this.limit.eval();
+		this.args = this.args.concat(this.limit.args);
+
 		// Values
 		let valueStr: string = "";
 		for (let i = 0; i < this.values.length; i++) {
@@ -89,6 +94,8 @@ export class SqlStatement extends ISqlNode {
 				result = result.concat(" group by ", groupByStr);
 			if (orderByStr)
 				result = result.concat(" order by ", orderByStr);
+			if (limitStr)
+				result = result.concat(limitStr);
 		} else if (this.command === "update") {
 			result = result.concat("update ", collectionStr, " set ", columnStr, " where ", whereStr);
 		} else if (this.command === "delete") {
@@ -334,7 +341,7 @@ export class SqlExpression extends ISqlNode implements Column {
 					r = val0 + " desc";
 					break;
 				case Operator.Limit: {
-					r = "limit " + val0 + (val1 ? "," + val1 : "");
+					r = " limit " + val0 + (val1 ? "," + val1 : "");
 				}
 					break;
 				case Operator.Comma: {

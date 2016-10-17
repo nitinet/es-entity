@@ -150,6 +150,16 @@ class StringField extends Field implements String {
 		this._value = data;
 	}
 
+	get(): string | String {
+		return super.get();
+	}
+
+	set(value: string) {
+		if (typeof value === 'string' || value instanceof String) {
+			super.set(value);
+		}
+	}
+
 	/** Iterator */
 	[Symbol.iterator](): IterableIterator<string> {
 		return this._value[Symbol.iterator]();
@@ -440,11 +450,20 @@ class StringField extends Field implements String {
 }
 
 class NumberField extends Field implements Number {
-	_value: number = 0;
 
 	constructor(data?: number) {
 		super();
 		this._value = data;
+	}
+
+	get(): number | Number {
+		return super.get();
+	}
+
+	set(value: number) {
+		if (typeof value === 'number' || value instanceof Number) {
+			super.set(value);
+		}
 	}
 
 	/**
@@ -494,6 +513,16 @@ class BooleanField extends Field implements Boolean {
 		this._value = data;
 	}
 
+	get(): boolean | Boolean {
+		return super.get();
+	}
+
+	set(value: boolean) {
+		if (typeof value === 'boolean' || value instanceof Boolean) {
+			super.set(value);
+		}
+	}
+
 	/** Returns the primitive value of the specified object. */
 	valueOf(): boolean {
 		return this._value.valueOf();
@@ -506,6 +535,16 @@ class DateField extends Field implements Date {
 	constructor(data?: Date) {
 		super();
 		this._value = data;
+	}
+
+	get(): Date {
+		return super.get();
+	}
+
+	set(value: Date) {
+		if (value instanceof Date) {
+			super.set(value);
+		}
 	}
 
 	/**
