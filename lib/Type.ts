@@ -551,14 +551,17 @@ class DateField extends Field implements Date {
 	 * Converts a Date object to a string.
 	 */
 	[Symbol.toPrimitive](hint: "default"): string;
+
 	/**
 	 * Converts a Date object to a string.
 	 */
 	[Symbol.toPrimitive](hint: "string"): string;
+
 	/**
 	 * Converts a Date object to a number.
 	 */
 	[Symbol.toPrimitive](hint: "number"): number;
+
 	/**
 	 * Converts a Date object to a string or number.
 	 *
@@ -570,7 +573,6 @@ class DateField extends Field implements Date {
 	[Symbol.toPrimitive](hint: string): string | number {
 		return this._value[Symbol.toPrimitive](hint);
 	}
-
 
 	/** Returns a string representation of a date. The format of the string depends on the locale. */
 	toString(): string {

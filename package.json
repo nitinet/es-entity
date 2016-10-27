@@ -23,8 +23,10 @@
 		"url": "https://github.com/InHeap/es-entity/issues"
 	},
 	"homepage": "https://github.com/InHeap/es-entity#readme",
-	"dependencies": {
-		"case": "*",
+	"devDependencies": {
 		"mysql": "*"
+	},
+	"dependencies": {
+		"case": "*"
 	}
 }

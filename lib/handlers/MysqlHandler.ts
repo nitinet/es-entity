@@ -1,4 +1,4 @@
-/// <reference path="/usr/local/lib/typings/globals/mysql/index.d.ts" />
+/// <reference path="/usr/local/lib/typings/index.d.ts" />
 
 import * as mysql from "mysql";
 
