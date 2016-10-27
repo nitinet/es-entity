@@ -64,6 +64,10 @@ class Context {
 		return this.handler.run(query);
 	}
 
+	getCriteria(): Query.SqlExpression {
+		return new Query.SqlExpression();
+	}
+
 	flush(): void { }
 
 }

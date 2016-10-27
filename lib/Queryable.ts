@@ -1,8 +1,8 @@
 /// <reference path="/usr/local/lib/typings/index.d.ts" />
 
-import fs = require("fs");
-import path = require("path");
-import Case = require("case");
+import * as fs from "fs";
+import * as path from "path";
+import * as Case from "case";
 
 import Context from "./Context";
 import * as Type from "./Type";

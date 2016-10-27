@@ -150,13 +150,13 @@ class StringField extends Field implements String {
 		this._value = data;
 	}
 
-	get(): string | String {
+	get(): string {
 		return super.get();
 	}
 
 	set(value: string) {
 		if (typeof value === 'string' || value instanceof String) {
-			super.set(value);
+			super.set(value.valueOf());
 		}
 	}
 
@@ -456,13 +456,13 @@ class NumberField extends Field implements Number {
 		this._value = data;
 	}
 
-	get(): number | Number {
+	get(): number {
 		return super.get();
 	}
 
 	set(value: number) {
 		if (typeof value === 'number' || value instanceof Number) {
-			super.set(value);
+			super.set(value.valueOf());
 		}
 	}
 
@@ -513,13 +513,13 @@ class BooleanField extends Field implements Boolean {
 		this._value = data;
 	}
 
-	get(): boolean | Boolean {
+	get(): boolean {
 		return super.get();
 	}
 
 	set(value: boolean) {
 		if (typeof value === 'boolean' || value instanceof Boolean) {
-			super.set(value);
+			super.set(value.valueOf());
 		}
 	}
 
@@ -541,7 +541,10 @@ class DateField extends Field implements Date {
 		return super.get();
 	}
 
-	set(value: Date) {
+	set(value: Date | number) {
+		if (typeof value === 'number') {
+			super.set(new Date(value));
+		}
 		if (value instanceof Date) {
 			super.set(value);
 		}

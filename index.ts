@@ -7,7 +7,6 @@ import Handler, { ConnectionConfig, ResultSet } from "./lib/Handler";
 import * as Util from "./lib/Util"
 
 export { Type };
-
 export { Context };
 export { Queryable };
 export { DBSet };

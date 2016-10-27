@@ -379,7 +379,7 @@ export class SqlExpression extends ISqlNode implements Column {
 
 	_argExp(operand: any): SqlExpression {
 		let w: SqlExpression = null;
-		if (operand instanceof Column) {
+		if (operand instanceof Column || operand instanceof SqlExpression) {
 			w = (<Column>operand)._createExpr();
 		} else {
 			w = new SqlExpression("?");
