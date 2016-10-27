@@ -71,7 +71,7 @@ class MysqlHandler extends Handler.default {
 		if (typeof query === "string") {
 			q = query;
 		} else if (query instanceof Query.SqlStatement) {
-			q = query.eval();
+			q = query.eval(this);
 			args = query.args;
 		}
 

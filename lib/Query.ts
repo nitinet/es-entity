@@ -1,6 +1,8 @@
+import Handler from "./Handler";
+
 export abstract class ISqlNode {
 	args: Array<any> = new Array<any>();
-	abstract eval(): string;
+	abstract eval(handler: Handler): string;
 }
 
 /**
@@ -20,14 +22,17 @@ export class SqlStatement extends ISqlNode {
 		super();
 	}
 
-	eval(): string {
+	eval(handler: Handler): string {
+		if (!handler) {
+			handler = new Handler();
+		}
 		let result: string = "";
 
 		// Column
 		let columnStr: string = "";
 		for (let i = 0; i < this.columns.length; i++) {
 			let element = this.columns[i];
-			let val = element.eval();
+			let val = element.eval(handler);
 			if (i == 0)
 				columnStr = columnStr.concat(" " + val);
 			else
@@ -36,18 +41,18 @@ export class SqlStatement extends ISqlNode {
 		}
 
 		// Collection
-		let collectionStr: string = this.collection.eval();
+		let collectionStr: string = this.collection.eval(handler);
 		this.args = this.args.concat(this.collection.args);
 
 		// Where
-		let whereStr: string = this.where.eval();
+		let whereStr: string = this.where.eval(handler);
 		this.args = this.args.concat(this.where.args);
 
 		// Group By
 		let groupByStr: string = "";
 		for (let i = 0; i < this.groupBy.length; i++) {
 			let element = this.groupBy[i];
-			let val = element.eval();
+			let val = element.eval(handler);
 			if (i == 0)
 				groupByStr = groupByStr.concat(" " + val);
 			else
@@ -59,7 +64,7 @@ export class SqlStatement extends ISqlNode {
 		let orderByStr: string = "";
 		for (let i = 0; i < this.orderBy.length; i++) {
 			let element = this.orderBy[i];
-			let val = element.eval();
+			let val = element.eval(handler);
 			if (i == 0)
 				orderByStr = orderByStr.concat(" " + val);
 			else
@@ -68,14 +73,14 @@ export class SqlStatement extends ISqlNode {
 		}
 
 		// Where
-		let limitStr: string = this.limit.eval();
+		let limitStr: string = this.limit.eval(handler);
 		this.args = this.args.concat(this.limit.args);
 
 		// Values
 		let valueStr: string = "";
 		for (let i = 0; i < this.values.length; i++) {
 			let element = this.values[i];
-			let val = element.eval();
+			let val = element.eval(handler);
 			if (i == 0)
 				valueStr = valueStr.concat(" " + val);
 			else
@@ -119,13 +124,13 @@ export class SqlCollection extends ISqlNode {
 		super()
 	}
 
-	eval(): string {
+	eval(handler: Handler): string {
 		let result: string = "";
 		if (this.value)
 			result = this.colAlias ? this.colAlias + "." + this.value : this.value;
 		else if (this.stat) {
 			this.args = this.args.concat(this.stat.args);
-			result = "(" + this.stat.eval() + ")";
+			result = "(" + this.stat.eval(handler) + ")";
 		}
 		if (!result) {
 			throw "No Collection Found";
@@ -252,13 +257,13 @@ export class SqlExpression extends ISqlNode implements Column {
 		this.operator = operator;
 	}
 
-	eval(): string {
+	eval(handler: Handler): string {
 		if (this.value) {
 			return this.value;
 		} else if (this.exps) {
 			let values: Array<string> = new Array<string>();
 			for (let i = 0; i < this.exps.length; i++) {
-				values[i] = this.exps[i].eval();
+				values[i] = this.exps[i].eval(handler);
 				this.args = this.args.concat(this.exps[i].args);
 			}
 
@@ -266,82 +271,76 @@ export class SqlExpression extends ISqlNode implements Column {
 				this.operator = Operator.And;
 			}
 
-			let val0: string = values[0] ? values[0] : "";
-			let val1: string = values[1] ? values[1] : "";
+			let val0: string = values[0] = values[0] ? values[0] : "";
+			let val1: string = values[1] = values[1] ? values[1] : "";
 
 			let r: string = "";
 			switch (this.operator) {
 				case Operator.Equal:
-					r = val0 + " = " + val1;
+					r = handler.eq(val0, val1);
 					break;
 				case Operator.NotEqual:
-					r = val0 + " != " + val1;
+					r = handler.neq(val0, val1);
 					break;
 				case Operator.LessThan:
-					r = val0 + " < " + val1;
+					r = handler.lt(val0, val1);
 					break;
 				case Operator.LessThanEqual:
-					r = val0 + " <= " + val1;
+					r = handler.lteq(val0, val1);
 					break;
 				case Operator.GreaterThan:
-					r = val0 + " > " + val1;
+					r = handler.gt(val0, val1);
 					break;
 				case Operator.GreaterThanEqual:
-					r = val0 + " >= " + val1;
+					r = handler.gteq(val0, val1);
 					break;
 				case Operator.And:
-					r = "(" + val0;
-					for (let i = 1; i < values.length; i++)
-						r = r + ") and (" + values[i];
-					r = r + ")";
+					r = handler.and(values);
 					break;
 				case Operator.Or:
-					r = "(" + val0;
-					for (let i = 1; i < values.length; i++)
-						r = r + ") or (" + values[i];
-					r = r + ")";
+					r = handler.or(values);
 					break;
 				case Operator.Not:
-					r = " not " + val0;
+					r = handler.not(val0);
 					break;
 				case Operator.Plus:
-					r = val0 + " + " + val1;
+					r = handler.plus(val0, val1);
 					break;
 				case Operator.Minus:
-					r = val0 + " - " + val1;
+					r = handler.minus(val0, val1);
 					break;
 				case Operator.Multiply:
-					r = val0 + " * " + val1;
+					r = handler.multiply(val0, val1);
 					break;
 				case Operator.Devide:
-					r = val0 + " / " + val1;
+					r = handler.devide(val0, val1);
 					break;
 				case Operator.Between:
-					r = val0 + " between " + val1 + " and " + values[2];
+					r = handler.between(values);
 					break;
 				case Operator.Exists:
-					r = " exists (" + val0 + ")";
+					r = handler.exists(val0);
 					break;
 				case Operator.In:
-					r = val0 + " in (" + val1 + ")";
+					r = handler.in(val0, val1);
 					break;
 				case Operator.Like:
-					r = val0 + " like " + val1;
+					r = handler.like(val0, val1);
 					break;
 				case Operator.IsNull:
-					r = val0 + " is null";
+					r = handler.isNull(val0);;
 					break;
 				case Operator.IsNotNull:
-					r = val0 + " is not null";
+					r = handler.isNotNull(val0);
 					break;
 				case Operator.Asc:
-					r = val0 + " asc";
+					r = handler.asc(val0);
 					break;
 				case Operator.Desc:
-					r = val0 + " desc";
+					r = handler.desc(val0);
 					break;
 				case Operator.Limit: {
-					r = " limit " + val0 + (val1 ? "," + val1 : "");
+					r = handler.limit(val0, val1);
 				}
 					break;
 				case Operator.Comma: {
@@ -351,19 +350,19 @@ export class SqlExpression extends ISqlNode implements Column {
 				}
 					break;
 				case Operator.Count:
-					r = "count(" + val0 + ")";
+					r = handler.count(val0);
 					break;
 				case Operator.Sum:
-					r = "sum(" + val0 + ")";
+					r = handler.sum(val0);
 					break;
 				case Operator.Min:
-					r = "min(" + val0 + ")";
+					r = handler.min(val0);
 					break;
 				case Operator.Max:
-					r = "max(" + val0 + ")";
+					r = handler.max(val0);
 					break;
 				case Operator.Avg:
-					r = "avg(" + val0 + ")";
+					r = handler.average(val0);
 					break;
 
 				default:
