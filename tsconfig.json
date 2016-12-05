@@ -1,14 +1,14 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "sourceMap": false,
-        "allowSyntheticDefaultImports": true,
-        "removeComments": true
-    },
-    "exclude": [
-        "typings",
-        "node_modules"
-    ]
+	"compilerOptions": {
+		"target": "es6",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"sourceMap": false,
+		"allowSyntheticDefaultImports": true,
+		"removeComments": true
+	},
+	"exclude": [
+		"typings",
+		"node_modules"
+	]
 }

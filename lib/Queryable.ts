@@ -63,7 +63,7 @@ class DBSet<T> implements Queryable<T> {
 				let key = keys[i];
 				let f = a[key];
 				if (f instanceof Type.Field) {
-					let name = Case.snake(key);
+					let name = Case.snake(key.toString());
 					let column: Handler.ColumnInfo = null;
 					for (let j = 0; j < columns.length; j++) {
 						let c = columns[j];
