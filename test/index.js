@@ -2,7 +2,7 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
@@ -13,27 +13,29 @@ var config = new es.ConnectionConfig();
 config.handler = "mysql";
 config.hostname = "localhost";
 config.name = "mysql";
-config.username = "root";
-config.password = "Application~";
+config.username = "application";
+config.password = "application";
 config.database = "test";
 var context = new EmpContext_1.default(config);
 let q = 4;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         yield context.init();
-        let v = yield context.employees.get(1);
+        let trans = yield context.initTransaction();
+        let v = yield trans.employees.get(1);
         console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
         v.description.set("test update 2");
-        v = yield context.employees.update(v);
+        v = yield trans.employees.update(v);
         console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
         console.log("updated");
-        let a = context.employees.getEntity();
+        let a = trans.employees.getEntity();
         a.name.set("name 2");
         a.description.set("desc insert 2");
-        v = yield context.employees.insert(a);
+        v = yield trans.employees.insert(a);
         console.log("inserted");
         console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
-        yield context.employees.delete(v);
+        yield trans.employees.delete(v);
+        yield trans.finish();
         console.log("deleted");
         let q = yield context.employees.where((a) => {
             return a.name.IsNull();

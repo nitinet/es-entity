@@ -232,6 +232,13 @@ export class SqlExpression extends ISqlNode implements Column {
 	exps: Array<SqlExpression> = null;
 	operator: Operator = null;
 
+	constructor(value?: string, operator?: Operator, ...expressions: Array<SqlExpression>) {
+		super()
+		this.value = value;
+		this.exps = expressions;
+		this.operator = operator;
+	}
+
 	set() { }
 	get() {
 		return null;
@@ -241,6 +248,12 @@ export class SqlExpression extends ISqlNode implements Column {
 		if (this.operator == Operator.And) {
 			this.exps = this.exps.concat(expressions);
 			return this;
+		} else if (!this.operator && this.exps.length == 0) {
+			let exp = expressions.pop();
+			for (var i = 0; i < expressions.length; i++) {
+				exp.add(expressions[i]);
+			}
+			return exp;
 		} else {
 			let exp: SqlExpression = new SqlExpression(null, Operator.And, this);
 			for (var i = 0; i < expressions.length; i++) {
@@ -248,13 +261,6 @@ export class SqlExpression extends ISqlNode implements Column {
 			}
 			return exp;
 		}
-	}
-
-	constructor(value?: string, operator?: Operator, ...expressions: Array<SqlExpression>) {
-		super()
-		this.value = value;
-		this.exps = expressions;
-		this.operator = operator;
 	}
 
 	eval(handler: Handler): string {

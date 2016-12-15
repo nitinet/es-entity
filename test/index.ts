@@ -8,8 +8,8 @@ var config: es.ConnectionConfig = new es.ConnectionConfig();
 config.handler = "mysql";
 config.hostname = "localhost";
 config.name = "mysql";
-config.username = "root";
-config.password = "Application~";
+config.username = "application";
+config.password = "application";
 config.database = "test";
 var context = new empContext(config);
 
@@ -17,19 +17,21 @@ let q = 4;
 
 async function run() {
 	await context.init();
-	let v = await context.employees.get(1);
+	let trans = await context.initTransaction();
+	let v = await trans.employees.get(1);
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	v.description.set("test update 2");
-	v = await context.employees.update(v);
+	v = await trans.employees.update(v);
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	console.log("updated");
-	let a = context.employees.getEntity();
+	let a = trans.employees.getEntity();
 	a.name.set("name 2");
 	a.description.set("desc insert 2");
-	v = await context.employees.insert(a);
+	v = await trans.employees.insert(a);
 	console.log("inserted");
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
-	await context.employees.delete(v);
+	await trans.employees.delete(v);
+	await trans.finish();
 	console.log("deleted");
 	let q = await context.employees.where((a) => {
 		return a.name.IsNull();

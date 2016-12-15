@@ -4,8 +4,10 @@ import * as mysql from "mysql";
 
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
+import Connection from '../Connection';
 
 class MysqlHandler extends Handler.default {
+	handlerName = 'mysql';
 	connectionPool: mysql.IPool = null;
 
 	constructor(config: Handler.ConnectionConfig) {
@@ -20,20 +22,87 @@ class MysqlHandler extends Handler.default {
 		});
 	}
 
-	getConnection(): any {
-		let connection = mysql.createConnection({
-			host: this.config.hostname,
-			user: this.config.username,
-			password: this.config.password,
-			database: this.config.database
+	getConnection(): Promise<Connection> {
+		let p = new Promise<Connection>((resolve, reject) => {
+			let conn = mysql.createConnection({
+				host: this.config.hostname,
+				user: this.config.username,
+				password: this.config.password,
+				database: this.config.database
+			});
+			conn.connect((err) => {
+				if (err)
+					reject(err);
+				else {
+					let res = new Connection(this, conn);
+					resolve(res);
+				}
+			});
 		});
-		connection.connect(function (err) {
-			if (err)
-				throw err;
-			else
-				return;
+		return p;
+	}
+
+	openConnetion(conn): Promise<any> {
+		let p = new Promise((resolve, reject) => {
+			conn = mysql.createConnection({
+				host: this.config.hostname,
+				user: this.config.username,
+				password: this.config.password,
+				database: this.config.database
+			});
+			conn.connect((err) => {
+				if (err)
+					reject(err);
+				else
+					resolve(conn);
+			});
 		});
-		return connection;
+		return p;
+	}
+
+	initTransaction(conn): Promise<void> {
+		let p = new Promise<void>((resolve, reject) => {
+			(<mysql.IConnection>conn).beginTransaction((err) => {
+				if (err)
+					reject('Initializing Transaction Failed');
+				else
+					resolve();
+			});
+		});
+		return p;
+	}
+
+	commit(conn): Promise<void> {
+		let p = new Promise<void>((resolve, reject) => {
+			(<mysql.IConnection>conn).commit((err) => {
+				if (err)
+					reject('Initializing Transaction Failed');
+				else
+					resolve();
+			});
+		});
+		return p;
+	}
+
+	rollback(conn): Promise<void> {
+		let p = new Promise<void>((resolve) => {
+			(<mysql.IConnection>conn).rollback(() => {
+				resolve();
+			});
+		});
+		return p;
+	}
+
+	close(conn): Promise<void> {
+		let p = new Promise<void>((resolve, reject) => {
+			(<mysql.IConnection>conn).end((err) => {
+				if (err)
+					reject('Initializing Transaction Failed');
+				else
+					resolve();
+			});
+		});
+		return p;
 	}
 
 	async getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
@@ -50,7 +119,8 @@ class MysqlHandler extends Handler.default {
 				|| columnType.includes("double")
 				|| columnType.includes("decimal")) {
 				a.type = "number";
-			} else if (columnType.includes("varchar")) {
+			} else if (columnType.includes("varchar")
+				|| columnType.includes('text')) {
 				a.type = "string";
 			} else if (columnType.includes("timestamp")) {
 				a.type = "date";
@@ -65,7 +135,7 @@ class MysqlHandler extends Handler.default {
 		return result;
 	}
 
-	async run(query: string | Query.ISqlNode, connection?: any): Promise<Handler.ResultSet> {
+	async run(query: string | Query.ISqlNode, connection?: Connection): Promise<Handler.ResultSet> {
 		let q: string = null;
 		let args: Array<any> = null;
 		if (typeof query === "string") {
@@ -83,8 +153,8 @@ class MysqlHandler extends Handler.default {
 				}*/
 
 				let r: Handler.ResultSet = new Handler.ResultSet();
-				if (connection) {
-					(<mysql.IConnection>connection).query(val, args, function (err, result) {
+				if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName) {
+					(<mysql.IConnection>connection.Conn).query(val, args, function (err, result) {
 						if (err)
 							reject(err.code);
 						else {

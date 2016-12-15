@@ -9,6 +9,7 @@ import PostGreHandler from "./handlers/PostGreHandler";
 import SqlLiteHandler from "./handlers/SqlLiteHandler";
 import * as Query from "./Query";
 import * as Type from "./Type";
+import Connection from './Connection';
 
 export function getHandler(config: ConnectionConfig): Handler {
 	let handler: Handler = null;
@@ -31,6 +32,7 @@ export function getHandler(config: ConnectionConfig): Handler {
 class Context {
 	entityPath: string;
 	handler: Handler;
+	connection: Connection = null;
 
 	constructor(config?: ConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -41,7 +43,7 @@ class Context {
 		}
 	}
 
-	 async init(): Promise<void> {
+	async init(): Promise<void> {
 		let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
@@ -61,7 +63,7 @@ class Context {
 	}
 
 	execute(query: string | Query.ISqlNode): Promise<ResultSet> {
-		return this.handler.run(query);
+		return this.handler.run(query, this.connection);
 	}
 
 	getCriteria(): Query.SqlExpression {
@@ -69,6 +71,28 @@ class Context {
 	}
 
 	flush(): void { }
+
+	async initTransaction(): Promise<this> {
+		let res = this;
+		// Create Clone if connection not present
+		if (!this.connection) {
+			res = Object.assign({}, this);
+			Object.setPrototypeOf(res, Object.getPrototypeOf(this));
+		}
+		res.connection = await res.handler.getConnection();
+		await res.connection.initTransaction();
+		return res;
+	}
+
+	async finish() {
+		await this.connection.commit();
+		await this.connection.close();
+	}
+
+	async rollback() {
+		await this.connection.rollback();
+		await this.connection.close();
+	}
 
 }
 
