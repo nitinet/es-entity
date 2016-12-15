@@ -31,7 +31,7 @@ async function run() {
 	console.log("inserted");
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	await trans.employees.delete(v);
-	await trans.finish();
+	await trans.commit();
 	console.log("deleted");
 	let q = await context.employees.where((a) => {
 		return a.name.IsNull();

@@ -35,7 +35,7 @@ function run() {
         console.log("inserted");
         console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
         yield trans.employees.delete(v);
-        yield trans.finish();
+        yield trans.commit();
         console.log("deleted");
         let q = yield context.employees.where((a) => {
             return a.name.IsNull();

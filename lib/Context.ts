@@ -84,7 +84,7 @@ class Context {
 		return res;
 	}
 
-	async finish() {
+	async commit() {
 		await this.connection.commit();
 		await this.connection.close();
 	}
