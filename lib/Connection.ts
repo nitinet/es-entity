@@ -2,7 +2,7 @@ import Handler from './Handler';
 
 export default class Connection {
 	private handler: Handler = null;
-	private conn: any = null;
+	conn: any = null;
 
 	constructor(handler: Handler, conn?) {
 		this.handler = handler;
@@ -11,14 +11,6 @@ export default class Connection {
 
 	get Handler() {
 		return this.handler;
-	}
-
-	get Conn() {
-		return this.conn;
-	}
-
-	set Conn(conn) {
-		this.conn = conn;
 	}
 
 	async open() {
@@ -39,5 +31,6 @@ export default class Connection {
 
 	async close() {
 		await this.handler.close(this.conn);
+		this.conn = null;
 	}
 }

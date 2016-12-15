@@ -153,8 +153,8 @@ class MysqlHandler extends Handler.default {
 				}*/
 
 				let r: Handler.ResultSet = new Handler.ResultSet();
-				if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName) {
-					(<mysql.IConnection>connection.Conn).query(val, args, function (err, result) {
+				if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+					(<mysql.IConnection>connection.conn).query(val, args, function (err, result) {
 						if (err)
 							reject(err.code);
 						else {

@@ -1,6 +1,6 @@
 {
 	"name": "es-entity",
-	"version": "1.0.35",
+	"version": "1.0.37",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"main": "index.js",
 	"scripts": {
@@ -11,7 +11,6 @@
 		"url": "git+https://github.com/InHeap/es-entity.git"
 	},
 	"keywords": [
-		"Nodejs",
 		"entity",
 		"ORM",
 		"Typescript",
