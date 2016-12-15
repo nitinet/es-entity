@@ -78,6 +78,13 @@ class Context {
 		if (!this.connection) {
 			res = Object.assign({}, this);
 			Object.setPrototypeOf(res, Object.getPrototypeOf(this));
+			let keys = Reflect.ownKeys(res);
+			keys.forEach((key) => {
+				let prop = Reflect.get(res, key);
+				if (prop instanceof DBSet) {
+					prop.context = res;
+				}
+			});
 		}
 		res.connection = await res.handler.getConnection();
 		await res.connection.initTransaction();
