@@ -263,7 +263,7 @@ class DBSet<T> implements Queryable<T> {
 		return q.limit(size, index);
 	}
 
-	list(): Promise<Array<any>> {
+	list(): Promise<Array<T>> {
 		let q = this.where();
 		return q.list();
 	}
@@ -288,7 +288,7 @@ class SimpleQueryable<T> implements Queryable<T> {
 	}
 
 	// Selection Functions
-	async list(): Promise<Array<any>> {
+	async list(): Promise<Array<T>> {
 		let alias: string = this.stat.collection.alias;
 
 		this.dbSet.mapping.fields.forEach((field, fieldName) => {
