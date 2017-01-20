@@ -8,8 +8,8 @@ var config: es.ConnectionConfig = new es.ConnectionConfig();
 config.handler = "mysql";
 config.hostname = "localhost";
 config.name = "mysql";
-config.username = "application";
-config.password = "application";
+config.username = "root";
+config.password = "~";
 config.database = "test";
 var context = new empContext(config);
 

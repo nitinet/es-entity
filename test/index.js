@@ -4,7 +4,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 const es = require("./../index");
@@ -13,8 +13,8 @@ var config = new es.ConnectionConfig();
 config.handler = "mysql";
 config.hostname = "localhost";
 config.name = "mysql";
-config.username = "application";
-config.password = "application";
+config.username = "root";
+config.password = "~";
 config.database = "test";
 var context = new EmpContext_1.default(config);
 let q = 4;
