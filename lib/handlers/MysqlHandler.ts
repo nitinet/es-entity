@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as mysql from "mysql";
 
 import * as Handler from "./../Handler";

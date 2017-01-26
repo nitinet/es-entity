@@ -1,5 +1,3 @@
-/// <reference path="./typings/index.d.ts" />
-
 import * as Type from "./lib/Type";
 import Context from "./lib/Context";
 import Queryable, { DBSet } from "./lib/Queryable";

@@ -5,7 +5,11 @@
 		"moduleResolution": "node",
 		"sourceMap": false,
 		"allowSyntheticDefaultImports": true,
-		"removeComments": true
+		"removeComments": true,
+		"typeRoots": [
+			"./typings/globals/",
+			"./typings/modules/"
+		]
 	},
 	"exclude": [
 		"typings",
