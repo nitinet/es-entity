@@ -1,4 +1,4 @@
-/// <reference path="/usr/local/lib/typings/index.d.ts" />
+/// <reference path="../typings/index.d.ts" />
 
 import Queryable, { DBSet } from "./Queryable";
 import Handler, { ConnectionConfig, ResultSet } from "./Handler";

@@ -10,3 +10,5 @@ exports.ConnectionConfig = Handler_1.ConnectionConfig;
 exports.ResultSet = Handler_1.ResultSet;
 const Util = require("./lib/Util");
 exports.Util = Util;
+const Query_1 = require("./lib/Query");
+exports.Expression = Query_1.SqlExpression;
