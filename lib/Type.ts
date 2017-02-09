@@ -155,9 +155,7 @@ class StringField extends Field implements String {
 	}
 
 	set(value: string) {
-		if (typeof value === 'string' || value instanceof String) {
-			super.set(value.valueOf());
-		}
+		super.set(value.valueOf());
 	}
 
 	/** Iterator */
@@ -461,9 +459,7 @@ class NumberField extends Field implements Number {
 	}
 
 	set(value: number) {
-		if (typeof value === 'number' || value instanceof Number) {
-			super.set(value.valueOf());
-		}
+		super.set(value.valueOf());
 	}
 
 	/**
@@ -518,9 +514,7 @@ class BooleanField extends Field implements Boolean {
 	}
 
 	set(value: boolean) {
-		if (typeof value === 'boolean' || value instanceof Boolean) {
-			super.set(value.valueOf());
-		}
+		super.set(value.valueOf() ? true : false);
 	}
 
 	/** Returns the primitive value of the specified object. */
@@ -541,13 +535,8 @@ class DateField extends Field implements Date {
 		return super.get();
 	}
 
-	set(value: Date | number) {
-		if (typeof value === 'number') {
-			super.set(new Date(value));
-		}
-		if (value instanceof Date) {
-			super.set(value);
-		}
+	set(value: Date) {
+		super.set(new Date(value.valueOf()));
 	}
 
 	/**
