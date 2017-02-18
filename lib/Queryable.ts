@@ -234,14 +234,12 @@ class DBSet<T> implements Queryable<T> {
 
 		let a = this.getEntity(stat.collection.alias);
 		let res: any = null;
-		if (param) {
-			if (param instanceof Function) {
-				res = param(a, args);
-			} else if (param instanceof Query.SqlExpression) {
-				res = param;
-			}
+		if (param instanceof Function) {
+			res = param(a, args);
+		} else {
+			res = param;
 		}
-		if (res instanceof Query.SqlExpression) {
+		if (res instanceof Query.SqlExpression && res.exps.length > 0) {
 			stat.where = res;
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(stat, this);
@@ -366,14 +364,12 @@ class SimpleQueryable<T> implements Queryable<T> {
 	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
-		if (param) {
-			if (param instanceof Function) {
-				res = param(a, args);
-			} else if (param instanceof Query.SqlExpression) {
-				res = param;
-			}
+		if (param instanceof Function) {
+			res = param(a, args);
+		} else {
+			res = param;
 		}
-		if (res instanceof Query.SqlExpression) {
+		if (res instanceof Query.SqlExpression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
 		}
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
@@ -383,21 +379,19 @@ class SimpleQueryable<T> implements Queryable<T> {
 	groupBy(param?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
-		if (param) {
-			if (param instanceof Function) {
-				res = param(a);
-			} else if (param instanceof Array) {
-				res = param;
-			}
+		if (param instanceof Function) {
+			res = param(a);
+		} else if (param instanceof Array) {
+			res = param;
 		}
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
-				if (res[i] instanceof Query.SqlExpression) {
+				if (res[i] instanceof Query.SqlExpression && res[i].exps.length > 0) {
 					this.stat.groupBy.push((<Query.SqlExpression>res[i])._createExpr());
 				}
 			}
 		} else {
-			if (res instanceof Query.SqlExpression) {
+			if (res instanceof Query.SqlExpression && res.exps.length > 0) {
 				this.stat.groupBy.push(res._createExpr());
 			}
 		}
@@ -408,21 +402,19 @@ class SimpleQueryable<T> implements Queryable<T> {
 	orderBy(param?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
-		if (param) {
-			if (param instanceof Function) {
-				res = param(a);
-			} else if (param instanceof Array) {
-				res = param;
-			}
+		if (param instanceof Function) {
+			res = param(a);
+		} else if (param instanceof Array) {
+			res = param;
 		}
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
-				if (res[i] instanceof Query.SqlExpression) {
+				if (res[i] instanceof Query.SqlExpression && res[i].exps.length > 0) {
 					this.stat.orderBy.push((<Query.SqlExpression>res[i])._createExpr());
 				}
 			}
 		} else {
-			if (res instanceof Query.SqlExpression) {
+			if (res instanceof Query.SqlExpression && res.exps.length > 0) {
 				this.stat.orderBy.push(res._createExpr());
 			}
 		}
