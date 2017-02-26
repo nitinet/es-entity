@@ -9,7 +9,7 @@ config.handler = "mysql";
 config.hostname = "localhost";
 config.name = "mysql";
 config.username = "root";
-config.password = "~";
+config.password = "password";
 config.database = "test";
 var context = new empContext(config);
 

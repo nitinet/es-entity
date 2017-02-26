@@ -449,6 +449,14 @@ class StringField extends Field implements String {
 
 	[index: number]: string;
 
+	padStart(maxLength: number, fillString?: string): string {
+		return null;
+	}
+
+	padEnd(maxLength: number, fillString?: string): string {
+		return null;
+	}
+
 }
 
 class NumberField extends Field implements Number {
@@ -819,9 +827,9 @@ class DateField extends Field implements Date {
 		return this._value.toJSON();
 	}
 
-	getVarDate(): VarDate {
-		return this._value.getVarDate();
-	}
+	// getVarDate(): VarDate {
+	// 	return this._value.getVarDate();
+	// }
 
 }
 
