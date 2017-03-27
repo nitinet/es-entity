@@ -140,7 +140,7 @@ class MysqlHandler extends Handler.default {
                 if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
                     connection.conn.query(val, args, function (err, result) {
                         if (err)
-                            reject(err.code);
+                            reject(err);
                         else {
                             if (result.insertId)
                                 r.id = result.insertId;
@@ -158,7 +158,7 @@ class MysqlHandler extends Handler.default {
                 else {
                     this.connectionPool.query(val, args, function (err, result) {
                         if (err)
-                            reject(err.code);
+                            reject(err);
                         else {
                             if (result.insertId)
                                 r.id = result.insertId;
