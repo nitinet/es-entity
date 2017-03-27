@@ -55,8 +55,8 @@ class Context {
     setEntityPath(entityPath) {
         this.entityPath = entityPath;
     }
-    execute(query, args) {
-        return this.handler.run(query, args, this.connection);
+    async execute(query, args) {
+        return await this.handler.run(query, args, this.connection);
     }
     getCriteria() {
         return new Query.SqlExpression();
