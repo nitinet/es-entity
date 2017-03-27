@@ -1,8 +1,9 @@
 {
   "globalDependencies": {
-    "node": "registry:dt/node#7.0.0+20170124134802"
+    "moment": "registry:dt/moment",
+    "node": "registry:dt/node"
   },
   "dependencies": {
-    "mysql": "registry:dt/mysql#0.0.0+20170113202751"
+    "mysql": "registry:dt/mysql"
   }
 }

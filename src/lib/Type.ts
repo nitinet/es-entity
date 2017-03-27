@@ -1,3 +1,4 @@
+import * as moment from 'moment';
 import * as Query from "./Query";
 
 export interface IEntityType<T> {
@@ -825,7 +826,7 @@ class DateField extends Field implements Date {
 	/** Used by the JSON.stringify method to enable the transformation of an object's data for JavaScript Object Notation (JSON) serialization. */
 	toJSON(key?: any): string {
 		if (this._value != null) {
-			return this._value.toJSON(key);
+			return moment(this._value).format('llll')
 		} else {
 			return null;
 		}

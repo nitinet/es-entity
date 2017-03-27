@@ -1,4 +1,5 @@
 "use strict";
+const moment = require("moment");
 const Query = require("./Query");
 class Field extends Query.Column {
     constructor() {
@@ -469,7 +470,7 @@ class DateField extends Field {
     }
     toJSON(key) {
         if (this._value != null) {
-            return this._value.toJSON(key);
+            return moment(this._value).format('llll');
         }
         else {
             return null;
