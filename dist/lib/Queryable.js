@@ -94,7 +94,7 @@ class DBSet {
         return obj[key]._updated ? true : false;
     }
     setValue(obj, key, value) {
-        if (value) {
+        if (value != null) {
             obj[key].set(value);
         }
     }
