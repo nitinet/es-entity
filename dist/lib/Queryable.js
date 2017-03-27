@@ -101,8 +101,8 @@ class DBSet {
     getValue(obj, key) {
         return obj[key].get();
     }
-    executeStatement(stat) {
-        return this.context.execute(stat);
+    async executeStatement(stat) {
+        return await this.context.execute(stat);
     }
     async insert(entity) {
         let stat = new Query.SqlStatement();

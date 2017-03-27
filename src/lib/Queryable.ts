@@ -130,8 +130,8 @@ class DBSet<T> implements Queryable<T> {
 		return (<Query.Column>obj[key]).get();
 	}
 
-	executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
-		return this.context.execute(stat);
+	async executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
+		return await this.context.execute(stat);
 	}
 
 	async insert(entity: T): Promise<T> {
