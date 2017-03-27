@@ -37,7 +37,7 @@ class Handler {
         this.handlerName = '';
     }
     async getTableInfo(tableName) { return null; }
-    async run(query, connetction) { return null; }
+    async run(query, args, connetction) { return null; }
     getConnection() { return null; }
     openConnetion(conn) { return null; }
     initTransaction(conn) { return null; }

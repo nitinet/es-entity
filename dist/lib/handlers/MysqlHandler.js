@@ -125,9 +125,8 @@ class MysqlHandler extends Handler.default {
         });
         return result;
     }
-    async run(query, connection) {
+    async run(query, args, connection) {
         let q = null;
-        let args = null;
         if (typeof query === "string") {
             q = query;
         }

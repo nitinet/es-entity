@@ -133,9 +133,8 @@ class MysqlHandler extends Handler.default {
 		return result;
 	}
 
-	async run(query: string | Query.ISqlNode, connection?: Connection): Promise<Handler.ResultSet> {
+	async run(query: string | Query.ISqlNode, args?: Array<any>, connection?: Connection): Promise<Handler.ResultSet> {
 		let q: string = null;
-		let args: Array<any> = null;
 		if (typeof query === "string") {
 			q = query;
 		} else if (query instanceof Query.SqlStatement) {

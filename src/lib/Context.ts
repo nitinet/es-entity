@@ -60,8 +60,8 @@ class Context {
 		this.entityPath = entityPath;
 	}
 
-	execute(query: string | Query.ISqlNode): Promise<ResultSet> {
-		return this.handler.run(query, this.connection);
+	execute(query: string | Query.ISqlNode, args?: Array<any>): Promise<ResultSet> {
+		return this.handler.run(query, args, this.connection);
 	}
 
 	getCriteria(): Query.SqlExpression {
