@@ -18,7 +18,7 @@ class Field extends Query.Column {
         }
     }
     toJSON() {
-        if (this._value) {
+        if (this._value != null) {
             return this._value.valueOf();
         }
         else {
@@ -468,7 +468,12 @@ class DateField extends Field {
         return this._value.toISOString();
     }
     toJSON(key) {
-        return this._value.toJSON();
+        if (this._value != null) {
+            return this._value.toJSON(key);
+        }
+        else {
+            return null;
+        }
     }
 }
 exports.Date = DateField;

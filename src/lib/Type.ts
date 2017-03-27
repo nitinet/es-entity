@@ -26,7 +26,7 @@ class Field extends Query.Column {
 	}
 
 	toJSON() {
-		if (this._value) {
+		if (this._value != null) {
 			return this._value.valueOf();
 		} else {
 			return null;
@@ -824,7 +824,11 @@ class DateField extends Field implements Date {
 	}
 	/** Used by the JSON.stringify method to enable the transformation of an object's data for JavaScript Object Notation (JSON) serialization. */
 	toJSON(key?: any): string {
-		return this._value.toJSON();
+		if (this._value != null) {
+			return this._value.toJSON(key);
+		} else {
+			return null;
+		}
 	}
 
 	// getVarDate(): VarDate {
