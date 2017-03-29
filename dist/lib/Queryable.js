@@ -187,9 +187,9 @@ class DBSet {
         let alias = this.mapping.name.charAt(0);
         stat.collection.value = this.mapping.name;
         stat.collection.alias = alias;
-        let a = this.getEntity(stat.collection.alias);
         let res = null;
         if (param instanceof Function) {
+            let a = this.getEntity(stat.collection.alias);
             res = param(a, args);
         }
         else {
@@ -301,9 +301,9 @@ class SimpleQueryable {
         }
     }
     where(param, ...args) {
-        let a = this.dbSet.getEntity(this.stat.collection.alias);
         let res = null;
         if (param instanceof Function) {
+            let a = this.dbSet.getEntity(this.stat.collection.alias);
             res = param(a, args);
         }
         else {

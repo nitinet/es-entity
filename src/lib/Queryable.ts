@@ -232,9 +232,9 @@ class DBSet<T> implements Queryable<T> {
 		stat.collection.value = this.mapping.name;
 		stat.collection.alias = alias;
 
-		let a = this.getEntity(stat.collection.alias);
 		let res: any = null;
 		if (param instanceof Function) {
+			let a = this.getEntity(stat.collection.alias);
 			res = param(a, args);
 		} else {
 			res = param;
@@ -362,9 +362,9 @@ class SimpleQueryable<T> implements Queryable<T> {
 
 	// Conditional Functions
 	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
-		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res: any = null;
 		if (param instanceof Function) {
+			let a = this.dbSet.getEntity(this.stat.collection.alias);
 			res = param(a, args);
 		} else {
 			res = param;
