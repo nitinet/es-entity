@@ -35,9 +35,9 @@ class PropertyTransformer {
 }
 exports.PropertyTransformer = PropertyTransformer;
 function deAsync(promise) {
-    var res, error, done = false;
+    var result, error, done = false;
     promise.then(function (res) {
-        res = res;
+        result = res;
     }, function (err) {
         error = err;
     }).then(function () {
@@ -47,6 +47,6 @@ function deAsync(promise) {
     if (error) {
         throw error;
     }
-    return res;
+    return result;
 }
 exports.deAsync = deAsync;
