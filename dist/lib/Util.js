@@ -1,5 +1,6 @@
 "use strict";
 const Type = require("./Type");
+const deasync = require("deasync");
 class PropertyTransformer {
     constructor() {
         this.fields = new Array();
@@ -33,3 +34,19 @@ class PropertyTransformer {
     }
 }
 exports.PropertyTransformer = PropertyTransformer;
+function deAsync(promise) {
+    var res, error, done = false;
+    promise.then(function (res) {
+        res = res;
+    }, function (err) {
+        error = err;
+    }).then(function () {
+        done = true;
+    });
+    deasync.loopWhile(function () { return !done; });
+    if (error) {
+        throw error;
+    }
+    return res;
+}
+exports.deAsync = deAsync;

@@ -1,4 +1,5 @@
 import * as Type from "./Type";
+import * as deasync from 'deasync';
 
 export class PropertyTransformer {
 	fields: Array<string> = new Array<string>();
@@ -30,4 +31,20 @@ export class PropertyTransformer {
 		});
 		return target;
 	}
+}
+
+export function deAsync<T>(promise: Promise<T>) {
+	var res: T, error, done = false;
+	promise.then(function (res) {
+		res = res;
+	}, function (err) {
+		error = err;
+	}).then(function () {
+		done = true;
+	});
+	deasync.loopWhile(function () { return !done; });
+	if (error) {
+		throw error;
+	}
+	return res;
 }

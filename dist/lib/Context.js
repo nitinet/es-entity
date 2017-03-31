@@ -39,13 +39,13 @@ class Context {
             this.setEntityPath(entityPath);
         }
     }
-    async init() {
+    init() {
         let keys = Reflect.ownKeys(this);
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
             let e = Reflect.get(this, key);
             if (e instanceof Queryable_1.DBSet) {
-                await e.bind(this);
+                e.bind(this);
             }
         }
     }

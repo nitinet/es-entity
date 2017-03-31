@@ -1,5 +1,6 @@
 "use strict";
 const mysql = require("mysql");
+const util = require("../Util");
 const Handler = require("./../Handler");
 const Query = require("./../Query");
 const Connection_1 = require("../Connection");
@@ -94,8 +95,9 @@ class MysqlHandler extends Handler.default {
         });
         return p;
     }
-    async getTableInfo(tableName) {
-        let r = await this.run("describe " + tableName);
+    getTableInfo(tableName) {
+        let p = this.run("describe " + tableName);
+        let r = util.deAsync(p);
         let result = new Array();
         r.rows.forEach((row) => {
             let a = new Handler.ColumnInfo();

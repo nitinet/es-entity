@@ -10,7 +10,7 @@ class DBSet {
         this.mapping = new Mapping.EntityMapping();
         this.entityType = entityType;
     }
-    async bind(context) {
+    bind(context) {
         this.context = context;
         let entityName = this.entityType.name;
         let filePath = null;
@@ -25,7 +25,7 @@ class DBSet {
             this.mapping = new Mapping.EntityMapping();
             this.mapping.entityName = entityName;
             this.mapping.name = Case.snake(entityName);
-            let columns = await this.context.handler.getTableInfo(this.mapping.name);
+            let columns = this.context.handler.getTableInfo(this.mapping.name);
             let a = new this.entityType();
             let keys = Reflect.ownKeys(a);
             for (let i = 0; i < keys.length; i++) {

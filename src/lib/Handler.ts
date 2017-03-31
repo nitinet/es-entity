@@ -35,7 +35,7 @@ export default class Handler {
 	handlerName: string = '';
 	public config: ConnectionConfig;
 
-	async getTableInfo(tableName: string): Promise<Array<ColumnInfo>> { return null; }
+	getTableInfo(tableName: string): Array<ColumnInfo> { return null; }
 	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<ResultSet> { return null; }
 
 	// Connetion mange functions

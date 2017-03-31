@@ -36,7 +36,7 @@ class Handler {
     constructor() {
         this.handlerName = '';
     }
-    async getTableInfo(tableName) { return null; }
+    getTableInfo(tableName) { return null; }
     async run(query, args, connetction) { return null; }
     getConnection() { return null; }
     openConnetion(conn) { return null; }

@@ -37,7 +37,7 @@ class DBSet<T> implements Queryable<T> {
 		this.entityType = entityType;
 	}
 
-	async bind(context: Context): Promise<void> {
+	bind(context: Context) {
 		this.context = context;
 		let entityName: string = this.entityType.name;
 		let filePath: string = null;
@@ -53,7 +53,7 @@ class DBSet<T> implements Queryable<T> {
 			this.mapping.name = Case.snake(entityName);
 
 			// get info from describe db
-			let columns = await this.context.handler.getTableInfo(this.mapping.name);
+			let columns = this.context.handler.getTableInfo(this.mapping.name);
 
 			let a = new this.entityType();
 			let keys = Reflect.ownKeys(a);

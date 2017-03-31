@@ -7,7 +7,7 @@ class PostGreHandler extends Handler.default {
     getConnection() {
         return null;
     }
-    async getTableInfo(tableName) {
+    getTableInfo(tableName) {
         return null;
     }
     async run(query) {

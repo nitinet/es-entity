@@ -11,7 +11,7 @@ class MsSqlServerHandler extends Handler.default {
 		return null;
 	}
 
-	async getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+	getTableInfo(tableName: string): Array<Handler.ColumnInfo> {
 		return null;
 	}
 
