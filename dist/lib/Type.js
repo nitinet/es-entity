@@ -470,7 +470,7 @@ class DateField extends Field {
     }
     toJSON(key) {
         if (this._value != null) {
-            return moment(this._value).format('llll');
+            return moment(this._value).format('DD/MM/YYYY HH:mm:ss.SSS');
         }
         else {
             return null;

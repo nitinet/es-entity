@@ -826,7 +826,7 @@ class DateField extends Field implements Date {
 	/** Used by the JSON.stringify method to enable the transformation of an object's data for JavaScript Object Notation (JSON) serialization. */
 	toJSON(key?: any): string {
 		if (this._value != null) {
-			return moment(this._value).format('llll')
+			return moment(this._value).format('DD/MM/YYYY HH:mm:ss.SSS')
 		} else {
 			return null;
 		}
