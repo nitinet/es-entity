@@ -28,7 +28,7 @@ interface Queryable<T> {
 	limit(size: number, index?: number): Queryable<T>;
 }
 
-class DBSet<T extends object> implements Queryable<T> {
+class DBSet<T extends any> implements Queryable<T> {
 	entityType: Type.IEntityType<T>;
 	context: Context;
 	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
@@ -276,7 +276,7 @@ class DBSet<T extends object> implements Queryable<T> {
 /**
  * SimpleQueryable
  */
-class SimpleQueryable<T extends object> implements Queryable<T> {
+class SimpleQueryable<T extends any> implements Queryable<T> {
 	dbSet: DBSet<T> = null;
 	stat: Query.SqlStatement = null;
 
