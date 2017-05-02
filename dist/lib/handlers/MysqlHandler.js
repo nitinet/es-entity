@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const mysql = require("mysql");
 const util = require("../Util");
 const Handler = require("./../Handler");
@@ -180,5 +181,4 @@ class MysqlHandler extends Handler.default {
         return p;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MysqlHandler;

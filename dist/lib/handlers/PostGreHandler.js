@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Handler = require("./../Handler");
 class PostGreHandler extends Handler.default {
     constructor(config) {
@@ -14,5 +15,4 @@ class PostGreHandler extends Handler.default {
         return null;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PostGreHandler;

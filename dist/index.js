@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Type = require("./lib/Type");
 exports.Type = Type;
 const Context_1 = require("./lib/Context");

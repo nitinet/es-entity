@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Type = require("./Type");
 const deasync = require("deasync");
 class PropertyTransformer {

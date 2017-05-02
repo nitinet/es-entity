@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class Connection {
     constructor(handler, conn) {
         this.handler = null;
@@ -26,5 +27,4 @@ class Connection {
         this.conn = null;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Connection;

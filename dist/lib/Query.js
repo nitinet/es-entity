@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Handler_1 = require("./Handler");
 class ISqlNode {
     constructor() {

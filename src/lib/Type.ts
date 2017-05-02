@@ -832,9 +832,9 @@ class DateField extends Field implements Date {
 		}
 	}
 
-	// getVarDate(): VarDate {
-	// 	return this._value.getVarDate();
-	// }
+	getVarDate(): VarDate {
+		return this._value.getVarDate();
+	}
 
 }
 

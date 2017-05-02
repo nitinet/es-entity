@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Handler = require("./../Handler");
 class SqlLiteHandler extends Handler.default {
     constructor(config) {
@@ -14,5 +15,4 @@ class SqlLiteHandler extends Handler.default {
         return null;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SqlLiteHandler;

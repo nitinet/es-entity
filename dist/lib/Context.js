@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Queryable_1 = require("./Queryable");
 const MysqlHandler_1 = require("./handlers/MysqlHandler");
 const OracleDbHandler_1 = require("./handlers/OracleDbHandler");
@@ -88,5 +89,4 @@ class Context {
         await this.connection.close();
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Context;

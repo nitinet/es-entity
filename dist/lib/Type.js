@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const moment = require("moment");
 const Query = require("./Query");
 class Field extends Query.Column {
@@ -475,6 +476,9 @@ class DateField extends Field {
         else {
             return null;
         }
+    }
+    getVarDate() {
+        return this._value.getVarDate();
     }
 }
 exports.Date = DateField;
