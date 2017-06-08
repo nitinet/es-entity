@@ -23,12 +23,21 @@
 		"url": "https://github.com/InHeap/es-entity/issues"
 	},
 	"homepage": "https://github.com/InHeap/es-entity#readme",
-	"devDependencies": {
-		"mysql": "*"
-	},
 	"dependencies": {
 		"case": "*",
 		"deasync": "*",
 		"moment": "*"
+	},
+	"peerDependencies": {
+		"mssql": "^4.0.4",
+		"mysql": "^2.13.0",
+		"sqlite3": "^3.1.8",
+		"cassandra-driver": "^3.2.2"
+	},
+	"devDependencies": {
+		"mssql": "^4.0.4",
+		"mysql": "^2.13.0",
+		"sqlite3": "^3.1.8",
+		"cassandra-driver": "^3.2.2"
 	}
 }
