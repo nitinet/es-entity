@@ -22,7 +22,7 @@ class MysqlHandler extends Handler.default {
 	}
 
 	getConnection(): Promise<Connection> {
-		let p = new Promise<Connection>((resolve, reject) => {
+		return new Promise<Connection>((resolve, reject) => {
 			let conn = mysql.createConnection({
 				host: this.config.hostname,
 				user: this.config.username,
@@ -38,7 +38,6 @@ class MysqlHandler extends Handler.default {
 				}
 			});
 		});
-		return p;
 	}
 
 	openConnetion(conn): Promise<any> {

@@ -20,7 +20,7 @@ class MysqlHandler extends Handler.default {
         });
     }
     getConnection() {
-        let p = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let conn = mysql.createConnection({
                 host: this.config.hostname,
                 user: this.config.username,
@@ -36,7 +36,6 @@ class MysqlHandler extends Handler.default {
                 }
             });
         });
-        return p;
     }
     openConnetion(conn) {
         let p = new Promise((resolve, reject) => {

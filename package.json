@@ -28,16 +28,16 @@
 		"deasync": "*",
 		"moment": "*"
 	},
-	"peerDependencies": {
-		"mssql": "^4.0.4",
-		"mysql": "^2.13.0",
-		"sqlite3": "^3.1.8",
-		"cassandra-driver": "^3.2.2"
-	},
 	"devDependencies": {
+		"cassandra-driver": "*",
+		"mssql": "*",
+		"mysql": "*",
+		"sqlite3": "*"
+	},
+	"peerDependencies": {
+		"cassandra-driver": "^3.2.2",
 		"mssql": "^4.0.4",
 		"mysql": "^2.13.0",
-		"sqlite3": "^3.1.8",
-		"cassandra-driver": "^3.2.2"
+		"sqlite3": "^3.1.8"
 	}
 }
