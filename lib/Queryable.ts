@@ -81,7 +81,7 @@ class DBSet<T extends any> implements Queryable<T> {
 						} else if (f instanceof Type.Date && column.type == "date") {
 							type = "date";
 						} else {
-							throw new Error("Tyep mismatch found for Column: " + name + " in Table:" + this.mapping.name);
+							throw new Error("Type mismatch found for Column: " + name + " in Table:" + this.mapping.name);
 						}
 						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({
 							name: name,

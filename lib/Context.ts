@@ -15,7 +15,7 @@ export function getHandler(config: ConnectionConfig): Handler {
 		handler = new MysqlHandler(config);
 	} else if (config.handler.toLowerCase() === "oracle") {
 		handler = new OracleHandler(config);
-	} else if (config.handler.toLowerCase() === "postgre") {
+	} else if (config.handler.toLowerCase() === "postgres") {
 		handler = new PostGreHandler(config);
 	} else if (config.handler.toLowerCase() === "sqlserver") {
 		handler = new MsSqlServerHandler(config);
