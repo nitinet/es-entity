@@ -153,7 +153,7 @@ class DBSet<T extends any> implements Queryable<T> {
 			}
 		});
 
-		let result = await this.context.execute(stat);
+		let result = await this.context.execute(stat) || this.getValue(entity, this.mapping.primaryKey);
 		return await this.get(result.id);
 	}
 

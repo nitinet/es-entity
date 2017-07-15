@@ -18,7 +18,6 @@ class MsSqlServerHandler extends Handler.default {
 			password: this.config.password,
 			database: this.config.database
 		}));
-
 	}
 
 	async getConnection() {

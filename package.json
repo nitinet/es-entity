@@ -1,9 +1,9 @@
 {
 	"name": "es-entity",
-	"version": "1.0.65",
+	"version": "1.0.68",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
-	"main": "./dist/index.js",
-	"types": "./src/index.ts",
+	"main": "./index.js",
+	"types": "./index.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},

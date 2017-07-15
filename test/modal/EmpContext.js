@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const es = require("./../../index");
 const Employee_1 = require("./Employee");
 class EmpContext extends es.Context {
@@ -7,5 +8,4 @@ class EmpContext extends es.Context {
         this.employees = new es.DBSet(Employee_1.default);
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = EmpContext;
