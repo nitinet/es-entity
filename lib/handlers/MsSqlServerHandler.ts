@@ -1,4 +1,4 @@
-import * as mssql from "mssql";
+// import * as mssql from 'mssql';
 
 import * as util from '../Util';
 import * as Handler from "./../Handler";
@@ -7,12 +7,15 @@ import Connection from '../Connection';
 
 class MsSqlServerHandler extends Handler.default {
 	handlerName = 'mssql';
-	connectionPool: mssql.IPool = null;
+	connectionPool = null;
+	driver = null;
 
 	constructor(config: Handler.ConnectionConfig) {
 		super();
+		this.driver = require('mssql');
+
 		this.config = config;
-		this.connectionPool = util.deAsync<mssql.IPool>(mssql.connect({
+		this.connectionPool = util.deAsync(this.driver.connect({
 			server: this.config.hostname,
 			user: this.config.username,
 			password: this.config.password,
@@ -22,7 +25,7 @@ class MsSqlServerHandler extends Handler.default {
 
 	async getConnection() {
 		try {
-			let conn = await mssql.connect({
+			let conn = await this.driver.connect({
 				server: this.config.hostname,
 				user: this.config.username,
 				password: this.config.password,

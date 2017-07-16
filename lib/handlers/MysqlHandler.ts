@@ -1,4 +1,4 @@
-import * as mysql from "mysql";
+// import * as mysql from "mysql";
 
 import * as util from '../Util';
 import * as Handler from "./../Handler";
@@ -7,12 +7,14 @@ import Connection from '../Connection';
 
 class MysqlHandler extends Handler.default {
 	handlerName = 'mysql';
-	connectionPool: mysql.IPool = null;
+	connectionPool = null;
+	driver = null;
 
 	constructor(config: Handler.ConnectionConfig) {
 		super();
+		this.driver = require('mysql');
 		this.config = config;
-		this.connectionPool = mysql.createPool({
+		this.connectionPool = this.driver.createPool({
 			connectionLimit: this.config.connectionLimit,
 			host: this.config.hostname,
 			user: this.config.username,
@@ -23,7 +25,7 @@ class MysqlHandler extends Handler.default {
 
 	getConnection(): Promise<Connection> {
 		return new Promise<Connection>((resolve, reject) => {
-			let conn = mysql.createConnection({
+			let conn = this.driver.createConnection({
 				host: this.config.hostname,
 				user: this.config.username,
 				password: this.config.password,
@@ -42,7 +44,7 @@ class MysqlHandler extends Handler.default {
 
 	openConnetion(conn): Promise<any> {
 		let p = new Promise((resolve, reject) => {
-			conn = mysql.createConnection({
+			conn = this.driver.createConnection({
 				host: this.config.hostname,
 				user: this.config.username,
 				password: this.config.password,
@@ -60,7 +62,7 @@ class MysqlHandler extends Handler.default {
 
 	initTransaction(conn): Promise<void> {
 		let p = new Promise<void>((resolve, reject) => {
-			(<mysql.IConnection>conn).beginTransaction((err) => {
+			conn.beginTransaction((err) => {
 				if (err)
 					reject('Initializing Transaction Failed');
 				else
@@ -72,7 +74,7 @@ class MysqlHandler extends Handler.default {
 
 	commit(conn): Promise<void> {
 		let p = new Promise<void>((resolve, reject) => {
-			(<mysql.IConnection>conn).commit((err) => {
+			conn.commit((err) => {
 				if (err)
 					reject('Initializing Transaction Failed');
 				else
@@ -84,7 +86,7 @@ class MysqlHandler extends Handler.default {
 
 	rollback(conn): Promise<void> {
 		let p = new Promise<void>((resolve) => {
-			(<mysql.IConnection>conn).rollback(() => {
+			conn.rollback(() => {
 				resolve();
 			});
 		});
@@ -93,7 +95,7 @@ class MysqlHandler extends Handler.default {
 
 	close(conn): Promise<void> {
 		let p = new Promise<void>((resolve, reject) => {
-			(<mysql.IConnection>conn).end((err) => {
+			conn.end((err) => {
 				if (err)
 					reject('Initializing Transaction Failed');
 				else
@@ -152,7 +154,7 @@ class MysqlHandler extends Handler.default {
 
 				let r: Handler.ResultSet = new Handler.ResultSet();
 				if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-					(<mysql.IConnection>connection.conn).query(val, args, function (err, result) {
+					connection.conn.query(val, args, function (err, result) {
 						if (err)
 							reject(err);
 						else {

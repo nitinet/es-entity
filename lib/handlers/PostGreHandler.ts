@@ -2,6 +2,9 @@ import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
 class PostGreHandler extends Handler.default {
+	handlerName = 'postgre';
+	driver = null;
+
 	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}

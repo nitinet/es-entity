@@ -2,6 +2,9 @@ import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
 class SqlLiteHandler extends Handler.default {
+	handlerName = 'sqlite';
+	driver = null;
+
 	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}
