@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const es = require("./../index");
 const EmpContext_1 = require("./modal/EmpContext");
 var config = new es.ConnectionConfig();

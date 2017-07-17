@@ -31,9 +31,10 @@ export class ColumnInfo {
 	extra: string = "";
 }
 
-export default class Handler {
-	handlerName: string = '';
-	public config: ConnectionConfig;
+export default abstract class Handler {
+	abstract handlerName: string;
+	abstract driver;
+	config: ConnectionConfig;
 
 	getTableInfo(tableName: string): Array<ColumnInfo> { return null; }
 	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<ResultSet> { return null; }

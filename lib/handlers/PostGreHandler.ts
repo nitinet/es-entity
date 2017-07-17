@@ -1,7 +1,10 @@
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class OracleDbHandler extends Handler.default {
+class PostGreHandler extends Handler.default {
+	handlerName = 'postgre';
+	driver = null;
+
 	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}
@@ -19,4 +22,4 @@ class OracleDbHandler extends Handler.default {
 	}
 }
 
-export default OracleDbHandler;
+export default PostGreHandler;

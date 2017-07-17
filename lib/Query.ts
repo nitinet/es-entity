@@ -24,7 +24,7 @@ export class SqlStatement extends ISqlNode {
 
 	eval(handler: Handler): string {
 		if (!handler) {
-			handler = new Handler();
+			throw 'No Handler Found';
 		}
 		let result: string = "";
 

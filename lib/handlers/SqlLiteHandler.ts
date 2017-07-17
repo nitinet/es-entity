@@ -1,7 +1,10 @@
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class PostGreHandler extends Handler.default {
+class SqlLiteHandler extends Handler.default {
+	handlerName = 'sqlite';
+	driver = null;
+
 	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}
@@ -19,4 +22,4 @@ class PostGreHandler extends Handler.default {
 	}
 }
 
-export default PostGreHandler;
+export default SqlLiteHandler;

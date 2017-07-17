@@ -1,7 +1,10 @@
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class SqlLiteHandler extends Handler.default {
+class OracleDbHandler extends Handler.default {
+	handlerName = 'oracle';
+	driver = null;
+
 	constructor(config: Handler.ConnectionConfig) {
 		super();
 	}
@@ -19,4 +22,4 @@ class SqlLiteHandler extends Handler.default {
 	}
 }
 
-export default SqlLiteHandler;
+export default OracleDbHandler;
