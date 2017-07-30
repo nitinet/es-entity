@@ -1,37 +1,44 @@
 {
-	"name": "es-entity",
-	"version": "1.0.70",
-	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
-	"main": "./index.js",
-	"types": "./index.ts",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/InHeap/es-entity.git"
-	},
-	"keywords": [
-		"entity",
-		"ORM",
-		"Typescript",
-		"ecmascript 6"
-	],
-	"author": "Nitin Bansal",
-	"license": "GPL-3.0",
-	"bugs": {
-		"url": "https://github.com/InHeap/es-entity/issues"
-	},
-	"homepage": "https://github.com/InHeap/es-entity#readme",
-	"dependencies": {
-		"case": "*",
-		"deasync": "*",
-		"moment": "*"
-	},
-	"devDependencies": {
-		"cassandra-driver": "*",
-		"mssql": "*",
-		"mysql": "*",
-		"sqlite3": "*"
-	}
+  "name": "es-entity",
+  "version": "1.0.69",
+  "description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
+  "main": "./index.js",
+  "types": "./index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InHeap/es-entity.git"
+  },
+  "keywords": [
+    "entity",
+    "ORM",
+    "Typescript",
+    "ecmascript 6"
+  ],
+  "author": "Nitin Bansal",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/InHeap/es-entity/issues"
+  },
+  "homepage": "https://github.com/InHeap/es-entity#readme",
+  "dependencies": {
+    "case": "*",
+    "deasync": "*",
+    "moment": "*",
+    "pg": "^7.0.2"
+  },
+  "devDependencies": {
+    "cassandra-driver": "*",
+    "mssql": "*",
+    "mysql": "*",
+    "sqlite3": "*"
+  },
+  "peerDependencies": {
+    "cassandra-driver": "^3.2.2",
+    "mssql": "^4.0.4",
+    "mysql": "^2.13.0",
+    "sqlite3": "^3.1.8"
+  }
 }
