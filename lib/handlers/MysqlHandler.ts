@@ -145,48 +145,29 @@ class MysqlHandler extends Handler.default {
 			args = query.args;
 		}
 
-		let p = new Promise<Handler.ResultSet>((resolve, reject) => {
-			return Promise.resolve<string>(q).then((val) => {
-				// console.log("query:" + val);
-				/* for (let i = 0; i < args.length; i++) {
-						console.log("Argument: " + args[i]);
-				}*/
-
-				let r: Handler.ResultSet = new Handler.ResultSet();
-				if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-					connection.conn.query(val, args, function (err, result) {
-						if (err)
-							reject(err);
-						else {
-							if (result.insertId)
-								r.id = result.insertId;
-							if (result.changedRows) {
-								r.rowCount = result.changedRows;
-							} else if (Array.isArray(result)) {
-								r.rows = <Array<any>>result;
-								r.rowCount = (<Array<any>>result).length;
-							}
-						}
-						resolve(r);
-					});
-				} else {
-					this.connectionPool.query(val, args, function (err, result) {
-						if (err)
-							reject(err);
-						else {
-							if (result.insertId)
-								r.id = result.insertId;
-							if (result.changedRows) {
-								r.rowCount = result.changedRows;
-							} else if (Array.isArray(result)) {
-								r.rows = <Array<any>>result;
-								r.rowCount = (<Array<any>>result).length;
-							}
-						}
-						resolve(r);
-					});
-				}
-			});
+		let result: Handler.ResultSet = new Handler.ResultSet();
+		let p = new Promise<any>((resolve, reject) => {
+			if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+				connection.conn.query(q, args, function (err, r) {
+					if (err) { reject(err); }
+					resolve(r);
+				});
+			} else {
+				this.connectionPool.query(q, args, function (err, r) {
+					if (err) { reject(err); }
+					resolve(r);
+				});
+			}
+		}).then((res) => {
+			if (res.insertId)
+				result.id = res.insertId;
+			if (res.changedRows) {
+				result.rowCount = res.changedRows;
+			} else if (Array.isArray(res)) {
+				result.rows = <Array<any>>res;
+				result.rowCount = (<Array<any>>res).length;
+			}
+			return result;
 		});
 		return p;
 	}

@@ -39,13 +39,22 @@ export default abstract class Handler {
 	getTableInfo(tableName: string): Array<ColumnInfo> { return null; }
 	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<ResultSet> { return null; }
 
-	// Connetion mange functions
-	getConnection(): Promise<Connection> { return null; }
-	openConnetion(conn): Promise<any> { return null; }
-	initTransaction(conn): Promise<void> { return null; }
-	commit(conn): Promise<void> { return null; }
-	rollback(conn): Promise<void> { return null; }
-	close(conn): Promise<void> { return null; }
+	convertPlaceHolder(query: string) { return query; }
+	insertQuery(collection: string, columns: string, values: string) { return `insert into ${collection} (${columns}) values (${values})`; }
+	selectQuery(collection: string, columns: string) { return `select ${columns} from ${collection}`; }
+	whereQuery(where: string) { return ` where ${where}`; }
+	groupQuery(groupBy: string) { return ` group by ${groupBy}`; }
+	orderQuery(orderBy: string) { return ` order by ${orderBy}`; }
+	updateQuery(collection: string, columns: string, wheres: string) { return `update ${collection} set ${columns} where ${wheres}`; }
+	deleteQuery(collection: string, where: string) { return `delete from ${collection} where ${where}`; }
+
+	// Connetion manage functions
+	async getConnection(): Promise<Connection> { return null; }
+	async openConnetion(conn): Promise<any> { return null; }
+	async initTransaction(conn): Promise<void> { return null; }
+	async commit(conn): Promise<void> { return null; }
+	async rollback(conn): Promise<void> { return null; }
+	async close(conn): Promise<void> { return null; }
 
 	// Comparison Operators
 	eq(val0: string, val1: string): string { return val0 + " = " + val1; }
