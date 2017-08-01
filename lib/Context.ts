@@ -3,7 +3,7 @@ import Handler, { ConnectionConfig, ResultSet } from "./Handler";
 import MysqlHandler from "./handlers/MysqlHandler";
 import OracleHandler from "./handlers/OracleDbHandler";
 import MsSqlServerHandler from "./handlers/MsSqlServerHandler";
-import PostGreHandler from "./handlers/PostGreHandler";
+import PostGreHandler from "./handlers/PostGreSqlHandler";
 import SqlLiteHandler from "./handlers/SqlLiteHandler";
 import * as Query from "./Query";
 import * as Type from "./Type";

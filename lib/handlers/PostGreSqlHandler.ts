@@ -95,9 +95,7 @@ class PostGreHandler extends Handler.default {
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			var r = await connection.conn.query(q, args);
 		} else {
-			let conn = await this.connectionPool.connect();
-			let r = await conn.query(q, args);
-			conn.release();
+			let r = await this.connectionPool.query(q, args);
 		}
 		if (r.rowCount) result.rowCount = r.rowCount;
 		if (Array.isArray(r.rows)) result.rows = r.rows.slice();
