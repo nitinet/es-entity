@@ -26,19 +26,13 @@
   "dependencies": {
     "case": "*",
     "deasync": "*",
-    "moment": "*",
-    "pg": "^7.0.2"
+    "moment": "*"
   },
   "devDependencies": {
     "cassandra-driver": "*",
     "mssql": "*",
     "mysql": "*",
-    "sqlite3": "*"
-  },
-  "peerDependencies": {
-    "cassandra-driver": "^3.2.2",
-    "mssql": "^4.0.4",
-    "mysql": "^2.13.0",
-    "sqlite3": "^3.1.8"
+    "sqlite3": "*",
+    "pg": "^7.0.2"
   }
 }
