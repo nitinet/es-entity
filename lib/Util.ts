@@ -31,6 +31,7 @@ export class PropertyTransformer {
 		});
 		return target;
 	}
+
 }
 
 export function deAsync<T>(promise: Promise<T>) {

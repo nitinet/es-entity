@@ -28,7 +28,7 @@ interface Queryable<T> {
 	limit(size: number, index?: number): Queryable<T>;
 }
 
-class DBSet<T extends any> implements Queryable<T> {
+class DBSet<T extends Object> implements Queryable<T> {
 	entityType: Type.IEntityType<T>;
 	context: Context;
 	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
@@ -81,7 +81,7 @@ class DBSet<T extends any> implements Queryable<T> {
 						} else if (f instanceof Type.Date && column.type == "date") {
 							type = "date";
 						} else {
-							throw new Error("Tyep mismatch found for Column: " + name + " in Table:" + this.mapping.name);
+							throw new Error("Type mismatch found for Column: " + name + " in Table:" + this.mapping.name);
 						}
 						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({
 							name: name,
@@ -105,7 +105,7 @@ class DBSet<T extends any> implements Queryable<T> {
 		let keys = Reflect.ownKeys(a);
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
-			let q: any = a[key];
+			let q = a[key];
 			if (q instanceof Type.Field) {
 				let field = this.mapping.fields.get(<string>key);
 				name = field.name;
@@ -116,17 +116,17 @@ class DBSet<T extends any> implements Queryable<T> {
 		return a;
 	}
 
-	isUpdated(obj: any, key: string): boolean {
+	isUpdated(obj, key: string): boolean {
 		return (<Query.Column>obj[key])._updated ? true : false;
 	}
 
-	setValue(obj: any, key: string, value: any): void {
+	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<Type.Field>obj[key]).set(value);
+			(<Type.Field<any>>obj[key]).set(value);
 		}
 	}
 
-	getValue(obj: any, key: string): any {
+	getValue(obj, key: string) {
 		return (<Query.Column>obj[key]).get();
 	}
 
@@ -140,7 +140,7 @@ class DBSet<T extends any> implements Queryable<T> {
 		stat.collection.value = this.mapping.name;
 
 		await Reflect.ownKeys(entity).forEach((key) => {
-			let q: any = entity[key];
+			let q = entity[key];
 			if (q instanceof Type.Field && this.isUpdated(entity, <string>key)) {
 				let f = this.mapping.fields.get(<string>key);
 				let c: Query.SqlCollection = new Query.SqlCollection();
@@ -167,7 +167,7 @@ class DBSet<T extends any> implements Queryable<T> {
 
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let f = this.mapping.fields.get(<string>key);
-			let q: any = entity[key];
+			let q = entity[key];
 			if (q instanceof Type.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
 				let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
 				let c2: Query.SqlExpression = new Query.SqlExpression("?");
@@ -214,7 +214,7 @@ class DBSet<T extends any> implements Queryable<T> {
 		await this.context.execute(stat);
 	}
 
-	async get(id: any): Promise<T> {
+	async get(id): Promise<T> {
 		if (!this.mapping.primaryKeyField)
 			throw new Error("No Primary Field Found in Table: " + this.mapping.name);
 
@@ -235,7 +235,7 @@ class DBSet<T extends any> implements Queryable<T> {
 		stat.collection.value = this.mapping.name;
 		stat.collection.alias = alias;
 
-		let res: any = null;
+		let res = null;
 		if (param instanceof Function) {
 			let a = this.getEntity(stat.collection.alias);
 			res = param(a, args);
@@ -279,7 +279,7 @@ class DBSet<T extends any> implements Queryable<T> {
 /**
  * SimpleQueryable
  */
-class SimpleQueryable<T extends any> implements Queryable<T> {
+class SimpleQueryable<T extends Object> implements Queryable<T> {
 	dbSet: DBSet<T> = null;
 	stat: Query.SqlStatement = null;
 
@@ -365,7 +365,7 @@ class SimpleQueryable<T extends any> implements Queryable<T> {
 
 	// Conditional Functions
 	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
-		let res: any = null;
+		let res = null;
 		if (param instanceof Function) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
 			res = param(a, args);
@@ -381,7 +381,7 @@ class SimpleQueryable<T extends any> implements Queryable<T> {
 
 	groupBy(param?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
-		let res: any = null;
+		let res = null;
 		if (param instanceof Function) {
 			res = param(a);
 		} else if (param instanceof Array) {
@@ -404,7 +404,7 @@ class SimpleQueryable<T extends any> implements Queryable<T> {
 
 	orderBy(param?: arrFieldFunc<T> | Query.SqlExpression[]): Queryable<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
-		let res: any = null;
+		let res = null;
 		if (param instanceof Function) {
 			res = param(a);
 		} else if (param instanceof Array) {

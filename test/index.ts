@@ -3,11 +3,11 @@ import * as es from "./../index";
 import empContext from "./modal/EmpContext";
 
 var config: es.ConnectionConfig = new es.ConnectionConfig();
-config.handler = "mysql";
+config.handler = "postgres";
 config.hostname = "localhost";
-config.name = "mysql";
-config.username = "root";
-config.password = "password";
+config.name = "postgres";
+config.username = "rohan";
+config.password = "12345";
 config.database = "test";
 var context = new empContext(config);
 
@@ -15,22 +15,25 @@ let q = 4;
 
 async function run() {
 	await context.init();
+        console.log("[INIT]");
 	let trans = await context.initTransaction();
-	let v = await trans.employees.get(1);
+	console.log("[SELECT]");
+        let v = await trans.employees.get(1);
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	v.description.set("test update 2");
 	v = await trans.employees.update(v);
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
-	console.log("updated");
+	console.log("[UPDATE]");
 	let a = trans.employees.getEntity();
 	a.name.set("name 2");
-	a.description.set("desc insert 2");
+	a.description.set("desc insert 232432323");
 	v = await trans.employees.insert(a);
-	console.log("inserted");
+	console.log("[INSERTION]");
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
+	console.log("[DELETION]");
 	await trans.employees.delete(v);
 	await trans.commit();
-	console.log("deleted");
+	console.log("[SELECT CONDITIONAL]");
 	let q = await context.employees.where((a) => {
 		return a.name.IsNull();
 		// return (a.id.lt(q)).or(a.id.eq(2));
@@ -39,6 +42,8 @@ async function run() {
 		let j = q[i];
 		console.log("id: " + j.id + ", desc: " + j.description);
 	}
+        console.log("[TEST COMPLETE]"); 
+        process.exit(0);
 }
 
 run();

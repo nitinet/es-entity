@@ -1,4 +1,4 @@
-import Handler from "./Handler";
+import Handler from './Handler';
 
 export abstract class ISqlNode {
 	args: Array<any> = new Array<any>();
@@ -9,7 +9,7 @@ export abstract class ISqlNode {
  * SqlStatement
  */
 export class SqlStatement extends ISqlNode {
-	command: string = "";
+	command: string = '';
 	columns: Array<ISqlNode> = new Array<ISqlNode>();
 	values: Array<SqlExpression> = new Array<SqlExpression>();
 	collection: SqlCollection = new SqlCollection();
@@ -26,17 +26,17 @@ export class SqlStatement extends ISqlNode {
 		if (!handler) {
 			throw 'No Handler Found';
 		}
-		let result: string = "";
+		let result: string = '';
 
 		// Column
-		let columnStr: string = "";
+		let columnStr: string = '';
 		for (let i = 0; i < this.columns.length; i++) {
 			let element = this.columns[i];
 			let val = element.eval(handler);
 			if (i == 0)
-				columnStr = columnStr.concat(" " + val);
+				columnStr = columnStr.concat(' ' + val);
 			else
-				columnStr = columnStr.concat(", " + val);
+				columnStr = columnStr.concat(', ' + val);
 			this.args = this.args.concat(element.args);
 		}
 
@@ -49,26 +49,26 @@ export class SqlStatement extends ISqlNode {
 		this.args = this.args.concat(this.where.args);
 
 		// Group By
-		let groupByStr: string = "";
+		let groupByStr: string = '';
 		for (let i = 0; i < this.groupBy.length; i++) {
 			let element = this.groupBy[i];
 			let val = element.eval(handler);
 			if (i == 0)
-				groupByStr = groupByStr.concat(" " + val);
+				groupByStr = groupByStr.concat(' ' + val);
 			else
-				groupByStr = groupByStr.concat(", " + val);
+				groupByStr = groupByStr.concat(', ' + val);
 			this.args = this.args.concat(element.args);
 		}
 
 		// Order By
-		let orderByStr: string = "";
+		let orderByStr: string = '';
 		for (let i = 0; i < this.orderBy.length; i++) {
 			let element = this.orderBy[i];
 			let val = element.eval(handler);
 			if (i == 0)
-				orderByStr = orderByStr.concat(" " + val);
+				orderByStr = orderByStr.concat(' ' + val);
 			else
-				orderByStr = orderByStr.concat(", " + val);
+				orderByStr = orderByStr.concat(', ' + val);
 			this.args = this.args.concat(element.args);
 		}
 
@@ -77,35 +77,36 @@ export class SqlStatement extends ISqlNode {
 		this.args = this.args.concat(this.limit.args);
 
 		// Values
-		let valueStr: string = "";
+		let valueStr: string = '';
 		for (let i = 0; i < this.values.length; i++) {
 			let element = this.values[i];
 			let val = element.eval(handler);
 			if (i == 0)
-				valueStr = valueStr.concat(" " + val);
+				valueStr = valueStr.concat(' ' + val);
 			else
-				valueStr = valueStr.concat(", " + val);
+				valueStr = valueStr.concat(', ' + val);
 			this.args = this.args.concat(element.args);
 		}
 
 		this.command = this.command.toLowerCase();
-		if (this.command === "insert") {
-			result = result.concat("insert into ", collectionStr, "(", columnStr, ") values (", valueStr, ")");
-		} else if (this.command == "select") {
-			result = result.concat("select", columnStr, " from ", collectionStr);
+		if (this.command === 'insert') {
+			result = result.concat(handler.insertQuery(collectionStr, columnStr, valueStr));
+		} else if (this.command == 'select') {
+			result = result.concat(handler.selectQuery(collectionStr, columnStr));
 			if (whereStr)
-				result = result.concat(" where ", whereStr);
+				result = result.concat(handler.whereQuery(whereStr));
 			if (groupByStr)
-				result = result.concat(" group by ", groupByStr);
+				result = result.concat(handler.groupQuery(groupByStr));
 			if (orderByStr)
-				result = result.concat(" order by ", orderByStr);
+				result = result.concat(handler.orderQuery(orderByStr));
 			if (limitStr)
 				result = result.concat(limitStr);
-		} else if (this.command === "update") {
-			result = result.concat("update ", collectionStr, " set ", columnStr, " where ", whereStr);
-		} else if (this.command === "delete") {
-			result = result.concat("delete from ", collectionStr, " where ", whereStr);
+		} else if (this.command === 'update') {
+			result = result.concat(handler.updateQuery(collectionStr, columnStr, whereStr));
+		} else if (this.command === 'delete') {
+			result = result.concat(handler.deleteQuery(collectionStr, whereStr));
 		}
+		result = handler.convertPlaceHolder(result);
 		return result;
 	}
 }
@@ -125,25 +126,25 @@ export class SqlCollection extends ISqlNode {
 	}
 
 	eval(handler: Handler): string {
-		let result: string = "";
+		let result: string = '';
 		if (this.value)
-			result = this.colAlias ? this.colAlias + "." + this.value : this.value;
+			result = this.colAlias ? this.colAlias + '.' + this.value : this.value;
 		else if (this.stat) {
 			this.args = this.args.concat(this.stat.args);
-			result = "(" + this.stat.eval(handler) + ")";
+			result = '(' + this.stat.eval(handler) + ')';
 		}
 		if (!result) {
-			throw "No Collection Found";
+			throw 'No Collection Found';
 		}
 		if (this.alias)
-			result = result.concat(" as ", this.alias);
+			result = result.concat(' as ', this.alias);
 		return result;
 	}
 }
 
 export abstract class Column {
-	_alias: string = "";
-	_name: string = "";
+	_alias: string = '';
+	_name: string = '';
 	_updated: boolean = false;
 
 	abstract set(value: any): void
@@ -224,8 +225,8 @@ export enum Operator {
  * SqlExpression
  */
 export class SqlExpression extends ISqlNode implements Column {
-	_alias: string = "";
-	_name: string = "";
+	_alias: string = '';
+	_name: string = '';
 	_updated: boolean = false;
 
 	value: string = null;
@@ -277,10 +278,10 @@ export class SqlExpression extends ISqlNode implements Column {
 				this.operator = Operator.And;
 			}
 
-			let val0: string = values[0] = values[0] ? values[0] : "";
-			let val1: string = values[1] = values[1] ? values[1] : "";
+			let val0: string = values[0] = values[0] ? values[0] : '';
+			let val1: string = values[1] = values[1] ? values[1] : '';
 
-			let r: string = "";
+			let r: string = '';
 			switch (this.operator) {
 				case Operator.Equal:
 					r = handler.eq(val0, val1);
@@ -351,7 +352,7 @@ export class SqlExpression extends ISqlNode implements Column {
 					break;
 				case Operator.Comma: {
 					for (let i = 0; i < values.length; i++)
-						r = r.concat(values[i], ", ");
+						r = r.concat(values[i], ', ');
 					r = r.slice(0, r.length - 2);
 				}
 					break;
@@ -387,7 +388,7 @@ export class SqlExpression extends ISqlNode implements Column {
 		if (operand instanceof Column || operand instanceof SqlExpression) {
 			w = (<Column>operand)._createExpr();
 		} else {
-			w = new SqlExpression("?");
+			w = new SqlExpression('?');
 			w.args = w.args.concat(operand);
 		}
 		return w;

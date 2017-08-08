@@ -38,3 +38,4 @@ typings
 .DS_Store
 yarn.*
 .yarn*
+package-*.json
