@@ -2,11 +2,11 @@ import * as moment from 'moment';
 import * as Query from "./Query";
 
 export interface IEntityType<T> {
-	new (): T;
+	new(): T;
 }
 
-class Field extends Query.Column {
-	_value: any = null;
+class Field<T> extends Query.Column {
+	_value: T = null;
 	_alias: string = "";
 	_name: string = "";
 	_updated: boolean = false;
@@ -15,11 +15,11 @@ class Field extends Query.Column {
 		super();
 	}
 
-	get(): any {
+	get(): T {
 		return this._value;
 	}
 
-	set(value: any) {
+	set(value: T) {
 		if (value !== this._value) {
 			this._updated = true;
 			this._value = value;
@@ -34,12 +34,12 @@ class Field extends Query.Column {
 		}
 	}
 
-	_createExpr(): Query.SqlExpression {
+	_createExpr() {
 		let name = this._alias ? this._alias + "." + this._name : this._name;
 		return new Query.SqlExpression(name);
 	}
 
-	_argExp(operand: any): Query.SqlExpression {
+	_argExp(operand: T | Query.Column) {
 		let w: Query.SqlExpression = null;
 		if (operand instanceof Query.Column) {
 			w = (<Query.Column>operand)._createExpr();
@@ -52,27 +52,27 @@ class Field extends Query.Column {
 
 	// Column Interface functions
 	// Comparison Operators
-	eq(operand: any): Query.SqlExpression {
+	eq(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.Equal, this._createExpr(), this._argExp(operand));
 	}
-	neq(operand: any): Query.SqlExpression {
+	neq(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.NotEqual, this._createExpr(), this._argExp(operand));
 	}
-	lt(operand: any): Query.SqlExpression {
+	lt(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.LessThan, this._createExpr(), this._argExp(operand));
 	}
-	gt(operand: any): Query.SqlExpression {
+	gt(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.GreaterThan, this._createExpr(), this._argExp(operand));
 	}
-	lteq(operand: any): Query.SqlExpression {
+	lteq(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.LessThanEqual, this._createExpr(), this._argExp(operand));
 	}
-	gteq(operand: any): Query.SqlExpression {
+	gteq(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.GreaterThanEqual, this._createExpr(), this._argExp(operand));
 	}
 
 	// Logical Operators
-	and(operand: Query.Column): Query.SqlExpression {
+	and(operand: Query.Column) {
 		return new Query.SqlExpression(null, Query.Operator.And, this._createExpr(), this._argExp(operand));
 	}
 	or(operand: Query.Column): Query.SqlExpression {
@@ -83,76 +83,85 @@ class Field extends Query.Column {
 	}
 
 	// Inclusion Funtions
-	in(...operand: any[]): Query.SqlExpression {
+	in(...operand: T[]) {
 		let arg: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Comma);
 		for (let i = 0; i < operand.length; i++) {
 			arg.exps.push(this._argExp(operand[i]));
 		}
 		return new Query.SqlExpression(null, Query.Operator.In, this._createExpr(), arg);
 	}
-	between(first: any, second: any): Query.SqlExpression {
+
+	between(first: T, second: T) {
 		return new Query.SqlExpression(null, Query.Operator.Between, this._createExpr(), this._argExp(first), this._argExp(second));
 	}
-	like(operand: any): Query.SqlExpression {
+
+	like(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.Like, this._createExpr(), this._argExp(operand));
 	}
-	IsNull(): Query.SqlExpression {
+
+	IsNull() {
 		return new Query.SqlExpression(null, Query.Operator.IsNull, this._createExpr());
 	}
-	IsNotNull(): Query.SqlExpression {
+
+	IsNotNull() {
 		return new Query.SqlExpression(null, Query.Operator.IsNotNull, this._createExpr());
 	}
 
 	// Arithmatic Operators
-	plus(operand: any): Query.SqlExpression {
+	plus(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.Plus, this._createExpr(), this._argExp(operand));
 	}
-	minus(operand: any): Query.SqlExpression {
+
+	minus(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.Minus, this._createExpr(), this._argExp(operand));
 	}
-	multiply(operand: any): Query.SqlExpression {
+
+	multiply(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.Multiply, this._createExpr(), this._argExp(operand));
 	}
-	devide(operand: any): Query.SqlExpression {
+
+	devide(operand: T) {
 		return new Query.SqlExpression(null, Query.Operator.Devide, this._createExpr(), this._argExp(operand));
 	}
 
 	// Sorting Operators
-	asc(): Query.SqlExpression {
+	asc() {
 		return new Query.SqlExpression(null, Query.Operator.Asc, this._createExpr());
 	}
-	desc(): Query.SqlExpression {
+
+	desc() {
 		return new Query.SqlExpression(null, Query.Operator.Desc, this._createExpr());
 	}
 
 	// Group Functions
-	sum(): Query.SqlExpression {
+	sum() {
 		return new Query.SqlExpression(null, Query.Operator.Sum, this._createExpr());
 	}
-	min(): Query.SqlExpression {
+
+	min() {
 		return new Query.SqlExpression(null, Query.Operator.Min, this._createExpr());
 	}
-	max(): Query.SqlExpression {
+
+	max() {
 		return new Query.SqlExpression(null, Query.Operator.Max, this._createExpr());
 	}
-	count(): Query.SqlExpression {
+
+	count() {
 		return new Query.SqlExpression(null, Query.Operator.Count, this._createExpr());
 	}
-	average(): Query.SqlExpression {
+
+	average() {
 		return new Query.SqlExpression(null, Query.Operator.Avg, this._createExpr());
 	}
+
 }
 
-class StringField extends Field implements String {
+class StringField extends Field<string> implements String {
 	_value: string = "";
 
 	constructor(data?: string) {
 		super();
 		this._value = data;
-	}
-
-	get(): string {
-		return super.get();
 	}
 
 	set(value: string) {
@@ -460,15 +469,11 @@ class StringField extends Field implements String {
 
 }
 
-class NumberField extends Field implements Number {
+class NumberField extends Field<number> implements Number {
 
 	constructor(data?: number) {
 		super();
 		this._value = data;
-	}
-
-	get(): number {
-		return super.get();
 	}
 
 	set(value: number | Number) {
@@ -518,16 +523,12 @@ class NumberField extends Field implements Number {
 
 }
 
-class BooleanField extends Field implements Boolean {
+class BooleanField extends Field<boolean> implements Boolean {
 	_value: boolean = false;
 
 	constructor(data?: boolean) {
 		super();
 		this._value = data;
-	}
-
-	get(): boolean {
-		return super.get();
 	}
 
 	set(value: boolean) {
@@ -544,7 +545,7 @@ class BooleanField extends Field implements Boolean {
 	}
 }
 
-class DateField extends Field implements Date {
+class DateField extends Field<Date> implements Date {
 	_value: Date = new Date();
 
 	constructor(data?: Date) {
@@ -552,15 +553,11 @@ class DateField extends Field implements Date {
 		this._value = data;
 	}
 
-	get(): Date {
-		return super.get();
-	}
-
 	set(value: Date) {
 		if (value == null || value == undefined) {
 			super.set(null);
-		} else {
-			super.set(new Date(value.valueOf()));
+		} else if (value instanceof Date) {
+			super.set(value);
 		}
 	}
 
