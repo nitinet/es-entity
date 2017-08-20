@@ -17,6 +17,12 @@ interface arrFieldFunc<T> {
 }
 
 interface Queryable<T> {
+	getEntity(alias?: string): T;
+	insert(entity: T): Promise<T>;
+	update(entity: T): Promise<T>;
+	insertOrUpdate(entity: T);
+	delete(entity: T): Promise<void>;
+
 	// Selection Functions
 	list(): Promise<Array<T>>;
 	unique(): Promise<T>;
@@ -30,27 +36,28 @@ interface Queryable<T> {
 
 class DBSet<T extends Object> implements Queryable<T> {
 	entityType: Type.IEntityType<T>;
+	entityName: string = null;
 	context: Context;
 	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 
-	constructor(entityType: Type.IEntityType<T>) {
+	constructor(entityType: Type.IEntityType<T>, entityName?: string) {
 		this.entityType = entityType;
+		this.entityName = entityName ? entityName : this.entityType.name;
 	}
 
 	bind(context: Context) {
 		this.context = context;
-		let entityName: string = this.entityType.name;
 		let filePath: string = null;
 		if (this.context.entityPath) {
-			filePath = path.join(this.context.entityPath, entityName + ".json");
+			filePath = path.join(this.context.entityPath, this.entityName + ".json");
 		}
 		if (filePath && fs.statSync(filePath).isFile()) {
 			let data = fs.readFileSync(filePath, "utf-8");
 			this.mapping = new Mapping.EntityMapping(JSON.parse(data));
 		} else {
 			this.mapping = new Mapping.EntityMapping();
-			this.mapping.entityName = entityName;
-			this.mapping.name = Case.snake(entityName);
+			this.mapping.entityName = this.entityName;
+			this.mapping.name = Case.snake(this.entityName);
 
 			// get info from describe db
 			let columns = this.context.handler.getTableInfo(this.mapping.name);
@@ -99,7 +106,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 		}
 	}
 
-	getEntity(alias?: string): T {
+	getEntity(alias?: string) {
 		let a = new this.entityType();
 		let name = null;
 		let keys = Reflect.ownKeys(a);
@@ -134,7 +141,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 		return await this.context.execute(stat);
 	}
 
-	async insert(entity: T): Promise<T> {
+	async insert(entity: T) {
 		let stat: Query.SqlStatement = new Query.SqlStatement();
 		stat.command = "insert";
 		stat.collection.value = this.mapping.name;
@@ -160,8 +167,8 @@ class DBSet<T extends Object> implements Queryable<T> {
 		return await this.get(result.id);
 	}
 
-	async update(entity: T): Promise<T> {
-		let stat: Query.SqlStatement = new Query.SqlStatement();
+	async update(entity: T) {
+		let stat = new Query.SqlStatement();
 		stat.command = "update";
 		stat.collection.value = this.mapping.name;
 
@@ -169,17 +176,17 @@ class DBSet<T extends Object> implements Queryable<T> {
 			let f = this.mapping.fields.get(<string>key);
 			let q = entity[key];
 			if (q instanceof Type.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
-				let c1: Query.SqlExpression = new Query.SqlExpression(f.name);
-				let c2: Query.SqlExpression = new Query.SqlExpression("?");
+				let c1 = new Query.SqlExpression(f.name);
+				let c2 = new Query.SqlExpression("?");
 				c2.args.push(this.getValue(entity, <string>key));
 
-				let c: Query.SqlExpression = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
+				let c = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
 				stat.columns.push(c);
 			}
 		});
 
-		let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-		let w2: Query.SqlExpression = new Query.SqlExpression("?");
+		let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+		let w2 = new Query.SqlExpression("?");
 		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
 		stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 
@@ -194,7 +201,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 		}
 	}
 
-	insertOrUpdate(entity: T): Promise<T> {
+	insertOrUpdate(entity: T) {
 		if (this.getValue(entity, this.mapping.primaryKey)) {
 			return this.update(entity);
 		} else {
@@ -202,13 +209,13 @@ class DBSet<T extends Object> implements Queryable<T> {
 		}
 	}
 
-	async delete(entity: T): Promise<void> {
-		let stat: Query.SqlStatement = new Query.SqlStatement();
+	async delete(entity: T) {
+		let stat = new Query.SqlStatement();
 		stat.command = "delete";
 		stat.collection.value = this.mapping.name;
 
-		let w1: Query.SqlExpression = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-		let w2: Query.SqlExpression = new Query.SqlExpression("?");
+		let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
+		let w2 = new Query.SqlExpression("?");
 		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
 		stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 		await this.context.execute(stat);
@@ -228,7 +235,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 	}
 
 	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
-		let stat: Query.SqlStatement = new Query.SqlStatement();
+		let stat = new Query.SqlStatement();
 		stat.command = "select";
 
 		let alias = this.mapping.name.charAt(0);
@@ -245,7 +252,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 		if (res instanceof Query.SqlExpression && res.exps.length > 0) {
 			stat.where = res;
 		}
-		let s: SimpleQueryable<T> = new SimpleQueryable(stat, this);
+		let s = new SimpleQueryable(stat, this);
 		return s;
 	}
 
@@ -288,8 +295,28 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 		this.dbSet = dbSet;
 	}
 
+	getEntity(alias?: string) {
+		return this.dbSet.getEntity(alias);
+	}
+
+	insert(entity: T) {
+		return this.dbSet.insert(entity);
+	}
+
+	update(entity: T) {
+		return this.dbSet.update(entity);
+	}
+
+	insertOrUpdate(entity: T) {
+		return this.dbSet.insertOrUpdate(entity);
+	}
+
+	delete(entity: T) {
+		return this.dbSet.delete(entity);
+	}
+
 	// Selection Functions
-	async list(): Promise<Array<T>> {
+	async list() {
 		let alias: string = this.stat.collection.alias;
 
 		this.dbSet.mapping.fields.forEach((field, fieldName) => {
@@ -314,7 +341,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 	}
 
 	// Selection Functions
-	async select(func?: arrFieldFunc<T>): Promise<Array<any>> {
+	async select(func?: arrFieldFunc<T>) {
 		let cols: Query.SqlExpression[] = new Array();
 		if (func) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
@@ -354,7 +381,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 		}
 	}
 
-	async unique(): Promise<T> {
+	async unique() {
 		let l = await this.list();
 		if (l.length > 1) {
 			throw new Error("More than one row found in unique call");
