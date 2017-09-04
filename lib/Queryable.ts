@@ -87,6 +87,8 @@ class DBSet<T extends Object> implements Queryable<T> {
 							type = "boolean";
 						} else if (f instanceof Type.Date && column.type == "date") {
 							type = "date";
+						} else if (f instanceof Type.Object && column.type == "string") {
+							type = "object";
 						} else {
 							throw new Error("Type mismatch found for Column: " + name + " in Table:" + this.mapping.name);
 						}

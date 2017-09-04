@@ -156,8 +156,31 @@ class Field<T> extends Query.Column {
 
 }
 
+class ObjectField extends Field<string> {
+
+	constructor(data?: string) {
+		super();
+		this.set(data);
+	}
+
+	get() {
+		return JSON.parse(this._value);
+	}
+
+	set(value) {
+		let v = JSON.stringify(value);
+		if (v !== this._value) {
+			this._updated = true;
+			this._value = v;
+		}
+	}
+
+	toJSON() {
+		return this._value;
+	}
+}
+
 class StringField extends Field<string> implements String {
-	_value: string = "";
 
 	constructor(data?: string) {
 		super();
@@ -524,7 +547,6 @@ class NumberField extends Field<number> implements Number {
 }
 
 class BooleanField extends Field<boolean> implements Boolean {
-	_value: boolean = false;
 
 	constructor(data?: boolean) {
 		super();
@@ -546,7 +568,6 @@ class BooleanField extends Field<boolean> implements Boolean {
 }
 
 class DateField extends Field<Date> implements Date {
-	_value: Date = new Date();
 
 	constructor(data?: Date) {
 		super();
@@ -836,6 +857,7 @@ class DateField extends Field<Date> implements Date {
 }
 
 export { Field };
+export { ObjectField as Object };
 export { StringField as String };
 export { NumberField as Number };
 export { BooleanField as Boolean };
