@@ -131,7 +131,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 
 	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<Type.Field<any>>obj[key]).set(value);
+			(<Type.Field<any>>obj[key])._value = value;
 		}
 	}
 

@@ -121,7 +121,8 @@ class MysqlHandler extends Handler.default {
 				|| columnType.includes("decimal")) {
 				a.type = "number";
 			} else if (columnType.includes("varchar")
-				|| columnType.includes('text')) {
+				|| columnType.includes('text')
+				|| columnType.includes('json')) {
 				a.type = "string";
 			} else if (columnType.includes("timestamp")) {
 				a.type = "date";

@@ -176,7 +176,7 @@ class ObjectField extends Field<string> {
 	}
 
 	toJSON() {
-		return this._value;
+		return JSON.parse(this._value);
 	}
 }
 
