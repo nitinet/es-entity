@@ -136,7 +136,7 @@ class DBSet<T extends Object> implements Queryable<T> {
 	}
 
 	getValue(obj, key: string) {
-		return (<Query.Column>obj[key]).get();
+		return (<Type.Field<any>>obj[key])._value;
 	}
 
 	async executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
