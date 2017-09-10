@@ -550,7 +550,9 @@ class BooleanField extends Field<boolean> implements Boolean {
 
 	constructor(data?: boolean) {
 		super();
-		this._value = data;
+		if (data) {
+			this._value = data.valueOf() ? true : false;
+		}
 	}
 
 	set(value: boolean) {
