@@ -565,7 +565,7 @@ class BooleanField extends Field<boolean> implements Boolean {
 
 	/** Returns the primitive value of the specified object. */
 	valueOf(): boolean {
-		return this._value.valueOf();
+		return this._value;
 	}
 }
 
