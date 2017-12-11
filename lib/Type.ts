@@ -187,7 +187,7 @@ class StringField extends Field<string> implements String {
 		this._value = data;
 	}
 
-	set(value: string) {
+	set(value: string | String) {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'string' || value instanceof String) {
