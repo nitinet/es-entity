@@ -1,6 +1,6 @@
 {
 	"name": "es-entity",
-	"version": "1.0.85",
+	"version": "1.0.86",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"main": "./index.js",
 	"types": "./index.ts",
