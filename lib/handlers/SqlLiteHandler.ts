@@ -1,7 +1,7 @@
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class SqlLiteHandler extends Handler.default {
+export default class SqlLiteHandler extends Handler.default {
 	handlerName = 'sqlite';
 	driver = null;
 
@@ -21,5 +21,3 @@ class SqlLiteHandler extends Handler.default {
 		return null
 	}
 }
-
-export default SqlLiteHandler;

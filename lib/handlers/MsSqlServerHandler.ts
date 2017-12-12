@@ -5,7 +5,7 @@ import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 import Connection from '../Connection';
 
-class MsSqlServerHandler extends Handler.default {
+export default class MsSqlServerHandler extends Handler.default {
 	handlerName = 'mssql';
 	connectionPool = null;
 	driver = null;
@@ -73,5 +73,3 @@ class MsSqlServerHandler extends Handler.default {
 	}
 
 }
-
-export default MsSqlServerHandler;

@@ -16,7 +16,7 @@ interface arrFieldFunc<T> {
 	(source: T): Query.SqlExpression | Query.SqlExpression[];
 }
 
-interface Queryable<T> {
+export default interface Queryable<T> {
 	getEntity(alias?: string): T;
 	insert(entity: T): Promise<T>;
 	update(entity: T): Promise<T>;
@@ -34,7 +34,7 @@ interface Queryable<T> {
 	limit(size: number, index?: number): Queryable<T>;
 }
 
-class DBSet<T extends Object> implements Queryable<T> {
+export class DBSet<T extends Object> implements Queryable<T> {
 	entityType: Type.IEntityType<T>;
 	entityName: string = null;
 	context: Context;
@@ -466,6 +466,3 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 	}
 
 }
-
-export { DBSet };
-export default Queryable;

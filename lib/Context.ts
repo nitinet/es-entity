@@ -27,7 +27,7 @@ export function getHandler(config: ConnectionConfig): Handler {
 	return handler;
 }
 
-class Context {
+export default class Context {
 	entityPath: string;
 	handler: Handler;
 	connection: Connection = null;
@@ -100,5 +100,3 @@ class Context {
 	}
 
 }
-
-export default Context;

@@ -5,7 +5,7 @@ import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 import Connection from '../Connection';
 
-class MysqlHandler extends Handler.default {
+export default class MysqlHandler extends Handler.default {
 	handlerName = 'mysql';
 	connectionPool = null;
 	driver = null;
@@ -174,5 +174,3 @@ class MysqlHandler extends Handler.default {
 	}
 
 }
-
-export default MysqlHandler;

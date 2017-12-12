@@ -1,7 +1,7 @@
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 
-class OracleDbHandler extends Handler.default {
+export default class OracleDbHandler extends Handler.default {
 	handlerName = 'oracle';
 	driver = null;
 
@@ -21,5 +21,3 @@ class OracleDbHandler extends Handler.default {
 		return null
 	}
 }
-
-export default OracleDbHandler;

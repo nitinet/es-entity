@@ -5,7 +5,7 @@ import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 import Connection from '../Connection';
 
-class PostGreHandler extends Handler.default {
+export default class PostGreHandler extends Handler.default {
 	driver = null;
 	handlerName = 'postgresql';
 	connectionPool = null;
@@ -124,6 +124,6 @@ class PostGreHandler extends Handler.default {
 	insertQuery(collection: string, columns: string, values: string) {
 		return super.insertQuery(collection, columns, values) + ' returning id';
 	}
-}
 
-export default PostGreHandler;
+	limit(val0: string, val1: string): string { return " limit " + val0 + (val1 ? " OFFSET " + val1 : ""); }
+}
