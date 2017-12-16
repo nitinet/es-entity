@@ -1,5 +1,6 @@
 import * as Query from "./Query";
 import Connection from './Connection';
+import Context from './Context';
 
 export class ConnectionConfig {
 	name: string = "";
@@ -32,6 +33,7 @@ export class ColumnInfo {
 }
 
 export default abstract class Handler {
+	context: Context = null;
 	abstract handlerName: string;
 	abstract driver;
 	config: ConnectionConfig;

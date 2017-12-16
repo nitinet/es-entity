@@ -1,3 +1,5 @@
+import * as log4js from 'log4js';
+
 import Queryable, { DBSet } from "./Queryable";
 import Handler, { ConnectionConfig, ResultSet } from "./Handler";
 import MysqlHandler from "./handlers/MysqlHandler";
@@ -31,6 +33,7 @@ export default class Context {
 	entityPath: string;
 	handler: Handler;
 	connection: Connection = null;
+	logger: log4js.Logger = null;
 
 	constructor(config?: ConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -41,13 +44,23 @@ export default class Context {
 		}
 	}
 
+	setLogger(logger: log4js.Logger) {
+		this.logger = logger;
+	}
+
+	log(arg) {
+		if (this.logger) {
+			this.logger.trace(arg);
+		}
+	}
+
 	init() {
 		let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
-			let e: any = Reflect.get(this, key);
-			if (e instanceof DBSet) {
-				(<DBSet<any>>e).bind(this);
+			let o: any = Reflect.get(this, key);
+			if (o instanceof DBSet) {
+				(<DBSet<any>>o).bind(this);
 			}
 		}
 	}

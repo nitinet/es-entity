@@ -37,21 +37,25 @@ export default interface Queryable<T> {
 export class DBSet<T extends Object> implements Queryable<T> {
 	entityType: Type.IEntityType<T>;
 	entityName: string = null;
+	entityPath: string = null;
 	context: Context;
 	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 
-	constructor(entityType: Type.IEntityType<T>, entityName?: string) {
+	constructor(entityType: Type.IEntityType<T>, entityName?: string, entityPath?: string) {
 		this.entityType = entityType;
 		this.entityName = entityName ? entityName : this.entityType.name;
+		this.entityPath = entityPath;
 	}
 
 	bind(context: Context) {
 		this.context = context;
 		let filePath: string = null;
-		if (this.context.entityPath) {
+		if (this.entityPath) {
+			filePath = this.entityPath;
+		} else if (this.context.entityPath) {
 			filePath = path.join(this.context.entityPath, this.entityName + ".json");
 		}
-		if (filePath && fs.statSync(filePath).isFile()) {
+		if (this && fs.statSync(filePath).isFile()) {
 			let data = fs.readFileSync(filePath, "utf-8");
 			this.mapping = new Mapping.EntityMapping(JSON.parse(data));
 		} else {

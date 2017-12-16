@@ -32,6 +32,7 @@ export default class PostGreHandler extends Handler.default {
 		});
 		try {
 			await conn.connect();
+			this.context.log('Connection Creation Failed');
 			return new Connection(this, conn);
 		} catch (err) {
 			throw err;
@@ -91,6 +92,7 @@ export default class PostGreHandler extends Handler.default {
 			args = (query.args == undefined ? [] : query.args);
 		}
 
+		this.context.log('query:' + q);
 		let result: Handler.ResultSet = new Handler.ResultSet();
 		let con = null;
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {

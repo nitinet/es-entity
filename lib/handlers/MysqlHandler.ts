@@ -24,17 +24,20 @@ export default class MysqlHandler extends Handler.default {
 	}
 
 	getConnection(): Promise<Connection> {
+		let that = this;
 		return new Promise<Connection>((resolve, reject) => {
-			let conn = this.driver.createConnection({
-				host: this.config.hostname,
-				user: this.config.username,
-				password: this.config.password,
-				database: this.config.database
+			let conn = that.driver.createConnection({
+				host: that.config.hostname,
+				user: that.config.username,
+				password: that.config.password,
+				database: that.config.database
 			});
 			conn.connect((err) => {
-				if (err)
+				if (err) {
+					that.context.log('Connection Creation Failed');
 					reject(err);
-				else {
+				} else {
+					that.context.log('Connection Creation Successful');
 					let res = new Connection(this, conn);
 					resolve(res);
 				}
@@ -43,6 +46,7 @@ export default class MysqlHandler extends Handler.default {
 	}
 
 	openConnetion(conn): Promise<any> {
+		let that = this;
 		let p = new Promise((resolve, reject) => {
 			conn = this.driver.createConnection({
 				host: this.config.hostname,
@@ -51,34 +55,45 @@ export default class MysqlHandler extends Handler.default {
 				database: this.config.database
 			});
 			conn.connect((err) => {
-				if (err)
+				if (err) {
+					that.context.log('Connection Creation Failed');
 					reject(err);
-				else
+				} else {
+					that.context.log('Connection Creation Successful');
 					resolve(conn);
+				}
 			});
 		});
 		return p;
 	}
 
 	initTransaction(conn): Promise<void> {
+		let that = this;
 		let p = new Promise<void>((resolve, reject) => {
 			conn.beginTransaction((err) => {
-				if (err)
-					reject('Initializing Transaction Failed');
-				else
+				if (err) {
+					that.context.log('Initializing Transaction Failed');
+					reject(err);
+				} else {
+					that.context.log('Initializing Transaction Successful');
 					resolve();
+				}
 			});
 		});
 		return p;
 	}
 
 	commit(conn): Promise<void> {
+		let that = this;
 		let p = new Promise<void>((resolve, reject) => {
 			conn.commit((err) => {
-				if (err)
-					reject('Initializing Transaction Failed');
-				else
+				if (err) {
+					that.context.log('Commiting Transaction Failed');
+					reject(err);
+				} else {
+					that.context.log('Commiting Transaction Successful');
 					resolve();
+				}
 			});
 		});
 		return p;
@@ -94,12 +109,16 @@ export default class MysqlHandler extends Handler.default {
 	}
 
 	close(conn): Promise<void> {
+		let that = this;
 		let p = new Promise<void>((resolve, reject) => {
 			conn.end((err) => {
-				if (err)
-					reject('Initializing Transaction Failed');
-				else
+				if (err) {
+					that.context.log('Connection Close Failed');
+					reject(err);
+				} else {
+					that.context.log('Connection Close Successful');
 					resolve();
+				}
 			});
 		});
 		return p;
@@ -146,6 +165,7 @@ export default class MysqlHandler extends Handler.default {
 			args = query.args;
 		}
 
+		this.context.log('query:' + q);
 		let result: Handler.ResultSet = new Handler.ResultSet();
 		let p = new Promise<any>((resolve, reject) => {
 			if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
