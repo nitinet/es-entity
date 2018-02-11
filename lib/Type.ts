@@ -164,7 +164,7 @@ class ObjectField extends Field<string> {
 	}
 
 	get() {
-		return JSON.parse(this._value);
+		return this._value ? JSON.parse(this._value) : null;
 	}
 
 	set(value) {

@@ -4,7 +4,6 @@
     "node": "registry:dt/node"
   },
   "dependencies": {
-    "log4js": "registry:dt/log4js",
     "mysql": "registry:dt/mysql"
   }
 }
