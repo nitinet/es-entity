@@ -67,6 +67,7 @@ export default class Context {
 
 	setConfig(config: ConnectionConfig): void {
 		this.handler = getHandler(config);
+		this.handler.context = this;
 	}
 
 	setEntityPath(entityPath: string): void {
