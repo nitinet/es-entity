@@ -55,7 +55,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		} else if (this.context.entityPath) {
 			filePath = path.join(this.context.entityPath, this.entityName + ".json");
 		}
-		if (this && fs.statSync(filePath).isFile()) {
+		if (filePath && fs.statSync(filePath).isFile()) {
 			let data = fs.readFileSync(filePath, "utf-8");
 			this.mapping = new Mapping.EntityMapping(JSON.parse(data));
 		} else {
