@@ -7,7 +7,6 @@ exports.Context = Context_1.default;
 const Queryable_1 = require("./lib/Queryable");
 exports.DBSet = Queryable_1.DBSet;
 const Handler_1 = require("./lib/Handler");
-exports.ConnectionConfig = Handler_1.ConnectionConfig;
 exports.ResultSet = Handler_1.ResultSet;
 const Util = require("./lib/Util");
 exports.Util = Util;

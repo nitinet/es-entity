@@ -32,6 +32,8 @@ export default interface Queryable<T> {
 	groupBy(func?: arrFieldFunc<T> | Query.SqlExpression | Query.SqlExpression[]): Queryable<T>;
 	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression | Query.SqlExpression[]): Queryable<T>;
 	limit(size: number, index?: number): Queryable<T>;
+
+	mapData(input: Handler.ResultSet): Promise<Array<T>>;
 }
 
 export class DBSet<T extends Object> implements Queryable<T> {
@@ -288,6 +290,11 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		return q.unique();
 	}
 
+	mapData(input: Handler.ResultSet): Promise<Array<T>> {
+		let q = this.where();
+		return q.mapData(input);
+	}
+
 }
 
 /**
@@ -335,16 +342,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 		});
 
 		let result = await this.dbSet.executeStatement(this.stat);
-		let data: Array<T> = new Array();
-		for (let j = 0; j < result.rows.length; j++) {
-			let row = result.rows[j];
-			let a = this.dbSet.getEntity();
-			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-				this.dbSet.setValue(a, fieldName, row[fieldName]);
-			});
-			data.push(a);
-		}
-		return data;
+		return this.mapData(result);
 	}
 
 	// Selection Functions
@@ -375,16 +373,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 		if (result.rows.length == 0)
 			throw new Error("No Result Found");
 		else {
-			let data: Array<T> = new Array();
-			for (let j = 0; j < result.rows.length; j++) {
-				let row = result.rows[j];
-				let a = this.dbSet.getEntity();
-				await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-					this.dbSet.setValue(a, fieldName, row[fieldName]);
-				});
-				data.push(a);
-			}
-			return data;
+			return this.mapData(result);
 		}
 	}
 
@@ -467,6 +456,19 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 		this.stat.limit.exps.push(new Query.SqlExpression(size.toString()));
 		let s: SimpleQueryable<T> = new SimpleQueryable(this.stat, this.dbSet);
 		return s;
+	}
+
+	async	mapData(input: Handler.ResultSet): Promise<Array<T>> {
+		let data: Array<T> = new Array();
+		for (let j = 0; j < input.rows.length; j++) {
+			let row = input.rows[j];
+			let a = this.dbSet.getEntity();
+			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
+				this.dbSet.setValue(a, fieldName, row[fieldName]);
+			});
+			data.push(a);
+		}
+		return data;
 	}
 
 }

@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const es = require("./../index");
 const EmpContext_1 = require("./modal/EmpContext");
-var config = new es.ConnectionConfig();
-config.handler = "postgres";
-config.hostname = "localhost";
-config.name = "postgres";
-config.username = "rohan";
-config.password = "12345";
-config.database = "test";
+var config = {
+    driver: null,
+    handler: "postgres",
+    hostname: "localhost",
+    username: "rohan",
+    password: "12345",
+    database: "test"
+};
 var context = new EmpContext_1.default(config);
 let q = 4;
 async function run() {

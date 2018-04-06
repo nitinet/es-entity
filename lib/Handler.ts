@@ -2,15 +2,14 @@ import * as Query from "./Query";
 import Connection from './Connection';
 import Context from './Context';
 
-export class ConnectionConfig {
-	name: string = "";
-	handler: string = "";
-	driver: any = null;
-	connectionLimit = 25;
-	hostname: string = "";  // Default Mysql
-	username: string = "";
-	password: string = "";
-	database: string = "";
+export interface ConnectionConfig {
+	handler: string;
+	driver: any;
+	connectionLimit?: number;
+	hostname: string;  // Default Mysql
+	username: string;
+	password: string;
+	database: string;
 }
 
 export class ResultSet {

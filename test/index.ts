@@ -2,23 +2,24 @@ import * as es from "./../index";
 
 import empContext from "./modal/EmpContext";
 
-var config: es.ConnectionConfig = new es.ConnectionConfig();
-config.handler = "postgres";
-config.hostname = "localhost";
-config.name = "postgres";
-config.username = "rohan";
-config.password = "12345";
-config.database = "test";
+var config: es.ConnectionConfig = {
+	driver: null,
+	handler: "postgres",
+	hostname: "localhost",
+	username: "rohan",
+	password: "12345",
+	database: "test"
+};
 var context = new empContext(config);
 
 let q = 4;
 
 async function run() {
 	await context.init();
-        console.log("[INIT]");
+	console.log("[INIT]");
 	let trans = await context.initTransaction();
 	console.log("[SELECT]");
-        let v = await trans.employees.get(1);
+	let v = await trans.employees.get(1);
 	console.log("id: " + v.id + ", name: " + v.name + ", desc: " + v.description);
 	v.description.set("test update 2");
 	v = await trans.employees.update(v);
@@ -42,8 +43,8 @@ async function run() {
 		let j = q[i];
 		console.log("id: " + j.id + ", desc: " + j.description);
 	}
-        console.log("[TEST COMPLETE]"); 
-        process.exit(0);
+	console.log("[TEST COMPLETE]");
+	process.exit(0);
 }
 
 run();

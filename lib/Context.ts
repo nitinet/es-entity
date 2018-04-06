@@ -1,5 +1,3 @@
-import * as log4js from 'log4js';
-
 import Queryable, { DBSet } from "./Queryable";
 import Handler, { ConnectionConfig, ResultSet } from "./Handler";
 import MysqlHandler from "./handlers/MysqlHandler";
@@ -33,7 +31,7 @@ export default class Context {
 	entityPath: string;
 	handler: Handler;
 	connection: Connection = null;
-	logger: log4js.Logger = null;
+	logger = null;
 
 	constructor(config?: ConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -44,7 +42,7 @@ export default class Context {
 		}
 	}
 
-	setLogger(logger: log4js.Logger) {
+	setLogger(logger) {
 		this.logger = logger;
 	}
 
