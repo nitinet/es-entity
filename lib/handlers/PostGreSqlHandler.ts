@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 
-import * as util from '../Util';
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 import Connection from '../Connection';
@@ -47,10 +46,10 @@ export default class PostGreHandler extends Handler.default {
 
 	async	close(conn) { conn.release() }
 
-	getTableInfo(tableName: string) {
+	async	getTableInfo(tableName: string) {
 		let describeTableQuery = fs.readFileSync(__dirname + '/../../assets/postgresql_describe_query.sql', 'utf-8');
 		let descQuery = describeTableQuery.replace('?', tableName);
-		let tableInfo = util.deAsync(this.run(descQuery));
+		let tableInfo = await this.run(descQuery);
 		let result: Array<Handler.ColumnInfo> = new Array<Handler.ColumnInfo>();
 
 		tableInfo.rows.forEach((row) => {

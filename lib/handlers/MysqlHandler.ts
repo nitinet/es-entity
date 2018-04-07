@@ -1,6 +1,5 @@
 // import * as mysql from "mysql";
 
-import * as util from '../Util';
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 import Connection from '../Connection';
@@ -124,9 +123,8 @@ export default class MysqlHandler extends Handler.default {
 		return p;
 	}
 
-	getTableInfo(tableName: string): Array<Handler.ColumnInfo> {
-		let p = this.run("describe " + tableName);
-		let r = util.deAsync(p);
+	async	getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+		let r = await this.run("describe " + tableName);
 		let result: Array<Handler.ColumnInfo> = new Array<Handler.ColumnInfo>();
 		r.rows.forEach((row) => {
 			let a: Handler.ColumnInfo = new Handler.ColumnInfo();

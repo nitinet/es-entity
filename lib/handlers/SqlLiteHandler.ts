@@ -13,7 +13,7 @@ export default class SqlLiteHandler extends Handler.default {
 		return null;
 	}
 
-	getTableInfo(tableName: string): Array<Handler.ColumnInfo> {
+	async	getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
 		return null;
 	}
 

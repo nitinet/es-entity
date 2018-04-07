@@ -49,7 +49,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		this.entityPath = entityPath;
 	}
 
-	bind(context: Context) {
+	async	bind(context: Context) {
 		this.context = context;
 		let filePath: string = null;
 		if (this.entityPath) {
@@ -66,7 +66,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 			this.mapping.name = Case.snake(this.entityName);
 
 			// get info from describe db
-			let columns = this.context.handler.getTableInfo(this.mapping.name);
+			let columns = await this.context.handler.getTableInfo(this.mapping.name);
 
 			let a = new this.entityType();
 			let keys = Reflect.ownKeys(a);
@@ -116,15 +116,13 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	getEntity(alias?: string) {
 		let a = new this.entityType();
-		let name = null;
 		let keys = Reflect.ownKeys(a);
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
 			let q = a[key];
 			if (q instanceof Type.Field) {
 				let field = this.mapping.fields.get(<string>key);
-				name = field.name;
-				(<Query.Column>q)._name = name;
+				(<Query.Column>q)._name = field && field.name ? field.name : '';
 				(<Query.Column>q)._alias = alias;
 			}
 		}

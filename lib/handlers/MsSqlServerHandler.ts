@@ -1,6 +1,5 @@
 // import * as mssql from 'mssql';
 
-import * as util from '../Util';
 import * as Handler from "./../Handler";
 import * as Query from "./../Query";
 import Connection from '../Connection';
@@ -15,12 +14,16 @@ export default class MsSqlServerHandler extends Handler.default {
 		this.driver = require('mssql');
 
 		this.config = config;
-		this.connectionPool = util.deAsync(this.driver.connect({
+		this.setConnectionPool();
+	}
+
+	async	setConnectionPool() {
+		this.connectionPool = await this.driver.connect({
 			server: this.config.hostname,
 			user: this.config.username,
 			password: this.config.password,
 			database: this.config.database
-		}));
+		});
 	}
 
 	async getConnection() {
@@ -37,9 +40,8 @@ export default class MsSqlServerHandler extends Handler.default {
 		}
 	}
 
-	getTableInfo(tableName: string): Array<Handler.ColumnInfo> {
-		let p = this.run("describe " + tableName);
-		let r = util.deAsync(p);
+	async	getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+		let r = await this.run("describe " + tableName);
 		let result: Array<Handler.ColumnInfo> = new Array<Handler.ColumnInfo>();
 		r.rows.forEach((row) => {
 			let a: Handler.ColumnInfo = new Handler.ColumnInfo();

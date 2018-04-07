@@ -37,7 +37,7 @@ export default abstract class Handler {
 	abstract driver;
 	config: ConnectionConfig;
 
-	getTableInfo(tableName: string): Array<ColumnInfo> { return null; }
+	async	getTableInfo(tableName: string): Promise<Array<ColumnInfo>> { return null; }
 	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<ResultSet> { return null; }
 
 	convertPlaceHolder(query: string) { return query; }
