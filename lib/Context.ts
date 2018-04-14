@@ -32,7 +32,6 @@ export default class Context {
 	handler: Handler;
 	connection: Connection = null;
 	logger = null;
-	initPromise: Promise<void[]> = null;
 
 	constructor(config?: ConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -63,7 +62,7 @@ export default class Context {
 				ps.push((<DBSet<any>>o).bind(this));
 			}
 		}
-		this.initPromise = Promise.all(ps);
+		return Promise.all(ps);
 	}
 
 	setConfig(config: ConnectionConfig): void {
