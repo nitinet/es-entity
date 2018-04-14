@@ -232,7 +232,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		if (!this.mapping.primaryKeyField)
 			throw new Error("No Primary Field Found in Table: " + this.mapping.name);
 
-		if (!id)
+		if (id == null)
 			throw new Error("Id parameter cannot be null");
 
 		let fieldName = this.mapping.primaryKey;
