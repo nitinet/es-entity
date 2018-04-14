@@ -32,6 +32,7 @@ export default class Context {
 	handler: Handler;
 	connection: Connection = null;
 	logger = null;
+	initPromise: Promise<void[]> = null;
 
 	constructor(config?: ConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -54,13 +55,15 @@ export default class Context {
 
 	init() {
 		let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
+		let ps: Promise<void>[] = new Array();
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
 			let o: any = Reflect.get(this, key);
 			if (o instanceof DBSet) {
-				(<DBSet<any>>o).bind(this);
+				ps.push((<DBSet<any>>o).bind(this));
 			}
 		}
+		this.initPromise = Promise.all(ps);
 	}
 
 	setConfig(config: ConnectionConfig): void {

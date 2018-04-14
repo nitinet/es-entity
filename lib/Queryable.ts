@@ -149,11 +149,12 @@ export class DBSet<T extends Object> implements Queryable<T> {
 	}
 
 	async insert(entity: T) {
+		await this.context.initPromise;
 		let stat: Query.SqlStatement = new Query.SqlStatement();
 		stat.command = "insert";
 		stat.collection.value = this.mapping.name;
 
-		await Reflect.ownKeys(entity).forEach((key) => {
+		Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
 			if (q instanceof Type.Field && this.isUpdated(entity, <string>key)) {
 				let f = this.mapping.fields.get(<string>key);
@@ -175,6 +176,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 	}
 
 	async update(entity: T) {
+		await this.context.initPromise;
 		let stat = new Query.SqlStatement();
 		stat.command = "update";
 		stat.collection.value = this.mapping.name;
@@ -208,7 +210,8 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		}
 	}
 
-	insertOrUpdate(entity: T) {
+	async	insertOrUpdate(entity: T) {
+		await this.context.initPromise;
 		if (this.getValue(entity, this.mapping.primaryKey)) {
 			return this.update(entity);
 		} else {
@@ -217,6 +220,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 	}
 
 	async delete(entity: T) {
+		await this.context.initPromise;
 		let stat = new Query.SqlStatement();
 		stat.command = "delete";
 		stat.collection.value = this.mapping.name;
@@ -229,6 +233,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 	}
 
 	async get(id): Promise<T> {
+		await this.context.initPromise;
 		if (!this.mapping.primaryKeyField)
 			throw new Error("No Primary Field Found in Table: " + this.mapping.name);
 
@@ -329,6 +334,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 
 	// Selection Functions
 	async list() {
+		await this.dbSet.context.initPromise;
 		let alias: string = this.stat.collection.alias;
 
 		this.dbSet.mapping.fields.forEach((field, fieldName) => {
@@ -345,6 +351,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 
 	// Selection Functions
 	async select(func?: arrFieldFunc<T>) {
+		await this.dbSet.context.initPromise;
 		let cols: Query.SqlExpression[] = new Array();
 		if (func) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
@@ -457,6 +464,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 	}
 
 	async	mapData(input: Handler.ResultSet): Promise<Array<T>> {
+		await this.dbSet.context.initPromise;
 		let data: Array<T> = new Array();
 		for (let j = 0; j < input.rows.length; j++) {
 			let row = input.rows[j];
