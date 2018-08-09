@@ -1,7 +1,8 @@
 import { DBSet } from './Queryable';
-import Handler, { ConnectionConfig, ResultSet } from './Handler';
+import Handler from './Handler';
 import * as Query from './Query';
 import Connection from './Connection';
+import * as bean from '../bean/index';
 
 import MysqlHandler from '../handlers/Mysql';
 import OracleHandler from '../handlers/OracleDb';
@@ -9,7 +10,7 @@ import MsSqlServerHandler from '../handlers/MsSqlServer';
 import PostGreHandler from '../handlers/PostGreSql';
 import SqlLiteHandler from '../handlers/SqlLite';
 
-export function getHandler(config: ConnectionConfig): Handler {
+function getHandler(config: bean.IConnectionConfig): Handler {
 	let handler: Handler = null;
 	if (config.handler.toLowerCase() === 'mysql') {
 		handler = new MysqlHandler(config);
@@ -33,7 +34,7 @@ export default class Context {
 	connection: Connection = null;
 	logger = null;
 
-	constructor(config?: ConnectionConfig, entityPath?: string) {
+	constructor(config?: bean.IConnectionConfig, entityPath?: string) {
 		if (config) {
 			this.setConfig(config);
 		}
@@ -65,8 +66,13 @@ export default class Context {
 		return Promise.all(ps);
 	}
 
-	setConfig(config: ConnectionConfig): void {
+	setConfig(config: bean.IConnectionConfig): void {
 		this.handler = getHandler(config);
+		this.handler.context = this;
+	}
+
+	setHandler(handler: Handler) {
+		this.handler = handler;
 		this.handler.context = this;
 	}
 
@@ -74,7 +80,7 @@ export default class Context {
 		this.entityPath = entityPath;
 	}
 
-	async execute(query: string | Query.ISqlNode, args?: Array<any>): Promise<ResultSet> {
+	async execute(query: string | Query.ISqlNode, args?: Array<any>): Promise<bean.ResultSet> {
 		return await this.handler.run(query, args, this.connection);
 	}
 

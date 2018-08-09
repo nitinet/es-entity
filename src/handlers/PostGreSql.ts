@@ -1,15 +1,16 @@
 import * as fs from 'fs';
 
-import * as Handler from '../lib/Handler';
+import * as bean from '../bean/index';
+import Handler from '../lib/Handler';
 import * as Query from '../lib/Query';
 import Connection from '../lib/Connection';
 
-export default class PostGreHandler extends Handler.default {
+export default class PostGreHandler extends Handler {
 	driver = null;
 	handlerName = 'postgresql';
 	connectionPool = null;
 
-	constructor(config: Handler.ConnectionConfig) {
+	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.driver = require('pg');
 		this.config = config;
@@ -44,16 +45,16 @@ export default class PostGreHandler extends Handler.default {
 
 	async	rollback(conn) { await conn.query('ROLLBACK'); }
 
-	async	close(conn) { conn.release() }
+	async	close(conn) { conn.end() }
 
 	async	getTableInfo(tableName: string) {
 		let describeTableQuery = fs.readFileSync(__dirname + '/../../assets/postgresql_describe_query.sql', 'utf-8');
 		let descQuery = describeTableQuery.replace('?', tableName);
 		let tableInfo = await this.run(descQuery);
-		let result: Array<Handler.ColumnInfo> = new Array<Handler.ColumnInfo>();
+		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 
 		tableInfo.rows.forEach((row) => {
-			let obj: Handler.ColumnInfo = new Handler.ColumnInfo();
+			let obj: bean.ColumnInfo = new bean.ColumnInfo();
 			obj.field = row['field'];
 			let columnType: string = (<string>row['data_type']).toLowerCase();
 
@@ -92,7 +93,7 @@ export default class PostGreHandler extends Handler.default {
 		}
 
 		this.context.log('query:' + q);
-		let result: Handler.ResultSet = new Handler.ResultSet();
+		let result: bean.ResultSet = new bean.ResultSet();
 		let con = null;
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			con = connection.conn;

@@ -2,43 +2,16 @@ import * as Query from './Query';
 import Connection from './Connection';
 import Context from './Context';
 
-export interface ConnectionConfig {
-	handler: string;
-	driver: any;
-	connectionLimit?: number;
-	hostname: string;  // Default Mysql
-	username: string;
-	password: string;
-	database: string;
-}
-
-export class ResultSet {
-	rowCount: number = 0;
-	id: any = null;
-	rows: Array<any> = null;
-	error: string = null;
-
-	constructor() {
-	}
-}
-
-export class ColumnInfo {
-	field: string = '';
-	type: string = '';
-	nullable: boolean = false;
-	primaryKey: boolean = false;
-	default: string = '';
-	extra: string = '';
-}
+import * as bean from '../bean/index';
 
 export default abstract class Handler {
 	context: Context = null;
 	abstract handlerName: string;
 	abstract driver;
-	config: ConnectionConfig;
+	config: bean.IConnectionConfig;
 
-	async	getTableInfo(tableName: string): Promise<Array<ColumnInfo>> { return null; }
-	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<ResultSet> { return null; }
+	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> { return null; }
+	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
 
 	convertPlaceHolder(query: string) { return query; }
 	insertQuery(collection: string, columns: string, values: string) { return `insert into ${collection} (${columns}) values (${values})`; }

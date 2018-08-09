@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
-const Handler = require("../lib/Handler");
+const bean = require("../bean/index");
+const Handler_1 = require("../lib/Handler");
 const Query = require("../lib/Query");
 const Connection_1 = require("../lib/Connection");
-class PostGreHandler extends Handler.default {
+class PostGreHandler extends Handler_1.default {
     constructor(config) {
         super();
         this.driver = null;
@@ -39,14 +40,14 @@ class PostGreHandler extends Handler.default {
     async initTransaction(conn) { await conn.query('BEGIN'); }
     async commit(conn) { await conn.query('COMMIT'); }
     async rollback(conn) { await conn.query('ROLLBACK'); }
-    async close(conn) { conn.release(); }
+    async close(conn) { conn.end(); }
     async getTableInfo(tableName) {
         let describeTableQuery = fs.readFileSync(__dirname + '/../../assets/postgresql_describe_query.sql', 'utf-8');
         let descQuery = describeTableQuery.replace('?', tableName);
         let tableInfo = await this.run(descQuery);
         let result = new Array();
         tableInfo.rows.forEach((row) => {
-            let obj = new Handler.ColumnInfo();
+            let obj = new bean.ColumnInfo();
             obj.field = row['field'];
             let columnType = row['data_type'].toLowerCase();
             if (columnType.includes('boolean')) {
@@ -86,7 +87,7 @@ class PostGreHandler extends Handler.default {
             args = (query.args == undefined ? [] : query.args);
         }
         this.context.log('query:' + q);
-        let result = new Handler.ResultSet();
+        let result = new bean.ResultSet();
         let con = null;
         if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             con = connection.conn;

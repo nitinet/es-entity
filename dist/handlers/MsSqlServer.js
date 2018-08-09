@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Handler = require("../lib/Handler");
+const bean = require("../bean/index");
+const Handler_1 = require("../lib/Handler");
+const Query = require("../lib/Query");
 const Connection_1 = require("../lib/Connection");
-class MsSqlServerHandler extends Handler.default {
+class MsSqlServerHandler extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mssql';
@@ -13,7 +15,7 @@ class MsSqlServerHandler extends Handler.default {
         this.setConnectionPool();
     }
     async setConnectionPool() {
-        this.connectionPool = await this.driver.connect({
+        this.connectionPool = new this.driver.ConnectionPool({
             server: this.config.hostname,
             user: this.config.username,
             password: this.config.password,
@@ -21,24 +23,20 @@ class MsSqlServerHandler extends Handler.default {
         });
     }
     async getConnection() {
-        try {
-            let conn = await this.driver.connect({
-                server: this.config.hostname,
-                user: this.config.username,
-                password: this.config.password,
-                database: this.config.database
-            });
-            return new Connection_1.default(this, conn);
-        }
-        catch (e) {
-            throw e;
-        }
+        await this.driver.connect({
+            server: this.config.hostname,
+            user: this.config.username,
+            password: this.config.password,
+            database: this.config.database
+        });
+        let conn = new this.driver.Request();
+        return new Connection_1.default(this, conn);
     }
     async getTableInfo(tableName) {
-        let r = await this.run('describe ' + tableName);
+        let r = await this.run(`Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = '${tableName}'`);
         let result = new Array();
         r.rows.forEach((row) => {
-            let a = new Handler.ColumnInfo();
+            let a = new bean.ColumnInfo();
             a.field = row['Field'];
             let columnType = row['Type'].toLowerCase();
             if (columnType.includes('tinyint(1)')) {
@@ -65,8 +63,38 @@ class MsSqlServerHandler extends Handler.default {
         });
         return result;
     }
-    async run(query) {
-        return null;
+    async run(query, args, connection) {
+        let q = null;
+        if (typeof query === "string") {
+            q = query;
+        }
+        else if (query instanceof Query.SqlStatement) {
+            q = query.eval(this);
+            args = (query.args == undefined ? [] : query.args);
+        }
+        return new Promise((resolve, reject) => {
+            if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+                connection.conn.query(q, args, function (err, result) {
+                    if (err)
+                        reject(err);
+                    else {
+                        console.log(result);
+                        resolve(result);
+                    }
+                });
+            }
+            else {
+                console.log(this.connectionPool.request());
+                this.connectionPool.request().query(q, args, function (err, result) {
+                    if (err)
+                        reject(err);
+                    else {
+                        console.log(result);
+                        resolve(result);
+                    }
+                });
+            }
+        });
     }
 }
 exports.default = MsSqlServerHandler;

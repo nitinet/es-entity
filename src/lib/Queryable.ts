@@ -2,11 +2,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as Case from 'case';
 
+import * as bean from '../bean/index';
 import Context from './Context';
 import * as Type from './Type';
 import * as Mapping from './Mapping';
 import * as Query from './Query';
-import * as Handler from './Handler';
 
 interface whereFunc<T> {
 	(source: T, ...args: any[]): Query.SqlExpression;
@@ -33,7 +33,7 @@ export default interface Queryable<T> {
 	orderBy(func?: arrFieldFunc<T> | Query.SqlExpression | Query.SqlExpression[]): Queryable<T>;
 	limit(size: number, index?: number): Queryable<T>;
 
-	mapData(input: Handler.ResultSet): Promise<Array<T>>;
+	mapData(input: bean.ResultSet): Promise<Array<T>>;
 }
 
 export class DBSet<T extends Object> implements Queryable<T> {
@@ -75,7 +75,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 				let f = a[key];
 				if (f instanceof Type.Field) {
 					let name = Case.snake(key.toString());
-					let column: Handler.ColumnInfo = null;
+					let column: bean.ColumnInfo = null;
 					for (let j = 0; j < columns.length; j++) {
 						let c = columns[j];
 						if (c.field == name) {
@@ -144,7 +144,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		return (<Type.Field<any>>obj[key])._value;
 	}
 
-	async executeStatement(stat: Query.SqlStatement): Promise<Handler.ResultSet> {
+	async executeStatement(stat: Query.SqlStatement): Promise<bean.ResultSet> {
 		return await this.context.execute(stat);
 	}
 
@@ -288,7 +288,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		return q.unique();
 	}
 
-	mapData(input: Handler.ResultSet): Promise<Array<T>> {
+	mapData(input: bean.ResultSet): Promise<Array<T>> {
 		let q = this.where();
 		return q.mapData(input);
 	}
@@ -456,7 +456,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 		return s;
 	}
 
-	async	mapData(input: Handler.ResultSet): Promise<Array<T>> {
+	async	mapData(input: bean.ResultSet): Promise<Array<T>> {
 		let data: Array<T> = new Array();
 		for (let j = 0; j < input.rows.length; j++) {
 			let row = input.rows[j];

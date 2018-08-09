@@ -1,25 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ResultSet {
-    constructor() {
-        this.rowCount = 0;
-        this.id = null;
-        this.rows = null;
-        this.error = null;
-    }
-}
-exports.ResultSet = ResultSet;
-class ColumnInfo {
-    constructor() {
-        this.field = '';
-        this.type = '';
-        this.nullable = false;
-        this.primaryKey = false;
-        this.default = '';
-        this.extra = '';
-    }
-}
-exports.ColumnInfo = ColumnInfo;
 class Handler {
     constructor() {
         this.context = null;

@@ -1,15 +1,16 @@
 // import * as mysql from 'mysql';
 
-import * as Handler from '../lib/Handler';
+import * as bean from '../bean/index';
+import  Handler from '../lib/Handler';
 import * as Query from '../lib/Query';
 import Connection from '../lib/Connection';
 
-export default class MysqlHandler extends Handler.default {
+export default class MysqlHandler extends Handler {
 	handlerName = 'mysql';
 	connectionPool = null;
 	driver = null;
 
-	constructor(config: Handler.ConnectionConfig) {
+	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.driver = require('mysql');
 		this.config = config;
@@ -123,11 +124,11 @@ export default class MysqlHandler extends Handler.default {
 		return p;
 	}
 
-	async	getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
-		let result: Array<Handler.ColumnInfo> = new Array<Handler.ColumnInfo>();
+		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 		r.rows.forEach((row) => {
-			let a: Handler.ColumnInfo = new Handler.ColumnInfo();
+			let a: bean.ColumnInfo = new bean.ColumnInfo();
 			a.field = row['Field'];
 			let columnType: string = (<string>row['Type']).toLowerCase();
 			if (columnType.includes('tinyint(1)')) {
@@ -154,7 +155,7 @@ export default class MysqlHandler extends Handler.default {
 		return result;
 	}
 
-	async run(query: string | Query.ISqlNode, args?: Array<any>, connection?: Connection): Promise<Handler.ResultSet> {
+	async run(query: string | Query.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
 		let q: string = null;
 		if (typeof query === 'string') {
 			q = query;
@@ -164,7 +165,7 @@ export default class MysqlHandler extends Handler.default {
 		}
 
 		this.context.log('query:' + q);
-		let result: Handler.ResultSet = new Handler.ResultSet();
+		let result: bean.ResultSet = new bean.ResultSet();
 		let p = new Promise<any>((resolve, reject) => {
 			if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 				connection.conn.query(q, args, function (err, r) {

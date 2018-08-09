@@ -1,11 +1,12 @@
-import * as Handler from '../lib/Handler';
+import * as bean from '../bean/index';
+import Handler from '../lib/Handler';
 import * as Query from '../lib/Query';
 
-export default class OracleDbHandler extends Handler.default {
+export default class OracleDbHandler extends Handler {
 	handlerName = 'oracle';
 	driver = null;
 
-	constructor(config: Handler.ConnectionConfig) {
+	constructor(config: bean.IConnectionConfig) {
 		super();
 	}
 
@@ -13,11 +14,11 @@ export default class OracleDbHandler extends Handler.default {
 		return null;
 	}
 
-	async	getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
+	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		return null;
 	}
 
-	async run(query: string | Query.ISqlNode): Promise<Handler.ResultSet> {
+	async run(query: string | Query.ISqlNode): Promise<bean.ResultSet> {
 		return null
 	}
 }

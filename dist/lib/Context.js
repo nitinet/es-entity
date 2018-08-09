@@ -29,7 +29,6 @@ function getHandler(config) {
     }
     return handler;
 }
-exports.getHandler = getHandler;
 class Context {
     constructor(config, entityPath) {
         this.connection = null;
@@ -63,6 +62,10 @@ class Context {
     }
     setConfig(config) {
         this.handler = getHandler(config);
+        this.handler.context = this;
+    }
+    setHandler(handler) {
+        this.handler = handler;
         this.handler.context = this;
     }
     setEntityPath(entityPath) {

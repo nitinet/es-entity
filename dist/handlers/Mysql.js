@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Handler = require("../lib/Handler");
+const bean = require("../bean/index");
+const Handler_1 = require("../lib/Handler");
 const Query = require("../lib/Query");
 const Connection_1 = require("../lib/Connection");
-class MysqlHandler extends Handler.default {
+class MysqlHandler extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mysql';
@@ -123,7 +124,7 @@ class MysqlHandler extends Handler.default {
         let r = await this.run('describe ' + tableName);
         let result = new Array();
         r.rows.forEach((row) => {
-            let a = new Handler.ColumnInfo();
+            let a = new bean.ColumnInfo();
             a.field = row['Field'];
             let columnType = row['Type'].toLowerCase();
             if (columnType.includes('tinyint(1)')) {
@@ -161,7 +162,7 @@ class MysqlHandler extends Handler.default {
             args = query.args;
         }
         this.context.log('query:' + q);
-        let result = new Handler.ResultSet();
+        let result = new bean.ResultSet();
         let p = new Promise((resolve, reject) => {
             if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
                 connection.conn.query(q, args, function (err, r) {
