@@ -8,9 +8,9 @@ export class FieldMapping {
 }
 
 export class EntityMapping {
-	name: string = "";
-	entityName: string = "";
-	primaryKey: string = "";
+	name: string = '';
+	entityName: string = '';
+	primaryKey: string = '';
 	primaryKeyField: FieldMapping = null;
 	fields: Map<string, FieldMapping> = new Map<string, FieldMapping>();
 

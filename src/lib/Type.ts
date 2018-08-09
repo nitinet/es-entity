@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import * as Query from "./Query";
+import * as Query from './Query';
 
 export interface IEntityType<T> {
 	new(): T;
@@ -7,8 +7,8 @@ export interface IEntityType<T> {
 
 class Field<T> extends Query.Column {
 	_value: T = null;
-	_alias: string = "";
-	_name: string = "";
+	_alias: string = '';
+	_name: string = '';
 	_updated: boolean = false;
 
 	constructor() {
@@ -35,7 +35,7 @@ class Field<T> extends Query.Column {
 	}
 
 	_createExpr() {
-		let name = this._alias ? this._alias + "." + this._name : this._name;
+		let name = this._alias ? this._alias + '.' + this._name : this._name;
 		return new Query.SqlExpression(name);
 	}
 
@@ -44,7 +44,7 @@ class Field<T> extends Query.Column {
 		if (operand instanceof Query.Column) {
 			w = (<Query.Column>operand)._createExpr();
 		} else {
-			w = new Query.SqlExpression("?");
+			w = new Query.SqlExpression('?');
 			w.args = w.args.concat(operand);
 		}
 		return w;
@@ -234,8 +234,8 @@ class StringField extends Field<string> implements String {
 	/**
 	* Returns the String value result of normalizing the string into the normalization form
 	* named by form as specified in Unicode Standard Annex #15, Unicode Normalization Forms.
-	* @param form Applicable values: "NFC", "NFD", "NFKC", or "NFKD", If not specified default
-	* is "NFC"
+	* @param form Applicable values: 'NFC', 'NFD', 'NFKC', or 'NFKD', If not specified default
+	* is 'NFC'
 	*/
 	normalize(form?: string): string {
 		return this._value.normalize(form);
@@ -587,25 +587,25 @@ class DateField extends Field<Date> implements Date {
 	/**
 	 * Converts a Date object to a string.
 	 */
-	[Symbol.toPrimitive](hint: "default"): string;
+	[Symbol.toPrimitive](hint: 'default'): string;
 
 	/**
 	 * Converts a Date object to a string.
 	 */
-	[Symbol.toPrimitive](hint: "string"): string;
+	[Symbol.toPrimitive](hint: 'string'): string;
 
 	/**
 	 * Converts a Date object to a number.
 	 */
-	[Symbol.toPrimitive](hint: "number"): number;
+	[Symbol.toPrimitive](hint: 'number'): number;
 
 	/**
 	 * Converts a Date object to a string or number.
 	 *
-	 * @param hint The strings "number", "string", or "default" to specify what primitive to return.
+	 * @param hint The strings 'number', 'string', or 'default' to specify what primitive to return.
 	 *
-	 * @throws {TypeError} If 'hint' was given something other than "number", "string", or "default".
-	 * @returns A number if 'hint' was "number", a string if 'hint' was "string" or "default".
+	 * @throws {TypeError} If 'hint' was given something other than 'number', 'string', or 'default'.
+	 * @returns A number if 'hint' was 'number', a string if 'hint' was 'string' or 'default'.
 	 */
 	[Symbol.toPrimitive](hint: string): string | number {
 		return this._value[Symbol.toPrimitive](hint);

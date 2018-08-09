@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 
-import * as Handler from "./../Handler";
-import * as Query from "./../Query";
-import Connection from '../Connection';
+import * as Handler from '../lib/Handler';
+import * as Query from '../lib/Query';
+import Connection from '../lib/Connection';
 
 export default class PostGreHandler extends Handler.default {
 	driver = null;
@@ -54,29 +54,29 @@ export default class PostGreHandler extends Handler.default {
 
 		tableInfo.rows.forEach((row) => {
 			let obj: Handler.ColumnInfo = new Handler.ColumnInfo();
-			obj.field = row["field"];
-			let columnType: string = (<string>row["data_type"]).toLowerCase();
+			obj.field = row['field'];
+			let columnType: string = (<string>row['data_type']).toLowerCase();
 
-			if (columnType.includes("boolean")) {
-				obj.type = "boolean";
-			} else if (columnType.includes("int") ||
-				columnType.includes("float") ||
-				columnType.includes("double") ||
-				columnType.includes("decimal") ||
-				columnType.includes("real") ||
-				columnType.includes("numeric")) {
-				obj.type = "number";
-			} else if (columnType.includes("varchar") ||
-				columnType.includes("text") ||
-				columnType.includes("character varying") ||
-				columnType.includes("uuid")) {
-				obj.type = "string";
-			} else if (columnType.includes("timestamp") || columnType.includes("date")) {
-				obj.type = "date";
+			if (columnType.includes('boolean')) {
+				obj.type = 'boolean';
+			} else if (columnType.includes('int') ||
+				columnType.includes('float') ||
+				columnType.includes('double') ||
+				columnType.includes('decimal') ||
+				columnType.includes('real') ||
+				columnType.includes('numeric')) {
+				obj.type = 'number';
+			} else if (columnType.includes('varchar') ||
+				columnType.includes('text') ||
+				columnType.includes('character varying') ||
+				columnType.includes('uuid')) {
+				obj.type = 'string';
+			} else if (columnType.includes('timestamp') || columnType.includes('date')) {
+				obj.type = 'date';
 			}
-			obj.nullable = !row["notnull"];
-			obj.primaryKey = row["primarykey"];
-			obj.default = row["default"];
+			obj.nullable = !row['notnull'];
+			obj.primaryKey = row['primarykey'];
+			obj.default = row['default'];
 			result.push(obj);
 		});
 		return result;
@@ -84,7 +84,7 @@ export default class PostGreHandler extends Handler.default {
 
 	async run(query: string | Query.ISqlNode, args?: Array<any>, connection?: Connection) {
 		let q: string = null;
-		if (typeof query === "string") {
+		if (typeof query === 'string') {
 			q = query;
 		} else if (query instanceof Query.SqlStatement) {
 			q = query.eval(this);
@@ -126,5 +126,5 @@ export default class PostGreHandler extends Handler.default {
 		return super.insertQuery(collection, columns, values) + ' returning id';
 	}
 
-	limit(val0: string, val1: string): string { return " limit " + val0 + (val1 ? " OFFSET " + val1 : ""); }
+	limit(val0: string, val1: string): string { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }

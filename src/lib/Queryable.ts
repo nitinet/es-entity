@@ -1,12 +1,12 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as Case from "case";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Case from 'case';
 
-import Context from "./Context";
-import * as Type from "./Type";
-import * as Mapping from "./Mapping";
-import * as Query from "./Query";
-import * as Handler from "./Handler";
+import Context from './Context';
+import * as Type from './Type';
+import * as Mapping from './Mapping';
+import * as Query from './Query';
+import * as Handler from './Handler';
 
 interface whereFunc<T> {
 	(source: T, ...args: any[]): Query.SqlExpression;
@@ -55,10 +55,10 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		if (this.entityPath) {
 			filePath = this.entityPath;
 		} else if (this.context.entityPath) {
-			filePath = path.join(this.context.entityPath, this.entityName + ".json");
+			filePath = path.join(this.context.entityPath, this.entityName + '.json');
 		}
 		if (filePath && fs.statSync(filePath).isFile()) {
-			let data = fs.readFileSync(filePath, "utf-8");
+			let data = fs.readFileSync(filePath, 'utf-8');
 			this.mapping = new Mapping.EntityMapping(JSON.parse(data));
 		} else {
 			this.mapping = new Mapping.EntityMapping();
@@ -85,18 +85,18 @@ export class DBSet<T extends Object> implements Queryable<T> {
 					}
 					if (column) {
 						let type = new String();
-						if (f instanceof Type.String && column.type == "string") {
-							type = "string";
-						} else if (f instanceof Type.Number && column.type == "number") {
-							type = "number";
-						} else if (f instanceof Type.Boolean && column.type == "boolean") {
-							type = "boolean";
-						} else if (f instanceof Type.Date && column.type == "date") {
-							type = "date";
-						} else if (f instanceof Type.Object && column.type == "string") {
-							type = "object";
+						if (f instanceof Type.String && column.type == 'string') {
+							type = 'string';
+						} else if (f instanceof Type.Number && column.type == 'number') {
+							type = 'number';
+						} else if (f instanceof Type.Boolean && column.type == 'boolean') {
+							type = 'boolean';
+						} else if (f instanceof Type.Date && column.type == 'date') {
+							type = 'date';
+						} else if (f instanceof Type.Object && column.type == 'string') {
+							type = 'object';
 						} else {
-							throw new Error("Type mismatch found for Column: " + name + " in Table:" + this.mapping.name);
+							throw new Error('Type mismatch found for Column: ' + name + ' in Table:' + this.mapping.name);
 						}
 						this.mapping.fields.set(<string>key, new Mapping.FieldMapping({
 							name: name,
@@ -107,7 +107,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 							this.mapping.primaryKeyField = this.mapping.fields.get(<string>key);
 						}
 					} else {
-						throw new Error("Column: " + name + " not found in Table: " + this.mapping.name);
+						throw new Error('Column: ' + name + ' not found in Table: ' + this.mapping.name);
 					}
 				}
 			}
@@ -150,7 +150,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	async insert(entity: T) {
 		let stat: Query.SqlStatement = new Query.SqlStatement();
-		stat.command = "insert";
+		stat.command = 'insert';
 		stat.collection.value = this.mapping.name;
 
 		await Reflect.ownKeys(entity).forEach((key) => {
@@ -161,7 +161,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 				c.value = f.name;
 				stat.columns.push(c);
 
-				let v: Query.SqlExpression = new Query.SqlExpression("?");
+				let v: Query.SqlExpression = new Query.SqlExpression('?');
 				v.args.push(this.getValue(entity, <string>key));
 				stat.values.push(v);
 			}
@@ -176,7 +176,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	async update(entity: T) {
 		let stat = new Query.SqlStatement();
-		stat.command = "update";
+		stat.command = 'update';
 		stat.collection.value = this.mapping.name;
 
 		await Reflect.ownKeys(entity).forEach((key) => {
@@ -184,7 +184,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 			let q = entity[key];
 			if (q instanceof Type.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
 				let c1 = new Query.SqlExpression(f.name);
-				let c2 = new Query.SqlExpression("?");
+				let c2 = new Query.SqlExpression('?');
 				c2.args.push(this.getValue(entity, <string>key));
 
 				let c = new Query.SqlExpression(null, Query.Operator.Equal, c1, c2);
@@ -193,7 +193,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		});
 
 		let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-		let w2 = new Query.SqlExpression("?");
+		let w2 = new Query.SqlExpression('?');
 		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
 		stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 
@@ -218,11 +218,11 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	async delete(entity: T) {
 		let stat = new Query.SqlStatement();
-		stat.command = "delete";
+		stat.command = 'delete';
 		stat.collection.value = this.mapping.name;
 
 		let w1 = new Query.SqlExpression(this.mapping.primaryKeyField.name);
-		let w2 = new Query.SqlExpression("?");
+		let w2 = new Query.SqlExpression('?');
 		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
 		stat.where = new Query.SqlExpression(null, Query.Operator.Equal, w1, w2);
 		await this.context.execute(stat);
@@ -230,10 +230,10 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	async get(id): Promise<T> {
 		if (!this.mapping.primaryKeyField)
-			throw new Error("No Primary Field Found in Table: " + this.mapping.name);
+			throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
 
 		if (id == null)
-			throw new Error("Id parameter cannot be null");
+			throw new Error('Id parameter cannot be null');
 
 		let fieldName = this.mapping.primaryKey;
 		return await this.where((a: T, id) => {
@@ -243,7 +243,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	where(param?: whereFunc<T> | Query.SqlExpression, ...args: any[]): Queryable<T> {
 		let stat = new Query.SqlStatement();
-		stat.command = "select";
+		stat.command = 'select';
 
 		let alias = this.mapping.name.charAt(0);
 		stat.collection.value = this.mapping.name;
@@ -369,7 +369,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 
 		let result = await this.dbSet.executeStatement(this.stat);
 		if (result.rows.length == 0)
-			throw new Error("No Result Found");
+			throw new Error('No Result Found');
 		else {
 			return this.mapData(result);
 		}
@@ -378,7 +378,7 @@ class SimpleQueryable<T extends Object> implements Queryable<T> {
 	async unique() {
 		let l = await this.list();
 		if (l.length > 1) {
-			throw new Error("More than one row found in unique call");
+			throw new Error('More than one row found in unique call');
 		} else {
 			return l[0];
 		}

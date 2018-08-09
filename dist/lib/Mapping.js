@@ -10,9 +10,9 @@ class FieldMapping {
 exports.FieldMapping = FieldMapping;
 class EntityMapping {
     constructor(data) {
-        this.name = "";
-        this.entityName = "";
-        this.primaryKey = "";
+        this.name = '';
+        this.entityName = '';
+        this.primaryKey = '';
         this.primaryKeyField = null;
         this.fields = new Map();
         if (data) {

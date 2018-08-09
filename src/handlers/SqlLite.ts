@@ -1,5 +1,5 @@
-import * as Handler from "./../Handler";
-import * as Query from "./../Query";
+import * as Handler from '../lib/Handler';
+import * as Query from '../lib/Query';
 
 export default class SqlLiteHandler extends Handler.default {
 	handlerName = 'sqlite';

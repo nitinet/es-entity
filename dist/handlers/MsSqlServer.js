@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Handler = require("./../Handler");
-const Connection_1 = require("../Connection");
+const Handler = require("../lib/Handler");
+const Connection_1 = require("../lib/Connection");
 class MsSqlServerHandler extends Handler.default {
     constructor(config) {
         super();
@@ -35,32 +35,32 @@ class MsSqlServerHandler extends Handler.default {
         }
     }
     async getTableInfo(tableName) {
-        let r = await this.run("describe " + tableName);
+        let r = await this.run('describe ' + tableName);
         let result = new Array();
         r.rows.forEach((row) => {
             let a = new Handler.ColumnInfo();
-            a.field = row["Field"];
-            let columnType = row["Type"].toLowerCase();
-            if (columnType.includes("tinyint(1)")) {
-                a.type = "boolean";
+            a.field = row['Field'];
+            let columnType = row['Type'].toLowerCase();
+            if (columnType.includes('tinyint(1)')) {
+                a.type = 'boolean';
             }
-            else if (columnType.includes("int")
-                || columnType.includes("float")
-                || columnType.includes("double")
-                || columnType.includes("decimal")) {
-                a.type = "number";
+            else if (columnType.includes('int')
+                || columnType.includes('float')
+                || columnType.includes('double')
+                || columnType.includes('decimal')) {
+                a.type = 'number';
             }
-            else if (columnType.includes("varchar")
+            else if (columnType.includes('varchar')
                 || columnType.includes('text')) {
-                a.type = "string";
+                a.type = 'string';
             }
-            else if (columnType.includes("timestamp")) {
-                a.type = "date";
+            else if (columnType.includes('timestamp')) {
+                a.type = 'date';
             }
-            a.nullable = row["Null"] == "YES" ? true : false;
-            a.primaryKey = row["Key"].indexOf("PRI") >= 0 ? true : false;
-            a.default = row["Default"];
-            a.extra = row["Extra"];
+            a.nullable = row['Null'] == 'YES' ? true : false;
+            a.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
+            a.default = row['Default'];
+            a.extra = row['Extra'];
             result.push(a);
         });
         return result;

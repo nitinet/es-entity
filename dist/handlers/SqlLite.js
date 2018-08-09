@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Handler = require("./../Handler");
-class OracleDbHandler extends Handler.default {
+const Handler = require("../lib/Handler");
+class SqlLiteHandler extends Handler.default {
     constructor(config) {
         super();
-        this.handlerName = 'oracle';
+        this.handlerName = 'sqlite';
         this.driver = null;
     }
     getConnection() {
@@ -17,4 +17,4 @@ class OracleDbHandler extends Handler.default {
         return null;
     }
 }
-exports.default = OracleDbHandler;
+exports.default = SqlLiteHandler;

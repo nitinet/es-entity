@@ -1,4 +1,4 @@
-import * as Type from "./Type";
+import * as Type from './Type';
 
 export class PropertyTransformer {
 	fields: Array<string> = new Array<string>();

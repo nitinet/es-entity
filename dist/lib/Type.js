@@ -6,8 +6,8 @@ class Field extends Query.Column {
     constructor() {
         super();
         this._value = null;
-        this._alias = "";
-        this._name = "";
+        this._alias = '';
+        this._name = '';
         this._updated = false;
     }
     get() {
@@ -28,7 +28,7 @@ class Field extends Query.Column {
         }
     }
     _createExpr() {
-        let name = this._alias ? this._alias + "." + this._name : this._name;
+        let name = this._alias ? this._alias + '.' + this._name : this._name;
         return new Query.SqlExpression(name);
     }
     _argExp(operand) {
@@ -37,7 +37,7 @@ class Field extends Query.Column {
             w = operand._createExpr();
         }
         else {
-            w = new Query.SqlExpression("?");
+            w = new Query.SqlExpression('?');
             w.args = w.args.concat(operand);
         }
         return w;

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
-const Handler = require("./../Handler");
-const Query = require("./../Query");
-const Connection_1 = require("../Connection");
+const Handler = require("../lib/Handler");
+const Query = require("../lib/Query");
+const Connection_1 = require("../lib/Connection");
 class PostGreHandler extends Handler.default {
     constructor(config) {
         super();
@@ -47,38 +47,38 @@ class PostGreHandler extends Handler.default {
         let result = new Array();
         tableInfo.rows.forEach((row) => {
             let obj = new Handler.ColumnInfo();
-            obj.field = row["field"];
-            let columnType = row["data_type"].toLowerCase();
-            if (columnType.includes("boolean")) {
-                obj.type = "boolean";
+            obj.field = row['field'];
+            let columnType = row['data_type'].toLowerCase();
+            if (columnType.includes('boolean')) {
+                obj.type = 'boolean';
             }
-            else if (columnType.includes("int") ||
-                columnType.includes("float") ||
-                columnType.includes("double") ||
-                columnType.includes("decimal") ||
-                columnType.includes("real") ||
-                columnType.includes("numeric")) {
-                obj.type = "number";
+            else if (columnType.includes('int') ||
+                columnType.includes('float') ||
+                columnType.includes('double') ||
+                columnType.includes('decimal') ||
+                columnType.includes('real') ||
+                columnType.includes('numeric')) {
+                obj.type = 'number';
             }
-            else if (columnType.includes("varchar") ||
-                columnType.includes("text") ||
-                columnType.includes("character varying") ||
-                columnType.includes("uuid")) {
-                obj.type = "string";
+            else if (columnType.includes('varchar') ||
+                columnType.includes('text') ||
+                columnType.includes('character varying') ||
+                columnType.includes('uuid')) {
+                obj.type = 'string';
             }
-            else if (columnType.includes("timestamp") || columnType.includes("date")) {
-                obj.type = "date";
+            else if (columnType.includes('timestamp') || columnType.includes('date')) {
+                obj.type = 'date';
             }
-            obj.nullable = !row["notnull"];
-            obj.primaryKey = row["primarykey"];
-            obj.default = row["default"];
+            obj.nullable = !row['notnull'];
+            obj.primaryKey = row['primarykey'];
+            obj.default = row['default'];
             result.push(obj);
         });
         return result;
     }
     async run(query, args, connection) {
         let q = null;
-        if (typeof query === "string") {
+        if (typeof query === 'string') {
             q = query;
         }
         else if (query instanceof Query.SqlStatement) {
@@ -122,6 +122,6 @@ class PostGreHandler extends Handler.default {
     insertQuery(collection, columns, values) {
         return super.insertQuery(collection, columns, values) + ' returning id';
     }
-    limit(val0, val1) { return " limit " + val0 + (val1 ? " OFFSET " + val1 : ""); }
+    limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
 exports.default = PostGreHandler;

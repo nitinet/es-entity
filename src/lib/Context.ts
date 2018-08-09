@@ -1,28 +1,28 @@
-import Queryable, { DBSet } from "./Queryable";
-import Handler, { ConnectionConfig, ResultSet } from "./Handler";
-import MysqlHandler from "./handlers/MysqlHandler";
-import OracleHandler from "./handlers/OracleDbHandler";
-import MsSqlServerHandler from "./handlers/MsSqlServerHandler";
-import PostGreHandler from "./handlers/PostGreSqlHandler";
-import SqlLiteHandler from "./handlers/SqlLiteHandler";
-import * as Query from "./Query";
-import * as Type from "./Type";
+import { DBSet } from './Queryable';
+import Handler, { ConnectionConfig, ResultSet } from './Handler';
+import * as Query from './Query';
 import Connection from './Connection';
+
+import MysqlHandler from '../handlers/Mysql';
+import OracleHandler from '../handlers/OracleDb';
+import MsSqlServerHandler from '../handlers/MsSqlServer';
+import PostGreHandler from '../handlers/PostGreSql';
+import SqlLiteHandler from '../handlers/SqlLite';
 
 export function getHandler(config: ConnectionConfig): Handler {
 	let handler: Handler = null;
-	if (config.handler.toLowerCase() === "mysql") {
+	if (config.handler.toLowerCase() === 'mysql') {
 		handler = new MysqlHandler(config);
-	} else if (config.handler.toLowerCase() === "oracle") {
+	} else if (config.handler.toLowerCase() === 'oracle') {
 		handler = new OracleHandler(config);
-	} else if (config.handler.toLowerCase() === "postgresql") {
+	} else if (config.handler.toLowerCase() === 'postgresql') {
 		handler = new PostGreHandler(config);
-	} else if (config.handler.toLowerCase() === "sqlserver") {
+	} else if (config.handler.toLowerCase() === 'sqlserver') {
 		handler = new MsSqlServerHandler(config);
-	} else if (config.handler.toLowerCase() === "sqllite") {
+	} else if (config.handler.toLowerCase() === 'sqllite') {
 		handler = new SqlLiteHandler(config);
 	} else {
-		throw "No Handler Found";
+		throw 'No Handler Found';
 	}
 	return handler;
 }

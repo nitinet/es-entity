@@ -1,8 +1,8 @@
-import * as Type from "./lib/Type";
-import Context from "./lib/Context";
-import Queryable, { DBSet } from "./lib/Queryable";
-import Handler, { ConnectionConfig, ResultSet } from "./lib/Handler";
-import * as Util from "./lib/Util"
+import * as Type from './lib/Type';
+import Context from './lib/Context';
+import Queryable, { DBSet } from './lib/Queryable';
+import Handler, { ConnectionConfig, ResultSet } from './lib/Handler';
+import * as Util from './lib/Util'
 import { SqlExpression } from './lib/Query';
 
 export { Type };

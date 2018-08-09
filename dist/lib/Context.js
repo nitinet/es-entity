@@ -1,31 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Queryable_1 = require("./Queryable");
-const MysqlHandler_1 = require("./handlers/MysqlHandler");
-const OracleDbHandler_1 = require("./handlers/OracleDbHandler");
-const MsSqlServerHandler_1 = require("./handlers/MsSqlServerHandler");
-const PostGreSqlHandler_1 = require("./handlers/PostGreSqlHandler");
-const SqlLiteHandler_1 = require("./handlers/SqlLiteHandler");
 const Query = require("./Query");
+const Mysql_1 = require("../handlers/Mysql");
+const OracleDb_1 = require("../handlers/OracleDb");
+const MsSqlServer_1 = require("../handlers/MsSqlServer");
+const PostGreSql_1 = require("../handlers/PostGreSql");
+const SqlLite_1 = require("../handlers/SqlLite");
 function getHandler(config) {
     let handler = null;
-    if (config.handler.toLowerCase() === "mysql") {
-        handler = new MysqlHandler_1.default(config);
+    if (config.handler.toLowerCase() === 'mysql') {
+        handler = new Mysql_1.default(config);
     }
-    else if (config.handler.toLowerCase() === "oracle") {
-        handler = new OracleDbHandler_1.default(config);
+    else if (config.handler.toLowerCase() === 'oracle') {
+        handler = new OracleDb_1.default(config);
     }
-    else if (config.handler.toLowerCase() === "postgresql") {
-        handler = new PostGreSqlHandler_1.default(config);
+    else if (config.handler.toLowerCase() === 'postgresql') {
+        handler = new PostGreSql_1.default(config);
     }
-    else if (config.handler.toLowerCase() === "sqlserver") {
-        handler = new MsSqlServerHandler_1.default(config);
+    else if (config.handler.toLowerCase() === 'sqlserver') {
+        handler = new MsSqlServer_1.default(config);
     }
-    else if (config.handler.toLowerCase() === "sqllite") {
-        handler = new SqlLiteHandler_1.default(config);
+    else if (config.handler.toLowerCase() === 'sqllite') {
+        handler = new SqlLite_1.default(config);
     }
     else {
-        throw "No Handler Found";
+        throw 'No Handler Found';
     }
     return handler;
 }

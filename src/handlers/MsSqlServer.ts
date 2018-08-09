@@ -1,8 +1,8 @@
 // import * as mssql from 'mssql';
 
-import * as Handler from "./../Handler";
-import * as Query from "./../Query";
-import Connection from '../Connection';
+import * as Handler from '../lib/Handler';
+import * as Query from '../lib/Query';
+import Connection from '../lib/Connection';
 
 export default class MsSqlServerHandler extends Handler.default {
 	handlerName = 'mssql';
@@ -41,30 +41,30 @@ export default class MsSqlServerHandler extends Handler.default {
 	}
 
 	async	getTableInfo(tableName: string): Promise<Array<Handler.ColumnInfo>> {
-		let r = await this.run("describe " + tableName);
+		let r = await this.run('describe ' + tableName);
 		let result: Array<Handler.ColumnInfo> = new Array<Handler.ColumnInfo>();
 		r.rows.forEach((row) => {
 			let a: Handler.ColumnInfo = new Handler.ColumnInfo();
-			a.field = row["Field"];
-			let columnType: string = (<string>row["Type"]).toLowerCase();
-			if (columnType.includes("tinyint(1)")) {
-				a.type = "boolean";
-			} else if (columnType.includes("int")
-				|| columnType.includes("float")
-				|| columnType.includes("double")
-				|| columnType.includes("decimal")) {
-				a.type = "number";
-			} else if (columnType.includes("varchar")
+			a.field = row['Field'];
+			let columnType: string = (<string>row['Type']).toLowerCase();
+			if (columnType.includes('tinyint(1)')) {
+				a.type = 'boolean';
+			} else if (columnType.includes('int')
+				|| columnType.includes('float')
+				|| columnType.includes('double')
+				|| columnType.includes('decimal')) {
+				a.type = 'number';
+			} else if (columnType.includes('varchar')
 				|| columnType.includes('text')) {
-				a.type = "string";
-			} else if (columnType.includes("timestamp")) {
-				a.type = "date";
+				a.type = 'string';
+			} else if (columnType.includes('timestamp')) {
+				a.type = 'date';
 			}
 
-			a.nullable = row["Null"] == "YES" ? true : false;
-			a.primaryKey = (<string>row["Key"]).indexOf("PRI") >= 0 ? true : false;
-			a.default = row["Default"];
-			a.extra = row["Extra"];
+			a.nullable = row['Null'] == 'YES' ? true : false;
+			a.primaryKey = (<string>row['Key']).indexOf('PRI') >= 0 ? true : false;
+			a.default = row['Default'];
+			a.extra = row['Extra'];
 			result.push(a);
 		});
 		return result;
