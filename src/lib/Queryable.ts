@@ -73,7 +73,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 			for (let i = 0; i < keys.length; i++) {
 				let key = keys[i];
 				let f = a[key];
-				if (f instanceof Type.Field) {
+				if (f instanceof Query.Field) {
 					let name = Case.snake(key.toString());
 					let column: bean.ColumnInfo = null;
 					for (let j = 0; j < columns.length; j++) {
@@ -93,7 +93,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 							type = 'boolean';
 						} else if (f instanceof Type.Date && column.type == 'date') {
 							type = 'date';
-						} else if (f instanceof Type.Object && column.type == 'string') {
+						} else if (f instanceof Type.Json && column.type == 'string') {
 							type = 'object';
 						} else {
 							throw new Error('Type mismatch found for Column: ' + name + ' in Table:' + this.mapping.name);
@@ -120,7 +120,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
 			let q = a[key];
-			if (q instanceof Type.Field) {
+			if (q instanceof Query.Field) {
 				let field = this.mapping.fields.get(<string>key);
 				(<Query.Column>q)._name = field && field.name ? field.name : '';
 				(<Query.Column>q)._alias = alias;
@@ -135,13 +135,13 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<Type.Field<any>>obj[key]).set(value);
-			(<Type.Field<any>>obj[key])._updated = false;
+			(<Query.Field<any>>obj[key]) = value;
+			(<Query.Field<any>>obj[key])._updated = false;
 		}
 	}
 
 	getValue(obj, key: string) {
-		return (<Type.Field<any>>obj[key])._value;
+		return (<Query.Field<any>>obj[key]);
 	}
 
 	async executeStatement(stat: Query.SqlStatement): Promise<bean.ResultSet> {
@@ -155,7 +155,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
-			if (q instanceof Type.Field && this.isUpdated(entity, <string>key)) {
+			if (q instanceof Query.Field && this.isUpdated(entity, <string>key)) {
 				let f = this.mapping.fields.get(<string>key);
 				let c: Query.SqlCollection = new Query.SqlCollection();
 				c.value = f.name;
@@ -182,7 +182,7 @@ export class DBSet<T extends Object> implements Queryable<T> {
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let f = this.mapping.fields.get(<string>key);
 			let q = entity[key];
-			if (q instanceof Type.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
+			if (q instanceof Query.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
 				let c1 = new Query.SqlExpression(f.name);
 				let c2 = new Query.SqlExpression('?');
 				c2.args.push(this.getValue(entity, <string>key));

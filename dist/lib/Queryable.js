@@ -38,7 +38,7 @@ class DBSet {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i];
                 let f = a[key];
-                if (f instanceof Type.Field) {
+                if (f instanceof Query.Field) {
                     let name = Case.snake(key.toString());
                     let column = null;
                     for (let j = 0; j < columns.length; j++) {
@@ -62,7 +62,7 @@ class DBSet {
                         else if (f instanceof Type.Date && column.type == 'date') {
                             type = 'date';
                         }
-                        else if (f instanceof Type.Object && column.type == 'string') {
+                        else if (f instanceof Type.Json && column.type == 'string') {
                             type = 'object';
                         }
                         else {
@@ -90,7 +90,7 @@ class DBSet {
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
             let q = a[key];
-            if (q instanceof Type.Field) {
+            if (q instanceof Query.Field) {
                 let field = this.mapping.fields.get(key);
                 q._name = field && field.name ? field.name : '';
                 q._alias = alias;
@@ -103,12 +103,12 @@ class DBSet {
     }
     setValue(obj, key, value) {
         if (value != null) {
-            obj[key].set(value);
+            obj[key] = value;
             obj[key]._updated = false;
         }
     }
     getValue(obj, key) {
-        return obj[key]._value;
+        return obj[key];
     }
     async executeStatement(stat) {
         return await this.context.execute(stat);
@@ -119,7 +119,7 @@ class DBSet {
         stat.collection.value = this.mapping.name;
         await Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
-            if (q instanceof Type.Field && this.isUpdated(entity, key)) {
+            if (q instanceof Query.Field && this.isUpdated(entity, key)) {
                 let f = this.mapping.fields.get(key);
                 let c = new Query.SqlCollection();
                 c.value = f.name;
@@ -142,7 +142,7 @@ class DBSet {
         await Reflect.ownKeys(entity).forEach((key) => {
             let f = this.mapping.fields.get(key);
             let q = entity[key];
-            if (q instanceof Type.Field && this.isUpdated(entity, key) && f != this.mapping.primaryKeyField) {
+            if (q instanceof Query.Field && this.isUpdated(entity, key) && f != this.mapping.primaryKeyField) {
                 let c1 = new Query.SqlExpression(f.name);
                 let c2 = new Query.SqlExpression('?');
                 c2.args.push(this.getValue(entity, key));
