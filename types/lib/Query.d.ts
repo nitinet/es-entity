@@ -1,9 +1,9 @@
 import Handler from './Handler';
-export declare abstract class ISqlNode {
+declare abstract class ISqlNode {
     args: Array<any>;
     abstract eval(handler: Handler): string;
 }
-export declare class SqlStatement extends ISqlNode {
+declare class SqlStatement extends ISqlNode {
     command: string;
     columns: Array<ISqlNode>;
     values: Array<SqlExpression>;
@@ -15,7 +15,7 @@ export declare class SqlStatement extends ISqlNode {
     constructor();
     eval(handler: Handler): string;
 }
-export declare class SqlCollection extends ISqlNode {
+declare class SqlCollection extends ISqlNode {
     colAlias: string;
     value: string;
     stat: SqlStatement;
@@ -23,7 +23,7 @@ export declare class SqlCollection extends ISqlNode {
     constructor();
     eval(handler: Handler): string;
 }
-export declare abstract class Column {
+declare abstract class Column {
     _alias: string;
     _name: string;
     _updated: boolean;
@@ -55,7 +55,7 @@ export declare abstract class Column {
     abstract count(): SqlExpression;
     abstract average(): SqlExpression;
 }
-export declare enum Operator {
+declare enum Operator {
     Equal = 1,
     NotEqual = 2,
     LessThan = 3,
@@ -85,7 +85,7 @@ export declare enum Operator {
     Max = 27,
     Avg = 28
 }
-export declare class Field<T> extends Column {
+declare class Field<T> extends Column {
     _createExpr(): SqlExpression;
     _argExp(operand: T | Column): SqlExpression;
     eq(operand: T): SqlExpression;
@@ -114,8 +114,7 @@ export declare class Field<T> extends Column {
     count(): SqlExpression;
     average(): SqlExpression;
 }
-declare const SqlExpression_base: any;
-export declare class SqlExpression extends SqlExpression_base {
+declare class SqlExpression extends ISqlNode implements Field<any> {
     args: Array<any>;
     _alias: string;
     _name: string;
@@ -126,6 +125,40 @@ export declare class SqlExpression extends SqlExpression_base {
     constructor(value?: string, operator?: Operator, ...expressions: Array<SqlExpression>);
     add(...expressions: Array<SqlExpression>): SqlExpression;
     eval(handler: Handler): string;
+
+    // Field extended methods
     _createExpr(): SqlExpression;
+    _argExp(operand: any | Column): SqlExpression;
+    eq(operand: any): SqlExpression;
+    neq(operand: any): SqlExpression;
+    lt(operand: any): SqlExpression;
+    gt(operand: any): SqlExpression;
+    lteq(operand: any): SqlExpression;
+    gteq(operand: any): SqlExpression;
+    and(operand: Column): SqlExpression;
+    or(operand: Column): SqlExpression;
+    not(): SqlExpression;
+    in(...operand: any[]): SqlExpression;
+    between(first: any, second: any): SqlExpression;
+    like(operand: any): SqlExpression;
+    IsNull(): SqlExpression;
+    IsNotNull(): SqlExpression;
+    plus(operand: any): SqlExpression;
+    minus(operand: any): SqlExpression;
+    multiply(operand: any): SqlExpression;
+    devide(operand: any): SqlExpression;
+    asc(): SqlExpression;
+    desc(): SqlExpression;
+    sum(): SqlExpression;
+    min(): SqlExpression;
+    max(): SqlExpression;
+    count(): SqlExpression;
+    average(): SqlExpression;
 }
-export {};
+export { ISqlNode };
+export { SqlStatement };
+export { SqlCollection };
+export { Column };
+export { Operator };
+export { Field };
+export { SqlExpression };

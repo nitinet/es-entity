@@ -2,7 +2,7 @@ import * as aggregation from 'aggregation/es6';
 
 import Handler from './Handler';
 
-export abstract class ISqlNode {
+abstract class ISqlNode {
 	args: Array<any> = new Array<any>();
 	abstract eval(handler: Handler): string;
 }
@@ -10,7 +10,7 @@ export abstract class ISqlNode {
 /**
  * SqlStatement
  */
-export class SqlStatement extends ISqlNode {
+class SqlStatement extends ISqlNode {
 	command: string = '';
 	columns: Array<ISqlNode> = new Array<ISqlNode>();
 	values: Array<SqlExpression> = new Array<SqlExpression>();
@@ -117,7 +117,7 @@ export class SqlStatement extends ISqlNode {
  * SqlCollection
  * Used for tables and columns
  */
-export class SqlCollection extends ISqlNode {
+class SqlCollection extends ISqlNode {
 	colAlias: string = null;
 	value: string = null;
 	stat: SqlStatement = null;
@@ -144,7 +144,7 @@ export class SqlCollection extends ISqlNode {
 	}
 }
 
-export abstract class Column {
+abstract class Column {
 	_alias: string = '';
 	_name: string = '';
 	_updated: boolean = false;
@@ -190,7 +190,7 @@ export abstract class Column {
 	abstract average(): SqlExpression;
 }
 
-export enum Operator {
+enum Operator {
 	Equal = 1,
 	NotEqual,
 	LessThan,
@@ -221,7 +221,7 @@ export enum Operator {
 	Avg
 }
 
-export class Field<T> extends Column {
+class Field<T> extends Column {
 
 	// constructor() {
 	// 	super();
@@ -359,7 +359,7 @@ export class Field<T> extends Column {
 /**
  * SqlExpression
  */
-export class SqlExpression extends aggregation(ISqlNode, Field) {
+class SqlExpression extends aggregation(ISqlNode, Field) {
 	args: Array<any> = new Array<any>();
 
 	_alias: string = '';
@@ -516,3 +516,11 @@ export class SqlExpression extends aggregation(ISqlNode, Field) {
 	}
 
 }
+
+export { ISqlNode };
+export { SqlStatement };
+export { SqlCollection };
+export { Column };
+export { Operator };
+export { Field };
+export { SqlExpression };

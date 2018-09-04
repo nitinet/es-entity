@@ -1,14 +1,13 @@
-import * as es from "./../../index";
+import * as es from './../../types/index';
+
 import Application from './Application';
 
 class Employee {
-    id: es.Type.Number = new es.Type.Number();
-    name: es.Type.String = new es.Type.String();
-    description: es.Type.String = new es.Type.String();
-    crtdAt: es.Type.Date = new es.Type.Date();
-
-    constructor() {
-    }
+    id = new es.Type.Number();
+    appId = new es.Type.Number();
+    name = new es.Type.String();
+    description = new es.Type.String();
+    crtdAt = new es.Type.Date();
 }
 
 export default Employee;

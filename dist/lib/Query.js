@@ -159,7 +159,8 @@ var Operator;
     Operator[Operator["Min"] = 26] = "Min";
     Operator[Operator["Max"] = 27] = "Max";
     Operator[Operator["Avg"] = 28] = "Avg";
-})(Operator = exports.Operator || (exports.Operator = {}));
+})(Operator || (Operator = {}));
+exports.Operator = Operator;
 class Field extends Column {
     _createExpr() {
         let name = this._alias ? this._alias + '.' + this._name : this._name;
