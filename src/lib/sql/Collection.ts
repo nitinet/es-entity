@@ -1,15 +1,15 @@
 import Handler from '../Handler';
-import ISqlNode from './ISqlNode';
-import SqlStatement from './SqlStatement';
+import INode from './INode';
+import Statement from './Statement';
 
 /**
  * SqlCollection
  * Used for tables and columns
  */
-class SqlCollection extends ISqlNode {
+class Collection extends INode {
 	colAlias: string = null;
 	value: string = null;
-	stat: SqlStatement = null;
+	stat: Statement = null;
 	alias: string = null;
 
 	constructor() {
@@ -33,4 +33,4 @@ class SqlCollection extends ISqlNode {
 	}
 }
 
-export default SqlCollection;
+export default Collection;

@@ -68,11 +68,11 @@ export default class MsSqlServerHandler extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
 		let q: string = null;
 		if (typeof query === "string") {
 			q = query;
-		} else if (query instanceof sql.SqlStatement) {
+		} else if (query instanceof sql.Statement) {
 			q = query.eval(this);
 			args = (query.args == undefined ? [] : query.args);
 		}

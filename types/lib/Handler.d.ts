@@ -8,7 +8,7 @@ export default abstract class Handler {
     abstract driver: any;
     config: bean.IConnectionConfig;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
-    run(query: string | sql.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>;
+    run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>;
     convertPlaceHolder(query: string): string;
     insertQuery(collection: string, columns: string, values: string): string;
     selectQuery(collection: string, columns: string): string;

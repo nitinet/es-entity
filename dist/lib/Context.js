@@ -83,7 +83,7 @@ class Context {
         return await this.handler.run(query, args, this.connection);
     }
     getCriteria() {
-        return new sql.SqlExpression();
+        return new sql.Expression();
     }
     flush() { }
     async initTransaction() {

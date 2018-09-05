@@ -10,9 +10,9 @@ interface IQuerySet<T> {
 	unique(): Promise<T>;
 
 	// Conditional Functions
-	where(func?: funcs.IWhereFunc<T> | sql.SqlExpression, ...args: any[]): IQuerySet<T>;
-	groupBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression | sql.SqlExpression[]): IQuerySet<T>;
-	orderBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression | sql.SqlExpression[]): IQuerySet<T>;
+	where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T>;
+	groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
+	orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
 	limit(size: number, index?: number): IQuerySet<T>;
 
 	mapData(input: bean.ResultSet): Promise<Array<T>>;

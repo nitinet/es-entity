@@ -11,7 +11,7 @@ export default abstract class Handler {
 	config: bean.IConnectionConfig;
 
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> { return null; }
-	async run(query: string | sql.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
+	async run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
 
 	convertPlaceHolder(query: string) { return query; }
 	insertQuery(collection: string, columns: string, values: string) { return `insert into ${collection} (${columns}) values (${values})`; }

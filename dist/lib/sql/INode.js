@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ISqlNode {
+class INode {
     constructor() {
         this.args = new Array();
     }
 }
-exports.default = ISqlNode;
+exports.default = INode;

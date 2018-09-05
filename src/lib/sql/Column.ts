@@ -1,49 +1,49 @@
-import SqlExpression from './SqlExpression';
+import Expression from './Expression';
 
 abstract class Column {
 	_alias: string = '';
 	_name: string = '';
 	_updated: boolean = false;
 
-	abstract _createExpr(): SqlExpression
-	abstract _argExp(operand: any): SqlExpression
+	abstract _createExpr(): Expression
+	abstract _argExp(operand: any): Expression
 
 	// Comparison Operators
-	abstract eq(operand: any): SqlExpression;
-	abstract neq(operand: any): SqlExpression;
-	abstract lt(operand: any): SqlExpression;
-	abstract gt(operand: any): SqlExpression;
-	abstract lteq(operand: any): SqlExpression;
-	abstract gteq(operand: any): SqlExpression;
+	abstract eq(operand: any): Expression;
+	abstract neq(operand: any): Expression;
+	abstract lt(operand: any): Expression;
+	abstract gt(operand: any): Expression;
+	abstract lteq(operand: any): Expression;
+	abstract gteq(operand: any): Expression;
 
 	// Logical Operators
-	abstract and(operand: Column): SqlExpression;
-	abstract or(operand: Column): SqlExpression;
-	abstract not(): SqlExpression;
+	abstract and(operand: Column): Expression;
+	abstract or(operand: Column): Expression;
+	abstract not(): Expression;
 
 	// Inclusion Funtions
-	abstract in(...operand: any[]): SqlExpression;
-	abstract between(first: any, second: any): SqlExpression;
-	abstract like(operand: any): SqlExpression;
-	abstract IsNull(): SqlExpression;
-	abstract IsNotNull(): SqlExpression;
+	abstract in(...operand: any[]): Expression;
+	abstract between(first: any, second: any): Expression;
+	abstract like(operand: any): Expression;
+	abstract IsNull(): Expression;
+	abstract IsNotNull(): Expression;
 
 	// Arithmatic Operators
-	abstract plus(operand: any): SqlExpression;
-	abstract minus(operand: any): SqlExpression;
-	abstract multiply(operand: any): SqlExpression;
-	abstract devide(operand: any): SqlExpression;
+	abstract plus(operand: any): Expression;
+	abstract minus(operand: any): Expression;
+	abstract multiply(operand: any): Expression;
+	abstract devide(operand: any): Expression;
 
 	// Sorting Operators
-	abstract asc(): SqlExpression;
-	abstract desc(): SqlExpression;
+	abstract asc(): Expression;
+	abstract desc(): Expression;
 
 	// Group Functions
-	abstract sum(): SqlExpression;
-	abstract min(): SqlExpression;
-	abstract max(): SqlExpression;
-	abstract count(): SqlExpression;
-	abstract average(): SqlExpression;
+	abstract sum(): Expression;
+	abstract min(): Expression;
+	abstract max(): Expression;
+	abstract count(): Expression;
+	abstract average(): Expression;
 }
 
 export default Column;

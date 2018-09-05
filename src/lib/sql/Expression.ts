@@ -1,14 +1,14 @@
 import * as aggregation from 'aggregation/es6';
 
 import Handler from '../Handler';
-import ISqlNode from './ISqlNode';
+import INode from './INode';
 import Field from './Field';
 import Operator from './Operator';
 
 /**
  * SqlExpression
  */
-class SqlExpression extends aggregation(ISqlNode, Field) {
+class Expression extends aggregation(INode, Field) {
 	args: Array<any> = new Array<any>();
 
 	_alias: string = '';
@@ -16,17 +16,17 @@ class SqlExpression extends aggregation(ISqlNode, Field) {
 	_updated: boolean = false;
 
 	value: string = null;
-	exps: Array<SqlExpression> = null;
+	exps: Array<Expression> = null;
 	operator: Operator = null;
 
-	constructor(value?: string, operator?: Operator, ...expressions: Array<SqlExpression>) {
+	constructor(value?: string, operator?: Operator, ...expressions: Array<Expression>) {
 		super()
 		this.value = value;
 		this.exps = expressions;
 		this.operator = operator;
 	}
 
-	add(...expressions: Array<SqlExpression>): SqlExpression {
+	add(...expressions: Array<Expression>): Expression {
 		if (this.operator == Operator.And) {
 			this.exps = this.exps.concat(expressions);
 			return this;
@@ -37,7 +37,7 @@ class SqlExpression extends aggregation(ISqlNode, Field) {
 			}
 			return exp;
 		} else {
-			let exp: SqlExpression = new SqlExpression(null, Operator.And, this);
+			let exp: Expression = new Expression(null, Operator.And, this);
 			for (var i = 0; i < expressions.length; i++) {
 				exp.add(expressions[i]);
 			}
@@ -160,10 +160,10 @@ class SqlExpression extends aggregation(ISqlNode, Field) {
 		}
 	}
 
-	_createExpr(): SqlExpression {
+	_createExpr(): Expression {
 		return this;
 	}
 
 }
 
-export default SqlExpression;
+export default Expression;

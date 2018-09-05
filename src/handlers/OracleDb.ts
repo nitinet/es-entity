@@ -18,7 +18,7 @@ export default class OracleDbHandler extends Handler {
 		return null;
 	}
 
-	async run(query: string | sql.ISqlNode): Promise<bean.ResultSet> {
+	async run(query: string | sql.INode): Promise<bean.ResultSet> {
 		return null
 	}
 }

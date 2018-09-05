@@ -91,12 +91,12 @@ export default class Context {
 		this.entityPath = entityPath;
 	}
 
-	async execute(query: string | sql.ISqlNode, args?: Array<any>): Promise<bean.ResultSet> {
+	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {
 		return await this.handler.run(query, args, this.connection);
 	}
 
-	getCriteria(): sql.SqlExpression {
-		return new sql.SqlExpression();
+	getCriteria(): sql.Expression {
+		return new sql.Expression();
 	}
 
 	flush(): void { }

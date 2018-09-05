@@ -1,19 +1,19 @@
 import Handler from '../Handler';
-import ISqlNode from './ISqlNode';
-import SqlExpression from './SqlExpression';
-import SqlCollection from './SqlCollection';
+import INode from './INode';
+import Expression from './Expression';
+import Collection from './Collection';
 /**
  * SqlStatement
  */
-class SqlStatement extends ISqlNode {
+class Statement extends INode {
 	command: string = '';
-	columns: Array<ISqlNode> = new Array<ISqlNode>();
-	values: Array<SqlExpression> = new Array<SqlExpression>();
-	collection: SqlCollection = new SqlCollection();
-	where: SqlExpression = new SqlExpression();
-	groupBy: Array<SqlExpression> = new Array<SqlExpression>();
-	orderBy: Array<SqlExpression> = new Array<SqlExpression>();
-	limit: SqlExpression = new SqlExpression();
+	columns: Array<INode> = new Array<INode>();
+	values: Array<Expression> = new Array<Expression>();
+	collection: Collection = new Collection();
+	where: Expression = new Expression();
+	groupBy: Array<Expression> = new Array<Expression>();
+	orderBy: Array<Expression> = new Array<Expression>();
+	limit: Expression = new Expression();
 
 	constructor() {
 		super();
@@ -108,4 +108,4 @@ class SqlStatement extends ISqlNode {
 	}
 }
 
-export default SqlStatement;
+export default Statement;

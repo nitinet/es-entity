@@ -35,15 +35,15 @@ class ForeignSet<T extends Object> implements IQuerySet<T>{
 	}
 
 	// Conditional Functions
-	where(func?: funcs.IWhereFunc<T> | sql.SqlExpression, ...args: any[]) {
+	where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]) {
 		return this.dbSet.where(func, args);
 	}
 
-	groupBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression | sql.SqlExpression[]) {
+	groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
 		return this.dbSet.groupBy(func);
 	}
 
-	orderBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression | sql.SqlExpression[]) {
+	orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
 		return this.orderBy(func);
 	}
 

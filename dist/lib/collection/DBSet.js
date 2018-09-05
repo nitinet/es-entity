@@ -130,17 +130,17 @@ class DBSet {
         return await this.context.execute(stat);
     }
     async insert(entity) {
-        let stat = new sql.SqlStatement();
+        let stat = new sql.Statement();
         stat.command = 'insert';
         stat.collection.value = this.mapping.name;
         await Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
             if (q instanceof sql.Field && this.isUpdated(entity, key)) {
                 let f = this.mapping.fields.get(key);
-                let c = new sql.SqlCollection();
+                let c = new sql.Collection();
                 c.value = f.name;
                 stat.columns.push(c);
-                let v = new sql.SqlExpression('?');
+                let v = new sql.Expression('?');
                 v.args.push(this.getValue(entity, key));
                 stat.values.push(v);
             }
@@ -152,24 +152,24 @@ class DBSet {
         return await this.get(result.id);
     }
     async update(entity) {
-        let stat = new sql.SqlStatement();
+        let stat = new sql.Statement();
         stat.command = 'update';
         stat.collection.value = this.mapping.name;
         await Reflect.ownKeys(entity).forEach((key) => {
             let f = this.mapping.fields.get(key);
             let q = entity[key];
             if (q instanceof sql.Field && this.isUpdated(entity, key) && f != this.mapping.primaryKeyField) {
-                let c1 = new sql.SqlExpression(f.name);
-                let c2 = new sql.SqlExpression('?');
+                let c1 = new sql.Expression(f.name);
+                let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));
-                let c = new sql.SqlExpression(null, sql.Operator.Equal, c1, c2);
+                let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
                 stat.columns.push(c);
             }
         });
-        let w1 = new sql.SqlExpression(this.mapping.primaryKeyField.name);
-        let w2 = new sql.SqlExpression('?');
+        let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
+        let w2 = new sql.Expression('?');
         w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-        stat.where = new sql.SqlExpression(null, sql.Operator.Equal, w1, w2);
+        stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
         if (stat.columns.length > 0) {
             let result = await this.context.execute(stat);
             if (result.error)
@@ -190,13 +190,13 @@ class DBSet {
         }
     }
     async delete(entity) {
-        let stat = new sql.SqlStatement();
+        let stat = new sql.Statement();
         stat.command = 'delete';
         stat.collection.value = this.mapping.name;
-        let w1 = new sql.SqlExpression(this.mapping.primaryKeyField.name);
-        let w2 = new sql.SqlExpression('?');
+        let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
+        let w2 = new sql.Expression('?');
         w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-        stat.where = new sql.SqlExpression(null, sql.Operator.Equal, w1, w2);
+        stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
         await this.context.execute(stat);
     }
     async get(id) {
@@ -210,7 +210,7 @@ class DBSet {
         }, id).unique();
     }
     where(param, ...args) {
-        let stat = new sql.SqlStatement();
+        let stat = new sql.Statement();
         stat.command = 'select';
         let alias = this.mapping.name.charAt(0);
         stat.collection.value = this.mapping.name;
@@ -223,7 +223,7 @@ class DBSet {
         else {
             res = param;
         }
-        if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+        if (res instanceof sql.Expression && res.exps.length > 0) {
             stat.where = res;
         }
         return new QuerySet_1.default(stat, this);

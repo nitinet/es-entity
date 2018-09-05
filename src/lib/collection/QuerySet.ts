@@ -10,9 +10,9 @@ import ForeignSet from './ForeignSet';
  */
 class QuerySet<T extends Object> implements IQuerySet<T> {
 	private dbSet: DBSet<T> = null;
-	private stat: sql.SqlStatement = null;
+	private stat: sql.Statement = null;
 
-	constructor(stat: sql.SqlStatement, dbSet: DBSet<T>) {
+	constructor(stat: sql.Statement, dbSet: DBSet<T>) {
 		this.stat = stat;
 		this.dbSet = dbSet;
 	}
@@ -42,7 +42,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		let alias: string = this.stat.collection.alias;
 
 		this.dbSet.mapping.fields.forEach((field, fieldName) => {
-			let c: sql.SqlCollection = new sql.SqlCollection();
+			let c: sql.Collection = new sql.Collection();
 			c.colAlias = alias;
 			c.value = field.name;
 			c.alias = fieldName;
@@ -55,7 +55,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 
 	// Selection Functions
 	async select(func?: funcs.IArrFieldFunc<T>) {
-		let cols: sql.SqlExpression[] = new Array();
+		let cols: sql.Expression[] = new Array();
 		if (func) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
 			let temp = func(a);
@@ -69,7 +69,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		} else {
 			let alias: string = this.stat.collection.alias;
 			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-				let c: sql.SqlCollection = new sql.SqlCollection();
+				let c: sql.Collection = new sql.Collection();
 				c.colAlias = alias;
 				c.value = field.name;
 				c.alias = fieldName;
@@ -95,7 +95,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 	}
 
 	// Conditional Functions
-	where(param?: funcs.IWhereFunc<T> | sql.SqlExpression, ...args: any[]): IQuerySet<T> {
+	where(param?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T> {
 		let res = null;
 		if (param instanceof Function) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
@@ -103,13 +103,13 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		} else {
 			res = param;
 		}
-		if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+		if (res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
 		}
 		return new QuerySet(this.stat, this.dbSet);
 	}
 
-	groupBy(param?: funcs.IArrFieldFunc<T> | sql.SqlExpression[]): IQuerySet<T> {
+	groupBy(param?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res = null;
 		if (param instanceof Function) {
@@ -119,12 +119,12 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		}
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
-				if (res[i] instanceof sql.SqlExpression && res[i].exps.length > 0) {
-					this.stat.groupBy.push((<sql.SqlExpression>res[i])._createExpr());
+				if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
+					this.stat.groupBy.push((<sql.Expression>res[i])._createExpr());
 				}
 			}
 		} else {
-			if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+			if (res instanceof sql.Expression && res.exps.length > 0) {
 				this.stat.groupBy.push(res._createExpr());
 			}
 		}
@@ -132,7 +132,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		return s;
 	}
 
-	orderBy(param?: funcs.IArrFieldFunc<T> | sql.SqlExpression[]): IQuerySet<T> {
+	orderBy(param?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
 		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res = null;
 		if (param instanceof Function) {
@@ -142,12 +142,12 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		}
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
-				if (res[i] instanceof sql.SqlExpression && res[i].exps.length > 0) {
-					this.stat.orderBy.push((<sql.SqlExpression>res[i])._createExpr());
+				if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
+					this.stat.orderBy.push((<sql.Expression>res[i])._createExpr());
 				}
 			}
 		} else {
-			if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+			if (res instanceof sql.Expression && res.exps.length > 0) {
 				this.stat.orderBy.push(res._createExpr());
 			}
 		}
@@ -156,11 +156,11 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 	}
 
 	limit(size: number, index?: number): IQuerySet<T> {
-		this.stat.limit = new sql.SqlExpression(null, sql.Operator.Limit);
+		this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
 		if (index) {
-			this.stat.limit.exps.push(new sql.SqlExpression(index.toString()));
+			this.stat.limit.exps.push(new sql.Expression(index.toString()));
 		}
-		this.stat.limit.exps.push(new sql.SqlExpression(size.toString()));
+		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		let s: QuerySet<T> = new QuerySet(this.stat, this.dbSet);
 		return s;
 	}

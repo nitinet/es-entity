@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ISqlNode_1 = require("./ISqlNode");
-class SqlCollection extends ISqlNode_1.default {
+const INode_1 = require("./INode");
+class Collection extends INode_1.default {
     constructor() {
         super();
         this.colAlias = null;
@@ -25,4 +25,4 @@ class SqlCollection extends ISqlNode_1.default {
         return result;
     }
 }
-exports.default = SqlCollection;
+exports.default = Collection;

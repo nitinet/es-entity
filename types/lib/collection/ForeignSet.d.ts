@@ -14,9 +14,9 @@ declare class ForeignSet<T extends Object> implements IQuerySet<T> {
     getEntity(alias?: string): T;
     list(): Promise<T[]>;
     unique(): Promise<T>;
-    where(func?: funcs.IWhereFunc<T> | sql.SqlExpression, ...args: any[]): IQuerySet<T>;
-    groupBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression | sql.SqlExpression[]): IQuerySet<T>;
-    orderBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression | sql.SqlExpression[]): any;
+    where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T>;
+    groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
+    orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): any;
     limit(size: number, index?: number): any;
     mapData(input: bean.ResultSet): Promise<T[]>;
 }

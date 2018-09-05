@@ -13,4 +13,4 @@ exports.Util = Util;
 const Context_1 = require("./lib/Context");
 exports.Context = Context_1.default;
 const sql_1 = require("./lib/sql");
-exports.Expression = sql_1.SqlExpression;
+exports.Expression = sql_1.Expression;

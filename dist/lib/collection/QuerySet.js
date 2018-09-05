@@ -14,7 +14,7 @@ class QuerySet {
     async list() {
         let alias = this.stat.collection.alias;
         this.dbSet.mapping.fields.forEach((field, fieldName) => {
-            let c = new sql.SqlCollection();
+            let c = new sql.Collection();
             c.colAlias = alias;
             c.value = field.name;
             c.alias = fieldName;
@@ -40,7 +40,7 @@ class QuerySet {
         else {
             let alias = this.stat.collection.alias;
             await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-                let c = new sql.SqlCollection();
+                let c = new sql.Collection();
                 c.colAlias = alias;
                 c.value = field.name;
                 c.alias = fieldName;
@@ -72,7 +72,7 @@ class QuerySet {
         else {
             res = param;
         }
-        if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+        if (res instanceof sql.Expression && res.exps.length > 0) {
             this.stat.where = this.stat.where.add(res);
         }
         return new QuerySet(this.stat, this.dbSet);
@@ -88,13 +88,13 @@ class QuerySet {
         }
         if (res instanceof Array) {
             for (let i = 0; i < res.length; i++) {
-                if (res[i] instanceof sql.SqlExpression && res[i].exps.length > 0) {
+                if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
                     this.stat.groupBy.push(res[i]._createExpr());
                 }
             }
         }
         else {
-            if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+            if (res instanceof sql.Expression && res.exps.length > 0) {
                 this.stat.groupBy.push(res._createExpr());
             }
         }
@@ -112,13 +112,13 @@ class QuerySet {
         }
         if (res instanceof Array) {
             for (let i = 0; i < res.length; i++) {
-                if (res[i] instanceof sql.SqlExpression && res[i].exps.length > 0) {
+                if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
                     this.stat.orderBy.push(res[i]._createExpr());
                 }
             }
         }
         else {
-            if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+            if (res instanceof sql.Expression && res.exps.length > 0) {
                 this.stat.orderBy.push(res._createExpr());
             }
         }
@@ -126,11 +126,11 @@ class QuerySet {
         return s;
     }
     limit(size, index) {
-        this.stat.limit = new sql.SqlExpression(null, sql.Operator.Limit);
+        this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
         if (index) {
-            this.stat.limit.exps.push(new sql.SqlExpression(index.toString()));
+            this.stat.limit.exps.push(new sql.Expression(index.toString()));
         }
-        this.stat.limit.exps.push(new sql.SqlExpression(size.toString()));
+        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         let s = new QuerySet(this.stat, this.dbSet);
         return s;
     }

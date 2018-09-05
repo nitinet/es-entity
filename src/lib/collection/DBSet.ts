@@ -140,12 +140,12 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		return (<sql.Field<any>>obj[key]);
 	}
 
-	async executeStatement(stat: sql.SqlStatement): Promise<bean.ResultSet> {
+	async executeStatement(stat: sql.Statement): Promise<bean.ResultSet> {
 		return await this.context.execute(stat);
 	}
 
 	async insert(entity: T) {
-		let stat: sql.SqlStatement = new sql.SqlStatement();
+		let stat: sql.Statement = new sql.Statement();
 		stat.command = 'insert';
 		stat.collection.value = this.mapping.name;
 
@@ -153,11 +153,11 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			let q = entity[key];
 			if (q instanceof sql.Field && this.isUpdated(entity, <string>key)) {
 				let f = this.mapping.fields.get(<string>key);
-				let c: sql.SqlCollection = new sql.SqlCollection();
+				let c: sql.Collection = new sql.Collection();
 				c.value = f.name;
 				stat.columns.push(c);
 
-				let v: sql.SqlExpression = new sql.SqlExpression('?');
+				let v: sql.Expression = new sql.Expression('?');
 				v.args.push(this.getValue(entity, <string>key));
 				stat.values.push(v);
 			}
@@ -171,7 +171,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 	}
 
 	async update(entity: T) {
-		let stat = new sql.SqlStatement();
+		let stat = new sql.Statement();
 		stat.command = 'update';
 		stat.collection.value = this.mapping.name;
 
@@ -179,19 +179,19 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			let f = this.mapping.fields.get(<string>key);
 			let q = entity[key];
 			if (q instanceof sql.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
-				let c1 = new sql.SqlExpression(f.name);
-				let c2 = new sql.SqlExpression('?');
+				let c1 = new sql.Expression(f.name);
+				let c2 = new sql.Expression('?');
 				c2.args.push(this.getValue(entity, <string>key));
 
-				let c = new sql.SqlExpression(null, sql.Operator.Equal, c1, c2);
+				let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
 				stat.columns.push(c);
 			}
 		});
 
-		let w1 = new sql.SqlExpression(this.mapping.primaryKeyField.name);
-		let w2 = new sql.SqlExpression('?');
+		let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
+		let w2 = new sql.Expression('?');
 		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-		stat.where = new sql.SqlExpression(null, sql.Operator.Equal, w1, w2);
+		stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
 
 		if (stat.columns.length > 0) {
 			let result = await this.context.execute(stat);
@@ -213,14 +213,14 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 	}
 
 	async delete(entity: T) {
-		let stat = new sql.SqlStatement();
+		let stat = new sql.Statement();
 		stat.command = 'delete';
 		stat.collection.value = this.mapping.name;
 
-		let w1 = new sql.SqlExpression(this.mapping.primaryKeyField.name);
-		let w2 = new sql.SqlExpression('?');
+		let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
+		let w2 = new sql.Expression('?');
 		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-		stat.where = new sql.SqlExpression(null, sql.Operator.Equal, w1, w2);
+		stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
 		await this.context.execute(stat);
 	}
 
@@ -237,8 +237,8 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		}, id).unique();
 	}
 
-	where(param?: funcs.IWhereFunc<T> | sql.SqlExpression, ...args: any[]): IQuerySet<T> {
-		let stat = new sql.SqlStatement();
+	where(param?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T> {
+		let stat = new sql.Statement();
 		stat.command = 'select';
 
 		let alias = this.mapping.name.charAt(0);
@@ -252,18 +252,18 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		} else {
 			res = param;
 		}
-		if (res instanceof sql.SqlExpression && res.exps.length > 0) {
+		if (res instanceof sql.Expression && res.exps.length > 0) {
 			stat.where = res;
 		}
 		return new QuerySet(stat, this);
 	}
 
-	groupBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression[]): IQuerySet<T> {
+	groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
 		let q = this.where();
 		return q.groupBy(func);
 	}
 
-	orderBy(func?: funcs.IArrFieldFunc<T> | sql.SqlExpression[]): IQuerySet<T> {
+	orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
 		let q = this.where();
 		return q.orderBy(func);
 	}

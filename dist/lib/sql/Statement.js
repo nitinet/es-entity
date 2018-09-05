@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ISqlNode_1 = require("./ISqlNode");
-const SqlExpression_1 = require("./SqlExpression");
-const SqlCollection_1 = require("./SqlCollection");
-class SqlStatement extends ISqlNode_1.default {
+const INode_1 = require("./INode");
+const Expression_1 = require("./Expression");
+const Collection_1 = require("./Collection");
+class Statement extends INode_1.default {
     constructor() {
         super();
         this.command = '';
         this.columns = new Array();
         this.values = new Array();
-        this.collection = new SqlCollection_1.default();
-        this.where = new SqlExpression_1.default();
+        this.collection = new Collection_1.default();
+        this.where = new Expression_1.default();
         this.groupBy = new Array();
         this.orderBy = new Array();
-        this.limit = new SqlExpression_1.default();
+        this.limit = new Expression_1.default();
     }
     eval(handler) {
         if (!handler) {
@@ -91,4 +91,4 @@ class SqlStatement extends ISqlNode_1.default {
         return result;
     }
 }
-exports.default = SqlStatement;
+exports.default = Statement;

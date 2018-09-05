@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const aggregation = require("aggregation/es6");
-const ISqlNode_1 = require("./ISqlNode");
+const INode_1 = require("./INode");
 const Field_1 = require("./Field");
 const Operator_1 = require("./Operator");
-class SqlExpression extends aggregation(ISqlNode_1.default, Field_1.default) {
+class Expression extends aggregation(INode_1.default, Field_1.default) {
     constructor(value, operator, ...expressions) {
         super();
         this.args = new Array();
@@ -31,7 +31,7 @@ class SqlExpression extends aggregation(ISqlNode_1.default, Field_1.default) {
             return exp;
         }
         else {
-            let exp = new SqlExpression(null, Operator_1.default.And, this);
+            let exp = new Expression(null, Operator_1.default.And, this);
             for (var i = 0; i < expressions.length; i++) {
                 exp.add(expressions[i]);
             }
@@ -156,4 +156,4 @@ class SqlExpression extends aggregation(ISqlNode_1.default, Field_1.default) {
         return this;
     }
 }
-exports.default = SqlExpression;
+exports.default = Expression;
