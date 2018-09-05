@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Queryable_1 = require("./Queryable");
-const Query = require("./Query");
+const collection_1 = require("./collection");
+const sql = require("./sql");
 const Mysql_1 = require("../handlers/Mysql");
 const OracleDb_1 = require("../handlers/OracleDb");
 const MsSqlServer_1 = require("../handlers/MsSqlServer");
@@ -33,6 +33,7 @@ class Context {
     constructor(config, entityPath) {
         this.connection = null;
         this.logger = null;
+        this.dbSetMap = new Map();
         if (config) {
             this.setConfig(config);
         }
@@ -54,8 +55,9 @@ class Context {
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
             let o = Reflect.get(this, key);
-            if (o instanceof Queryable_1.DBSet) {
+            if (o instanceof collection_1.DBSet) {
                 ps.push(o.bind(this));
+                this.dbSetMap.set(o.getEntityType(), o);
             }
         }
         return Promise.all(ps);
@@ -64,9 +66,15 @@ class Context {
         this.handler = getHandler(config);
         this.handler.context = this;
     }
-    setHandler(handler) {
-        this.handler = handler;
-        this.handler.context = this;
+    get handler() {
+        return this._handler;
+    }
+    set handler(handler) {
+        this._handler = handler;
+        this._handler.context = this;
+    }
+    getEntityPath() {
+        return this.entityPath;
     }
     setEntityPath(entityPath) {
         this.entityPath = entityPath;
@@ -75,7 +83,7 @@ class Context {
         return await this.handler.run(query, args, this.connection);
     }
     getCriteria() {
-        return new Query.SqlExpression();
+        return new sql.SqlExpression();
     }
     flush() { }
     async initTransaction() {
@@ -86,7 +94,7 @@ class Context {
             let keys = Reflect.ownKeys(res);
             keys.forEach((key) => {
                 let prop = Reflect.get(res, key);
-                if (prop instanceof Queryable_1.DBSet) {
+                if (prop instanceof collection_1.DBSet) {
                     prop.context = res;
                 }
             });

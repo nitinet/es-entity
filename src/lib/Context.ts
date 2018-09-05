@@ -1,8 +1,9 @@
-import { DBSet } from './Queryable';
+import { DBSet } from './collection';
 import Handler from './Handler';
-import * as Query from './Query';
+import * as sql from './sql';
 import Connection from './Connection';
 import * as bean from '../bean/index';
+import { IEntityType } from './types';
 
 import MysqlHandler from '../handlers/Mysql';
 import OracleHandler from '../handlers/OracleDb';
@@ -29,10 +30,11 @@ function getHandler(config: bean.IConnectionConfig): Handler {
 }
 
 export default class Context {
-	entityPath: string;
-	handler: Handler;
-	connection: Connection = null;
-	logger = null;
+	private _handler: Handler;
+	private entityPath: string;
+	private connection: Connection = null;
+	private logger = null;
+	public dbSetMap = new Map<IEntityType<any>, DBSet<any>>();
 
 	constructor(config?: bean.IConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -61,6 +63,7 @@ export default class Context {
 			let o: any = Reflect.get(this, key);
 			if (o instanceof DBSet) {
 				ps.push((<DBSet<any>>o).bind(this));
+				this.dbSetMap.set(o.getEntityType(), o);
 			}
 		}
 		return Promise.all(ps);
@@ -71,21 +74,29 @@ export default class Context {
 		this.handler.context = this;
 	}
 
-	setHandler(handler: Handler) {
-		this.handler = handler;
-		this.handler.context = this;
+	get handler() {
+		return this._handler;
 	}
 
-	setEntityPath(entityPath: string): void {
+	set handler(handler: Handler) {
+		this._handler = handler;
+		this._handler.context = this;
+	}
+
+	getEntityPath() {
+		return this.entityPath;
+	}
+
+	setEntityPath(entityPath: string) {
 		this.entityPath = entityPath;
 	}
 
-	async execute(query: string | Query.ISqlNode, args?: Array<any>): Promise<bean.ResultSet> {
+	async execute(query: string | sql.ISqlNode, args?: Array<any>): Promise<bean.ResultSet> {
 		return await this.handler.run(query, args, this.connection);
 	}
 
-	getCriteria(): Query.SqlExpression {
-		return new Query.SqlExpression();
+	getCriteria(): sql.SqlExpression {
+		return new sql.SqlExpression();
 	}
 
 	flush(): void { }

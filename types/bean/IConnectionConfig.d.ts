@@ -1,4 +1,4 @@
-export default interface IConnectionConfig {
+interface IConnectionConfig {
     handler: string;
     driver: any;
     connectionLimit?: number;
@@ -7,3 +7,4 @@ export default interface IConnectionConfig {
     password: string;
     database: string;
 }
+export default IConnectionConfig;

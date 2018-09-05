@@ -2,7 +2,7 @@
 
 import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
-import * as Query from '../lib/Query';
+import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
 
 export default class MsSqlServerHandler extends Handler {
@@ -68,11 +68,11 @@ export default class MsSqlServerHandler extends Handler {
 		return result;
 	}
 
-	async run(query: string | Query.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
 		let q: string = null;
 		if (typeof query === "string") {
 			q = query;
-		} else if (query instanceof Query.SqlStatement) {
+		} else if (query instanceof sql.SqlStatement) {
 			q = query.eval(this);
 			args = (query.args == undefined ? [] : query.args);
 		}

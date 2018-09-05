@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
-const Query = require("../lib/Query");
+const sql = require("../lib/sql");
 const Connection_1 = require("../lib/Connection");
 class MysqlHandler extends Handler_1.default {
     constructor(config) {
@@ -157,7 +157,7 @@ class MysqlHandler extends Handler_1.default {
         if (typeof query === 'string') {
             q = query;
         }
-        else if (query instanceof Query.SqlStatement) {
+        else if (query instanceof sql.SqlStatement) {
             q = query.eval(this);
             args = query.args;
         }

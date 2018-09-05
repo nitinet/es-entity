@@ -1,0 +1,32 @@
+import Column from './Column';
+import SqlExpression from './SqlExpression';
+declare class Field<T> extends Column {
+    _createExpr(): SqlExpression;
+    _argExp(operand: T | Column): SqlExpression;
+    eq(operand: T): SqlExpression;
+    neq(operand: T): SqlExpression;
+    lt(operand: T): SqlExpression;
+    gt(operand: T): SqlExpression;
+    lteq(operand: T): SqlExpression;
+    gteq(operand: T): SqlExpression;
+    and(operand: Column): SqlExpression;
+    or(operand: Column): SqlExpression;
+    not(): SqlExpression;
+    in(...operand: T[]): SqlExpression;
+    between(first: T, second: T): SqlExpression;
+    like(operand: T): SqlExpression;
+    IsNull(): SqlExpression;
+    IsNotNull(): SqlExpression;
+    plus(operand: T): SqlExpression;
+    minus(operand: T): SqlExpression;
+    multiply(operand: T): SqlExpression;
+    devide(operand: T): SqlExpression;
+    asc(): SqlExpression;
+    desc(): SqlExpression;
+    sum(): SqlExpression;
+    min(): SqlExpression;
+    max(): SqlExpression;
+    count(): SqlExpression;
+    average(): SqlExpression;
+}
+export default Field;

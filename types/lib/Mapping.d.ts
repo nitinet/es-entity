@@ -9,5 +9,6 @@ export declare class EntityMapping {
     primaryKey: string;
     primaryKeyField: FieldMapping;
     fields: Map<string, FieldMapping>;
+    foreignRels: string[];
     constructor(data?: any);
 }

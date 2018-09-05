@@ -1,0 +1,34 @@
+import SqlExpression from './SqlExpression';
+declare abstract class Column {
+    _alias: string;
+    _name: string;
+    _updated: boolean;
+    abstract _createExpr(): SqlExpression;
+    abstract _argExp(operand: any): SqlExpression;
+    abstract eq(operand: any): SqlExpression;
+    abstract neq(operand: any): SqlExpression;
+    abstract lt(operand: any): SqlExpression;
+    abstract gt(operand: any): SqlExpression;
+    abstract lteq(operand: any): SqlExpression;
+    abstract gteq(operand: any): SqlExpression;
+    abstract and(operand: Column): SqlExpression;
+    abstract or(operand: Column): SqlExpression;
+    abstract not(): SqlExpression;
+    abstract in(...operand: any[]): SqlExpression;
+    abstract between(first: any, second: any): SqlExpression;
+    abstract like(operand: any): SqlExpression;
+    abstract IsNull(): SqlExpression;
+    abstract IsNotNull(): SqlExpression;
+    abstract plus(operand: any): SqlExpression;
+    abstract minus(operand: any): SqlExpression;
+    abstract multiply(operand: any): SqlExpression;
+    abstract devide(operand: any): SqlExpression;
+    abstract asc(): SqlExpression;
+    abstract desc(): SqlExpression;
+    abstract sum(): SqlExpression;
+    abstract min(): SqlExpression;
+    abstract max(): SqlExpression;
+    abstract count(): SqlExpression;
+    abstract average(): SqlExpression;
+}
+export default Column;

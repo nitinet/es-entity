@@ -1,6 +1,6 @@
 import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
-import * as Query from '../lib/Query';
+import * as sql from '../lib/sql';
 
 export default class SqlLiteHandler extends Handler {
 	handlerName = 'sqlite';
@@ -18,7 +18,7 @@ export default class SqlLiteHandler extends Handler {
 		return null;
 	}
 
-	async run(query: string | Query.ISqlNode): Promise<bean.ResultSet> {
+	async run(query: string | sql.ISqlNode): Promise<bean.ResultSet> {
 		return null
 	}
 }

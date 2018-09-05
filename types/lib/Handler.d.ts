@@ -1,4 +1,4 @@
-import * as Query from './Query';
+import * as sql from './sql';
 import Connection from './Connection';
 import Context from './Context';
 import * as bean from '../bean/index';
@@ -8,7 +8,7 @@ export default abstract class Handler {
     abstract driver: any;
     config: bean.IConnectionConfig;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
-    run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>;
+    run(query: string | sql.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>;
     convertPlaceHolder(query: string): string;
     insertQuery(collection: string, columns: string, values: string): string;
     selectQuery(collection: string, columns: string): string;

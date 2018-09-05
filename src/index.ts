@@ -1,18 +1,16 @@
-import * as Type from './lib/Type';
-import Context from './lib/Context';
-import Queryable, { DBSet } from './lib/Queryable';
-import * as Util from './lib/Util'
-import { SqlExpression } from './lib/Query';
-
 import * as bean from './bean';
 import * as handlers from './handlers';
+import * as types from './lib/types';
+import * as collection from './lib/collection';
+import * as Util from './lib/Util'
+import Context from './lib/Context';
+import { SqlExpression } from './lib/sql';
 
-export { Type };
+
+export { types };
 export { Context };
-export { Queryable };
-export { DBSet };
+export { collection };
 export { Util };
 export { SqlExpression as Expression };
-
 export { bean };
 export { handlers };
