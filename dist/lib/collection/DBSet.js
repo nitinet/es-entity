@@ -9,23 +9,22 @@ const Mapping = require("../Mapping");
 const QuerySet_1 = require("./QuerySet");
 const ForeignSet_1 = require("./ForeignSet");
 class DBSet {
-    constructor(entityType, entityName, entityPath) {
-        this.entityName = null;
-        this.entityPath = null;
+    constructor(entityType, options) {
+        this.options = null;
         this.mapping = new Mapping.EntityMapping();
         this.columns = null;
         this.entityType = entityType;
-        this.entityName = entityName ? entityName : this.entityType.name;
-        this.entityPath = entityPath;
+        this.options = options || {};
+        this.options.entityName = options.entityName ? options.entityName : this.entityType.name;
     }
     async bind(context) {
         this.context = context;
         let filePath = null;
-        if (this.entityPath) {
-            filePath = this.entityPath;
+        if (this.options.entityPath) {
+            filePath = this.options.entityPath;
         }
         else if (this.context.getEntityPath()) {
-            filePath = path.join(this.context.getEntityPath(), this.entityName + '.json');
+            filePath = path.join(this.context.getEntityPath(), this.options.entityName + '.json');
         }
         if (filePath && fs.statSync(filePath).isFile()) {
             let data = fs.readFileSync(filePath, 'utf-8');
@@ -33,8 +32,8 @@ class DBSet {
         }
         else {
             this.mapping = new Mapping.EntityMapping();
-            this.mapping.entityName = this.entityName;
-            this.mapping.name = Case.snake(this.entityName);
+            this.mapping.entityName = this.options.entityName;
+            this.mapping.name = Case.snake(this.options.entityName);
             this.columns = await this.context.handler.getTableInfo(this.mapping.name);
             let obj = new this.entityType();
             let keys = Reflect.ownKeys(obj);

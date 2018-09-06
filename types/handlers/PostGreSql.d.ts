@@ -13,7 +13,7 @@ export default class PostGreHandler extends Handler {
     rollback(conn: any): Promise<void>;
     close(conn: any): Promise<void>;
     getTableInfo(tableName: string): Promise<bean.ColumnInfo[]>;
-    run(query: string | sql.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
+    run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
     convertPlaceHolder(query: string): string;
     insertQuery(collection: string, columns: string, values: string): string;
     limit(val0: string, val1: string): string;

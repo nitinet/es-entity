@@ -1,38 +1,38 @@
-import * as Query from '../Query';
+import * as sql from '../sql';
 
-declare class StringType extends String implements Query.Field<String> {
+declare class StringType extends String implements sql.Field<String> {
     set(value: string | String): void;
 
     // Field extended Methods
     _alias: string;
     _name: string;
     _updated: boolean;
-    _createExpr(): Query.SqlExpression;
-    _argExp(operand: String | Query.Column): Query.SqlExpression;
-    eq(operand: String): Query.SqlExpression;
-    neq(operand: String): Query.SqlExpression;
-    lt(operand: String): Query.SqlExpression;
-    gt(operand: String): Query.SqlExpression;
-    lteq(operand: String): Query.SqlExpression;
-    gteq(operand: String): Query.SqlExpression;
-    and(operand: Query.Column): Query.SqlExpression;
-    or(operand: Query.Column): Query.SqlExpression;
-    not(): Query.SqlExpression;
-    in(...operand: String[]): Query.SqlExpression;
-    between(first: String, second: String): Query.SqlExpression;
-    like(operand: String): Query.SqlExpression;
-    IsNull(): Query.SqlExpression;
-    IsNotNull(): Query.SqlExpression;
-    plus(operand: String): Query.SqlExpression;
-    minus(operand: String): Query.SqlExpression;
-    multiply(operand: String): Query.SqlExpression;
-    devide(operand: String): Query.SqlExpression;
-    asc(): Query.SqlExpression;
-    desc(): Query.SqlExpression;
-    sum(): Query.SqlExpression;
-    min(): Query.SqlExpression;
-    max(): Query.SqlExpression;
-    count(): Query.SqlExpression;
-    average(): Query.SqlExpression;
+    _createExpr(): sql.Expression;
+    _argExp(operand: String | sql.Column): sql.Expression;
+    eq(operand: String): sql.Expression;
+    neq(operand: String): sql.Expression;
+    lt(operand: String): sql.Expression;
+    gt(operand: String): sql.Expression;
+    lteq(operand: String): sql.Expression;
+    gteq(operand: String): sql.Expression;
+    and(operand: sql.Column): sql.Expression;
+    or(operand: sql.Column): sql.Expression;
+    not(): sql.Expression;
+    in(...operand: String[]): sql.Expression;
+    between(first: String, second: String): sql.Expression;
+    like(operand: String): sql.Expression;
+    IsNull(): sql.Expression;
+    IsNotNull(): sql.Expression;
+    plus(operand: String): sql.Expression;
+    minus(operand: String): sql.Expression;
+    multiply(operand: String): sql.Expression;
+    devide(operand: String): sql.Expression;
+    asc(): sql.Expression;
+    desc(): sql.Expression;
+    sum(): sql.Expression;
+    min(): sql.Expression;
+    max(): sql.Expression;
+    count(): sql.Expression;
+    average(): sql.Expression;
 }
 export default StringType;

@@ -7,5 +7,5 @@ export default class OracleDbHandler extends Handler {
     constructor(config: bean.IConnectionConfig);
     getConnection(): any;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
-    run(query: string | sql.ISqlNode): Promise<bean.ResultSet>;
+    run(query: string | sql.INode): Promise<bean.ResultSet>;
 }

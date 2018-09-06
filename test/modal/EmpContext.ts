@@ -6,7 +6,7 @@ class EmpContext extends es.Context {
 		super(config, entityPath);
 	}
 
-	employees: es.DBSet<Employee> = new es.DBSet<Employee>(Employee);
+	employees: es.collection.DBSet<Employee> = new es.collection.DBSet<Employee>(Employee);
 }
 
 export default EmpContext;

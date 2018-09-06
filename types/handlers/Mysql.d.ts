@@ -14,5 +14,5 @@ export default class MysqlHandler extends Handler {
     rollback(conn: any): Promise<void>;
     close(conn: any): Promise<void>;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
-    run(query: string | sql.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
+    run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
 }

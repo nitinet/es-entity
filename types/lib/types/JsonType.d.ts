@@ -1,5 +1,5 @@
-import * as Query from '../Query';
-declare class JsonType extends Query.Field<string> {
+import * as sql from '../sql';
+declare class JsonType extends sql.Field<string> {
     private _value;
     constructor(data?: string);
     get(): any;

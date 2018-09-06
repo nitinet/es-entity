@@ -10,5 +10,5 @@ export default class MsSqlServerHandler extends Handler {
     setConnectionPool(): Promise<void>;
     getConnection(): any;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
-    run(query: string | sql.ISqlNode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
+    run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
 }

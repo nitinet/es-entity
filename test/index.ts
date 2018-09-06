@@ -44,6 +44,10 @@ async function run() {
 		console.log('id: ' + j.id + ', desc: ' + j.description);
 	}
 	console.log('[TEST COMPLETE]');
+
+	let app = await v.application.unique();
+	console.log(app);
+
 	process.exit(0);
 }
 
