@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Type = require("./Type");
+const types = require("./types");
 class PropertyTransformer {
     constructor() {
         this.fields = new Array();
@@ -21,7 +21,7 @@ class PropertyTransformer {
             keys.forEach(key => {
                 if (this.fields.indexOf(key.toString()) != -1 && Reflect.has(target, key)) {
                     let value = Reflect.get(source, key);
-                    if (target[key] instanceof Type.Date) {
+                    if (target[key] instanceof types.Date) {
                         target[key].set(new Date(value));
                     }
                     else {

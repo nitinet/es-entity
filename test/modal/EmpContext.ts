@@ -1,12 +1,12 @@
-import * as es from "./../../index";
-import Employee from "./Employee";
+import * as es from './../../types/index';
+import Employee from './Employee';
 
 class EmpContext extends es.Context {
-	constructor(config?: es.ConnectionConfig, entityPath?: string) {
+	constructor(config, entityPath?: string) {
 		super(config, entityPath);
 	}
 
-	employees: es.DBSet<Employee> = new es.DBSet<Employee>(Employee);
+	employees: es.collection.DBSet<Employee> = new es.collection.DBSet<Employee>(Employee);
 }
 
 export default EmpContext;

@@ -1,0 +1,32 @@
+import Column from './Column';
+import Expression from './Expression';
+declare class Field<T> extends Column {
+    _createExpr(): Expression;
+    _argExp(operand: T | Column): Expression;
+    eq(operand: T): Expression;
+    neq(operand: T): Expression;
+    lt(operand: T): Expression;
+    gt(operand: T): Expression;
+    lteq(operand: T): Expression;
+    gteq(operand: T): Expression;
+    and(operand: Column): Expression;
+    or(operand: Column): Expression;
+    not(): Expression;
+    in(...operand: T[]): Expression;
+    between(first: T, second: T): Expression;
+    like(operand: T): Expression;
+    IsNull(): Expression;
+    IsNotNull(): Expression;
+    plus(operand: T): Expression;
+    minus(operand: T): Expression;
+    multiply(operand: T): Expression;
+    devide(operand: T): Expression;
+    asc(): Expression;
+    desc(): Expression;
+    sum(): Expression;
+    min(): Expression;
+    max(): Expression;
+    count(): Expression;
+    average(): Expression;
+}
+export default Field;

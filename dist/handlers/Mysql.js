@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
-const Query = require("../lib/Query");
+const sql = require("../lib/sql");
 const Connection_1 = require("../lib/Connection");
-class MysqlHandler extends Handler_1.default {
+class Mysql extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mysql';
@@ -157,7 +157,7 @@ class MysqlHandler extends Handler_1.default {
         if (typeof query === 'string') {
             q = query;
         }
-        else if (query instanceof Query.SqlStatement) {
+        else if (query instanceof sql.Statement) {
             q = query.eval(this);
             args = query.args;
         }
@@ -195,4 +195,4 @@ class MysqlHandler extends Handler_1.default {
         return p;
     }
 }
-exports.default = MysqlHandler;
+exports.default = Mysql;
