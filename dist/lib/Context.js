@@ -2,27 +2,32 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const collection_1 = require("./collection");
 const sql = require("./sql");
+const bean = require("../bean/index");
 const Mysql_1 = require("../handlers/Mysql");
-const OracleDb_1 = require("../handlers/OracleDb");
+const Oracle_1 = require("../handlers/Oracle");
 const MsSqlServer_1 = require("../handlers/MsSqlServer");
 const PostGreSql_1 = require("../handlers/PostGreSql");
-const SqlLite_1 = require("../handlers/SqlLite");
+const SQLite_1 = require("../handlers/SQLite");
+const Cassandra_1 = require("../handlers/Cassandra");
 function getHandler(config) {
     let handler = null;
-    if (config.handler.toLowerCase() === 'mysql') {
+    if (config.handler === bean.HandlerType.Mysql) {
         handler = new Mysql_1.default(config);
     }
-    else if (config.handler.toLowerCase() === 'oracle') {
-        handler = new OracleDb_1.default(config);
+    else if (config.handler === bean.HandlerType.Oracle) {
+        handler = new Oracle_1.default(config);
     }
-    else if (config.handler.toLowerCase() === 'postgresql') {
+    else if (config.handler === bean.HandlerType.PostgreSql) {
         handler = new PostGreSql_1.default(config);
     }
-    else if (config.handler.toLowerCase() === 'sqlserver') {
+    else if (config.handler === bean.HandlerType.MsSqlServer) {
         handler = new MsSqlServer_1.default(config);
     }
-    else if (config.handler.toLowerCase() === 'sqllite') {
-        handler = new SqlLite_1.default(config);
+    else if (config.handler === bean.HandlerType.Sqlite) {
+        handler = new SQLite_1.default(config);
+    }
+    else if (config.handler === bean.HandlerType.Cassandra) {
+        handler = new Cassandra_1.default(config);
     }
     else {
         throw 'No Handler Found';

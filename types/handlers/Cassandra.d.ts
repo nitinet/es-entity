@@ -1,7 +1,7 @@
 import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
-export default class OracleDbHandler extends Handler {
+export default class Cassandra extends Handler {
     handlerName: string;
     driver: any;
     constructor(config: bean.IConnectionConfig);

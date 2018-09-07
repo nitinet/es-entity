@@ -5,24 +5,27 @@ import Connection from './Connection';
 import * as bean from '../bean/index';
 import { IEntityType } from './types';
 
-import MysqlHandler from '../handlers/Mysql';
-import OracleHandler from '../handlers/OracleDb';
-import MsSqlServerHandler from '../handlers/MsSqlServer';
-import PostGreHandler from '../handlers/PostGreSql';
-import SqlLiteHandler from '../handlers/SqlLite';
+import Mysql from '../handlers/Mysql';
+import OracleHandler from '../handlers/Oracle';
+import MsSqlServer from '../handlers/MsSqlServer';
+import PostgreSql from '../handlers/PostGreSql';
+import SQLite from '../handlers/SQLite';
+import Cassandra from '../handlers/Cassandra'
 
 function getHandler(config: bean.IConnectionConfig): Handler {
 	let handler: Handler = null;
-	if (config.handler.toLowerCase() === 'mysql') {
-		handler = new MysqlHandler(config);
-	} else if (config.handler.toLowerCase() === 'oracle') {
+	if (config.handler === bean.HandlerType.Mysql) {
+		handler = new Mysql(config);
+	} else if (config.handler === bean.HandlerType.Oracle) {
 		handler = new OracleHandler(config);
-	} else if (config.handler.toLowerCase() === 'postgresql') {
-		handler = new PostGreHandler(config);
-	} else if (config.handler.toLowerCase() === 'sqlserver') {
-		handler = new MsSqlServerHandler(config);
-	} else if (config.handler.toLowerCase() === 'sqllite') {
-		handler = new SqlLiteHandler(config);
+	} else if (config.handler === bean.HandlerType.PostgreSql) {
+		handler = new PostgreSql(config);
+	} else if (config.handler === bean.HandlerType.MsSqlServer) {
+		handler = new MsSqlServer(config);
+	} else if (config.handler === bean.HandlerType.Sqlite) {
+		handler = new SQLite(config);
+	} else if (config.handler === bean.HandlerType.Cassandra) {
+		handler = new Cassandra(config);
 	} else {
 		throw 'No Handler Found';
 	}

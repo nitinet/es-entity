@@ -5,7 +5,7 @@ import  Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
 
-export default class MysqlHandler extends Handler {
+export default class Mysql extends Handler {
 	handlerName = 'mysql';
 	connectionPool = null;
 	driver = null;

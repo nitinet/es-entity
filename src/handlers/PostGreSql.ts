@@ -5,7 +5,7 @@ import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
 
-export default class PostGreHandler extends Handler {
+export default class PostgreSql extends Handler {
 	driver = null;
 	handlerName = 'postgresql';
 	connectionPool = null;

@@ -14,7 +14,9 @@ import ForeignSet from './ForeignSet';
 
 interface IOptions {
 	entityName?: string;
-	entityPath?: string
+	entityPath?: string,
+	sharded?: boolean;
+	shardFunc?: (obj) => number;
 }
 
 class DBSet<T extends Object> implements IQuerySet<T> {

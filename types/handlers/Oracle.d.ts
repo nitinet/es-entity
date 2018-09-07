@@ -1,7 +1,7 @@
-import * as bean from '../bean/index';
+import * as bean from '../bean';
 import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
-export default class SqlLiteHandler extends Handler {
+export default class Oracle extends Handler {
     handlerName: string;
     driver: any;
     constructor(config: bean.IConnectionConfig);

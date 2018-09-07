@@ -4,7 +4,7 @@ const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
 const sql = require("../lib/sql");
 const Connection_1 = require("../lib/Connection");
-class MsSqlServerHandler extends Handler_1.default {
+class MsSqlServer extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mssql';
@@ -97,4 +97,4 @@ class MsSqlServerHandler extends Handler_1.default {
         });
     }
 }
-exports.default = MsSqlServerHandler;
+exports.default = MsSqlServer;

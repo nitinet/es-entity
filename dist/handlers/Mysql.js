@@ -4,7 +4,7 @@ const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
 const sql = require("../lib/sql");
 const Connection_1 = require("../lib/Connection");
-class MysqlHandler extends Handler_1.default {
+class Mysql extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mysql';
@@ -195,4 +195,4 @@ class MysqlHandler extends Handler_1.default {
         return p;
     }
 }
-exports.default = MysqlHandler;
+exports.default = Mysql;

@@ -1,9 +1,9 @@
-import * as bean from '../bean/index';
+import * as bean from '../bean';
 import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 
-export default class OracleDbHandler extends Handler {
-	handlerName = 'oracle';
+export default class SQlite extends Handler {
+	handlerName = 'sqlite';
 	driver = null;
 
 	constructor(config: bean.IConnectionConfig) {

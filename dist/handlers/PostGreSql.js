@@ -5,7 +5,7 @@ const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
 const sql = require("../lib/sql");
 const Connection_1 = require("../lib/Connection");
-class PostGreHandler extends Handler_1.default {
+class PostgreSql extends Handler_1.default {
     constructor(config) {
         super();
         this.driver = null;
@@ -125,4 +125,4 @@ class PostGreHandler extends Handler_1.default {
     }
     limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
-exports.default = PostGreHandler;
+exports.default = PostgreSql;

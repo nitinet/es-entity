@@ -5,7 +5,7 @@ import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
 
-export default class MsSqlServerHandler extends Handler {
+export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
 	connectionPool = null;
 	driver = null;

@@ -2,7 +2,7 @@ import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
-export default class PostGreHandler extends Handler {
+export default class PostgreSql extends Handler {
     driver: any;
     handlerName: string;
     connectionPool: any;

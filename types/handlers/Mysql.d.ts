@@ -2,7 +2,7 @@ import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
-export default class MysqlHandler extends Handler {
+export default class Mysql extends Handler {
     handlerName: string;
     connectionPool: any;
     driver: any;
