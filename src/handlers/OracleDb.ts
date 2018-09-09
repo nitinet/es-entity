@@ -1,9 +1,9 @@
-import * as bean from '../bean';
+import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
-import * as sql from '../lib/sql';
+import * as Query from '../lib/Query';
 
-export default class SQlite extends Handler {
-	handlerName = 'sqlite';
+export default class OracleDbHandler extends Handler {
+	handlerName = 'oracle';
 	driver = null;
 
 	constructor(config: bean.IConnectionConfig) {
@@ -18,7 +18,7 @@ export default class SQlite extends Handler {
 		return null;
 	}
 
-	async run(query: string | sql.INode): Promise<bean.ResultSet> {
+	async run(query: string | Query.ISqlNode): Promise<bean.ResultSet> {
 		return null
 	}
 }

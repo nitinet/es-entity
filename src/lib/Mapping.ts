@@ -12,8 +12,7 @@ export class EntityMapping {
 	entityName: string = '';
 	primaryKey: string = '';
 	primaryKeyField: FieldMapping = null;
-	fields = new Map<string, FieldMapping>();
-	foreignRels = new Array<string>();
+	fields: Map<string, FieldMapping> = new Map<string, FieldMapping>();
 
 	constructor(data?: any) {
 		if (data) {

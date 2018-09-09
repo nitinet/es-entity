@@ -1,5 +1,6 @@
 {
   "globalDependencies": {
+    "moment": "registry:dt/moment",
     "node": "registry:dt/node"
   },
   "dependencies": {

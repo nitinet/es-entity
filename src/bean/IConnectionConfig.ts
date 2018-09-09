@@ -1,12 +1,9 @@
-import HandlerType from './HandlerType';
-
-interface IConnectionConfig {
-	handler: HandlerType;
+export default interface IConnectionConfig {
+	handler: string;
 	driver: any;
 	connectionLimit?: number;
-	hostname: string;
+	hostname: string;  // Default Mysql
 	username: string;
 	password: string;
 	database: string;
 }
-export default IConnectionConfig;

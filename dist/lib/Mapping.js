@@ -15,7 +15,6 @@ class EntityMapping {
         this.primaryKey = '';
         this.primaryKeyField = null;
         this.fields = new Map();
-        this.foreignRels = new Array();
         if (data) {
             this.name = data.name;
             this.entityName = data.entityName;

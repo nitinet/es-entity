@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
-const sql = require("../lib/sql");
+const Query = require("../lib/Query");
 const Connection_1 = require("../lib/Connection");
-class PostgreSql extends Handler_1.default {
+class PostGreHandler extends Handler_1.default {
     constructor(config) {
         super();
         this.driver = null;
@@ -82,7 +82,7 @@ class PostgreSql extends Handler_1.default {
         if (typeof query === 'string') {
             q = query;
         }
-        else if (query instanceof sql.Statement) {
+        else if (query instanceof Query.SqlStatement) {
             q = query.eval(this);
             args = (query.args == undefined ? [] : query.args);
         }
@@ -125,4 +125,4 @@ class PostgreSql extends Handler_1.default {
     }
     limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
-exports.default = PostgreSql;
+exports.default = PostGreHandler;

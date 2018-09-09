@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
-const sql = require("../lib/sql");
+const Query = require("../lib/Query");
 const Connection_1 = require("../lib/Connection");
-class MsSqlServer extends Handler_1.default {
+class MsSqlServerHandler extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mssql';
@@ -68,7 +68,7 @@ class MsSqlServer extends Handler_1.default {
         if (typeof query === "string") {
             q = query;
         }
-        else if (query instanceof sql.Statement) {
+        else if (query instanceof Query.SqlStatement) {
             q = query.eval(this);
             args = (query.args == undefined ? [] : query.args);
         }
@@ -97,4 +97,4 @@ class MsSqlServer extends Handler_1.default {
         });
     }
 }
-exports.default = MsSqlServer;
+exports.default = MsSqlServerHandler;

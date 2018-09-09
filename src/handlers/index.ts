@@ -1,13 +1,11 @@
 import MsSqlServer from './MsSqlServer';
 import Mysql from './Mysql';
-import OracleDb from './Oracle';
+import OracleDb from './OracleDb';
 import PostGreSql from './PostGreSql';
-import SqlLite from './SQLite';
-import Cassandra from './Cassandra';
+import SqlLite from './SqlLite';
 
 export { MsSqlServer };
 export { Mysql };
 export { OracleDb };
 export { PostGreSql };
 export { SqlLite };
-export { Cassandra };

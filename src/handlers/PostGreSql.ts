@@ -2,10 +2,10 @@ import * as fs from 'fs';
 
 import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
-import * as sql from '../lib/sql';
+import * as Query from '../lib/Query';
 import Connection from '../lib/Connection';
 
-export default class PostgreSql extends Handler {
+export default class PostGreHandler extends Handler {
 	driver = null;
 	handlerName = 'postgresql';
 	connectionPool = null;
@@ -83,11 +83,11 @@ export default class PostgreSql extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection) {
+	async run(query: string | Query.ISqlNode, args?: Array<any>, connection?: Connection) {
 		let q: string = null;
 		if (typeof query === 'string') {
 			q = query;
-		} else if (query instanceof sql.Statement) {
+		} else if (query instanceof Query.SqlStatement) {
 			q = query.eval(this);
 			args = (query.args == undefined ? [] : query.args);
 		}

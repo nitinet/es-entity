@@ -1,5 +1,5 @@
-import * as es from './../../types/index';
+import * as es from "./../../index";
 
 export default class Application {
-	id: es.types.Number = new es.types.Number();
+	id: es.Type.Number = new es.Type.Number();
 }
