@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const es = require("./../../types/index");
+const es = require("./../../dist/index");
 const Employee_1 = require("./Employee");
 class EmpContext extends es.Context {
     constructor(config, entityPath) {

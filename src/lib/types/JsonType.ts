@@ -1,4 +1,4 @@
-import * as sql from '../sql';
+import * as sql from '../sql/Expression';
 
 class JsonType extends sql.Field<string> {
 	private _value: string = null;

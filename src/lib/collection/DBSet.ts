@@ -4,6 +4,7 @@ import * as Case from 'case';
 
 import * as bean from '../../bean';
 import * as sql from '../sql';
+import * as expression from '../sql/Expression';
 import * as types from '../types';
 import * as Mapping from '../Mapping';
 import Context from '../Context';
@@ -30,7 +31,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		this.entityType = entityType;
 		this.options = options || {};
 
-		this.options.entityName = options.entityName ? options.entityName : this.entityType.name;
+		this.options.entityName = this.options.entityName || this.entityType.name;
 	}
 
 	async	bind(context: Context) {
@@ -122,11 +123,10 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
 			let q = a[key];
-			if (q instanceof sql.Field) {
-				let field = this.mapping.fields.get(<string>key);
-				(<sql.Column>q)._name = field && field.name ? field.name : '';
-				(<sql.Column>q)._alias = alias;
-			}
+			let field = this.mapping.fields.get(<string>key);
+			(<sql.Column>q)._name = field && field.name ? field.name : '';
+			(<sql.Column>q)._alias = alias;
+			(<sql.Column>q)._updated = false;
 		}
 		return a;
 	}
@@ -137,13 +137,13 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 
 	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<sql.Field<any>>obj[key]) = value;
-			(<sql.Field<any>>obj[key])._updated = false;
+			(<expression.Field<any>>obj[key]) = value;
+			(<expression.Field<any>>obj[key])._updated = false;
 		}
 	}
 
 	getValue(obj, key: string) {
-		return (<sql.Field<any>>obj[key]);
+		return (<expression.Field<any>>obj[key]);
 	}
 
 	async executeStatement(stat: sql.Statement): Promise<bean.ResultSet> {
@@ -157,7 +157,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
-			if (q instanceof sql.Field && this.isUpdated(entity, <string>key)) {
+			if (q instanceof expression.Field && this.isUpdated(entity, <string>key)) {
 				let f = this.mapping.fields.get(<string>key);
 				let c: sql.Collection = new sql.Collection();
 				c.value = f.name;
@@ -184,7 +184,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let f = this.mapping.fields.get(<string>key);
 			let q = entity[key];
-			if (q instanceof sql.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
+			if (q instanceof expression.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
 				let c1 = new sql.Expression(f.name);
 				let c2 = new sql.Expression('?');
 				c2.args.push(this.getValue(entity, <string>key));

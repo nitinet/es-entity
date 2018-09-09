@@ -74,7 +74,6 @@ export default class Context {
 
 	setConfig(config: bean.IConnectionConfig): void {
 		this.handler = getHandler(config);
-		this.handler.context = this;
 	}
 
 	get handler() {

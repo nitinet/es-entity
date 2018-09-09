@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const Case = require("case");
 const sql = require("../sql");
+const expression = require("../sql/Expression");
 const types = require("../types");
 const Mapping = require("../Mapping");
 const QuerySet_1 = require("./QuerySet");
@@ -15,7 +16,7 @@ class DBSet {
         this.columns = null;
         this.entityType = entityType;
         this.options = options || {};
-        this.options.entityName = options.entityName ? options.entityName : this.entityType.name;
+        this.options.entityName = this.options.entityName || this.entityType.name;
     }
     async bind(context) {
         this.context = context;
@@ -105,11 +106,10 @@ class DBSet {
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
             let q = a[key];
-            if (q instanceof sql.Field) {
-                let field = this.mapping.fields.get(key);
-                q._name = field && field.name ? field.name : '';
-                q._alias = alias;
-            }
+            let field = this.mapping.fields.get(key);
+            q._name = field && field.name ? field.name : '';
+            q._alias = alias;
+            q._updated = false;
         }
         return a;
     }
@@ -134,7 +134,7 @@ class DBSet {
         stat.collection.value = this.mapping.name;
         await Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
-            if (q instanceof sql.Field && this.isUpdated(entity, key)) {
+            if (q instanceof expression.Field && this.isUpdated(entity, key)) {
                 let f = this.mapping.fields.get(key);
                 let c = new sql.Collection();
                 c.value = f.name;
@@ -157,7 +157,7 @@ class DBSet {
         await Reflect.ownKeys(entity).forEach((key) => {
             let f = this.mapping.fields.get(key);
             let q = entity[key];
-            if (q instanceof sql.Field && this.isUpdated(entity, key) && f != this.mapping.primaryKeyField) {
+            if (q instanceof expression.Field && this.isUpdated(entity, key) && f != this.mapping.primaryKeyField) {
                 let c1 = new sql.Expression(f.name);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));

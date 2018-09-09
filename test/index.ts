@@ -1,14 +1,14 @@
-import * as es from './../types/index';
+import * as mysql from 'mysql';
+import * as es from './../dist/index';
 
 import empContext from './modal/EmpContext';
 
 var config: es.bean.IConnectionConfig = {
-	driver: null,
-	handler: 'postgres',
+	handler: es.bean.HandlerType.Mysql,
 	hostname: 'localhost',
-	username: 'rohan',
-	password: '12345',
-	database: 'test'
+	username: 'root',
+	password: '123456',
+	database: 'entity-test'
 };
 var context = new empContext(config);
 

@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Column_1 = require("./Column");
 exports.Column = Column_1.default;
-const Field_1 = require("./Field");
-exports.Field = Field_1.default;
 const INode_1 = require("./INode");
 exports.INode = INode_1.default;
 const Operator_1 = require("./Operator");

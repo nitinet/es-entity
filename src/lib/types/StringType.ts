@@ -1,6 +1,6 @@
 import * as aggregation from 'aggregation/es6';
 
-import * as sql from '../sql';
+import * as sql from '../sql/Expression';
 
 class StringType extends aggregation(String, sql.Field) {
 
@@ -8,7 +8,7 @@ class StringType extends aggregation(String, sql.Field) {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'string' || value instanceof String) {
-			super.set(value.valueOf());
+			super.set(value);
 		}
 	}
 

@@ -11,6 +11,6 @@ export { types };
 export { Context };
 export { collection };
 export { Util };
-export { Expression as Expression };
+export { Expression };
 export { bean };
 export { handlers };

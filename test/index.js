@@ -1,13 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const mysql = require("mysql");
+const es = require("./../dist/index");
 const EmpContext_1 = require("./modal/EmpContext");
 var config = {
-    driver: null,
-    handler: 'postgres',
+    driver: mysql,
+    handler: es.bean.HandlerType.Mysql,
     hostname: 'localhost',
-    username: 'rohan',
-    password: '12345',
-    database: 'test'
+    username: 'root',
+    password: '123456',
+    database: 'entity-test'
 };
 var context = new EmpContext_1.default(config);
 let q = 4;

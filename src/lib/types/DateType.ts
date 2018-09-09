@@ -1,6 +1,6 @@
 import * as aggregation from 'aggregation/es6';
 
-import * as sql from '../sql';
+import * as sql from '../sql/Expression';
 
 class DateType extends aggregation(Date, sql.Field) {
 

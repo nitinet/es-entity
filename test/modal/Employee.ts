@@ -1,4 +1,4 @@
-import * as es from './../../types/index';
+import * as es from './../../dist/index';
 
 import Application from './Application';
 

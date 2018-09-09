@@ -69,7 +69,6 @@ class Context {
     }
     setConfig(config) {
         this.handler = getHandler(config);
-        this.handler.context = this;
     }
     get handler() {
         return this._handler;

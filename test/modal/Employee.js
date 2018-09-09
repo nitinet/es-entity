@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const es = require("./../../types/index");
+const es = require("./../../dist/index");
 const Application_1 = require("./Application");
 class Employee {
     constructor() {

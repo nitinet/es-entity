@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
+const sql = require("../sql/Expression");
 class JsonType extends sql.Field {
     constructor(data) {
         super();

@@ -1,4 +1,4 @@
-import * as es from './../../types/index';
+import * as es from './../../dist/index';
 import Employee from './Employee';
 
 class EmpContext extends es.Context {
