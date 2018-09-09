@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"target": "es2017",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"sourceMap": false,
+		"allowSyntheticDefaultImports": true,
+		"removeComments": true,
+		// "declaration": true,
+		// "declarationDir": "./types",
+		"outDir": "./",
+		"typeRoots": [
+			"../typings/globals/",
+			"../typings/modules/"
+		]
+	},
+	"include": [
+		"**/*"
+	],
+	"exclude": [
+		"typings",
+		"node_modules"
+	]
+}

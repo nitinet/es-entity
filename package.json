@@ -1,9 +1,9 @@
 {
 	"name": "es-entity",
-	"version": "1.0.102",
+	"version": "1.0.103",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"main": "./dist/index.js",
-	"types": "./src/index.ts",
+	"types": "./types/index.d.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -24,13 +24,16 @@
 	},
 	"homepage": "https://github.com/InHeap/es-entity#readme",
 	"dependencies": {
-		"case": "*",
-		"moment": "*"
+		"case": "*"
 	},
-	"devDependencies": {
+	"peerDependencies": {
 		"cassandra-driver": "*",
 		"mssql": "*",
 		"mysql": "*",
+		"pg": "*",
 		"sqlite3": "*"
+	},
+	"devDependencies": {
+		"mysql": "*"
 	}
 }

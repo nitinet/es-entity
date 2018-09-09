@@ -1,27 +1,31 @@
-import { DBSet } from './Queryable';
+import { DBSet } from './collection';
 import Handler from './Handler';
-import * as Query from './Query';
+import * as sql from './sql';
 import Connection from './Connection';
 import * as bean from '../bean/index';
+import { IEntityType } from './types';
 
-import MysqlHandler from '../handlers/Mysql';
-import OracleHandler from '../handlers/OracleDb';
-import MsSqlServerHandler from '../handlers/MsSqlServer';
-import PostGreHandler from '../handlers/PostGreSql';
-import SqlLiteHandler from '../handlers/SqlLite';
+import Mysql from '../handlers/Mysql';
+import OracleHandler from '../handlers/Oracle';
+import MsSqlServer from '../handlers/MsSqlServer';
+import PostgreSql from '../handlers/PostGreSql';
+import SQLite from '../handlers/SQLite';
+import Cassandra from '../handlers/Cassandra'
 
 function getHandler(config: bean.IConnectionConfig): Handler {
 	let handler: Handler = null;
-	if (config.handler.toLowerCase() === 'mysql') {
-		handler = new MysqlHandler(config);
-	} else if (config.handler.toLowerCase() === 'oracle') {
+	if (config.handler === bean.HandlerType.Mysql) {
+		handler = new Mysql(config);
+	} else if (config.handler === bean.HandlerType.Oracle) {
 		handler = new OracleHandler(config);
-	} else if (config.handler.toLowerCase() === 'postgresql') {
-		handler = new PostGreHandler(config);
-	} else if (config.handler.toLowerCase() === 'sqlserver') {
-		handler = new MsSqlServerHandler(config);
-	} else if (config.handler.toLowerCase() === 'sqllite') {
-		handler = new SqlLiteHandler(config);
+	} else if (config.handler === bean.HandlerType.PostgreSql) {
+		handler = new PostgreSql(config);
+	} else if (config.handler === bean.HandlerType.MsSqlServer) {
+		handler = new MsSqlServer(config);
+	} else if (config.handler === bean.HandlerType.Sqlite) {
+		handler = new SQLite(config);
+	} else if (config.handler === bean.HandlerType.Cassandra) {
+		handler = new Cassandra(config);
 	} else {
 		throw 'No Handler Found';
 	}
@@ -29,10 +33,11 @@ function getHandler(config: bean.IConnectionConfig): Handler {
 }
 
 export default class Context {
-	entityPath: string;
-	handler: Handler;
-	connection: Connection = null;
-	logger = null;
+	private _handler: Handler;
+	private entityPath: string;
+	private connection: Connection = null;
+	private logger = null;
+	public dbSetMap = new Map<IEntityType<any>, DBSet<any>>();
 
 	constructor(config?: bean.IConnectionConfig, entityPath?: string) {
 		if (config) {
@@ -61,6 +66,7 @@ export default class Context {
 			let o: any = Reflect.get(this, key);
 			if (o instanceof DBSet) {
 				ps.push((<DBSet<any>>o).bind(this));
+				this.dbSetMap.set(o.getEntityType(), o);
 			}
 		}
 		return Promise.all(ps);
@@ -68,24 +74,31 @@ export default class Context {
 
 	setConfig(config: bean.IConnectionConfig): void {
 		this.handler = getHandler(config);
-		this.handler.context = this;
 	}
 
-	setHandler(handler: Handler) {
-		this.handler = handler;
-		this.handler.context = this;
+	get handler() {
+		return this._handler;
 	}
 
-	setEntityPath(entityPath: string): void {
+	set handler(handler: Handler) {
+		this._handler = handler;
+		this._handler.context = this;
+	}
+
+	getEntityPath() {
+		return this.entityPath;
+	}
+
+	setEntityPath(entityPath: string) {
 		this.entityPath = entityPath;
 	}
 
-	async execute(query: string | Query.ISqlNode, args?: Array<any>): Promise<bean.ResultSet> {
+	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {
 		return await this.handler.run(query, args, this.connection);
 	}
 
-	getCriteria(): Query.SqlExpression {
-		return new Query.SqlExpression();
+	getCriteria(): sql.Expression {
+		return new sql.Expression();
 	}
 
 	flush(): void { }

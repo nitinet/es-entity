@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Handler_1 = require("../lib/Handler");
-class SqlLiteHandler extends Handler_1.default {
+class SQlite extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'sqlite';
@@ -17,4 +17,4 @@ class SqlLiteHandler extends Handler_1.default {
         return null;
     }
 }
-exports.default = SqlLiteHandler;
+exports.default = SQlite;

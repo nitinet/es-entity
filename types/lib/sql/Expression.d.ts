@@ -1,0 +1,56 @@
+import Handler from '../Handler';
+import INode from './INode';
+import Operator from './Operator';
+import Column from './Column';
+declare class Field<T> extends Column {
+    _value: T;
+    _alias: string;
+    _name: string;
+    _updated: boolean;
+    constructor();
+    get(): T;
+    set(value: T): void;
+    toJSON(): Object;
+    _createExpr(): Expression;
+    _argExp(operand: T | Column): Expression;
+    eq(operand: T): Expression;
+    neq(operand: T): Expression;
+    lt(operand: T): Expression;
+    gt(operand: T): Expression;
+    lteq(operand: T): Expression;
+    gteq(operand: T): Expression;
+    and(operand: Column): Expression;
+    or(operand: Column): Expression;
+    not(): Expression;
+    in(...operand: T[]): Expression;
+    between(first: T, second: T): Expression;
+    like(operand: T): Expression;
+    IsNull(): Expression;
+    IsNotNull(): Expression;
+    plus(operand: T): Expression;
+    minus(operand: T): Expression;
+    multiply(operand: T): Expression;
+    devide(operand: T): Expression;
+    asc(): Expression;
+    desc(): Expression;
+    sum(): Expression;
+    min(): Expression;
+    max(): Expression;
+    count(): Expression;
+    average(): Expression;
+}
+declare class Expression extends Field<any> implements INode {
+    args: Array<any>;
+    _alias: string;
+    _name: string;
+    _updated: boolean;
+    value: string;
+    exps: Array<Expression>;
+    operator: Operator;
+    constructor(value?: string, operator?: Operator, ...expressions: Array<Expression>);
+    add(...expressions: Array<Expression>): Expression;
+    eval(handler: Handler): string;
+    _createExpr(): Expression;
+}
+export default Expression;
+export { Field };

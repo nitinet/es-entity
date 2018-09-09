@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Handler_1 = require("../lib/Handler");
-class OracleDbHandler extends Handler_1.default {
+class Oracle extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'oracle';
@@ -17,4 +17,4 @@ class OracleDbHandler extends Handler_1.default {
         return null;
     }
 }
-exports.default = OracleDbHandler;
+exports.default = Oracle;

@@ -1,14 +1,17 @@
-import * as es from "./../../index";
+import * as es from './../../dist/index';
+
 import Application from './Application';
 
 class Employee {
-    id: es.Type.Number = new es.Type.Number();
-    name: es.Type.String = new es.Type.String();
-    description: es.Type.String = new es.Type.String();
-    crtdAt: es.Type.Date = new es.Type.Date();
+	id = new es.types.Number();
+	appId = new es.types.Number();
+	name = new es.types.String();
+	description = new es.types.String();
+	crtdAt = new es.types.Date();
 
-    constructor() {
-    }
+	application = new es.collection.ForeignSet<Application>(Application, (a: Application, emp: Employee[]) => {
+		return a.id.eq(emp[0].appId.get());
+	});
 }
 
 export default Employee;

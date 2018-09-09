@@ -1,4 +1,4 @@
-import * as Type from './Type';
+import * as types from './types';
 
 export class PropertyTransformer {
 	fields: Array<string> = new Array<string>();
@@ -20,7 +20,7 @@ export class PropertyTransformer {
 			keys.forEach(key => {
 				if (this.fields.indexOf(key.toString()) != -1 && Reflect.has(target, key)) {
 					let value = Reflect.get(source, key);
-					if (target[key] instanceof Type.Date) {
+					if (target[key] instanceof types.Date) {
 						target[key].set(new Date(value));
 					} else {
 						target[key].set(value);

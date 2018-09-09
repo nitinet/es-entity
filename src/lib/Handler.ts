@@ -1,4 +1,4 @@
-import * as Query from './Query';
+import * as sql from './sql';
 import Connection from './Connection';
 import Context from './Context';
 
@@ -11,7 +11,7 @@ export default abstract class Handler {
 	config: bean.IConnectionConfig;
 
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> { return null; }
-	async run(query: string | Query.ISqlNode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
+	async run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
 
 	convertPlaceHolder(query: string) { return query; }
 	insertQuery(collection: string, columns: string, values: string) { return `insert into ${collection} (${columns}) values (${values})`; }
