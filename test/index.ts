@@ -1,4 +1,3 @@
-import * as mysql from 'mysql';
 import * as es from './../dist/index';
 
 import empContext from './modal/EmpContext';
@@ -16,6 +15,7 @@ let q = 4;
 
 async function run() {
 	await context.init();
+
 	console.log('[INIT]');
 	let trans = await context.initTransaction();
 	console.log('[SELECT]');
@@ -27,14 +27,16 @@ async function run() {
 	console.log('[UPDATE]');
 	let newEmp = trans.employees.getEntity();
 	newEmp.name.set('name 2');
+	newEmp.appId.set(1);
 	newEmp.description.set('desc insert 232432323');
 	emp = await trans.employees.insert(newEmp);
 	console.log('[INSERTION]');
 	console.log('id: ' + emp.id + ', name: ' + emp.name + ', desc: ' + emp.description);
 	console.log('[DELETION]');
-	await trans.employees.delete(emp);
 	await trans.commit();
+
 	console.log('[SELECT CONDITIONAL]');
+	await context.employees.delete(emp);
 	let empList = await context.employees.where((a) => {
 		// return a.name.IsNotNull();
 		return (a.id.lt(q)).or(a.id.eq(2));
@@ -45,8 +47,9 @@ async function run() {
 	}
 	console.log('[TEST COMPLETE]');
 
+	emp = await trans.employees.get(1);
 	let app = await emp.application.unique();
-	console.log(app);
+	console.log('appId: ' + app.id);
 
 	process.exit(0);
 }

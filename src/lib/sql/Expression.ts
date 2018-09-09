@@ -6,29 +6,33 @@ import Operator from './Operator';
 import Column from './Column';
 
 class Field<T> extends Column {
+	_value: T = null;
+	_alias: string = '';
+	_name: string = '';
+	_updated: boolean = false;
 
-	// constructor() {
-	// 	super();
-	// }
+	constructor() {
+		super();
+	}
 
-	// get() {
-	// 	return this;
-	// }
+	get(): T {
+		return this._value;
+	}
 
-	// set(value: T) {
-	// 	if (value !== this._value) {
-	// 		this._updated = true;
-	// 		this._value = value;
-	// 	}
-	// }
+	set(value: T) {
+		if (value !== this._value) {
+			this._updated = true;
+			this._value = value;
+		}
+	}
 
-	// toJSON() {
-	// 	if (this._value != null) {
-	// 		return this._value.valueOf();
-	// 	} else {
-	// 		return null;
-	// 	}
-	// }
+	toJSON() {
+		if (this._value != null) {
+			return this._value.valueOf();
+		} else {
+			return null;
+		}
+	}
 
 	_createExpr() {
 		let name = this._alias ? this._alias + '.' + this._name : this._name;
@@ -86,15 +90,19 @@ class Field<T> extends Column {
 		}
 		return new Expression(null, Operator.In, this._createExpr(), arg);
 	}
+
 	between(first: T, second: T) {
 		return new Expression(null, Operator.Between, this._createExpr(), this._argExp(first), this._argExp(second));
 	}
+
 	like(operand: T) {
 		return new Expression(null, Operator.Like, this._createExpr(), this._argExp(operand));
 	}
+
 	IsNull() {
 		return new Expression(null, Operator.IsNull, this._createExpr());
 	}
+
 	IsNotNull() {
 		return new Expression(null, Operator.IsNotNull, this._createExpr());
 	}
@@ -103,12 +111,15 @@ class Field<T> extends Column {
 	plus(operand: T) {
 		return new Expression(null, Operator.Plus, this._createExpr(), this._argExp(operand));
 	}
+
 	minus(operand: T) {
 		return new Expression(null, Operator.Minus, this._createExpr(), this._argExp(operand));
 	}
+
 	multiply(operand: T) {
 		return new Expression(null, Operator.Multiply, this._createExpr(), this._argExp(operand));
 	}
+
 	devide(operand: T) {
 		return new Expression(null, Operator.Devide, this._createExpr(), this._argExp(operand));
 	}
@@ -125,15 +136,19 @@ class Field<T> extends Column {
 	sum() {
 		return new Expression(null, Operator.Sum, this._createExpr());
 	}
+
 	min() {
 		return new Expression(null, Operator.Min, this._createExpr());
 	}
+
 	max() {
 		return new Expression(null, Operator.Max, this._createExpr());
 	}
+
 	count() {
 		return new Expression(null, Operator.Count, this._createExpr());
 	}
+
 	average() {
 		return new Expression(null, Operator.Avg, this._createExpr());
 	}
@@ -143,7 +158,7 @@ class Field<T> extends Column {
 /**
  * SqlExpression
  */
-class Expression extends aggregation(INode, Field) {
+class Expression extends Field<any> implements INode {
 	args: Array<any> = new Array<any>();
 
 	_alias: string = '';

@@ -118,12 +118,12 @@ class DBSet {
     }
     setValue(obj, key, value) {
         if (value != null) {
-            obj[key] = value;
+            obj[key]._value = value;
             obj[key]._updated = false;
         }
     }
     getValue(obj, key) {
-        return obj[key];
+        return obj[key]._value;
     }
     async executeStatement(stat) {
         return await this.context.execute(stat);
@@ -177,7 +177,7 @@ class DBSet {
                 return await this.get(this.getValue(entity, this.mapping.primaryKey));
         }
         else {
-            return null;
+            return entity;
         }
     }
     insertOrUpdate(entity) {

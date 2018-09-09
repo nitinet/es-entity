@@ -10,7 +10,7 @@ class Employee {
         this.description = new es.types.String();
         this.crtdAt = new es.types.Date();
         this.application = new es.collection.ForeignSet(Application_1.default, (a, emp) => {
-            return emp.appId.eq(a.id);
+            return a.id.eq(emp[0].appId.get());
         });
     }
 }

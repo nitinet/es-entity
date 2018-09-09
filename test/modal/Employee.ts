@@ -9,8 +9,8 @@ class Employee {
 	description = new es.types.String();
 	crtdAt = new es.types.Date();
 
-	application = new es.collection.ForeignSet<Application>(Application, (a, emp: Employee) => {
-		return emp.appId.eq(a.id);
+	application = new es.collection.ForeignSet<Application>(Application, (a: Application, emp: Employee[]) => {
+		return a.id.eq(emp[0].appId.get());
 	});
 }
 

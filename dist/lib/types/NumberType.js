@@ -1,8 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const aggregation = require("aggregation/es6");
 const sql = require("../sql/Expression");
-class NumberType extends aggregation(Number, sql.Field) {
+class NumberType extends sql.Field {
+    constructor(data) {
+        super();
+        this._value = data;
+    }
     set(value) {
         if (value == null || value == undefined) {
             super.set(null);
@@ -10,6 +13,21 @@ class NumberType extends aggregation(Number, sql.Field) {
         else if (typeof value == 'number' || value instanceof Number) {
             super.set(value);
         }
+    }
+    toString(radix) {
+        return this._value.toString(radix);
+    }
+    toFixed(fractionDigits) {
+        return this._value.toFixed(fractionDigits);
+    }
+    toExponential(fractionDigits) {
+        return this._value.toExponential(fractionDigits);
+    }
+    toPrecision(precision) {
+        return this._value.toPrecision(precision);
+    }
+    valueOf() {
+        return this._value.valueOf();
     }
 }
 exports.default = NumberType;

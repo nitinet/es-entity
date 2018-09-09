@@ -1,10 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const aggregation = require("aggregation/es6");
-const INode_1 = require("./INode");
 const Operator_1 = require("./Operator");
 const Column_1 = require("./Column");
 class Field extends Column_1.default {
+    constructor() {
+        super();
+        this._value = null;
+        this._alias = '';
+        this._name = '';
+        this._updated = false;
+    }
+    get() {
+        return this._value;
+    }
+    set(value) {
+        if (value !== this._value) {
+            this._updated = true;
+            this._value = value;
+        }
+    }
+    toJSON() {
+        if (this._value != null) {
+            return this._value.valueOf();
+        }
+        else {
+            return null;
+        }
+    }
     _createExpr() {
         let name = this._alias ? this._alias + '.' + this._name : this._name;
         return new Expression(name);
@@ -101,7 +123,7 @@ class Field extends Column_1.default {
     }
 }
 exports.Field = Field;
-class Expression extends aggregation(INode_1.default, Field) {
+class Expression extends Field {
     constructor(value, operator, ...expressions) {
         super();
         this.args = new Array();

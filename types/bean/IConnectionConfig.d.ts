@@ -1,6 +1,7 @@
+import HandlerType from './HandlerType';
 interface IConnectionConfig {
-    handler: string;
-    driver: any;
+    handler: HandlerType;
+    driver?: any;
     connectionLimit?: number;
     hostname: string;
     username: string;

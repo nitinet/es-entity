@@ -137,13 +137,13 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 
 	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<expression.Field<any>>obj[key]) = value;
+			(<expression.Field<any>>obj[key])._value = value;
 			(<expression.Field<any>>obj[key])._updated = false;
 		}
 	}
 
 	getValue(obj, key: string) {
-		return (<expression.Field<any>>obj[key]);
+		return (<expression.Field<any>>obj[key])._value;
 	}
 
 	async executeStatement(stat: sql.Statement): Promise<bean.ResultSet> {
@@ -206,7 +206,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			else
 				return await this.get(this.getValue(entity, this.mapping.primaryKey));
 		} else {
-			return null;
+			return entity;
 		}
 	}
 

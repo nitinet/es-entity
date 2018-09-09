@@ -1,10 +1,45 @@
 import Handler from '../Handler';
+import INode from './INode';
 import Operator from './Operator';
 import Column from './Column';
-import INode from './INode';
-import Field from './Field';
-
-declare class Expression extends INode implements Field<any> {
+declare class Field<T> extends Column {
+    _value: T;
+    _alias: string;
+    _name: string;
+    _updated: boolean;
+    constructor();
+    get(): T;
+    set(value: T): void;
+    toJSON(): Object;
+    _createExpr(): Expression;
+    _argExp(operand: T | Column): Expression;
+    eq(operand: T): Expression;
+    neq(operand: T): Expression;
+    lt(operand: T): Expression;
+    gt(operand: T): Expression;
+    lteq(operand: T): Expression;
+    gteq(operand: T): Expression;
+    and(operand: Column): Expression;
+    or(operand: Column): Expression;
+    not(): Expression;
+    in(...operand: T[]): Expression;
+    between(first: T, second: T): Expression;
+    like(operand: T): Expression;
+    IsNull(): Expression;
+    IsNotNull(): Expression;
+    plus(operand: T): Expression;
+    minus(operand: T): Expression;
+    multiply(operand: T): Expression;
+    devide(operand: T): Expression;
+    asc(): Expression;
+    desc(): Expression;
+    sum(): Expression;
+    min(): Expression;
+    max(): Expression;
+    count(): Expression;
+    average(): Expression;
+}
+declare class Expression extends Field<any> implements INode {
     args: Array<any>;
     _alias: string;
     _name: string;
@@ -15,34 +50,7 @@ declare class Expression extends INode implements Field<any> {
     constructor(value?: string, operator?: Operator, ...expressions: Array<Expression>);
     add(...expressions: Array<Expression>): Expression;
     eval(handler: Handler): string;
-
-    // Field extended methods
     _createExpr(): Expression;
-    _argExp(operand: any | Column): Expression;
-    eq(operand: any): Expression;
-    neq(operand: any): Expression;
-    lt(operand: any): Expression;
-    gt(operand: any): Expression;
-    lteq(operand: any): Expression;
-    gteq(operand: any): Expression;
-    and(operand: Column): Expression;
-    or(operand: Column): Expression;
-    not(): Expression;
-    in(...operand: any[]): Expression;
-    between(first: any, second: any): Expression;
-    like(operand: any): Expression;
-    IsNull(): Expression;
-    IsNotNull(): Expression;
-    plus(operand: any): Expression;
-    minus(operand: any): Expression;
-    multiply(operand: any): Expression;
-    devide(operand: any): Expression;
-    asc(): Expression;
-    desc(): Expression;
-    sum(): Expression;
-    min(): Expression;
-    max(): Expression;
-    count(): Expression;
-    average(): Expression;
 }
 export default Expression;
+export { Field };

@@ -4,7 +4,6 @@ const sql = require("../sql/Expression");
 class JsonType extends sql.Field {
     constructor(data) {
         super();
-        this._value = null;
         this.set(data);
     }
     get() {
