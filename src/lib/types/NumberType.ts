@@ -13,7 +13,7 @@ class NumberType extends sql.Field<number> implements Number {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'number' || value instanceof Number) {
-			super.set(value);
+			super.set(<number>value);
 		}
 	}
 

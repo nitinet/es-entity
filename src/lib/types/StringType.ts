@@ -13,7 +13,7 @@ class StringType extends sql.Field<string> implements String {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'string' || value instanceof String) {
-			super.set(value);
+			super.set(<string>value);
 		}
 	}
 

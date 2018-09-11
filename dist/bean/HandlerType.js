@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var HandlerType;
 (function (HandlerType) {
-    HandlerType[HandlerType["NONE"] = 0] = "NONE";
-    HandlerType[HandlerType["Mysql"] = 1] = "Mysql";
-    HandlerType[HandlerType["PostgreSql"] = 2] = "PostgreSql";
-    HandlerType[HandlerType["MsSqlServer"] = 3] = "MsSqlServer";
-    HandlerType[HandlerType["Oracle"] = 4] = "Oracle";
-    HandlerType[HandlerType["Sqlite"] = 5] = "Sqlite";
-    HandlerType[HandlerType["Cassandra"] = 6] = "Cassandra";
+    HandlerType[HandlerType["none"] = 0] = "none";
+    HandlerType[HandlerType["mysql"] = 1] = "mysql";
+    HandlerType[HandlerType["postgresql"] = 2] = "postgresql";
+    HandlerType[HandlerType["mssql"] = 3] = "mssql";
+    HandlerType[HandlerType["oracle"] = 4] = "oracle";
+    HandlerType[HandlerType["sqlite"] = 5] = "sqlite";
+    HandlerType[HandlerType["cassandra"] = 6] = "cassandra";
 })(HandlerType || (HandlerType = {}));
 exports.default = HandlerType;

@@ -15,7 +15,7 @@ class BooleanType extends sql.Field<boolean> implements Boolean {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'boolean' || value instanceof Boolean) {
-			super.set(value);
+			super.set(<boolean>value);
 		}
 	}
 
