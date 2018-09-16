@@ -1,5 +1,3 @@
-import * as aggregation from 'aggregation/es6';
-
 import * as sql from '../sql/Expression';
 
 class DateType extends sql.Field<Date> implements Date {
@@ -278,11 +276,7 @@ class DateType extends sql.Field<Date> implements Date {
 	}
 	/** Used by the JSON.stringify method to enable the transformation of an object's data for JavaScript Object Notation (JSON) serialization. */
 	toJSON(key?: any): string {
-		if (this._value != null) {
-			return moment(this._value).format('DD/MM/YYYY HH:mm:ss.SSS')
-		} else {
-			return null;
-		}
+		return this._value.toJSON(key);
 	}
 
 	getVarDate(): VarDate {

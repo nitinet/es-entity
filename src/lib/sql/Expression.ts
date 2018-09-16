@@ -1,5 +1,3 @@
-import * as aggregation from 'aggregation/es6';
-
 import Handler from '../Handler';
 import INode from './INode';
 import Operator from './Operator';

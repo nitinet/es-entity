@@ -1,3 +1,4 @@
+// import * as pg from 'pg';
 import * as fs from 'fs';
 
 import * as bean from '../bean/index';
@@ -12,8 +13,8 @@ export default class PostgreSql extends Handler {
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
-		this.driver = require('pg');
 		this.config = config;
+		this.driver = config.driver || require('pg');
 		this.connectionPool = new this.driver.Pool({
 			user: this.config.username,
 			password: this.config.password,

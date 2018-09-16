@@ -10,8 +10,8 @@ class MsSqlServer extends Handler_1.default {
         this.handlerName = 'mssql';
         this.connectionPool = null;
         this.driver = null;
-        this.driver = require('mssql');
         this.config = config;
+        this.driver = config.driver || require('mssql');
         this.setConnectionPool();
     }
     async setConnectionPool() {
@@ -20,7 +20,7 @@ class MsSqlServer extends Handler_1.default {
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
-        });
+        }).connect();
     }
     async getConnection() {
         await this.driver.connect({
@@ -84,7 +84,6 @@ class MsSqlServer extends Handler_1.default {
                 });
             }
             else {
-                console.log(this.connectionPool.request());
                 this.connectionPool.request().query(q, args, function (err, result) {
                     if (err)
                         reject(err);

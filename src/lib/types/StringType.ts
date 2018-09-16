@@ -1,5 +1,3 @@
-import * as aggregation from 'aggregation/es6';
-
 import * as sql from '../sql/Expression';
 
 class StringType extends sql.Field<string> implements String {

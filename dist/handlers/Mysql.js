@@ -10,8 +10,8 @@ class Mysql extends Handler_1.default {
         this.handlerName = 'mysql';
         this.connectionPool = null;
         this.driver = null;
-        this.driver = require('mysql');
         this.config = config;
+        this.driver = config.driver || require('mysql');
         this.connectionPool = this.driver.createPool({
             connectionLimit: this.config.connectionLimit,
             host: this.config.hostname,

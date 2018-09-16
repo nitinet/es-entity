@@ -1,7 +1,7 @@
 // import * as mysql from 'mysql';
 
 import * as bean from '../bean/index';
-import  Handler from '../lib/Handler';
+import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
 import Connection from '../lib/Connection';
 
@@ -12,8 +12,8 @@ export default class Mysql extends Handler {
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
-		this.driver = require('mysql');
 		this.config = config;
+		this.driver = config.driver || require('mysql');
 		this.connectionPool = this.driver.createPool({
 			connectionLimit: this.config.connectionLimit,
 			host: this.config.hostname,

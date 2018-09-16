@@ -1,5 +1,3 @@
-import * as aggregation from 'aggregation/es6';
-
 import * as sql from '../sql/Expression';
 
 class BooleanType extends sql.Field<boolean> implements Boolean {
