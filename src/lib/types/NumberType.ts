@@ -1,5 +1,3 @@
-import * as aggregation from 'aggregation/es6';
-
 import * as sql from '../sql/Expression';
 
 class NumberType extends sql.Field<number> implements Number {
@@ -13,7 +11,7 @@ class NumberType extends sql.Field<number> implements Number {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'number' || value instanceof Number) {
-			super.set(value.valueOf());
+			super.set(<number>value);
 		}
 	}
 

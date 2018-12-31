@@ -1,5 +1,3 @@
-import * as aggregation from 'aggregation/es6';
-
 import Handler from '../Handler';
 import INode from './INode';
 import Operator from './Operator';
@@ -128,7 +126,6 @@ class Field<T> extends Column {
 	asc() {
 		return new Expression(null, Operator.Asc, this._createExpr());
 	}
-
 	desc() {
 		return new Expression(null, Operator.Desc, this._createExpr());
 	}

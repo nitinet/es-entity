@@ -144,12 +144,7 @@ class DateType extends sql.Field {
         return this._value.toISOString();
     }
     toJSON(key) {
-        if (this._value != null) {
-            return moment(this._value).format('DD/MM/YYYY HH:mm:ss.SSS');
-        }
-        else {
-            return null;
-        }
+        return this._value.toJSON(key);
     }
     getVarDate() {
         return this._value.getVarDate();

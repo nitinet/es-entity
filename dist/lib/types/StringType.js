@@ -11,7 +11,7 @@ class StringType extends sql.Field {
             super.set(null);
         }
         else if (typeof value == 'string' || value instanceof String) {
-            super.set(value.valueOf());
+            super.set(value);
         }
     }
     [Symbol.iterator]() {

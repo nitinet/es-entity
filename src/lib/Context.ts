@@ -14,20 +14,33 @@ import Cassandra from '../handlers/Cassandra'
 
 function getHandler(config: bean.IConnectionConfig): Handler {
 	let handler: Handler = null;
-	if (config.handler === bean.HandlerType.Mysql) {
-		handler = new Mysql(config);
-	} else if (config.handler === bean.HandlerType.Oracle) {
-		handler = new OracleHandler(config);
-	} else if (config.handler === bean.HandlerType.PostgreSql) {
-		handler = new PostgreSql(config);
-	} else if (config.handler === bean.HandlerType.MsSqlServer) {
-		handler = new MsSqlServer(config);
-	} else if (config.handler === bean.HandlerType.Sqlite) {
-		handler = new SQLite(config);
-	} else if (config.handler === bean.HandlerType.Cassandra) {
-		handler = new Cassandra(config);
-	} else {
-		throw 'No Handler Found';
+	switch (config.handler) {
+		case bean.HandlerType[bean.HandlerType.mysql]:
+			handler = new Mysql(config);
+			break;
+
+		case bean.HandlerType[bean.HandlerType.oracle]:
+			handler = new OracleHandler(config);
+			break;
+
+		case bean.HandlerType[bean.HandlerType.postgresql]:
+			handler = new PostgreSql(config);
+			break;
+
+		case bean.HandlerType[bean.HandlerType.mssql]:
+			handler = new MsSqlServer(config);
+			break;
+
+		case bean.HandlerType[bean.HandlerType.sqlite]:
+			handler = new SQLite(config);
+			break;
+
+		case bean.HandlerType[bean.HandlerType.cassandra]:
+			handler = new Cassandra(config);
+			break;
+
+		default:
+			throw 'No Handler Found';
 	}
 	return handler;
 }

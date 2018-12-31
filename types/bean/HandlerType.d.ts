@@ -1,10 +1,10 @@
 declare enum HandlerType {
-    NONE = 0,
-    Mysql = 1,
-    PostgreSql = 2,
-    MsSqlServer = 3,
-    Oracle = 4,
-    Sqlite = 5,
-    Cassandra = 6
+    none = 0,
+    mysql = 1,
+    postgresql = 2,
+    mssql = 3,
+    oracle = 4,
+    sqlite = 5,
+    cassandra = 6
 }
 export default HandlerType;

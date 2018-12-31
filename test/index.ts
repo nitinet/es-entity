@@ -1,6 +1,6 @@
 import * as es from './../dist/index';
 
-import empContext from './modal/EmpContext';
+import EmpContext from './modal/EmpContext';
 
 var config: es.bean.IConnectionConfig = {
 	handler: es.bean.HandlerType.Mysql,
@@ -9,7 +9,7 @@ var config: es.bean.IConnectionConfig = {
 	password: '123456',
 	database: 'entity-test'
 };
-var context = new empContext(config);
+var context = new EmpContext(config);
 
 let q = 4;
 

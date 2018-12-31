@@ -11,7 +11,7 @@ class NumberType extends sql.Field {
             super.set(null);
         }
         else if (typeof value == 'number' || value instanceof Number) {
-            super.set(value.valueOf());
+            super.set(value);
         }
     }
     toString(radix) {

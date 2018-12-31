@@ -11,26 +11,27 @@ const SQLite_1 = require("../handlers/SQLite");
 const Cassandra_1 = require("../handlers/Cassandra");
 function getHandler(config) {
     let handler = null;
-    if (config.handler === bean.HandlerType.Mysql) {
-        handler = new Mysql_1.default(config);
-    }
-    else if (config.handler === bean.HandlerType.Oracle) {
-        handler = new Oracle_1.default(config);
-    }
-    else if (config.handler === bean.HandlerType.PostgreSql) {
-        handler = new PostGreSql_1.default(config);
-    }
-    else if (config.handler === bean.HandlerType.MsSqlServer) {
-        handler = new MsSqlServer_1.default(config);
-    }
-    else if (config.handler === bean.HandlerType.Sqlite) {
-        handler = new SQLite_1.default(config);
-    }
-    else if (config.handler === bean.HandlerType.Cassandra) {
-        handler = new Cassandra_1.default(config);
-    }
-    else {
-        throw 'No Handler Found';
+    switch (config.handler) {
+        case bean.HandlerType[bean.HandlerType.mysql]:
+            handler = new Mysql_1.default(config);
+            break;
+        case bean.HandlerType[bean.HandlerType.oracle]:
+            handler = new Oracle_1.default(config);
+            break;
+        case bean.HandlerType[bean.HandlerType.postgresql]:
+            handler = new PostGreSql_1.default(config);
+            break;
+        case bean.HandlerType[bean.HandlerType.mssql]:
+            handler = new MsSqlServer_1.default(config);
+            break;
+        case bean.HandlerType[bean.HandlerType.sqlite]:
+            handler = new SQLite_1.default(config);
+            break;
+        case bean.HandlerType[bean.HandlerType.cassandra]:
+            handler = new Cassandra_1.default(config);
+            break;
+        default:
+            throw 'No Handler Found';
     }
     return handler;
 }
