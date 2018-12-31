@@ -20,7 +20,8 @@ export default class MsSqlServer extends Handler {
 
 	async	setConnectionPool() {
 		this.connectionPool = new this.driver.ConnectionPool({
-			server: this.config.hostname,
+			server: this.config.host,
+			port: this.config.port,
 			user: this.config.username,
 			password: this.config.password,
 			database: this.config.database
@@ -29,7 +30,8 @@ export default class MsSqlServer extends Handler {
 
 	async getConnection() {
 		await this.driver.connect({
-			server: this.config.hostname,
+			server: this.config.host,
+			port: this.config.port,
 			user: this.config.username,
 			password: this.config.password,
 			database: this.config.database

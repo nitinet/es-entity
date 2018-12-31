@@ -14,7 +14,8 @@ class Mysql extends Handler_1.default {
         this.driver = config.driver || require('mysql');
         this.connectionPool = this.driver.createPool({
             connectionLimit: this.config.connectionLimit,
-            host: this.config.hostname,
+            host: this.config.host,
+            port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
@@ -24,7 +25,8 @@ class Mysql extends Handler_1.default {
         let that = this;
         return new Promise((resolve, reject) => {
             let conn = that.driver.createConnection({
-                host: that.config.hostname,
+                host: that.config.host,
+                port: that.config.port,
                 user: that.config.username,
                 password: that.config.password,
                 database: that.config.database
@@ -46,7 +48,7 @@ class Mysql extends Handler_1.default {
         let that = this;
         let p = new Promise((resolve, reject) => {
             conn = this.driver.createConnection({
-                host: this.config.hostname,
+                host: this.config.host,
                 user: this.config.username,
                 password: this.config.password,
                 database: this.config.database

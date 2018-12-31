@@ -16,7 +16,8 @@ class MsSqlServer extends Handler_1.default {
     }
     async setConnectionPool() {
         this.connectionPool = new this.driver.ConnectionPool({
-            server: this.config.hostname,
+            server: this.config.host,
+            port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
@@ -24,7 +25,8 @@ class MsSqlServer extends Handler_1.default {
     }
     async getConnection() {
         await this.driver.connect({
-            server: this.config.hostname,
+            server: this.config.host,
+            port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database

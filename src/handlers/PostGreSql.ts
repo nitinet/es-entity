@@ -19,14 +19,16 @@ export default class PostgreSql extends Handler {
 			user: this.config.username,
 			password: this.config.password,
 			database: this.config.database,
-			host: this.config.hostname,
+			host: this.config.host,
+			port: this.config.port,
 			max: this.config.connectionLimit
 		});
 	}
 
 	async	getConnection(): Promise<Connection> {
 		let conn = new this.driver.Client({
-			host: this.config.hostname,
+			host: this.config.host,
+			port: this.config.port,
 			user: this.config.username,
 			password: this.config.password,
 			database: this.config.database

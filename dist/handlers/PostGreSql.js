@@ -17,13 +17,15 @@ class PostgreSql extends Handler_1.default {
             user: this.config.username,
             password: this.config.password,
             database: this.config.database,
-            host: this.config.hostname,
+            host: this.config.host,
+            port: this.config.port,
             max: this.config.connectionLimit
         });
     }
     async getConnection() {
         let conn = new this.driver.Client({
-            host: this.config.hostname,
+            host: this.config.host,
+            port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
