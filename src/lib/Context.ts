@@ -145,4 +145,8 @@ export default class Context {
 		await this.connection.close();
 	}
 
+	end() {
+		return this.handler.end();
+	}
+
 }

@@ -23,4 +23,5 @@ export default class Context {
     initTransaction(): Promise<this>;
     commit(): Promise<void>;
     rollback(): Promise<void>;
+    end(): Promise<void>;
 }

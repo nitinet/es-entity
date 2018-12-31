@@ -116,5 +116,8 @@ class Context {
         await this.connection.rollback();
         await this.connection.close();
     }
+    end() {
+        return this.handler.end();
+    }
 }
 exports.default = Context;

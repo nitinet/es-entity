@@ -9,6 +9,13 @@ export default abstract class Handler {
     config: bean.IConnectionConfig;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
     run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>;
+    abstract getConnection(): Promise<Connection>;
+    abstract openConnetion(conn: any): Promise<any>;
+    abstract initTransaction(conn: any): Promise<void>;
+    abstract commit(conn: any): Promise<void>;
+    abstract rollback(conn: any): Promise<void>;
+    abstract close(conn: any): Promise<void>;
+    abstract end(): Promise<void>;
     convertPlaceHolder(query: string): string;
     insertQuery(collection: string, columns: string, values: string): string;
     selectQuery(collection: string, columns: string): string;
@@ -17,12 +24,6 @@ export default abstract class Handler {
     orderQuery(orderBy: string): string;
     updateQuery(collection: string, columns: string, wheres: string): string;
     deleteQuery(collection: string, where: string): string;
-    getConnection(): Promise<Connection>;
-    openConnetion(conn: any): Promise<any>;
-    initTransaction(conn: any): Promise<void>;
-    commit(conn: any): Promise<void>;
-    rollback(conn: any): Promise<void>;
-    close(conn: any): Promise<void>;
     eq(val0: string, val1: string): string;
     neq(val0: string, val1: string): string;
     lt(val0: string, val1: string): string;

@@ -13,6 +13,7 @@ export default class Mysql extends Handler {
     commit(conn: any): Promise<void>;
     rollback(conn: any): Promise<void>;
     close(conn: any): Promise<void>;
+    end(): Promise<any>;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
     run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
 }

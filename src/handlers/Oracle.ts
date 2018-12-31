@@ -10,9 +10,13 @@ export default class Oracle extends Handler {
 		super();
 	}
 
-	getConnection(): any {
-		return null;
-	}
+	async getConnection() { return null; }
+	async openConnetion(conn) { return null; }
+	async initTransaction(conn) { return null; }
+	async commit(conn) { return null; }
+	async rollback(conn) { return null; }
+	async close(conn) { return null; }
+	async end() { return null; }
 
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		return null;

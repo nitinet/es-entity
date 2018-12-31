@@ -5,7 +5,13 @@ export default class SQlite extends Handler {
     handlerName: string;
     driver: any;
     constructor(config: bean.IConnectionConfig);
-    getConnection(): any;
+    getConnection(): Promise<any>;
+    openConnetion(conn: any): Promise<any>;
+    initTransaction(conn: any): Promise<any>;
+    commit(conn: any): Promise<any>;
+    rollback(conn: any): Promise<any>;
+    close(conn: any): Promise<any>;
+    end(): Promise<any>;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
     run(query: string | sql.INode): Promise<bean.ResultSet>;
 }

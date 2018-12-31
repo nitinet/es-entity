@@ -14,12 +14,6 @@ class Handler {
     orderQuery(orderBy) { return ` order by ${orderBy}`; }
     updateQuery(collection, columns, wheres) { return `update ${collection} set ${columns} where ${wheres}`; }
     deleteQuery(collection, where) { return `delete from ${collection} where ${where}`; }
-    async getConnection() { return null; }
-    async openConnetion(conn) { return null; }
-    async initTransaction(conn) { return null; }
-    async commit(conn) { return null; }
-    async rollback(conn) { return null; }
-    async close(conn) { return null; }
     eq(val0, val1) { return val0 + ' = ' + val1; }
     neq(val0, val1) { return val0 + ' != ' + val1; }
     lt(val0, val1) { return val0 + ' < ' + val1; }
