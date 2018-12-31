@@ -33,6 +33,10 @@ export default class PostgreSql extends Handler {
 			password: this.config.password,
 			database: this.config.database
 		});
+		return this.openConnetion(conn);
+	}
+
+	async openConnetion(conn) {
 		try {
 			await conn.connect();
 			this.context.log('Connection Creation Failed');
@@ -49,6 +53,8 @@ export default class PostgreSql extends Handler {
 	async	rollback(conn) { await conn.query('ROLLBACK'); }
 
 	async	close(conn) { conn.end() }
+
+	async end() { return null; }
 
 	async	getTableInfo(tableName: string) {
 		let describeTableQuery = fs.readFileSync(__dirname + '/../../assets/postgresql_describe_query.sql', 'utf-8');

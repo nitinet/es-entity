@@ -34,6 +34,12 @@ class MsSqlServer extends Handler_1.default {
         let conn = new this.driver.Request();
         return new Connection_1.default(this, conn);
     }
+    async openConnetion(conn) { return null; }
+    async initTransaction(conn) { return null; }
+    async commit(conn) { return null; }
+    async rollback(conn) { return null; }
+    async close(conn) { return null; }
+    async end() { return null; }
     async getTableInfo(tableName) {
         let r = await this.run(`Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = '${tableName}'`);
         let result = new Array();

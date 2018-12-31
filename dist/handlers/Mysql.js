@@ -122,6 +122,7 @@ class Mysql extends Handler_1.default {
         });
         return p;
     }
+    async end() { return null; }
     async getTableInfo(tableName) {
         let r = await this.run('describe ' + tableName);
         let result = new Array();

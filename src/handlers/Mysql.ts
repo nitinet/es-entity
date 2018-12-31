@@ -126,6 +126,8 @@ export default class Mysql extends Handler {
 		return p;
 	}
 
+	async end() { return null; }
+
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();

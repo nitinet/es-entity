@@ -9,6 +9,12 @@ export default class MsSqlServer extends Handler {
     constructor(config: bean.IConnectionConfig);
     setConnectionPool(): Promise<void>;
     getConnection(): any;
+    openConnetion(conn: any): Promise<any>;
+    initTransaction(conn: any): Promise<any>;
+    commit(conn: any): Promise<any>;
+    rollback(conn: any): Promise<any>;
+    close(conn: any): Promise<any>;
+    end(): Promise<any>;
     getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>;
     run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet>;
 }

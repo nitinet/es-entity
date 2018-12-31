@@ -40,6 +40,13 @@ export default class MsSqlServer extends Handler {
 		return new Connection(this, conn);
 	}
 
+	async openConnetion(conn) { return null; }
+	async initTransaction(conn) { return null; }
+	async commit(conn) { return null; }
+	async rollback(conn) { return null; }
+	async close(conn) { return null; }
+	async end() { return null; }
+
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = '${tableName}'`);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();

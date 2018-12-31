@@ -7,9 +7,13 @@ class Cassandra extends Handler_1.default {
         this.handlerName = 'cassandra';
         this.driver = null;
     }
-    getConnection() {
-        return null;
-    }
+    async getConnection() { return null; }
+    async openConnetion(conn) { return null; }
+    async initTransaction(conn) { return null; }
+    async commit(conn) { return null; }
+    async rollback(conn) { return null; }
+    async close(conn) { return null; }
+    async end() { return null; }
     async getTableInfo(tableName) {
         return null;
     }
