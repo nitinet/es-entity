@@ -110,10 +110,6 @@ export default class Context {
 		return await this.handler.run(query, args, this.connection);
 	}
 
-	getCriteria(): sql.Expression {
-		return new sql.Expression();
-	}
-
 	flush(): void { }
 
 	async initTransaction(): Promise<this> {

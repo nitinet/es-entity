@@ -18,7 +18,6 @@ export default class Context {
     getEntityPath(): string;
     setEntityPath(entityPath: string): void;
     execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet>;
-    getCriteria(): sql.Expression;
     flush(): void;
     initTransaction(): Promise<this>;
     commit(): Promise<void>;
