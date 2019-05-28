@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const collection_1 = require("./collection");
-const sql = require("./sql");
 const bean = require("../bean/index");
 const Mysql_1 = require("../handlers/Mysql");
 const Oracle_1 = require("../handlers/Oracle");
@@ -86,9 +85,6 @@ class Context {
     }
     async execute(query, args) {
         return await this.handler.run(query, args, this.connection);
-    }
-    getCriteria() {
-        return new sql.Expression();
     }
     flush() { }
     async initTransaction() {

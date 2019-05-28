@@ -1,5 +1,2 @@
-export declare class PropertyTransformer {
-    fields: Array<string>;
-    assignObject(source: any, target?: any): any;
-    assignEntity(target: any, ...sources: Array<any>): any;
-}
+import * as sql from './sql';
+export declare function getCriteria(): sql.Expression;
