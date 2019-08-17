@@ -13,12 +13,13 @@ export default class MsSqlServer extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.config = config;
-		this.driver = config.driver || require('mssql');
 
-		this.setConnectionPool();
+		this.init();
 	}
 
-	async	setConnectionPool() {
+	async	init() {
+		this.driver = this.config.driver || await import('mssql');
+
 		this.connectionPool = new this.driver.ConnectionPool({
 			server: this.config.host,
 			port: this.config.port,

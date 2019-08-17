@@ -7,8 +7,8 @@ export default class MsSqlServer extends Handler {
     connectionPool: any;
     driver: any;
     constructor(config: bean.IConnectionConfig);
-    setConnectionPool(): Promise<void>;
-    getConnection(): any;
+    init(): Promise<void>;
+    getConnection(): Promise<Connection>;
     openConnetion(conn: any): Promise<any>;
     initTransaction(conn: any): Promise<any>;
     commit(conn: any): Promise<any>;

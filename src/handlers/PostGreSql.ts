@@ -14,7 +14,13 @@ export default class PostgreSql extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.config = config;
-		this.driver = config.driver || require('pg');
+
+		this.init();
+	}
+
+	async init() {
+		// @ts-ignore
+		this.driver = this.config.driver || await import('pg');
 		this.connectionPool = new this.driver.Pool({
 			user: this.config.username,
 			password: this.config.password,

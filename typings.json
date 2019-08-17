@@ -3,7 +3,7 @@
     "node": "registry:dt/node"
   },
   "dependencies": {
-		"mysql": "registry:dt/mysql",
-		"mssql": "registry:dt/mssql"
+    "mssql": "registry:dt/mssql",
+    "mysql": "registry:dt/mysql"
   }
 }

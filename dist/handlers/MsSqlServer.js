@@ -11,10 +11,10 @@ class MsSqlServer extends Handler_1.default {
         this.connectionPool = null;
         this.driver = null;
         this.config = config;
-        this.driver = config.driver || require('mssql');
-        this.setConnectionPool();
+        this.init();
     }
-    async setConnectionPool() {
+    async init() {
+        this.driver = this.config.driver || await Promise.resolve().then(() => require('mssql'));
         this.connectionPool = new this.driver.ConnectionPool({
             server: this.config.host,
             port: this.config.port,

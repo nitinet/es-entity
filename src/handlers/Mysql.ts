@@ -13,7 +13,12 @@ export default class Mysql extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.config = config;
-		this.driver = config.driver || require('mysql');
+
+		this.init();
+	}
+
+	async init() {
+		this.driver = this.config.driver || await import('mysql');
 		this.connectionPool = this.driver.createPool({
 			connectionLimit: this.config.connectionLimit,
 			host: this.config.host,

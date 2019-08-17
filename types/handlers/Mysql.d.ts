@@ -7,6 +7,7 @@ export default class Mysql extends Handler {
     connectionPool: any;
     driver: any;
     constructor(config: bean.IConnectionConfig);
+    init(): Promise<void>;
     getConnection(): Promise<Connection>;
     openConnetion(conn: any): Promise<any>;
     initTransaction(conn: any): Promise<void>;

@@ -7,6 +7,7 @@ export default class PostgreSql extends Handler {
     handlerName: string;
     connectionPool: any;
     constructor(config: bean.IConnectionConfig);
+    init(): Promise<void>;
     getConnection(): Promise<Connection>;
     openConnetion(conn: any): any;
     initTransaction(conn: any): Promise<void>;
