@@ -10,6 +10,8 @@ export default abstract class Handler {
 	abstract driver;
 	config: bean.IConnectionConfig;
 
+	abstract async init(): Promise<void>;
+
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> { return null; }
 	async run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
 

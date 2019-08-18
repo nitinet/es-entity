@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class ColumnInfo {
     constructor() {
         this.field = '';
-        this.type = '';
+        this.type = null;
         this.nullable = false;
         this.primaryKey = false;
         this.default = '';

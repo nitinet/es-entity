@@ -54,7 +54,8 @@ class Context {
             this.logger.trace(arg);
         }
     }
-    init() {
+    async init() {
+        await this.handler.init();
         let keys = Reflect.ownKeys(this);
         let ps = new Array();
         for (let i = 0; i < keys.length; i++) {

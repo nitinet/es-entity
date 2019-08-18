@@ -71,7 +71,9 @@ export default class Context {
 		}
 	}
 
-	init() {
+	async	init() {
+		await this.handler.init();
+
 		let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
 		let ps: Promise<void>[] = new Array();
 		for (let i = 0; i < keys.length; i++) {

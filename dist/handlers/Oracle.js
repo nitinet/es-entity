@@ -7,6 +7,7 @@ class Oracle extends Handler_1.default {
         this.handlerName = 'oracle';
         this.driver = null;
     }
+    async init() { }
     async getConnection() { return null; }
     async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }

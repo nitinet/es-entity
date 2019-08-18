@@ -10,6 +10,8 @@ export default class Cassandra extends Handler {
 		super();
 	}
 
+	async init() { }
+	
 	async getConnection() { return null; }
 	async openConnetion(conn) { return null; }
 	async initTransaction(conn) { return null; }

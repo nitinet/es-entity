@@ -13,11 +13,10 @@ export default class MsSqlServer extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.config = config;
-
-		this.init();
 	}
 
 	async	init() {
+		// @ts-ignore
 		this.driver = this.config.driver || await import('mssql');
 
 		this.connectionPool = new this.driver.ConnectionPool({
@@ -52,28 +51,28 @@ export default class MsSqlServer extends Handler {
 		let r = await this.run(`Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = '${tableName}'`);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 		r.rows.forEach((row) => {
-			let a: bean.ColumnInfo = new bean.ColumnInfo();
-			a.field = row['Field'];
+			let col: bean.ColumnInfo = new bean.ColumnInfo();
+			col.field = row['Field'];
 			let columnType: string = (<string>row['Type']).toLowerCase();
 			if (columnType.includes('tinyint(1)')) {
-				a.type = 'boolean';
+				col.type = bean.ColumnType.BOOLEAN;
 			} else if (columnType.includes('int')
 				|| columnType.includes('float')
 				|| columnType.includes('double')
 				|| columnType.includes('decimal')) {
-				a.type = 'number';
+				col.type = bean.ColumnType.NUMBER;
 			} else if (columnType.includes('varchar')
 				|| columnType.includes('text')) {
-				a.type = 'string';
+				col.type = bean.ColumnType.STRING;
 			} else if (columnType.includes('timestamp')) {
-				a.type = 'date';
+				col.type = bean.ColumnType.DATE;
 			}
 
-			a.nullable = row['Null'] == 'YES' ? true : false;
-			a.primaryKey = (<string>row['Key']).indexOf('PRI') >= 0 ? true : false;
-			a.default = row['Default'];
-			a.extra = row['Extra'];
-			result.push(a);
+			col.nullable = row['Null'] == 'YES' ? true : false;
+			col.primaryKey = (<string>row['Key']).indexOf('PRI') >= 0 ? true : false;
+			col.default = row['Default'];
+			col.extra = row['Extra'];
+			result.push(col);
 		});
 		return result;
 	}

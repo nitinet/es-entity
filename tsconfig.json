@@ -6,8 +6,6 @@
 		"sourceMap": false,
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
-		"declaration": true,
-		"declarationDir": "./types",
 		"outDir": "./dist",
 		"typeRoots": [
 			"./typings/globals/",

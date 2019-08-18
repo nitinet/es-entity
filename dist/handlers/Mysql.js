@@ -11,7 +11,6 @@ class Mysql extends Handler_1.default {
         this.connectionPool = null;
         this.driver = null;
         this.config = config;
-        this.init();
     }
     async init() {
         this.driver = this.config.driver || await Promise.resolve().then(() => require('mysql'));
@@ -130,31 +129,33 @@ class Mysql extends Handler_1.default {
         let r = await this.run('describe ' + tableName);
         let result = new Array();
         r.rows.forEach((row) => {
-            let a = new bean.ColumnInfo();
-            a.field = row['Field'];
+            let col = new bean.ColumnInfo();
+            col.field = row['Field'];
             let columnType = row['Type'].toLowerCase();
             if (columnType.includes('tinyint(1)')) {
-                a.type = 'boolean';
+                col.type = bean.ColumnType.BOOLEAN;
             }
             else if (columnType.includes('int')
                 || columnType.includes('float')
                 || columnType.includes('double')
                 || columnType.includes('decimal')) {
-                a.type = 'number';
+                col.type = bean.ColumnType.NUMBER;
             }
             else if (columnType.includes('varchar')
-                || columnType.includes('text')
-                || columnType.includes('json')) {
-                a.type = 'string';
+                || columnType.includes('text')) {
+                col.type = bean.ColumnType.STRING;
             }
             else if (columnType.includes('timestamp')) {
-                a.type = 'date';
+                col.type = bean.ColumnType.DATE;
             }
-            a.nullable = row['Null'] == 'YES' ? true : false;
-            a.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
-            a.default = row['Default'];
-            a.extra = row['Extra'];
-            result.push(a);
+            else if (columnType.includes('json')) {
+                col.type = bean.ColumnType.JSON;
+            }
+            col.nullable = row['Null'] == 'YES' ? true : false;
+            col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
+            col.default = row['Default'];
+            col.extra = row['Extra'];
+            result.push(col);
         });
         return result;
     }

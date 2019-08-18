@@ -14,8 +14,6 @@ export default class PostgreSql extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super();
 		this.config = config;
-
-		this.init();
 	}
 
 	async init() {
@@ -69,31 +67,31 @@ export default class PostgreSql extends Handler {
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 
 		tableInfo.rows.forEach((row) => {
-			let obj: bean.ColumnInfo = new bean.ColumnInfo();
-			obj.field = row['field'];
+			let col: bean.ColumnInfo = new bean.ColumnInfo();
+			col.field = row['field'];
 			let columnType: string = (<string>row['data_type']).toLowerCase();
 
 			if (columnType.includes('boolean')) {
-				obj.type = 'boolean';
+				col.type = bean.ColumnType.BOOLEAN;
 			} else if (columnType.includes('int') ||
 				columnType.includes('float') ||
 				columnType.includes('double') ||
 				columnType.includes('decimal') ||
 				columnType.includes('real') ||
 				columnType.includes('numeric')) {
-				obj.type = 'number';
+				col.type = bean.ColumnType.NUMBER;
 			} else if (columnType.includes('varchar') ||
 				columnType.includes('text') ||
 				columnType.includes('character varying') ||
 				columnType.includes('uuid')) {
-				obj.type = 'string';
+				col.type = bean.ColumnType.STRING;
 			} else if (columnType.includes('timestamp') || columnType.includes('date')) {
-				obj.type = 'date';
+				col.type = bean.ColumnType.DATE;
 			}
-			obj.nullable = !row['notnull'];
-			obj.primaryKey = row['primarykey'];
-			obj.default = row['default'];
-			result.push(obj);
+			col.nullable = !row['notnull'];
+			col.primaryKey = row['primarykey'];
+			col.default = row['default'];
+			result.push(col);
 		});
 		return result;
 	}

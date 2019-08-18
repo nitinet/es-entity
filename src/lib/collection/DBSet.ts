@@ -86,15 +86,15 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			let fieldMapping = new Mapping.FieldMapping({
 				name: name
 			});
-			if (field instanceof types.String && column.type == 'string') {
+			if (field instanceof types.String && column.type == bean.ColumnType.STRING) {
 				fieldMapping.type = 'string';
-			} else if (field instanceof types.Number && column.type == 'number') {
+			} else if (field instanceof types.Number && column.type == bean.ColumnType.NUMBER) {
 				fieldMapping.type = 'number';
-			} else if (field instanceof types.Boolean && column.type == 'boolean') {
+			} else if (field instanceof types.Boolean && column.type == bean.ColumnType.BOOLEAN) {
 				fieldMapping.type = 'boolean';
-			} else if (field instanceof types.Date && column.type == 'date') {
+			} else if (field instanceof types.Date && column.type == bean.ColumnType.DATE) {
 				fieldMapping.type = 'date';
-			} else if (field instanceof types.Json && column.type == 'string') {
+			} else if (field instanceof types.Json && column.type == bean.ColumnType.JSON) {
 				fieldMapping.type = 'jsonObject';
 			} else {
 				throw new Error('Type mismatch found for Column: ' + name + ' in Table:' + this.mapping.name);

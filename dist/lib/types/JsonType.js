@@ -7,17 +7,19 @@ class JsonType extends sql.Field {
         this.set(data);
     }
     get() {
-        return this._value ? JSON.parse(this._value) : null;
+        return this._value;
     }
     set(value) {
-        let v = JSON.stringify(value);
-        if (v !== this._value) {
-            this._updated = true;
-            this._value = v;
+        if (value != undefined) {
+            let v = JSON.parse(value);
+            if (v !== this._value) {
+                this._updated = true;
+                this._value = v;
+            }
         }
     }
     toJSON() {
-        return JSON.parse(this._value);
+        return this._value;
     }
 }
 exports.default = JsonType;
