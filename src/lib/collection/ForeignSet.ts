@@ -34,6 +34,10 @@ class ForeignSet<T extends Object> implements IQuerySet<T>{
 		return this.dbSet.unique();
 	}
 
+	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
+		return this.dbSet.select(param);
+	}
+
 	// Conditional Functions
 	where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]) {
 		return this.dbSet.where(func, args);

@@ -23,19 +23,22 @@ class QuerySet {
         let result = await this.dbSet.executeStatement(this.stat);
         return this.mapData(result);
     }
-    async select(func) {
-        let cols = new Array();
-        if (func) {
+    async select(param) {
+        if (param) {
             let a = this.dbSet.getEntity(this.stat.collection.alias);
-            let temp = func(a);
-            if (temp instanceof Array) {
-                for (let i = 0; i < temp.length; i++) {
-                    cols.push(temp[i]._createExpr());
-                }
+            let temp = [];
+            if (typeof param == 'function') {
+                param = param(a);
             }
-            else {
-                cols.push(temp._createExpr());
+            if (param instanceof sql.Expression) {
+                temp.push(param);
             }
+            else if (param instanceof Array) {
+                temp = temp.concat(param);
+            }
+            temp.forEach(val => {
+                this.stat.columns.push(val.expr());
+            });
         }
         else {
             let alias = this.stat.collection.alias;
@@ -51,7 +54,7 @@ class QuerySet {
         if (result.rows.length == 0)
             throw new Error('No Result Found');
         else {
-            return this.mapData(result);
+            return result.rows;
         }
     }
     async unique() {
@@ -89,13 +92,13 @@ class QuerySet {
         if (res instanceof Array) {
             for (let i = 0; i < res.length; i++) {
                 if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-                    this.stat.groupBy.push(res[i]._createExpr());
+                    this.stat.groupBy.push(res[i].expr());
                 }
             }
         }
         else {
             if (res instanceof sql.Expression && res.exps.length > 0) {
-                this.stat.groupBy.push(res._createExpr());
+                this.stat.groupBy.push(res.expr());
             }
         }
         let s = new QuerySet(this.stat, this.dbSet);
@@ -113,13 +116,13 @@ class QuerySet {
         if (res instanceof Array) {
             for (let i = 0; i < res.length; i++) {
                 if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-                    this.stat.orderBy.push(res[i]._createExpr());
+                    this.stat.orderBy.push(res[i].expr());
                 }
             }
         }
         else {
             if (res instanceof sql.Expression && res.exps.length > 0) {
-                this.stat.orderBy.push(res._createExpr());
+                this.stat.orderBy.push(res.expr());
             }
         }
         let s = new QuerySet(this.stat, this.dbSet);

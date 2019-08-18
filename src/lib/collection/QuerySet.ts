@@ -54,18 +54,21 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 	}
 
 	// Selection Functions
-	async select(func?: funcs.IArrFieldFunc<T>) {
-		let cols: sql.Expression[] = new Array();
-		if (func) {
+	async select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
+		if (param) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
-			let temp = func(a);
-			if (temp instanceof Array) {
-				for (let i = 0; i < temp.length; i++) {
-					cols.push(temp[i]._createExpr());
-				}
-			} else {
-				cols.push(temp._createExpr());
+			let temp: sql.Expression[] = [];
+			if (typeof param == 'function') {
+				param = param(a);
 			}
+			if (param instanceof sql.Expression) {
+				temp.push(param);
+			} else if (param instanceof Array) {
+				temp = temp.concat(param);
+			}
+			temp.forEach(val => {
+				this.stat.columns.push(val.expr());
+			});
 		} else {
 			let alias: string = this.stat.collection.alias;
 			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
@@ -81,7 +84,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		if (result.rows.length == 0)
 			throw new Error('No Result Found');
 		else {
-			return this.mapData(result);
+			return result.rows;
 		}
 	}
 
@@ -120,12 +123,12 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
 				if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-					this.stat.groupBy.push((<sql.Expression>res[i])._createExpr());
+					this.stat.groupBy.push((<sql.Expression>res[i]).expr());
 				}
 			}
 		} else {
 			if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.groupBy.push(res._createExpr());
+				this.stat.groupBy.push(res.expr());
 			}
 		}
 		let s: QuerySet<T> = new QuerySet(this.stat, this.dbSet);
@@ -143,12 +146,12 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		if (res instanceof Array) {
 			for (let i = 0; i < res.length; i++) {
 				if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-					this.stat.orderBy.push((<sql.Expression>res[i])._createExpr());
+					this.stat.orderBy.push((<sql.Expression>res[i]).expr());
 				}
 			}
 		} else {
 			if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.orderBy.push(res._createExpr());
+				this.stat.orderBy.push(res.expr());
 			}
 		}
 		let s: QuerySet<T> = new QuerySet(this.stat, this.dbSet);

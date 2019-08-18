@@ -230,7 +230,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		await this.context.execute(stat);
 	}
 
-	async get(id): Promise<T> {
+	async get(id) {
 		if (!this.mapping.primaryKeyField)
 			throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
 
@@ -264,32 +264,37 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		return new QuerySet(stat, this);
 	}
 
-	groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
+	groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]) {
 		let q = this.where();
 		return q.groupBy(func);
 	}
 
-	orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
+	orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]) {
 		let q = this.where();
 		return q.orderBy(func);
 	}
 
-	limit(size: number, index?: number): IQuerySet<T> {
+	limit(size: number, index?: number) {
 		let q = this.where();
 		return q.limit(size, index);
 	}
 
-	list(): Promise<Array<T>> {
+	list() {
 		let q = this.where();
 		return q.list();
 	}
 
-	unique(): Promise<T> {
+	unique() {
 		let q = this.where();
 		return q.unique();
 	}
 
-	mapData(input: bean.ResultSet): Promise<Array<T>> {
+	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
+		let q = this.where();
+		return q.select(param);
+	}
+
+	mapData(input: bean.ResultSet) {
 		let q = this.where();
 		return q.mapData(input);
 	}

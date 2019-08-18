@@ -5,7 +5,7 @@ abstract class Column {
 	_name: string = '';
 	_updated: boolean = false;
 
-	abstract _createExpr(): Expression
+	abstract expr(): Expression
 	abstract _argExp(operand: any): Expression
 
 	// Comparison Operators

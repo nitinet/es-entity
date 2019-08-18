@@ -248,6 +248,10 @@ class DBSet {
         let q = this.where();
         return q.unique();
     }
+    select(param) {
+        let q = this.where();
+        return q.select(param);
+    }
     mapData(input) {
         let q = this.where();
         return q.mapData(input);

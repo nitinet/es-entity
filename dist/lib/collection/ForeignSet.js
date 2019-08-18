@@ -21,6 +21,9 @@ class ForeignSet {
     unique() {
         return this.dbSet.unique();
     }
+    select(param) {
+        return this.dbSet.select(param);
+    }
     where(func, ...args) {
         return this.dbSet.where(func, args);
     }

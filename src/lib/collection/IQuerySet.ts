@@ -8,6 +8,7 @@ interface IQuerySet<T> {
 	// Selection Functions
 	list(): Promise<Array<T>>;
 	unique(): Promise<T>;
+	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): Promise<Array<any>>;
 
 	// Conditional Functions
 	where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T>;
