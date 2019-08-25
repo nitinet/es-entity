@@ -30,6 +30,7 @@
 		"cassandra-driver": "*",
 		"mssql": "*",
 		"mysql": "*",
+		"oracledb": "^4.0.1",
 		"pg": "*",
 		"sqlite3": "*"
 	},

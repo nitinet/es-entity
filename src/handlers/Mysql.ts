@@ -39,7 +39,7 @@ export default class Mysql extends Handler {
 				password: that.config.password,
 				database: that.config.database
 			});
-			conn.connect((err) => {
+			conn.connect((err: Error) => {
 				if (err) {
 					that.context.log('Connection Creation Failed');
 					reject(err);
@@ -52,16 +52,16 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	openConnetion(conn): Promise<any> {
+	openConnetion(conn: Connection) {
 		let that = this;
-		let p = new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			conn = this.driver.createConnection({
 				host: this.config.host,
 				user: this.config.username,
 				password: this.config.password,
 				database: this.config.database
 			});
-			conn.connect((err) => {
+			conn.conn.connect((err: Error) => {
 				if (err) {
 					that.context.log('Connection Creation Failed');
 					reject(err);
@@ -71,13 +71,12 @@ export default class Mysql extends Handler {
 				}
 			});
 		});
-		return p;
 	}
 
-	initTransaction(conn): Promise<void> {
+	initTransaction(conn: Connection) {
 		let that = this;
-		let p = new Promise<void>((resolve, reject) => {
-			conn.beginTransaction((err) => {
+		return new Promise<void>((resolve, reject) => {
+			conn.conn.beginTransaction((err: Error) => {
 				if (err) {
 					that.context.log('Initializing Transaction Failed');
 					reject(err);
@@ -87,13 +86,12 @@ export default class Mysql extends Handler {
 				}
 			});
 		});
-		return p;
 	}
 
-	commit(conn): Promise<void> {
+	commit(conn: Connection) {
 		let that = this;
-		let p = new Promise<void>((resolve, reject) => {
-			conn.commit((err) => {
+		return new Promise<void>((resolve, reject) => {
+			conn.conn.commit((err: Error) => {
 				if (err) {
 					that.context.log('Commiting Transaction Failed');
 					reject(err);
@@ -103,22 +101,20 @@ export default class Mysql extends Handler {
 				}
 			});
 		});
-		return p;
 	}
 
-	rollback(conn): Promise<void> {
-		let p = new Promise<void>((resolve) => {
-			conn.rollback(() => {
+	rollback(conn: Connection) {
+		return new Promise<void>((resolve) => {
+			conn.conn.rollback(() => {
 				resolve();
 			});
 		});
-		return p;
 	}
 
-	close(conn): Promise<void> {
+	close(conn: Connection) {
 		let that = this;
-		let p = new Promise<void>((resolve, reject) => {
-			conn.end((err) => {
+		return new Promise<void>((resolve, reject) => {
+			conn.conn.end((err: Error) => {
 				if (err) {
 					that.context.log('Connection Close Failed');
 					reject(err);
@@ -128,7 +124,6 @@ export default class Mysql extends Handler {
 				}
 			});
 		});
-		return p;
 	}
 
 	async end() { return null; }
@@ -175,15 +170,15 @@ export default class Mysql extends Handler {
 		}
 
 		this.context.log('query:' + q);
-		let result: bean.ResultSet = new bean.ResultSet();
-		let p = new Promise<any>((resolve, reject) => {
+		let result = new bean.ResultSet();
+		return new Promise<any>((resolve, reject) => {
 			if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-				connection.conn.query(q, args, function (err, r) {
+				connection.conn.query(q, args, function (err: Error, r) {
 					if (err) { reject(err); }
 					resolve(r);
 				});
 			} else {
-				this.connectionPool.query(q, args, function (err, r) {
+				this.connectionPool.query(q, args, function (err: Error, r) {
 					if (err) { reject(err); }
 					resolve(r);
 				});
@@ -199,7 +194,6 @@ export default class Mysql extends Handler {
 			}
 			return result;
 		});
-		return p;
 	}
 
 }

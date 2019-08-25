@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "mssql": "registry:dt/mssql",
-    "mysql": "registry:dt/mysql"
+    "mysql": "registry:dt/mysql",
+    "oracledb": "registry:dt/oracledb#1.11.0+20161007194719"
   }
 }
