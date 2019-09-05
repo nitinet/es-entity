@@ -128,6 +128,12 @@ class StringType extends sql.Field {
     trim() {
         return this._value.trim();
     }
+    trimLeft() {
+        return this._value.trimLeft();
+    }
+    trimRight() {
+        return this._value.trimRight();
+    }
     substr(from, length) {
         return this._value.substr(from, length);
     }

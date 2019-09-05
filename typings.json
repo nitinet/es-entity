@@ -1,9 +1,0 @@
-{
-  "globalDependencies": {
-    "node": "registry:dt/node"
-  },
-  "dependencies": {
-    "mssql": "registry:dt/mssql",
-    "mysql": "registry:dt/mysql"
-  }
-}

@@ -282,6 +282,15 @@ class StringType extends sql.Field<string> implements String {
 		return this._value.trim();
 	}
 
+	trimLeft(): string {
+		return this._value.trimLeft();
+	}
+
+	trimRight(): string {
+		return this._value.trimRight();
+	}
+
+
 	/** Returns the length of a String object. */
 	length: number;
 
