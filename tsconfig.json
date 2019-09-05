@@ -6,17 +6,16 @@
 		"sourceMap": false,
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
+		"incremental": true,
 		"outDir": "./dist",
 		"typeRoots": [
-			"./typings/globals/",
-			"./typings/modules/"
+			"node_modules/@types"
 		]
 	},
 	"include": [
 		"src/**/*"
 	],
 	"exclude": [
-		"typings",
 		"node_modules"
 	]
 }
