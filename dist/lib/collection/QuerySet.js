@@ -51,11 +51,7 @@ class QuerySet {
             });
         }
         let result = await this.dbSet.executeStatement(this.stat);
-        if (result.rows.length == 0)
-            throw new Error('No Result Found');
-        else {
-            return result.rows;
-        }
+        return result.rows;
     }
     async unique() {
         let l = await this.list();
