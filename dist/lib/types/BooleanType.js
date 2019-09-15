@@ -4,9 +4,7 @@ const sql = require("../sql/Expression");
 class BooleanType extends sql.Field {
     constructor(data) {
         super();
-        if (data) {
-            this._value = data.valueOf() ? true : false;
-        }
+        this.set(data);
     }
     set(value) {
         if (value == null || value == undefined) {
@@ -14,6 +12,9 @@ class BooleanType extends sql.Field {
         }
         else if (typeof value == 'boolean' || value instanceof Boolean) {
             super.set(value);
+        }
+        else {
+            super.set(value ? true : false);
         }
     }
     valueOf() {

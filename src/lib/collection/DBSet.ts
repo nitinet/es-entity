@@ -137,13 +137,13 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 
 	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<expression.Field<any>>obj[key])._value = value;
+			(<expression.Field<any>>obj[key]).set(value);
 			(<expression.Field<any>>obj[key])._updated = false;
 		}
 	}
 
 	getValue(obj, key: string) {
-		return (<expression.Field<any>>obj[key])._value;
+		return (<expression.Field<any>>obj[key]).get();
 	}
 
 	async executeStatement(stat: sql.Statement): Promise<bean.ResultSet> {

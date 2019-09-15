@@ -119,12 +119,12 @@ class DBSet {
     }
     setValue(obj, key, value) {
         if (value != null) {
-            obj[key]._value = value;
+            obj[key].set(value);
             obj[key]._updated = false;
         }
     }
     getValue(obj, key) {
-        return obj[key]._value;
+        return obj[key].get();
     }
     async executeStatement(stat) {
         return await this.context.execute(stat);

@@ -4,9 +4,7 @@ class BooleanType extends sql.Field<boolean> implements Boolean {
 
 	constructor(data?: boolean) {
 		super();
-		if (data) {
-			this._value = data.valueOf() ? true : false;
-		}
+		this.set(data);
 	}
 
 	set(value: boolean | Boolean) {
@@ -14,6 +12,8 @@ class BooleanType extends sql.Field<boolean> implements Boolean {
 			super.set(null);
 		} else if (typeof value == 'boolean' || value instanceof Boolean) {
 			super.set(<boolean>value);
+		} else {
+			super.set(value ? true : false);
 		}
 	}
 
