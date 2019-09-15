@@ -4,7 +4,11 @@ class DateType extends sql.Field<Date> implements Date {
 
 	constructor(data?: Date) {
 		super();
-		this._value = data;
+		if (data instanceof Date) {
+			this._value = data;
+		} else {
+			this._value = new Date(data);
+		}
 	}
 
 	set(value: Date) {

@@ -4,7 +4,12 @@ const sql = require("../sql/Expression");
 class DateType extends sql.Field {
     constructor(data) {
         super();
-        this._value = data;
+        if (data instanceof Date) {
+            this._value = data;
+        }
+        else {
+            this._value = new Date(data);
+        }
     }
     set(value) {
         if (value == null || value == undefined) {
