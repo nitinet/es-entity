@@ -5,6 +5,16 @@ class BooleanType extends sql.Field {
     constructor(data) {
         super();
         this.set(data);
+        return new Proxy(this, {
+            get(target, prop) {
+                if (prop in target) {
+                    return target[prop];
+                }
+                else if (prop in target._value) {
+                    return target._value[prop];
+                }
+            }
+        });
     }
     set(value) {
         if (value == null || value == undefined) {
@@ -16,9 +26,6 @@ class BooleanType extends sql.Field {
         else {
             super.set(value ? true : false);
         }
-    }
-    valueOf() {
-        return this._value;
     }
 }
 exports.default = BooleanType;

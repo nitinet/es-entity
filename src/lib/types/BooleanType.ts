@@ -1,10 +1,21 @@
 import * as sql from '../sql/Expression';
 
-class BooleanType extends sql.Field<boolean> implements Boolean {
+class BooleanType extends sql.Field<boolean> {
 
 	constructor(data?: boolean) {
 		super();
 		this.set(data);
+
+		return new Proxy(this, {
+			get(target, prop) {
+				if (prop in target) {
+					return target[prop];
+				} else if (prop in <Boolean>target._value) {
+					return target._value[prop];
+				}
+			}
+		});
+
 	}
 
 	set(value: boolean | Boolean) {
@@ -17,10 +28,6 @@ class BooleanType extends sql.Field<boolean> implements Boolean {
 		}
 	}
 
-	/** Returns the primitive value of the specified object. */
-	valueOf(): boolean {
-		return this._value;
-	}
 }
 
 export default BooleanType;

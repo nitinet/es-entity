@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require("../sql/Expression");
-class NumberType extends sql.Field {
+class ObjectType extends sql.Field {
     constructor(data) {
         super();
         this._value = data;
@@ -20,9 +20,9 @@ class NumberType extends sql.Field {
         if (value == null || value == undefined) {
             super.set(null);
         }
-        else if (typeof value == 'number' || value instanceof Number) {
+        else if (typeof value == 'object') {
             super.set(value);
         }
     }
 }
-exports.default = NumberType;
+exports.default = ObjectType;

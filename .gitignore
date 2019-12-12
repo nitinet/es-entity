@@ -60,7 +60,4 @@ yarn.*
 # dotenv environment variables file
 .env
 
-# Typescript directory
-typings
-
 .DS_Store

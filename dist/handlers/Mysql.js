@@ -131,6 +131,7 @@ class Mysql extends Handler_1.default {
                 col.type = bean.ColumnType.BOOLEAN;
             }
             else if (columnType.includes('int')
+                || columnType.includes('real')
                 || columnType.includes('float')
                 || columnType.includes('double')
                 || columnType.includes('decimal')) {
