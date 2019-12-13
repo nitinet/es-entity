@@ -144,9 +144,11 @@ export default class Mysql extends Handler {
 				|| columnType.includes('decimal')) {
 				col.type = bean.ColumnType.NUMBER;
 			} else if (columnType.includes('varchar')
-				|| columnType.includes('text')) {
+				|| columnType.includes('text')
+				|| columnType == 'time') {
 				col.type = bean.ColumnType.STRING;
-			} else if (columnType.includes('timestamp')) {
+			} else if (columnType.includes('timestamp')
+				|| columnType.includes('date')) {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.JSON;
