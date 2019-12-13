@@ -164,8 +164,11 @@ class Expression extends Field {
         else if (this.exps) {
             let values = new Array();
             for (let i = 0; i < this.exps.length; i++) {
-                values[i] = this.exps[i].eval(handler);
-                this.args = this.args.concat(this.exps[i].args);
+                let exp = this.exps[i];
+                if (exp) {
+                    values[i] = exp.eval(handler);
+                    this.args = this.args.concat(exp.args);
+                }
             }
             if (!this.operator && this.exps.length > 1) {
                 this.operator = Operator_1.default.And;

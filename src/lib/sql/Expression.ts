@@ -199,8 +199,11 @@ class Expression extends Field<any> implements INode {
 		} else if (this.exps) {
 			let values: Array<string> = new Array<string>();
 			for (let i = 0; i < this.exps.length; i++) {
-				values[i] = this.exps[i].eval(handler);
-				this.args = this.args.concat(this.exps[i].args);
+				let exp = this.exps[i];
+				if (exp) {
+					values[i] = exp.eval(handler);
+					this.args = this.args.concat(exp.args);
+				}
 			}
 
 			if (!this.operator && this.exps.length > 1) {
