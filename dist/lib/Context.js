@@ -11,22 +11,22 @@ const Cassandra_1 = require("../handlers/Cassandra");
 function getHandler(config) {
     let handler = null;
     switch (config.handler) {
-        case bean.HandlerType[bean.HandlerType.mysql]:
+        case bean.HandlerType.mysql:
             handler = new Mysql_1.default(config);
             break;
-        case bean.HandlerType[bean.HandlerType.oracle]:
+        case bean.HandlerType.oracle:
             handler = new Oracle_1.default(config);
             break;
-        case bean.HandlerType[bean.HandlerType.postgresql]:
+        case bean.HandlerType.postgresql:
             handler = new PostGreSql_1.default(config);
             break;
-        case bean.HandlerType[bean.HandlerType.mssql]:
+        case bean.HandlerType.mssql:
             handler = new MsSqlServer_1.default(config);
             break;
-        case bean.HandlerType[bean.HandlerType.sqlite]:
+        case bean.HandlerType.sqlite:
             handler = new SQLite_1.default(config);
             break;
-        case bean.HandlerType[bean.HandlerType.cassandra]:
+        case bean.HandlerType.cassandra:
             handler = new Cassandra_1.default(config);
             break;
         default:

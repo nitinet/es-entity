@@ -15,27 +15,27 @@ import Cassandra from '../handlers/Cassandra'
 function getHandler(config: bean.IConnectionConfig): Handler {
 	let handler: Handler = null;
 	switch (config.handler) {
-		case bean.HandlerType[bean.HandlerType.mysql]:
+		case bean.HandlerType.mysql:
 			handler = new Mysql(config);
 			break;
 
-		case bean.HandlerType[bean.HandlerType.oracle]:
+		case bean.HandlerType.oracle:
 			handler = new OracleHandler(config);
 			break;
 
-		case bean.HandlerType[bean.HandlerType.postgresql]:
+		case bean.HandlerType.postgresql:
 			handler = new PostgreSql(config);
 			break;
 
-		case bean.HandlerType[bean.HandlerType.mssql]:
+		case bean.HandlerType.mssql:
 			handler = new MsSqlServer(config);
 			break;
 
-		case bean.HandlerType[bean.HandlerType.sqlite]:
+		case bean.HandlerType.sqlite:
 			handler = new SQLite(config);
 			break;
 
-		case bean.HandlerType[bean.HandlerType.cassandra]:
+		case bean.HandlerType.cassandra:
 			handler = new Cassandra(config);
 			break;
 
