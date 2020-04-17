@@ -13,6 +13,9 @@ class ObjectType extends sql.Field<object> {
 				} else if (prop in <Object>target._value) {
 					return target._value[prop];
 				}
+			},
+			getPrototypeOf() {
+				return String.prototype;
 			}
 		});
 

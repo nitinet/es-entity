@@ -1,11 +1,11 @@
 enum HandlerType {
-	none = 'NONE',
-	mysql = 'MYSQL',
-	postgresql = 'POSTGRESQL',
-	mssql = 'MSSQL',
-	oracle = 'ORACLE',
-	sqlite = 'SQLITE',
-	cassandra = 'CASSANDRA'
+	none = 'none',
+	mysql = 'mysql',
+	postgresql = 'postgresql',
+	mssql = 'mssql',
+	oracle = 'oracle',
+	sqlite = 'sqlite',
+	cassandra = 'cassandra'
 }
 
 export default HandlerType;

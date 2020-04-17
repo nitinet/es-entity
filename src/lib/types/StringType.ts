@@ -13,6 +13,9 @@ class StringType extends sql.Field<string> {
 				} else if (prop in <String>target._value) {
 					return target._value[prop];
 				}
+			},
+			getPrototypeOf() {
+				return String.prototype;
 			}
 		});
 	}

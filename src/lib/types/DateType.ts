@@ -17,6 +17,9 @@ class DateType extends sql.Field<Date> {
 				} else if (prop in <Date>target._value) {
 					return target._value[prop];
 				}
+			},
+			getPrototypeOf() {
+				return Date.prototype;
 			}
 		});
 	}

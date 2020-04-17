@@ -13,6 +13,9 @@ class NumberType extends sql.Field<number> {
 				} else if (prop in <Number>target._value) {
 					return target._value[prop];
 				}
+			},
+			getPrototypeOf() {
+				return Number.prototype;
 			}
 		});
 

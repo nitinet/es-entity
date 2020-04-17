@@ -13,6 +13,9 @@ class BooleanType extends sql.Field {
                 else if (prop in target._value) {
                     return target._value[prop];
                 }
+            },
+            getPrototypeOf() {
+                return Boolean.prototype;
             }
         });
     }

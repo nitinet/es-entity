@@ -6,7 +6,6 @@ const Case = require("case");
 const bean = require("../../bean");
 const sql = require("../sql");
 const expression = require("../sql/Expression");
-const types = require("../types");
 const Mapping = require("../Mapping");
 const QuerySet_1 = require("./QuerySet");
 const ForeignSet_1 = require("./ForeignSet");
@@ -42,7 +41,7 @@ class DBSet {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i].toString();
                 let field = obj[key];
-                if (field instanceof types.String || field instanceof types.Number || field instanceof types.Boolean || field instanceof types.Date || field instanceof types.Json) {
+                if (field instanceof String || field instanceof Number || field instanceof Boolean || field instanceof Date) {
                     this.bindField(key);
                 }
                 else if (field instanceof ForeignSet_1.default) {
@@ -67,19 +66,19 @@ class DBSet {
             let fieldMapping = new Mapping.FieldMapping({
                 name: name
             });
-            if (field instanceof types.String && column.type == bean.ColumnType.STRING) {
+            if (field instanceof String && column.type == bean.ColumnType.STRING) {
                 fieldMapping.type = 'string';
             }
-            else if (field instanceof types.Number && column.type == bean.ColumnType.NUMBER) {
+            else if (field instanceof Number && column.type == bean.ColumnType.NUMBER) {
                 fieldMapping.type = 'number';
             }
-            else if (field instanceof types.Boolean && column.type == bean.ColumnType.BOOLEAN) {
+            else if (field instanceof Boolean && column.type == bean.ColumnType.BOOLEAN) {
                 fieldMapping.type = 'boolean';
             }
-            else if (field instanceof types.Date && column.type == bean.ColumnType.DATE) {
+            else if (field instanceof Date && column.type == bean.ColumnType.DATE) {
                 fieldMapping.type = 'date';
             }
-            else if (field instanceof types.Json && column.type == bean.ColumnType.JSON) {
+            else if (field instanceof String && column.type == bean.ColumnType.JSON) {
                 fieldMapping.type = 'jsonObject';
             }
             else {
