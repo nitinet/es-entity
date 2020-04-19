@@ -15,7 +15,7 @@ class BooleanType extends sql.Field<boolean> {
 				}
 			},
 			getPrototypeOf() {
-				return Boolean.prototype;
+				return sql.Field.prototype;
 			}
 		});
 

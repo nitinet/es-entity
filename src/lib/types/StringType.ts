@@ -15,7 +15,7 @@ class StringType extends sql.Field<string> {
 				}
 			},
 			getPrototypeOf() {
-				return String.prototype;
+				return sql.Field.prototype;
 			}
 		});
 	}

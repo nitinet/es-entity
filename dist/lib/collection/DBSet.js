@@ -41,7 +41,7 @@ class DBSet {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i].toString();
                 let field = obj[key];
-                if (field instanceof String || field instanceof Number || field instanceof Boolean || field instanceof Date) {
+                if (field instanceof expression.Field) {
                     this.bindField(key);
                 }
                 else if (field instanceof ForeignSet_1.default) {
@@ -66,19 +66,19 @@ class DBSet {
             let fieldMapping = new Mapping.FieldMapping({
                 name: name
             });
-            if (field instanceof String && column.type == bean.ColumnType.STRING) {
+            if (column.type == bean.ColumnType.STRING) {
                 fieldMapping.type = 'string';
             }
-            else if (field instanceof Number && column.type == bean.ColumnType.NUMBER) {
+            else if (column.type == bean.ColumnType.NUMBER) {
                 fieldMapping.type = 'number';
             }
-            else if (field instanceof Boolean && column.type == bean.ColumnType.BOOLEAN) {
+            else if (column.type == bean.ColumnType.BOOLEAN) {
                 fieldMapping.type = 'boolean';
             }
-            else if (field instanceof Date && column.type == bean.ColumnType.DATE) {
+            else if (column.type == bean.ColumnType.DATE) {
                 fieldMapping.type = 'date';
             }
-            else if (field instanceof String && column.type == bean.ColumnType.JSON) {
+            else if (column.type == bean.ColumnType.JSON) {
                 fieldMapping.type = 'jsonObject';
             }
             else {

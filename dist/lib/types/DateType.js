@@ -20,7 +20,7 @@ class DateType extends sql.Field {
                 }
             },
             getPrototypeOf() {
-                return Date.prototype;
+                return sql.Field.prototype;
             }
         });
     }

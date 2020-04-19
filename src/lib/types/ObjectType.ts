@@ -15,7 +15,7 @@ class ObjectType extends sql.Field<object> {
 				}
 			},
 			getPrototypeOf() {
-				return String.prototype;
+				return sql.Field.prototype;
 			}
 		});
 

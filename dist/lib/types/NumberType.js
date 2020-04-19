@@ -15,7 +15,7 @@ class NumberType extends sql.Field {
                 }
             },
             getPrototypeOf() {
-                return Number.prototype;
+                return sql.Field.prototype;
             }
         });
     }
