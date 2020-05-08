@@ -1,6 +1,4 @@
 // import * as pg from 'pg';
-import * as fs from 'fs';
-
 import * as bean from '../bean/index';
 import Handler from '../lib/Handler';
 import * as sql from '../lib/sql';
@@ -61,14 +59,18 @@ export default class PostgreSql extends Handler {
 	async end() { return null; }
 
 	async	getTableInfo(tableName: string) {
-		let describeTableQuery = fs.readFileSync(__dirname + '/../../assets/postgresql_describe_query.sql', 'utf-8');
-		let descQuery = describeTableQuery.replace('?', tableName);
+		let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
+		case when (select count(1) from pg_constraint p where p.conrelid = c.oid and f.ordinal_position = any(p.conkey) and p.contype   = 'p') > 0 then true else false end as primarykey
+	from information_schema.columns f
+		join pg_class c on c.relname = f.table_name
+	where f.table_name = '${tableName}'`;
+
 		let tableInfo = await this.run(descQuery);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 
 		tableInfo.rows.forEach((row) => {
 			let col: bean.ColumnInfo = new bean.ColumnInfo();
-			col.field = row['field'];
+			col.field = row['column_name'];
 			let columnType: string = (<string>row['data_type']).toLowerCase();
 
 			if (columnType.includes('boolean')) {
@@ -88,9 +90,9 @@ export default class PostgreSql extends Handler {
 			} else if (columnType.includes('timestamp') || columnType.includes('date')) {
 				col.type = bean.ColumnType.DATE;
 			}
-			col.nullable = !row['notnull'];
+			col.nullable = !row['is_nullable'];
 			col.primaryKey = row['primarykey'];
-			col.default = row['default'];
+			col.default = row['column_default'];
 			result.push(col);
 		});
 		return result;

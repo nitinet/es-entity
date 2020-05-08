@@ -171,10 +171,12 @@ class DBSet {
         stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
         if (stat.columns.length > 0) {
             let result = await this.context.execute(stat);
-            if (result.error)
+            if (result.error) {
                 throw result.error;
-            else
+            }
+            else {
                 return await this.get(this.getValue(entity, this.mapping.primaryKey));
+            }
         }
         else {
             return entity;
@@ -199,10 +201,12 @@ class DBSet {
         await this.context.execute(stat);
     }
     async get(id) {
-        if (!this.mapping.primaryKeyField)
+        if (!this.mapping.primaryKeyField) {
             throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
-        if (id == null)
+        }
+        if (id == null) {
             throw new Error('Id parameter cannot be null');
+        }
         let fieldName = this.mapping.primaryKey;
         return await this.where((a, id) => {
             return a[fieldName].eq(id);

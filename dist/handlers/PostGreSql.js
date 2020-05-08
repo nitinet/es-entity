@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs");
 const bean = require("../bean/index");
 const Handler_1 = require("../lib/Handler");
 const sql = require("../lib/sql");
@@ -50,13 +49,16 @@ class PostgreSql extends Handler_1.default {
     async close(conn) { conn.end(); }
     async end() { return null; }
     async getTableInfo(tableName) {
-        let describeTableQuery = fs.readFileSync(__dirname + '/../../assets/postgresql_describe_query.sql', 'utf-8');
-        let descQuery = describeTableQuery.replace('?', tableName);
+        let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
+		case when (select count(1) from pg_constraint p where p.conrelid = c.oid and f.ordinal_position = any(p.conkey) and p.contype   = 'p') > 0 then true else false end as primarykey
+	from information_schema.columns f
+		join pg_class c on c.relname = f.table_name
+	where f.table_name = '${tableName}'`;
         let tableInfo = await this.run(descQuery);
         let result = new Array();
         tableInfo.rows.forEach((row) => {
             let col = new bean.ColumnInfo();
-            col.field = row['field'];
+            col.field = row['column_name'];
             let columnType = row['data_type'].toLowerCase();
             if (columnType.includes('boolean')) {
                 col.type = bean.ColumnType.BOOLEAN;
@@ -78,9 +80,9 @@ class PostgreSql extends Handler_1.default {
             else if (columnType.includes('timestamp') || columnType.includes('date')) {
                 col.type = bean.ColumnType.DATE;
             }
-            col.nullable = !row['notnull'];
+            col.nullable = !row['is_nullable'];
             col.primaryKey = row['primarykey'];
-            col.default = row['default'];
+            col.default = row['column_default'];
             result.push(col);
         });
         return result;

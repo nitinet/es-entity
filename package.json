@@ -1,11 +1,11 @@
 {
 	"name": "es-entity",
-	"version": "1.1.4",
+	"version": "1.1.5",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 0"
 	},
 	"repository": {
 		"type": "git",
@@ -27,17 +27,8 @@
 		"@types/node": "^12.7.4",
 		"case": "^1.6.2"
 	},
-	"peerDependencies": {
-		"@types/mssql": "^4.3.0",
-		"@types/mysql": "^2.15.7",
-		"cassandra-driver": "^4.1.0",
-		"mssql": "^5.1.0",
-		"mysql": "^2.17.1",
-		"oracledb": "^4.0.1",
-		"pg": "^7.12.1",
-		"sqlite3": "^4.1.0"
-	},
 	"devDependencies": {
+		"@types/mssql": "^4.3.0",
 		"@types/mysql": "^2.15.7",
 		"mysql": "^2.17.1"
 	}

@@ -40,7 +40,7 @@ class MsSqlServer extends Handler_1.default {
     async close(conn) { return null; }
     async end() { return null; }
     async getTableInfo(tableName) {
-        let r = await this.run(`Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = '${tableName}'`);
+        let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
         let result = new Array();
         r.rows.forEach((row) => {
             let col = new bean.ColumnInfo();

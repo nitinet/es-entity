@@ -11,8 +11,9 @@ class Collection extends INode_1.default {
     }
     eval(handler) {
         let result = '';
-        if (this.value)
+        if (this.value) {
             result = this.colAlias ? this.colAlias + '.' + this.value : this.value;
+        }
         else if (this.stat) {
             this.args = this.args.concat(this.stat.args);
             result = '(' + this.stat.eval(handler) + ')';
@@ -20,8 +21,9 @@ class Collection extends INode_1.default {
         if (!result) {
             throw 'No Collection Found';
         }
-        if (this.alias)
+        if (this.alias) {
             result = result.concat(' as ', this.alias);
+        }
         return result;
     }
 }

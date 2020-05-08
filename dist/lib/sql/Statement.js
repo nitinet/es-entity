@@ -24,10 +24,12 @@ class Statement extends INode_1.default {
         for (let i = 0; i < this.columns.length; i++) {
             let element = this.columns[i];
             let val = element.eval(handler);
-            if (i == 0)
+            if (i == 0) {
                 columnStr = columnStr.concat(' ' + val);
-            else
+            }
+            else {
                 columnStr = columnStr.concat(', ' + val);
+            }
             this.args = this.args.concat(element.args);
         }
         let collectionStr = this.collection.eval(handler);
@@ -38,20 +40,24 @@ class Statement extends INode_1.default {
         for (let i = 0; i < this.groupBy.length; i++) {
             let element = this.groupBy[i];
             let val = element.eval(handler);
-            if (i == 0)
+            if (i == 0) {
                 groupByStr = groupByStr.concat(' ' + val);
-            else
+            }
+            else {
                 groupByStr = groupByStr.concat(', ' + val);
+            }
             this.args = this.args.concat(element.args);
         }
         let orderByStr = '';
         for (let i = 0; i < this.orderBy.length; i++) {
             let element = this.orderBy[i];
             let val = element.eval(handler);
-            if (i == 0)
+            if (i == 0) {
                 orderByStr = orderByStr.concat(' ' + val);
-            else
+            }
+            else {
                 orderByStr = orderByStr.concat(', ' + val);
+            }
             this.args = this.args.concat(element.args);
         }
         let limitStr = this.limit.eval(handler);
@@ -60,10 +66,12 @@ class Statement extends INode_1.default {
         for (let i = 0; i < this.values.length; i++) {
             let element = this.values[i];
             let val = element.eval(handler);
-            if (i == 0)
+            if (i == 0) {
                 valueStr = valueStr.concat(' ' + val);
-            else
+            }
+            else {
                 valueStr = valueStr.concat(', ' + val);
+            }
             this.args = this.args.concat(element.args);
         }
         this.command = this.command.toLowerCase();
@@ -72,14 +80,18 @@ class Statement extends INode_1.default {
         }
         else if (this.command == 'select') {
             result = result.concat(handler.selectQuery(collectionStr, columnStr));
-            if (whereStr)
+            if (whereStr) {
                 result = result.concat(handler.whereQuery(whereStr));
-            if (groupByStr)
+            }
+            if (groupByStr) {
                 result = result.concat(handler.groupQuery(groupByStr));
-            if (orderByStr)
+            }
+            if (orderByStr) {
                 result = result.concat(handler.orderQuery(orderByStr));
-            if (limitStr)
+            }
+            if (limitStr) {
                 result = result.concat(limitStr);
+            }
         }
         else if (this.command === 'update') {
             result = result.concat(handler.updateQuery(collectionStr, columnStr, whereStr));

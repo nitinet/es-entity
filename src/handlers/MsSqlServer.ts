@@ -48,7 +48,7 @@ export default class MsSqlServer extends Handler {
 	async end() { return null; }
 
 	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
-		let r = await this.run(`Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = '${tableName}'`);
+		let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 		r.rows.forEach((row) => {
 			let col: bean.ColumnInfo = new bean.ColumnInfo();
