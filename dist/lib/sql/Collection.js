@@ -28,3 +28,4 @@ class Collection extends INode_1.default {
     }
 }
 exports.default = Collection;
+//# sourceMappingURL=Collection.js.map

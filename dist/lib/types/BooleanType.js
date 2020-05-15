@@ -32,3 +32,4 @@ class BooleanType extends sql.Field {
     }
 }
 exports.default = BooleanType;
+//# sourceMappingURL=BooleanType.js.map

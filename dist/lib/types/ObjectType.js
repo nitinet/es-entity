@@ -29,3 +29,4 @@ class ObjectType extends sql.Field {
     }
 }
 exports.default = ObjectType;
+//# sourceMappingURL=ObjectType.js.map

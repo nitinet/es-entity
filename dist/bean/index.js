@@ -8,3 +8,4 @@ const ColumnInfo_1 = require("./ColumnInfo");
 exports.ColumnInfo = ColumnInfo_1.default;
 const HandlerType_1 = require("./HandlerType");
 exports.HandlerType = HandlerType_1.default;
+//# sourceMappingURL=index.js.map

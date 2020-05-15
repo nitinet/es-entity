@@ -11,3 +11,4 @@ class ColumnInfo {
     }
 }
 exports.default = ColumnInfo;
+//# sourceMappingURL=ColumnInfo.js.map

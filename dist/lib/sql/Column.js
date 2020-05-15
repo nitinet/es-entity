@@ -8,3 +8,4 @@ class Column {
     }
 }
 exports.default = Column;
+//# sourceMappingURL=Column.js.map

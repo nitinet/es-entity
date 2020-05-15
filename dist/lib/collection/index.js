@@ -8,3 +8,4 @@ const QuerySet_1 = require("./QuerySet");
 exports.QuerySet = QuerySet_1.default;
 const ForeignSet_1 = require("./ForeignSet");
 exports.ForeignSet = ForeignSet_1.default;
+//# sourceMappingURL=index.js.map

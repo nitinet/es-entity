@@ -34,3 +34,4 @@ class DateType extends sql.Field {
     }
 }
 exports.default = DateType;
+//# sourceMappingURL=DateType.js.map

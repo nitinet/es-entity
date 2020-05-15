@@ -12,3 +12,4 @@ const SQLite_1 = require("./SQLite");
 exports.SqlLite = SQLite_1.default;
 const Cassandra_1 = require("./Cassandra");
 exports.Cassandra = Cassandra_1.default;
+//# sourceMappingURL=index.js.map

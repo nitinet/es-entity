@@ -57,3 +57,4 @@ class Handler {
     average(val0) { return 'avg(' + val0 + ')'; }
 }
 exports.default = Handler;
+//# sourceMappingURL=Handler.js.map

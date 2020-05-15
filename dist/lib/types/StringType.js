@@ -29,3 +29,4 @@ class StringType extends sql.Field {
     }
 }
 exports.default = StringType;
+//# sourceMappingURL=StringType.js.map

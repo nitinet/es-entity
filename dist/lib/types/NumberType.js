@@ -29,3 +29,4 @@ class NumberType extends sql.Field {
     }
 }
 exports.default = NumberType;
+//# sourceMappingURL=NumberType.js.map

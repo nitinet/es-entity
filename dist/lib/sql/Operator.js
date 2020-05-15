@@ -32,3 +32,4 @@ var Operator;
     Operator[Operator["Avg"] = 28] = "Avg";
 })(Operator || (Operator = {}));
 exports.default = Operator;
+//# sourceMappingURL=Operator.js.map

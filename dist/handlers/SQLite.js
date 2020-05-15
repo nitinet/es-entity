@@ -23,3 +23,4 @@ class SQlite extends Handler_1.default {
     }
 }
 exports.default = SQlite;
+//# sourceMappingURL=SQLite.js.map

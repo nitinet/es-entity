@@ -29,3 +29,4 @@ class EntityMapping {
     }
 }
 exports.EntityMapping = EntityMapping;
+//# sourceMappingURL=Mapping.js.map

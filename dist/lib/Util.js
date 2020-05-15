@@ -5,3 +5,4 @@ function getCriteria() {
     return new sql.Expression();
 }
 exports.getCriteria = getCriteria;
+//# sourceMappingURL=Util.js.map

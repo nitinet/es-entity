@@ -6,3 +6,4 @@ class INode {
     }
 }
 exports.default = INode;
+//# sourceMappingURL=INode.js.map

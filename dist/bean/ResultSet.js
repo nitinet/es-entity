@@ -9,3 +9,4 @@ class ResultSet {
     }
 }
 exports.default = ResultSet;
+//# sourceMappingURL=ResultSet.js.map

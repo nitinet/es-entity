@@ -136,3 +136,4 @@ class PostgreSql extends Handler_1.default {
     limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
 exports.default = PostgreSql;
+//# sourceMappingURL=PostGreSql.js.map

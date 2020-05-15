@@ -151,3 +151,4 @@ class QuerySet {
     }
 }
 exports.default = QuerySet;
+//# sourceMappingURL=QuerySet.js.map
