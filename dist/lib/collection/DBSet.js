@@ -1,14 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs");
-const path = require("path");
-const Case = require("case");
-const bean = require("../../bean");
-const sql = require("../sql");
-const expression = require("../sql/Expression");
-const Mapping = require("../Mapping");
-const QuerySet_1 = require("./QuerySet");
-const ForeignSet_1 = require("./ForeignSet");
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Case from 'case';
+import * as bean from '../../bean';
+import * as sql from '../sql';
+import * as expression from '../sql/Expression';
+import * as Mapping from '../Mapping';
+import QuerySet from './QuerySet';
+import ForeignSet from './ForeignSet';
 class DBSet {
     constructor(entityType, options) {
         this.options = null;
@@ -44,7 +42,7 @@ class DBSet {
                 if (field instanceof expression.Field) {
                     this.bindField(key);
                 }
-                else if (field instanceof ForeignSet_1.default) {
+                else if (field instanceof ForeignSet) {
                     this.bindForeignRel(key);
                 }
             }
@@ -229,7 +227,7 @@ class DBSet {
         if (res instanceof sql.Expression && res.exps.length > 0) {
             stat.where = res;
         }
-        return new QuerySet_1.default(stat, this);
+        return new QuerySet(stat, this);
     }
     groupBy(func) {
         let q = this.where();
@@ -260,5 +258,5 @@ class DBSet {
         return q.mapData(input);
     }
 }
-exports.default = DBSet;
+export default DBSet;
 //# sourceMappingURL=DBSet.js.map

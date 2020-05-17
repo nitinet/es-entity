@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean/index");
-const Handler_1 = require("../lib/Handler");
-const sql = require("../lib/sql");
-const Connection_1 = require("../lib/Connection");
-class PostgreSql extends Handler_1.default {
+import * as bean from '../bean/index';
+import Handler from '../lib/Handler';
+import * as sql from '../lib/sql';
+import Connection from '../lib/Connection';
+export default class PostgreSql extends Handler {
     constructor(config) {
         super();
         this.driver = null;
@@ -13,7 +11,7 @@ class PostgreSql extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('pg'));
+        this.driver = this.config.driver || await import('pg');
         this.connectionPool = new this.driver.Pool({
             user: this.config.username,
             password: this.config.password,
@@ -37,7 +35,7 @@ class PostgreSql extends Handler_1.default {
         try {
             await conn.connect();
             this.context.log('Connection Creation Failed');
-            return new Connection_1.default(this, conn);
+            return new Connection(this, conn);
         }
         catch (err) {
             throw err;
@@ -99,7 +97,7 @@ class PostgreSql extends Handler_1.default {
         this.context.log('query:' + q);
         let result = new bean.ResultSet();
         let con = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             con = connection.conn;
         }
         else {
@@ -135,5 +133,4 @@ class PostgreSql extends Handler_1.default {
     }
     limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
-exports.default = PostgreSql;
 //# sourceMappingURL=PostGreSql.js.map

@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean");
-const Handler_1 = require("../lib/Handler");
-const sql = require("../lib/sql");
-const Connection_1 = require("../lib/Connection");
-class Oracle extends Handler_1.default {
+import * as bean from '../bean';
+import Handler from '../lib/Handler';
+import * as sql from '../lib/sql';
+import Connection from '../lib/Connection';
+export default class Oracle extends Handler {
     constructor(config) {
         super();
         this.handlerName = 'oracle';
@@ -13,7 +11,7 @@ class Oracle extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('oracledb'));
+        this.driver = this.config.driver || await import('oracledb');
         this.connectionPool = await this.driver.createPool({
             user: this.config.username,
             password: this.config.password,
@@ -26,7 +24,7 @@ class Oracle extends Handler_1.default {
             password: this.config.password,
             connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
         });
-        return new Connection_1.default(this, conn);
+        return new Connection(this, conn);
     }
     async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
@@ -80,7 +78,7 @@ class Oracle extends Handler_1.default {
         this.context.log('query:' + q);
         let result = new bean.ResultSet();
         let res = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             res = await connection.conn.execute(q, args);
         }
         else {
@@ -115,5 +113,4 @@ class Oracle extends Handler_1.default {
         return result;
     }
 }
-exports.default = Oracle;
 //# sourceMappingURL=Oracle.js.map

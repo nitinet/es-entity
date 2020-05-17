@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const INode_1 = require("./INode");
-class Collection extends INode_1.default {
+import INode from './INode';
+class Collection extends INode {
     constructor() {
         super();
         this.colAlias = null;
@@ -27,5 +25,5 @@ class Collection extends INode_1.default {
         return result;
     }
 }
-exports.default = Collection;
+export default Collection;
 //# sourceMappingURL=Collection.js.map

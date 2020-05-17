@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql/Expression");
+import * as sql from '../sql/Expression';
 class DateType extends sql.Field {
     constructor(data) {
         super();
@@ -33,5 +31,5 @@ class DateType extends sql.Field {
         }
     }
 }
-exports.default = DateType;
+export default DateType;
 //# sourceMappingURL=DateType.js.map

@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Operator_1 = require("./Operator");
-const Column_1 = require("./Column");
-class Field extends Column_1.default {
+import Operator from './Operator';
+import Column from './Column';
+class Field extends Column {
     constructor() {
         super();
         this._value = null;
@@ -33,7 +31,7 @@ class Field extends Column_1.default {
     }
     _argExp(operand) {
         let w = null;
-        if (operand instanceof Column_1.default) {
+        if (operand instanceof Column) {
             w = operand.expr();
         }
         else {
@@ -43,86 +41,85 @@ class Field extends Column_1.default {
         return w;
     }
     eq(operand) {
-        return new Expression(null, Operator_1.default.Equal, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Equal, this.expr(), this._argExp(operand));
     }
     neq(operand) {
-        return new Expression(null, Operator_1.default.NotEqual, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.NotEqual, this.expr(), this._argExp(operand));
     }
     lt(operand) {
-        return new Expression(null, Operator_1.default.LessThan, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.LessThan, this.expr(), this._argExp(operand));
     }
     gt(operand) {
-        return new Expression(null, Operator_1.default.GreaterThan, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.GreaterThan, this.expr(), this._argExp(operand));
     }
     lteq(operand) {
-        return new Expression(null, Operator_1.default.LessThanEqual, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.LessThanEqual, this.expr(), this._argExp(operand));
     }
     gteq(operand) {
-        return new Expression(null, Operator_1.default.GreaterThanEqual, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.GreaterThanEqual, this.expr(), this._argExp(operand));
     }
     and(operand) {
-        return new Expression(null, Operator_1.default.And, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.And, this.expr(), this._argExp(operand));
     }
     or(operand) {
-        return new Expression(null, Operator_1.default.Or, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Or, this.expr(), this._argExp(operand));
     }
     not() {
-        return new Expression(null, Operator_1.default.Not, this.expr());
+        return new Expression(null, Operator.Not, this.expr());
     }
     in(...operand) {
-        let arg = new Expression(null, Operator_1.default.Comma);
+        let arg = new Expression(null, Operator.Comma);
         for (let i = 0; i < operand.length; i++) {
             arg.exps.push(this._argExp(operand[i]));
         }
-        return new Expression(null, Operator_1.default.In, this.expr(), arg);
+        return new Expression(null, Operator.In, this.expr(), arg);
     }
     between(first, second) {
-        return new Expression(null, Operator_1.default.Between, this.expr(), this._argExp(first), this._argExp(second));
+        return new Expression(null, Operator.Between, this.expr(), this._argExp(first), this._argExp(second));
     }
     like(operand) {
-        return new Expression(null, Operator_1.default.Like, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Like, this.expr(), this._argExp(operand));
     }
     IsNull() {
-        return new Expression(null, Operator_1.default.IsNull, this.expr());
+        return new Expression(null, Operator.IsNull, this.expr());
     }
     IsNotNull() {
-        return new Expression(null, Operator_1.default.IsNotNull, this.expr());
+        return new Expression(null, Operator.IsNotNull, this.expr());
     }
     plus(operand) {
-        return new Expression(null, Operator_1.default.Plus, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Plus, this.expr(), this._argExp(operand));
     }
     minus(operand) {
-        return new Expression(null, Operator_1.default.Minus, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Minus, this.expr(), this._argExp(operand));
     }
     multiply(operand) {
-        return new Expression(null, Operator_1.default.Multiply, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Multiply, this.expr(), this._argExp(operand));
     }
     devide(operand) {
-        return new Expression(null, Operator_1.default.Devide, this.expr(), this._argExp(operand));
+        return new Expression(null, Operator.Devide, this.expr(), this._argExp(operand));
     }
     asc() {
-        return new Expression(null, Operator_1.default.Asc, this.expr());
+        return new Expression(null, Operator.Asc, this.expr());
     }
     desc() {
-        return new Expression(null, Operator_1.default.Desc, this.expr());
+        return new Expression(null, Operator.Desc, this.expr());
     }
     sum() {
-        return new Expression(null, Operator_1.default.Sum, this.expr());
+        return new Expression(null, Operator.Sum, this.expr());
     }
     min() {
-        return new Expression(null, Operator_1.default.Min, this.expr());
+        return new Expression(null, Operator.Min, this.expr());
     }
     max() {
-        return new Expression(null, Operator_1.default.Max, this.expr());
+        return new Expression(null, Operator.Max, this.expr());
     }
     count() {
-        return new Expression(null, Operator_1.default.Count, this.expr());
+        return new Expression(null, Operator.Count, this.expr());
     }
     average() {
-        return new Expression(null, Operator_1.default.Avg, this.expr());
+        return new Expression(null, Operator.Avg, this.expr());
     }
 }
-exports.Field = Field;
 class Expression extends Field {
     constructor(value, operator, ...expressions) {
         super();
@@ -138,7 +135,7 @@ class Expression extends Field {
         this.operator = operator;
     }
     add(...expressions) {
-        if (this.operator == Operator_1.default.And) {
+        if (this.operator == Operator.And) {
             this.exps = this.exps.concat(expressions);
             return this;
         }
@@ -150,7 +147,7 @@ class Expression extends Field {
             return exp;
         }
         else {
-            let exp = new Expression(null, Operator_1.default.And, this);
+            let exp = new Expression(null, Operator.And, this);
             for (var i = 0; i < expressions.length; i++) {
                 exp.add(expressions[i]);
             }
@@ -171,101 +168,101 @@ class Expression extends Field {
                 }
             }
             if (!this.operator && this.exps.length > 1) {
-                this.operator = Operator_1.default.And;
+                this.operator = Operator.And;
             }
             let val0 = values[0] = values[0] ? values[0] : '';
             let val1 = values[1] = values[1] ? values[1] : '';
             let r = '';
             switch (this.operator) {
-                case Operator_1.default.Equal:
+                case Operator.Equal:
                     r = handler.eq(val0, val1);
                     break;
-                case Operator_1.default.NotEqual:
+                case Operator.NotEqual:
                     r = handler.neq(val0, val1);
                     break;
-                case Operator_1.default.LessThan:
+                case Operator.LessThan:
                     r = handler.lt(val0, val1);
                     break;
-                case Operator_1.default.LessThanEqual:
+                case Operator.LessThanEqual:
                     r = handler.lteq(val0, val1);
                     break;
-                case Operator_1.default.GreaterThan:
+                case Operator.GreaterThan:
                     r = handler.gt(val0, val1);
                     break;
-                case Operator_1.default.GreaterThanEqual:
+                case Operator.GreaterThanEqual:
                     r = handler.gteq(val0, val1);
                     break;
-                case Operator_1.default.And:
+                case Operator.And:
                     r = handler.and(values);
                     break;
-                case Operator_1.default.Or:
+                case Operator.Or:
                     r = handler.or(values);
                     break;
-                case Operator_1.default.Not:
+                case Operator.Not:
                     r = handler.not(val0);
                     break;
-                case Operator_1.default.Plus:
+                case Operator.Plus:
                     r = handler.plus(val0, val1);
                     break;
-                case Operator_1.default.Minus:
+                case Operator.Minus:
                     r = handler.minus(val0, val1);
                     break;
-                case Operator_1.default.Multiply:
+                case Operator.Multiply:
                     r = handler.multiply(val0, val1);
                     break;
-                case Operator_1.default.Devide:
+                case Operator.Devide:
                     r = handler.devide(val0, val1);
                     break;
-                case Operator_1.default.Between:
+                case Operator.Between:
                     r = handler.between(values);
                     break;
-                case Operator_1.default.Exists:
+                case Operator.Exists:
                     r = handler.exists(val0);
                     break;
-                case Operator_1.default.In:
+                case Operator.In:
                     r = handler.in(val0, val1);
                     break;
-                case Operator_1.default.Like:
+                case Operator.Like:
                     r = handler.like(val0, val1);
                     break;
-                case Operator_1.default.IsNull:
+                case Operator.IsNull:
                     r = handler.isNull(val0);
                     ;
                     break;
-                case Operator_1.default.IsNotNull:
+                case Operator.IsNotNull:
                     r = handler.isNotNull(val0);
                     break;
-                case Operator_1.default.Asc:
+                case Operator.Asc:
                     r = handler.asc(val0);
                     break;
-                case Operator_1.default.Desc:
+                case Operator.Desc:
                     r = handler.desc(val0);
                     break;
-                case Operator_1.default.Limit:
+                case Operator.Limit:
                     {
                         r = handler.limit(val0, val1);
                     }
                     break;
-                case Operator_1.default.Comma:
+                case Operator.Comma:
                     {
                         for (let i = 0; i < values.length; i++)
                             r = r.concat(values[i], ', ');
                         r = r.slice(0, r.length - 2);
                     }
                     break;
-                case Operator_1.default.Count:
+                case Operator.Count:
                     r = handler.count(val0);
                     break;
-                case Operator_1.default.Sum:
+                case Operator.Sum:
                     r = handler.sum(val0);
                     break;
-                case Operator_1.default.Min:
+                case Operator.Min:
                     r = handler.min(val0);
                     break;
-                case Operator_1.default.Max:
+                case Operator.Max:
                     r = handler.max(val0);
                     break;
-                case Operator_1.default.Avg:
+                case Operator.Avg:
                     r = handler.average(val0);
                     break;
                 default:
@@ -278,5 +275,6 @@ class Expression extends Field {
         return this;
     }
 }
-exports.default = Expression;
+export default Expression;
+export { Field };
 //# sourceMappingURL=Expression.js.map

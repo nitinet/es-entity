@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql/Expression");
+import * as sql from '../sql/Expression';
 class BooleanType extends sql.Field {
     constructor(data) {
         super();
@@ -31,5 +29,5 @@ class BooleanType extends sql.Field {
         }
     }
 }
-exports.default = BooleanType;
+export default BooleanType;
 //# sourceMappingURL=BooleanType.js.map

@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class Column {
     constructor() {
         this._alias = '';
@@ -7,5 +5,5 @@ class Column {
         this._updated = false;
     }
 }
-exports.default = Column;
+export default Column;
 //# sourceMappingURL=Column.js.map

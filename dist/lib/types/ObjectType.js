@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql/Expression");
+import * as sql from '../sql/Expression';
 class ObjectType extends sql.Field {
     constructor(data) {
         super();
@@ -28,5 +26,5 @@ class ObjectType extends sql.Field {
         }
     }
 }
-exports.default = ObjectType;
+export default ObjectType;
 //# sourceMappingURL=ObjectType.js.map

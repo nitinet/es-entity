@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var Operator;
 (function (Operator) {
     Operator[Operator["Equal"] = 1] = "Equal";
@@ -31,5 +29,5 @@ var Operator;
     Operator[Operator["Max"] = 27] = "Max";
     Operator[Operator["Avg"] = 28] = "Avg";
 })(Operator || (Operator = {}));
-exports.default = Operator;
+export default Operator;
 //# sourceMappingURL=Operator.js.map

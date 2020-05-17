@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class ForeignSet {
     constructor(entityType, foreignFunc) {
         this.foreignFunc = null;
@@ -40,5 +38,5 @@ class ForeignSet {
         return this.dbSet.mapData(input);
     }
 }
-exports.default = ForeignSet;
+export default ForeignSet;
 //# sourceMappingURL=ForeignSet.js.map

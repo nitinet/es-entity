@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var ColumnType;
 (function (ColumnType) {
     ColumnType[ColumnType["NUMBER"] = 1] = "NUMBER";
@@ -8,5 +6,5 @@ var ColumnType;
     ColumnType[ColumnType["DATE"] = 4] = "DATE";
     ColumnType[ColumnType["JSON"] = 5] = "JSON";
 })(ColumnType || (ColumnType = {}));
-exports.default = ColumnType;
+export default ColumnType;
 //# sourceMappingURL=ColumnType.js.map

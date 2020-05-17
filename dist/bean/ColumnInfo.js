@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class ColumnInfo {
+export default class ColumnInfo {
     constructor() {
         this.field = '';
         this.type = null;
@@ -10,5 +8,4 @@ class ColumnInfo {
         this.extra = '';
     }
 }
-exports.default = ColumnInfo;
 //# sourceMappingURL=ColumnInfo.js.map
