@@ -1,8 +1,10 @@
-import * as bean from '../bean/index';
-import Handler from '../lib/Handler';
-import * as sql from '../lib/sql';
-import Connection from '../lib/Connection';
-export default class Mysql extends Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const bean = require("../bean/index");
+const Handler_1 = require("../lib/Handler");
+const sql = require("../lib/sql");
+const Connection_1 = require("../lib/Connection");
+class Mysql extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mysql';
@@ -11,7 +13,7 @@ export default class Mysql extends Handler {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await import('mysql');
+        this.driver = this.config.driver || await Promise.resolve().then(() => require('mysql'));
         this.connectionPool = this.driver.createPool({
             connectionLimit: this.config.connectionLimit,
             host: this.config.host,
@@ -38,7 +40,7 @@ export default class Mysql extends Handler {
                 }
                 else {
                     that.context.log('Connection Creation Successful');
-                    let res = new Connection(this, conn);
+                    let res = new Connection_1.default(this, conn);
                     resolve(res);
                 }
             });
@@ -167,7 +169,7 @@ export default class Mysql extends Handler {
         this.context.log('query:' + q);
         let result = new bean.ResultSet();
         return new Promise((resolve, reject) => {
-            if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+            if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
                 connection.conn.query(q, args, function (err, r) {
                     if (err) {
                         reject(err);
@@ -197,4 +199,5 @@ export default class Mysql extends Handler {
         });
     }
 }
+exports.default = Mysql;
 //# sourceMappingURL=Mysql.js.map

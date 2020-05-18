@@ -1,4 +1,6 @@
-export default class ColumnInfo {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class ColumnInfo {
     constructor() {
         this.field = '';
         this.type = null;
@@ -8,4 +10,5 @@ export default class ColumnInfo {
         this.extra = '';
     }
 }
+exports.default = ColumnInfo;
 //# sourceMappingURL=ColumnInfo.js.map

@@ -1,8 +1,10 @@
-import * as bean from '../bean/index';
-import Handler from '../lib/Handler';
-import * as sql from '../lib/sql';
-import Connection from '../lib/Connection';
-export default class PostgreSql extends Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const bean = require("../bean/index");
+const Handler_1 = require("../lib/Handler");
+const sql = require("../lib/sql");
+const Connection_1 = require("../lib/Connection");
+class PostgreSql extends Handler_1.default {
     constructor(config) {
         super();
         this.driver = null;
@@ -11,7 +13,7 @@ export default class PostgreSql extends Handler {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await import('pg');
+        this.driver = this.config.driver || await Promise.resolve().then(() => require('pg'));
         this.connectionPool = new this.driver.Pool({
             user: this.config.username,
             password: this.config.password,
@@ -35,7 +37,7 @@ export default class PostgreSql extends Handler {
         try {
             await conn.connect();
             this.context.log('Connection Creation Failed');
-            return new Connection(this, conn);
+            return new Connection_1.default(this, conn);
         }
         catch (err) {
             throw err;
@@ -97,7 +99,7 @@ export default class PostgreSql extends Handler {
         this.context.log('query:' + q);
         let result = new bean.ResultSet();
         let con = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             con = connection.conn;
         }
         else {
@@ -133,4 +135,5 @@ export default class PostgreSql extends Handler {
     }
     limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
+exports.default = PostgreSql;
 //# sourceMappingURL=PostGreSql.js.map

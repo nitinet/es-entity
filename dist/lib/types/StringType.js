@@ -1,4 +1,6 @@
-import * as sql from '../sql/Expression';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const sql = require("../sql/Expression");
 class StringType extends sql.Field {
     constructor(data) {
         super();
@@ -26,5 +28,5 @@ class StringType extends sql.Field {
         }
     }
 }
-export default StringType;
+exports.default = StringType;
 //# sourceMappingURL=StringType.js.map

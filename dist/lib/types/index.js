@@ -1,11 +1,13 @@
-import BooleanType from './BooleanType';
-import DateType from './DateType';
-import ObjectType from './ObjectType';
-import NumberType from './NumberType';
-import StringType from './StringType';
-export { BooleanType as Boolean };
-export { DateType as Date };
-export { ObjectType as Json };
-export { NumberType as Number };
-export { StringType as String };
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const BooleanType_1 = require("./BooleanType");
+exports.Boolean = BooleanType_1.default;
+const DateType_1 = require("./DateType");
+exports.Date = DateType_1.default;
+const ObjectType_1 = require("./ObjectType");
+exports.Json = ObjectType_1.default;
+const NumberType_1 = require("./NumberType");
+exports.Number = NumberType_1.default;
+const StringType_1 = require("./StringType");
+exports.String = StringType_1.default;
 //# sourceMappingURL=index.js.map

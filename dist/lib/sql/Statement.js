@@ -1,17 +1,19 @@
-import INode from './INode';
-import Expression from './Expression';
-import Collection from './Collection';
-class Statement extends INode {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const INode_1 = require("./INode");
+const Expression_1 = require("./Expression");
+const Collection_1 = require("./Collection");
+class Statement extends INode_1.default {
     constructor() {
         super();
         this.command = '';
         this.columns = new Array();
         this.values = new Array();
-        this.collection = new Collection();
-        this.where = new Expression();
+        this.collection = new Collection_1.default();
+        this.where = new Expression_1.default();
         this.groupBy = new Array();
         this.orderBy = new Array();
-        this.limit = new Expression();
+        this.limit = new Expression_1.default();
     }
     eval(handler) {
         if (!handler) {
@@ -101,5 +103,5 @@ class Statement extends INode {
         return result;
     }
 }
-export default Statement;
+exports.default = Statement;
 //# sourceMappingURL=Statement.js.map

@@ -1,4 +1,6 @@
-export default class Connection {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Connection {
     constructor(handler, conn) {
         this.handler = null;
         this.conn = null;
@@ -25,4 +27,5 @@ export default class Connection {
         this.conn = null;
     }
 }
+exports.default = Connection;
 //# sourceMappingURL=Connection.js.map

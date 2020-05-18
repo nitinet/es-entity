@@ -1,4 +1,6 @@
-export default class Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Handler {
     constructor() {
         this.context = null;
     }
@@ -54,4 +56,5 @@ export default class Handler {
     count(val0) { return 'count(' + val0 + ')'; }
     average(val0) { return 'avg(' + val0 + ')'; }
 }
+exports.default = Handler;
 //# sourceMappingURL=Handler.js.map

@@ -1,4 +1,6 @@
-import * as sql from '../sql';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const sql = require("../sql");
 class QuerySet {
     constructor(stat, dbSet) {
         this.dbSet = null;
@@ -148,5 +150,5 @@ class QuerySet {
         return data;
     }
 }
-export default QuerySet;
+exports.default = QuerySet;
 //# sourceMappingURL=QuerySet.js.map
