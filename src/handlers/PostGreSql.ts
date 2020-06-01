@@ -115,7 +115,7 @@ export default class PostgreSql extends Handler {
 		} else {
 			con = this.connectionPool;
 		}
-		let p = new Promise((resolve, reject) => {
+		let r: any = await new Promise((resolve, reject) => {
 			con.query(q, args, (err, response) => {
 				if (err) {
 					reject(err)
@@ -124,10 +124,9 @@ export default class PostgreSql extends Handler {
 				}
 			});
 		});
-		let r: any = await p;
 		if (r.rowCount) result.rowCount = r.rowCount;
-		if (Array.isArray(r.rows)) result.rows = r.rows.slice();
-		if (Array.isArray(r.rows) && r.rows.length > 0) result.id = r.rows[0].id;
+		if (Array.isArray(r.rows)) result.rows = r.rows;
+		if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;
 		return result;
 	}
 

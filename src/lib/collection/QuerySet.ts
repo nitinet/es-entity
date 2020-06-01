@@ -39,13 +39,14 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 
 	// Selection Functions
 	async list() {
+		this.stat.command = 'select';
 		let alias: string = this.stat.collection.alias;
 
-		this.dbSet.mapping.fields.forEach((field, fieldName) => {
+		this.dbSet.mapping.fields.forEach((field) => {
 			let c: sql.Collection = new sql.Collection();
 			c.colAlias = alias;
-			c.value = field.name;
-			c.alias = fieldName;
+			c.value = field.colName;
+			c.alias = field.fieldName;
 			this.stat.columns.push(c);
 		});
 
@@ -55,6 +56,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 
 	// Selection Functions
 	async select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
+		this.stat.command = 'select';
 		if (param) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
 			let temp: sql.Expression[] = [];
@@ -74,8 +76,8 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
 				let c: sql.Collection = new sql.Collection();
 				c.colAlias = alias;
-				c.value = field.name;
-				c.alias = fieldName;
+				c.value = field.colName;
+				c.alias = field.fieldName;
 				this.stat.columns.push(c);
 			});
 		}
@@ -170,8 +172,8 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		for (let j = 0; j < input.rows.length; j++) {
 			let row = input.rows[j];
 			let a = this.dbSet.getEntity();
-			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-				this.dbSet.setValue(a, fieldName, row[fieldName]);
+			await this.dbSet.mapping.fields.forEach((field) => {
+				this.dbSet.setValue(a, field.fieldName, row[field.fieldName]);
 			});
 			await this.dbSet.mapping.foreignRels.forEach((foreignRel) => {
 				(<ForeignSet<any>>a[foreignRel]).setup(that.dbSet.context, a);

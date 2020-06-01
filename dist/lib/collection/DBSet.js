@@ -51,47 +51,40 @@ class DBSet {
         }
     }
     bindField(key) {
-        let obj = new this.entityType();
-        let field = obj[key];
-        let name = Case.snake(key);
-        let column = null;
-        for (let j = 0; j < this.columns.length; j++) {
-            let col = this.columns[j];
-            if (col.field == name) {
-                column = col;
-                break;
-            }
-        }
+        let colName = Case.snake(key);
+        let column = this.columns.filter(col => {
+            return col.field == colName;
+        })[0];
         if (column) {
-            let fieldMapping = new Mapping.FieldMapping({
-                name: name
+            let field = new Mapping.FieldMapping({
+                fieldName: key,
+                colName: colName
             });
             if (column.type == bean.ColumnType.STRING) {
-                fieldMapping.type = 'string';
+                field.type = 'string';
             }
             else if (column.type == bean.ColumnType.NUMBER) {
-                fieldMapping.type = 'number';
+                field.type = 'number';
             }
             else if (column.type == bean.ColumnType.BOOLEAN) {
-                fieldMapping.type = 'boolean';
+                field.type = 'boolean';
             }
             else if (column.type == bean.ColumnType.DATE) {
-                fieldMapping.type = 'date';
+                field.type = 'date';
             }
             else if (column.type == bean.ColumnType.JSON) {
-                fieldMapping.type = 'jsonObject';
+                field.type = 'jsonObject';
             }
             else {
-                throw new Error('Type mismatch found for Column: ' + name + ' in Table:' + this.mapping.name);
+                throw new Error('Type mismatch found for Column: ' + colName + ' in Table:' + this.mapping.name);
             }
-            this.mapping.fields.set(key, fieldMapping);
             if (column.primaryKey) {
-                this.mapping.primaryKey = key;
-                this.mapping.primaryKeyField = fieldMapping;
+                field.primaryKey = true;
             }
+            this.mapping.fields.push(field);
         }
         else {
-            throw new Error('Column: ' + name + ' not found in Table: ' + this.mapping.name);
+            throw new Error('Column: ' + colName + ' not found in Table: ' + this.mapping.name);
         }
     }
     bindForeignRel(key) {
@@ -100,14 +93,20 @@ class DBSet {
     getEntityType() {
         return this.entityType;
     }
+    getKeyField(key) {
+        let field = this.mapping.fields.filter(a => {
+            return a.fieldName == key;
+        })[0];
+        return field;
+    }
     getEntity(alias) {
         let a = new this.entityType();
         let keys = Reflect.ownKeys(a);
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
+            let field = this.getKeyField(key);
             let q = a[key];
-            let field = this.mapping.fields.get(key);
-            q._name = field && field.name ? field.name : '';
+            q._name = field && field.colName ? field.colName : '';
             q._alias = alias;
             q._updated = false;
         }
@@ -135,55 +134,93 @@ class DBSet {
         await Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
             if (q instanceof expression.Field && this.isUpdated(entity, key)) {
-                let f = this.mapping.fields.get(key);
-                let c = new sql.Collection();
-                c.value = f.name;
-                stat.columns.push(c);
+                let field = this.getKeyField(key);
+                let col = new sql.Collection();
+                col.value = field.colName;
+                stat.columns.push(col);
                 let v = new sql.Expression('?');
                 v.args.push(this.getValue(entity, key));
                 stat.values.push(v);
             }
         });
         let result = await this.context.execute(stat);
-        if (!result.id) {
-            result.id = this.getValue(entity, this.mapping.primaryKey);
+        let primaryFields = this.getPrimaryFields();
+        if (primaryFields.length == 1) {
+            let primaryField = primaryFields[0];
+            let id = this.getValue(entity, primaryField.fieldName);
+            return await this.get(id);
         }
-        return await this.get(result.id);
+        else if (primaryFields.length > 1) {
+            return null;
+        }
+    }
+    getPrimaryFields() {
+        let primaryFields = this.mapping.fields.filter(f => {
+            return f.primaryKey;
+        });
+        return primaryFields;
+    }
+    whereExpr(entity) {
+        let primaryFields = this.getPrimaryFields();
+        let whereExpr = new sql.Expression();
+        primaryFields.forEach(priField => {
+            let w1 = new sql.Expression(priField.colName);
+            let w2 = new sql.Expression('?');
+            w2.args.push(this.getValue(entity, priField.fieldName));
+            whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+        });
+        return whereExpr;
     }
     async update(entity) {
         let stat = new sql.Statement();
         stat.command = 'update';
         stat.collection.value = this.mapping.name;
+        let primaryFields = this.getPrimaryFields();
         await Reflect.ownKeys(entity).forEach((key) => {
-            let f = this.mapping.fields.get(key);
+            let field = this.getKeyField(key);
             let q = entity[key];
-            if (q instanceof expression.Field && this.isUpdated(entity, key) && f != this.mapping.primaryKeyField) {
-                let c1 = new sql.Expression(f.name);
+            let isPrimaryField = false;
+            for (let i = 0; i < primaryFields.length; i++) {
+                const f = primaryFields[i];
+                if (f.fieldName == field.fieldName) {
+                    isPrimaryField = true;
+                    break;
+                }
+            }
+            if (q instanceof expression.Field && this.isUpdated(entity, key) && isPrimaryField == false) {
+                let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));
                 let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
                 stat.columns.push(c);
             }
         });
-        let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
-        let w2 = new sql.Expression('?');
-        w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-        stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
+        stat.where = this.whereExpr(entity);
         if (stat.columns.length > 0) {
             let result = await this.context.execute(stat);
             if (result.error) {
                 throw result.error;
             }
             else {
-                return await this.get(this.getValue(entity, this.mapping.primaryKey));
+                let param = {};
+                primaryFields.forEach(field => {
+                    param[field.fieldName] = this.getValue(entity, field.fieldName);
+                });
+                return await this.get(param);
             }
         }
         else {
             return entity;
         }
     }
-    insertOrUpdate(entity) {
-        if (this.getValue(entity, this.mapping.primaryKey)) {
+    async insertOrUpdate(entity) {
+        let primaryFields = this.getPrimaryFields();
+        let param = {};
+        primaryFields.forEach(field => {
+            param[field.fieldName] = this.getValue(entity, field.fieldName);
+        });
+        let obj = await this.get(param);
+        if (obj) {
             return this.update(entity);
         }
         else {
@@ -194,27 +231,37 @@ class DBSet {
         let stat = new sql.Statement();
         stat.command = 'delete';
         stat.collection.value = this.mapping.name;
-        let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
-        let w2 = new sql.Expression('?');
-        w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-        stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
+        stat.where = this.whereExpr(entity);
         await this.context.execute(stat);
     }
     async get(id) {
-        if (!this.mapping.primaryKeyField) {
-            throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
-        }
         if (id == null) {
             throw new Error('Id parameter cannot be null');
         }
-        let fieldName = this.mapping.primaryKey;
-        return await this.where((a, id) => {
-            return a[fieldName].eq(id);
-        }, id).unique();
+        let primaryFields = this.getPrimaryFields();
+        if (primaryFields.length == 0) {
+            throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
+        }
+        else if (primaryFields.length == 1) {
+            let field = primaryFields[0];
+            return await this.where((a) => {
+                return a[field.fieldName].eq(id);
+            }).unique();
+        }
+        else if (primaryFields.length > 1 && typeof id === 'object') {
+            let primaryFields = this.getPrimaryFields();
+            let whereExpr = new sql.Expression();
+            primaryFields.forEach(priField => {
+                let w1 = new sql.Expression(priField.colName);
+                let w2 = new sql.Expression('?');
+                w2.args.push(id[priField.fieldName]);
+                whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+            });
+            return await this.where(whereExpr).unique();
+        }
     }
     where(param, ...args) {
         let stat = new sql.Statement();
-        stat.command = 'select';
         let alias = this.mapping.name.charAt(0);
         stat.collection.value = this.mapping.name;
         stat.collection.alias = alias;

@@ -34,7 +34,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		this.options.entityName = this.options.entityName || this.entityType.name;
 	}
 
-	async	bind(context: Context) {
+	async bind(context: Context) {
 		this.context = context;
 		let filePath: string = null;
 		if (this.options.entityPath) {
@@ -70,42 +70,33 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 	}
 
 	bindField(key: string) {
-		let obj = new this.entityType();
-		let field = obj[key];
+		let colName = Case.snake(key);
+		let column = this.columns.filter(col => {
+			return col.field == colName;
+		})[0];
 
-		let name = Case.snake(key);
-		let column: bean.ColumnInfo = null;
-		for (let j = 0; j < this.columns.length; j++) {
-			let col = this.columns[j];
-			if (col.field == name) {
-				column = col;
-				break;
-			}
-		}
 		if (column) {
-			let fieldMapping = new Mapping.FieldMapping({
-				name: name
+			let field = new Mapping.FieldMapping({
+				fieldName: key,
+				colName: colName
 			});
 			if (column.type == bean.ColumnType.STRING) {
-				fieldMapping.type = 'string';
+				field.type = 'string';
 			} else if (column.type == bean.ColumnType.NUMBER) {
-				fieldMapping.type = 'number';
+				field.type = 'number';
 			} else if (column.type == bean.ColumnType.BOOLEAN) {
-				fieldMapping.type = 'boolean';
+				field.type = 'boolean';
 			} else if (column.type == bean.ColumnType.DATE) {
-				fieldMapping.type = 'date';
+				field.type = 'date';
 			} else if (column.type == bean.ColumnType.JSON) {
-				fieldMapping.type = 'jsonObject';
+				field.type = 'jsonObject';
 			} else {
-				throw new Error('Type mismatch found for Column: ' + name + ' in Table:' + this.mapping.name);
+				throw new Error('Type mismatch found for Column: ' + colName + ' in Table:' + this.mapping.name);
 			}
-			this.mapping.fields.set(key, fieldMapping);
-			if (column.primaryKey) {
-				this.mapping.primaryKey = key;
-				this.mapping.primaryKeyField = fieldMapping;
-			}
+			if (column.primaryKey) { field.primaryKey = true; }
+			this.mapping.fields.push(field);
 		} else {
-			throw new Error('Column: ' + name + ' not found in Table: ' + this.mapping.name);
+			throw new Error('Column: ' + colName + ' not found in Table: ' + this.mapping.name);
 		}
 	}
 
@@ -117,21 +108,29 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		return this.entityType;
 	}
 
+	getKeyField(key) {
+		let field = this.mapping.fields.filter(a => {
+			return a.fieldName == key;
+		})[0];
+		return field;
+	}
+
 	getEntity(alias?: string) {
 		let a = new this.entityType();
 		let keys = Reflect.ownKeys(a);
 		for (let i = 0; i < keys.length; i++) {
 			let key = keys[i];
+			let field = this.getKeyField(key);
+
 			let q = a[key];
-			let field = this.mapping.fields.get(<string>key);
-			(<sql.Column>q)._name = field && field.name ? field.name : '';
+			(<sql.Column>q)._name = field && field.colName ? field.colName : '';
 			(<sql.Column>q)._alias = alias;
 			(<sql.Column>q)._updated = false;
 		}
 		return a;
 	}
 
-	isUpdated(obj, key: string): boolean {
+	private isUpdated(obj, key: string): boolean {
 		return (<sql.Column>obj[key])._updated ? true : false;
 	}
 
@@ -158,10 +157,11 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		await Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
 			if (q instanceof expression.Field && this.isUpdated(entity, <string>key)) {
-				let f = this.mapping.fields.get(<string>key);
-				let c: sql.Collection = new sql.Collection();
-				c.value = f.name;
-				stat.columns.push(c);
+				let field = this.getKeyField(key);
+
+				let col: sql.Collection = new sql.Collection();
+				col.value = field.colName;
+				stat.columns.push(col);
 
 				let v: sql.Expression = new sql.Expression('?');
 				v.args.push(this.getValue(entity, <string>key));
@@ -170,10 +170,35 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		});
 
 		let result = await this.context.execute(stat);
-		if (!result.id) {
-			result.id = this.getValue(entity, this.mapping.primaryKey);
+		let primaryFields = this.getPrimaryFields();
+
+		if (primaryFields.length == 1) {
+			let primaryField = primaryFields[0];
+			let id = this.getValue(entity, primaryField.fieldName);
+			return await this.get(id);
+		} else if (primaryFields.length > 1) {
+			//TODO: check for table with multiple primary keys
+			return null;
 		}
-		return await this.get(result.id);
+	}
+
+	private getPrimaryFields() {
+		let primaryFields = this.mapping.fields.filter(f => {
+			return f.primaryKey;
+		});
+		return primaryFields;
+	}
+
+	private whereExpr(entity: T) {
+		let primaryFields = this.getPrimaryFields();
+		let whereExpr = new sql.Expression();
+		primaryFields.forEach(priField => {
+			let w1 = new sql.Expression(priField.colName);
+			let w2 = new sql.Expression('?');
+			w2.args.push(this.getValue(entity, priField.fieldName));
+			whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+		});
+		return whereExpr;
 	}
 
 	async update(entity: T) {
@@ -181,11 +206,21 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		stat.command = 'update';
 		stat.collection.value = this.mapping.name;
 
+		let primaryFields = this.getPrimaryFields();
 		await Reflect.ownKeys(entity).forEach((key) => {
-			let f = this.mapping.fields.get(<string>key);
+			let field = this.getKeyField(key);
+
 			let q = entity[key];
-			if (q instanceof expression.Field && this.isUpdated(entity, <string>key) && f != this.mapping.primaryKeyField) {
-				let c1 = new sql.Expression(f.name);
+			let isPrimaryField = false;
+			for (let i = 0; i < primaryFields.length; i++) {
+				const f = primaryFields[i];
+				if (f.fieldName == field.fieldName) {
+					isPrimaryField = true;
+					break;
+				}
+			}
+			if (q instanceof expression.Field && this.isUpdated(entity, <string>key) && isPrimaryField == false) {
+				let c1 = new sql.Expression(field.colName);
 				let c2 = new sql.Expression('?');
 				c2.args.push(this.getValue(entity, <string>key));
 
@@ -194,25 +229,33 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			}
 		});
 
-		let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
-		let w2 = new sql.Expression('?');
-		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-		stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
+		stat.where = this.whereExpr(entity);
 
 		if (stat.columns.length > 0) {
 			let result = await this.context.execute(stat);
 			if (result.error) {
 				throw result.error;
 			} else {
-				return await this.get(this.getValue(entity, this.mapping.primaryKey));
+				let param = {};
+				primaryFields.forEach(field => {
+					param[field.fieldName] = this.getValue(entity, field.fieldName);
+				});
+				return await this.get(param);
 			}
 		} else {
 			return entity;
 		}
 	}
 
-	insertOrUpdate(entity: T) {
-		if (this.getValue(entity, this.mapping.primaryKey)) {
+	async insertOrUpdate(entity: T) {
+		let primaryFields = this.getPrimaryFields();
+		let param = {};
+		primaryFields.forEach(field => {
+			param[field.fieldName] = this.getValue(entity, field.fieldName);
+		});
+		let obj = await this.get(param);
+
+		if (obj) {
 			return this.update(entity);
 		} else {
 			return this.insert(entity);
@@ -224,37 +267,42 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		stat.command = 'delete';
 		stat.collection.value = this.mapping.name;
 
-		let w1 = new sql.Expression(this.mapping.primaryKeyField.name);
-		let w2 = new sql.Expression('?');
-		w2.args.push(this.getValue(entity, this.mapping.primaryKey));
-		stat.where = new sql.Expression(null, sql.Operator.Equal, w1, w2);
+		stat.where = this.whereExpr(entity);
 		await this.context.execute(stat);
 	}
 
 	async get(id) {
-		if (!this.mapping.primaryKeyField) {
+		if (id == null) { throw new Error('Id parameter cannot be null'); }
+
+		let primaryFields = this.getPrimaryFields();
+		if (primaryFields.length == 0) {
 			throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
+		} else if (primaryFields.length == 1) {
+			let field = primaryFields[0];
+			return await this.where((a) => {
+				return (<sql.Column>a[field.fieldName]).eq(id);
+			}).unique();
+		} else if (primaryFields.length > 1 && typeof id === 'object') {
+			let primaryFields = this.getPrimaryFields();
+			let whereExpr = new sql.Expression();
+			primaryFields.forEach(priField => {
+				let w1 = new sql.Expression(priField.colName);
+				let w2 = new sql.Expression('?');
+				w2.args.push(id[priField.fieldName]);
+				whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+			});
+			return await this.where(whereExpr).unique();
 		}
-
-		if (id == null) {
-			throw new Error('Id parameter cannot be null');
-		}
-
-		let fieldName = this.mapping.primaryKey;
-		return await this.where((a: T, id) => {
-			return (<sql.Column>a[fieldName]).eq(id);
-		}, id).unique();
 	}
 
 	where(param?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T> {
 		let stat = new sql.Statement();
-		stat.command = 'select';
 
 		let alias = this.mapping.name.charAt(0);
 		stat.collection.value = this.mapping.name;
 		stat.collection.alias = alias;
 
-		let res = null;
+		let res: sql.Expression = null;
 		if (param instanceof Function) {
 			let a = this.getEntity(stat.collection.alias);
 			res = param(a, args);

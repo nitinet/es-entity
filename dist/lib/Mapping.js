@@ -2,8 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class FieldMapping {
     constructor(data) {
-        this.name = null;
+        this.fieldName = null;
+        this.colName = null;
         this.type = null;
+        this.primaryKey = false;
         Object.assign(this, data);
     }
 }
@@ -12,19 +14,14 @@ class EntityMapping {
     constructor(data) {
         this.name = '';
         this.entityName = '';
-        this.primaryKey = '';
-        this.primaryKeyField = null;
-        this.fields = new Map();
+        this.fields = new Array();
         this.foreignRels = new Array();
         if (data) {
             this.name = data.name;
             this.entityName = data.entityName;
-            this.primaryKey = data.primaryKey;
-            Reflect.ownKeys(data.fields).forEach((key) => {
-                let val = data.fields[key];
-                this.fields.set(key, new FieldMapping(val));
+            data.fields.forEach((val) => {
+                this.fields.push(new FieldMapping(val));
             });
-            this.primaryKeyField = this.fields.get(this.primaryKey);
         }
     }
 }

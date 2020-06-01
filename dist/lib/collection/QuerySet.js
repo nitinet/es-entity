@@ -12,18 +12,20 @@ class QuerySet {
         return this.dbSet.getEntity(alias);
     }
     async list() {
+        this.stat.command = 'select';
         let alias = this.stat.collection.alias;
-        this.dbSet.mapping.fields.forEach((field, fieldName) => {
+        this.dbSet.mapping.fields.forEach((field) => {
             let c = new sql.Collection();
             c.colAlias = alias;
-            c.value = field.name;
-            c.alias = fieldName;
+            c.value = field.colName;
+            c.alias = field.fieldName;
             this.stat.columns.push(c);
         });
         let result = await this.dbSet.executeStatement(this.stat);
         return this.mapData(result);
     }
     async select(param) {
+        this.stat.command = 'select';
         if (param) {
             let a = this.dbSet.getEntity(this.stat.collection.alias);
             let temp = [];
@@ -45,8 +47,8 @@ class QuerySet {
             await this.dbSet.mapping.fields.forEach((field, fieldName) => {
                 let c = new sql.Collection();
                 c.colAlias = alias;
-                c.value = field.name;
-                c.alias = fieldName;
+                c.value = field.colName;
+                c.alias = field.fieldName;
                 this.stat.columns.push(c);
             });
         }
@@ -139,8 +141,8 @@ class QuerySet {
         for (let j = 0; j < input.rows.length; j++) {
             let row = input.rows[j];
             let a = this.dbSet.getEntity();
-            await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-                this.dbSet.setValue(a, fieldName, row[fieldName]);
+            await this.dbSet.mapping.fields.forEach((field) => {
+                this.dbSet.setValue(a, field.fieldName, row[field.fieldName]);
             });
             await this.dbSet.mapping.foreignRels.forEach((foreignRel) => {
                 a[foreignRel].setup(that.dbSet.context, a);
