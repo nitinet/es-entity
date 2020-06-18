@@ -36,17 +36,17 @@ class PostgreSql extends Handler_1.default {
     async openConnetion(conn) {
         try {
             await conn.connect();
-            this.context.log('Connection Creation Failed');
             return new Connection_1.default(this, conn);
         }
         catch (err) {
+            this.context.log('Connection Creation Failed');
             throw err;
         }
     }
     async initTransaction(conn) { await conn.query('BEGIN'); }
     async commit(conn) { await conn.query('COMMIT'); }
     async rollback(conn) { await conn.query('ROLLBACK'); }
-    async close(conn) { conn.end(); }
+    async close(conn) { await conn.end(); }
     async end() { return null; }
     async getTableInfo(tableName) {
         let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
@@ -103,22 +103,19 @@ class PostgreSql extends Handler_1.default {
             con = connection.conn;
         }
         else {
-            con = this.connectionPool;
+            con = await this.connectionPool.connect();
         }
-        let r = await new Promise((resolve, reject) => {
-            con.query(q, args, (err, response) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(response);
-                }
-            });
-        });
-        if (r.rowCount)
-            result.rowCount = r.rowCount;
-        if (Array.isArray(r.rows))
-            result.rows = r.rows;
+        let temp = null;
+        try {
+            temp = await con.query(q, args);
+        }
+        finally {
+            con.release();
+        }
+        if (temp.rowCount)
+            result.rowCount = temp.rowCount;
+        if (Array.isArray(temp.rows))
+            result.rows = temp.rows;
         if (result.rows && result.rows.length > 0)
             result.id = result.rows[0].id;
         return result;
