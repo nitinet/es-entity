@@ -77,40 +77,29 @@ class Oracle extends Handler_1.default {
             q = query.eval(this);
             args = query.args;
         }
-        this.context.log('query:' + q);
-        let result = new bean.ResultSet();
-        let res = null;
+        let temp = null;
         if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            res = await connection.conn.execute(q, args);
+            temp = await connection.conn.execute(q, args);
         }
         else {
             let conn = null;
             try {
                 conn = await this.connectionPool.getConnection();
-                res = await conn.execute(q, args);
-            }
-            catch (err) {
-                this.context.log(err);
+                temp = await conn.execute(q, args);
             }
             finally {
-                if (conn) {
-                    try {
-                        await conn.close();
-                    }
-                    catch (err) {
-                        this.context.log(err);
-                    }
-                }
+                conn.close();
             }
         }
-        if (res.insertId)
-            result.id = res.insertId;
-        if (res.changedRows) {
-            result.rowCount = res.changedRows;
+        let result = new bean.ResultSet();
+        if (temp.insertId)
+            result.id = temp.insertId;
+        if (temp.changedRows) {
+            result.rowCount = temp.changedRows;
         }
-        else if (Array.isArray(res)) {
-            result.rows = res;
-            result.rowCount = res.length;
+        else if (Array.isArray(temp)) {
+            result.rows = temp;
+            result.rowCount = temp.length;
         }
         return result;
     }

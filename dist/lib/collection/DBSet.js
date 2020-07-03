@@ -55,36 +55,41 @@ class DBSet {
         let column = this.columns.filter(col => {
             return col.field == colName;
         })[0];
-        if (column) {
-            let field = new Mapping.FieldMapping({
-                fieldName: key,
-                colName: colName
-            });
-            if (column.type == bean.ColumnType.STRING) {
-                field.type = 'string';
-            }
-            else if (column.type == bean.ColumnType.NUMBER) {
-                field.type = 'number';
-            }
-            else if (column.type == bean.ColumnType.BOOLEAN) {
-                field.type = 'boolean';
-            }
-            else if (column.type == bean.ColumnType.DATE) {
-                field.type = 'date';
-            }
-            else if (column.type == bean.ColumnType.JSON) {
-                field.type = 'jsonObject';
+        try {
+            if (column) {
+                let field = new Mapping.FieldMapping({
+                    fieldName: key,
+                    colName: colName
+                });
+                if (column.type == bean.ColumnType.STRING) {
+                    field.type = 'string';
+                }
+                else if (column.type == bean.ColumnType.NUMBER) {
+                    field.type = 'number';
+                }
+                else if (column.type == bean.ColumnType.BOOLEAN) {
+                    field.type = 'boolean';
+                }
+                else if (column.type == bean.ColumnType.DATE) {
+                    field.type = 'date';
+                }
+                else if (column.type == bean.ColumnType.JSON) {
+                    field.type = 'jsonObject';
+                }
+                else {
+                    throw new Error('Type mismatch found for Column: ' + colName + ' in Table:' + this.mapping.name);
+                }
+                if (column.primaryKey) {
+                    field.primaryKey = true;
+                }
+                this.mapping.fields.push(field);
             }
             else {
-                throw new Error('Type mismatch found for Column: ' + colName + ' in Table:' + this.mapping.name);
+                throw new Error('Column: ' + colName + ' not found in Table: ' + this.mapping.name);
             }
-            if (column.primaryKey) {
-                field.primaryKey = true;
-            }
-            this.mapping.fields.push(field);
         }
-        else {
-            throw new Error('Column: ' + colName + ' not found in Table: ' + this.mapping.name);
+        catch (err) {
+            this.context.log(err);
         }
     }
     bindForeignRel(key) {

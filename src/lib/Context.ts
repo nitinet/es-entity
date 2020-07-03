@@ -47,31 +47,24 @@ function getHandler(config: bean.IConnectionConfig): Handler {
 
 export default class Context {
 	private _handler: Handler;
-	private entityPath: string;
+	private _entityPath: string;
 	private connection: Connection = null;
 	private logger = null;
 	public dbSetMap = new Map<IEntityType<any>, DBSet<any>>();
 
-	constructor(config?: bean.IConnectionConfig, entityPath?: string) {
-		if (config) {
-			this.setConfig(config);
-		}
-		if (entityPath) {
-			this.setEntityPath(entityPath);
-		}
-	}
-
-	setLogger(logger) {
-		this.logger = logger;
+	constructor(config?: bean.IConfig) {
+		if (config) { this.handler = getHandler(config.dbConfig); }
+		if (config.entityPath) { this.setEntityPath(config.entityPath); }
+		if (config.logger) { this.logger = config.logger; }
 	}
 
 	log(arg) {
 		if (this.logger) {
-			this.logger.trace(arg);
+			this.logger.error(arg);
 		}
 	}
 
-	async	init() {
+	async init() {
 		await this.handler.init();
 
 		let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
@@ -87,10 +80,6 @@ export default class Context {
 		return Promise.all(ps);
 	}
 
-	setConfig(config: bean.IConnectionConfig): void {
-		this.handler = getHandler(config);
-	}
-
 	get handler() {
 		return this._handler;
 	}
@@ -101,11 +90,11 @@ export default class Context {
 	}
 
 	getEntityPath() {
-		return this.entityPath;
+		return this._entityPath;
 	}
 
 	setEntityPath(entityPath: string) {
-		this.entityPath = entityPath;
+		this._entityPath = entityPath;
 	}
 
 	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {

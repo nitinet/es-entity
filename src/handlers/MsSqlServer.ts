@@ -15,7 +15,7 @@ export default class MsSqlServer extends Handler {
 		this.config = config;
 	}
 
-	async	init() {
+	async init() {
 		// @ts-ignore
 		this.driver = this.config.driver || await import('mssql');
 
@@ -47,7 +47,7 @@ export default class MsSqlServer extends Handler {
 	async close(conn: Connection) { return null; }
 	async end() { return null; }
 
-	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
+	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 		r.rows.forEach((row) => {
@@ -85,25 +85,28 @@ export default class MsSqlServer extends Handler {
 			q = query.eval(this);
 			args = (query.args == undefined ? [] : query.args);
 		}
-		return new Promise<bean.ResultSet>((resolve, reject) => {
-			if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-				connection.conn.query(q, args, function (err, result) {
-					if (err) reject(err);
-					else {
-						console.log(result);
-						resolve(result);
-					}
-				});
-			} else {
-				this.connectionPool.request().query(q, args, function (err, result) {
-					if (err) reject(err);
-					else {
-						console.log(result);
-						resolve(result);
-					}
-				});
-			}
+
+		let temp = null;
+		let conn = null;
+
+		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+			conn = connection.conn;
+		} else {
+			conn = this.connectionPool.request();
+		}
+
+		temp = await new Promise<any>((resolve, reject) => {
+			conn.query(q, args, function (err: Error, r) {
+				if (err) { reject(err); }
+				else { resolve(r); }
+			});
 		});
+
+		let result: bean.ResultSet = new bean.ResultSet();
+		if (temp.rowCount) result.rowCount = temp.rowCount;
+		if (Array.isArray(temp.rows)) result.rows = temp.rows;
+		if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;
+		return result;
 	}
 
 }

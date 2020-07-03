@@ -166,37 +166,49 @@ class Mysql extends Handler_1.default {
             q = query.eval(this);
             args = query.args;
         }
-        this.context.log('query:' + q);
-        let result = new bean.ResultSet();
-        return new Promise((resolve, reject) => {
-            if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        let temp = null;
+        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+            temp = await new Promise((resolve, reject) => {
                 connection.conn.query(q, args, function (err, r) {
                     if (err) {
                         reject(err);
                     }
-                    resolve(r);
-                });
-            }
-            else {
-                this.connectionPool.query(q, args, function (err, r) {
-                    if (err) {
-                        reject(err);
+                    else {
+                        resolve(r);
                     }
-                    resolve(r);
+                });
+            });
+        }
+        else {
+            let con = null;
+            try {
+                con = this.connectionPool.getConnection();
+                temp = await new Promise((resolve, reject) => {
+                    con.query(q, args, function (err, r) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(r);
+                        }
+                    });
                 });
             }
-        }).then((res) => {
-            if (res.insertId)
-                result.id = res.insertId;
-            if (res.changedRows) {
-                result.rowCount = res.changedRows;
+            finally {
+                con.release();
             }
-            else if (Array.isArray(res)) {
-                result.rows = res;
-                result.rowCount = res.length;
-            }
-            return result;
-        });
+        }
+        let result = new bean.ResultSet();
+        if (temp.insertId)
+            result.id = temp.insertId;
+        if (temp.changedRows) {
+            result.rowCount = temp.changedRows;
+        }
+        else if (Array.isArray(temp)) {
+            result.rows = temp;
+            result.rowCount = temp.length;
+        }
+        return result;
     }
 }
 exports.default = Mysql;

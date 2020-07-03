@@ -128,7 +128,7 @@ export default class Mysql extends Handler {
 
 	async end() { return null; }
 
-	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
+	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 		r.rows.forEach((row) => {
@@ -172,31 +172,41 @@ export default class Mysql extends Handler {
 			args = query.args;
 		}
 
-		this.context.log('query:' + q);
-		let result = new bean.ResultSet();
-		return new Promise<any>((resolve, reject) => {
-			if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+		let temp = null;
+
+		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+			temp = await new Promise<any>((resolve, reject) => {
 				connection.conn.query(q, args, function (err: Error, r) {
 					if (err) { reject(err); }
-					resolve(r);
+					else { resolve(r); }
 				});
-			} else {
-				this.connectionPool.query(q, args, function (err: Error, r) {
-					if (err) { reject(err); }
-					resolve(r);
+			});
+		} else {
+			let con = null;
+			try {
+				con = this.connectionPool.getConnection();
+
+				temp = await new Promise<any>((resolve, reject) => {
+					con.query(q, args, function (err: Error, r) {
+						if (err) { reject(err); }
+						else { resolve(r); }
+					});
 				});
+			} finally {
+				con.release();
 			}
-		}).then((res) => {
-			if (res.insertId)
-				result.id = res.insertId;
-			if (res.changedRows) {
-				result.rowCount = res.changedRows;
-			} else if (Array.isArray(res)) {
-				result.rows = <Array<any>>res;
-				result.rowCount = (<Array<any>>res).length;
-			}
-			return result;
-		});
+		}
+
+		let result = new bean.ResultSet();
+		if (temp.insertId)
+			result.id = temp.insertId;
+		if (temp.changedRows) {
+			result.rowCount = temp.changedRows;
+		} else if (Array.isArray(temp)) {
+			result.rows = <Array<any>>temp;
+			result.rowCount = (<Array<any>>temp).length;
+		}
+		return result;
 	}
 
 }

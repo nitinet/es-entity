@@ -109,20 +109,21 @@ export default class PostgreSql extends Handler {
 			args = (query.args == undefined ? [] : query.args);
 		}
 
-		this.context.log('query:' + q);
-		let result: bean.ResultSet = new bean.ResultSet();
-		let con = null;
-		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			con = connection.conn;
-		} else {
-			con = await this.connectionPool.connect();
-		}
 		let temp = null;
-		try {
-			temp = await con.query(q, args);
-		} finally {
-			con.release();
+
+		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+			temp = await connection.conn.query(q, args);
+		} else {
+			let con = null;
+			try {
+				con = await this.connectionPool.connect();
+				temp = await con.query(q, args);
+			} finally {
+				con.release();
+			}
 		}
+
+		let result: bean.ResultSet = new bean.ResultSet();
 		if (temp.rowCount) result.rowCount = temp.rowCount;
 		if (Array.isArray(temp.rows)) result.rows = temp.rows;
 		if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;

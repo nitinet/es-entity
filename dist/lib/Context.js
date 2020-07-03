@@ -35,23 +35,23 @@ function getHandler(config) {
     return handler;
 }
 class Context {
-    constructor(config, entityPath) {
+    constructor(config) {
         this.connection = null;
         this.logger = null;
         this.dbSetMap = new Map();
         if (config) {
-            this.setConfig(config);
+            this.handler = getHandler(config.dbConfig);
         }
-        if (entityPath) {
-            this.setEntityPath(entityPath);
+        if (config.entityPath) {
+            this.setEntityPath(config.entityPath);
         }
-    }
-    setLogger(logger) {
-        this.logger = logger;
+        if (config.logger) {
+            this.logger = config.logger;
+        }
     }
     log(arg) {
         if (this.logger) {
-            this.logger.trace(arg);
+            this.logger.error(arg);
         }
     }
     async init() {
@@ -68,9 +68,6 @@ class Context {
         }
         return Promise.all(ps);
     }
-    setConfig(config) {
-        this.handler = getHandler(config);
-    }
     get handler() {
         return this._handler;
     }
@@ -79,10 +76,10 @@ class Context {
         this._handler.context = this;
     }
     getEntityPath() {
-        return this.entityPath;
+        return this._entityPath;
     }
     setEntityPath(entityPath) {
-        this.entityPath = entityPath;
+        this._entityPath = entityPath;
     }
     async execute(query, args) {
         return await this.handler.run(query, args, this.connection);

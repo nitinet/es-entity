@@ -99,22 +99,21 @@ class PostgreSql extends Handler_1.default {
             q = query.eval(this);
             args = (query.args == undefined ? [] : query.args);
         }
-        this.context.log('query:' + q);
-        let result = new bean.ResultSet();
-        let con = null;
+        let temp = null;
         if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            con = connection.conn;
+            temp = await connection.conn.query(q, args);
         }
         else {
-            con = await this.connectionPool.connect();
+            let con = null;
+            try {
+                con = await this.connectionPool.connect();
+                temp = await con.query(q, args);
+            }
+            finally {
+                con.release();
+            }
         }
-        let temp = null;
-        try {
-            temp = await con.query(q, args);
-        }
-        finally {
-            con.release();
-        }
+        let result = new bean.ResultSet();
         if (temp.rowCount)
             result.rowCount = temp.rowCount;
         if (Array.isArray(temp.rows))

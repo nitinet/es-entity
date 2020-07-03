@@ -45,7 +45,7 @@ export default class Oracle extends Handler {
 	async close(conn: Connection) { return conn.conn.close(); }
 	async end() { return null; }
 
-	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
+	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
 		r.rows.forEach((row) => {
@@ -86,35 +86,28 @@ export default class Oracle extends Handler {
 			args = query.args;
 		}
 
-		this.context.log('query:' + q);
-		let result = new bean.ResultSet();
-		let res = null;
+		let temp = null;
+
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			res = await connection.conn.execute(q, args);
+			temp = await connection.conn.execute(q, args);
 		} else {
 			let conn = null;
 			try {
 				conn = await this.connectionPool.getConnection();
-				res = await conn.execute(q, args);
-			} catch (err) {
-				this.context.log(err);
+				temp = await conn.execute(q, args);
 			} finally {
-				if (conn) {
-					try {
-						await conn.close();
-					} catch (err) {
-						this.context.log(err);
-					}
-				}
+				conn.close();
 			}
 		}
-		if (res.insertId)
-			result.id = res.insertId;
-		if (res.changedRows) {
-			result.rowCount = res.changedRows;
-		} else if (Array.isArray(res)) {
-			result.rows = <Array<any>>res;
-			result.rowCount = (<Array<any>>res).length;
+
+		let result = new bean.ResultSet();
+		if (temp.insertId)
+			result.id = temp.insertId;
+		if (temp.changedRows) {
+			result.rowCount = temp.changedRows;
+		} else if (Array.isArray(temp)) {
+			result.rows = <Array<any>>temp;
+			result.rowCount = (<Array<any>>temp).length;
 		}
 		return result;
 	}

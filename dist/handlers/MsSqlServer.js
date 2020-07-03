@@ -79,28 +79,32 @@ class MsSqlServer extends Handler_1.default {
             q = query.eval(this);
             args = (query.args == undefined ? [] : query.args);
         }
-        return new Promise((resolve, reject) => {
-            if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
-                connection.conn.query(q, args, function (err, result) {
-                    if (err)
-                        reject(err);
-                    else {
-                        console.log(result);
-                        resolve(result);
-                    }
-                });
-            }
-            else {
-                this.connectionPool.request().query(q, args, function (err, result) {
-                    if (err)
-                        reject(err);
-                    else {
-                        console.log(result);
-                        resolve(result);
-                    }
-                });
-            }
+        let temp = null;
+        let conn = null;
+        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+            conn = connection.conn;
+        }
+        else {
+            conn = this.connectionPool.request();
+        }
+        temp = await new Promise((resolve, reject) => {
+            conn.query(q, args, function (err, r) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(r);
+                }
+            });
         });
+        let result = new bean.ResultSet();
+        if (temp.rowCount)
+            result.rowCount = temp.rowCount;
+        if (Array.isArray(temp.rows))
+            result.rows = temp.rows;
+        if (result.rows && result.rows.length > 0)
+            result.id = result.rows[0].id;
+        return result;
     }
 }
 exports.default = MsSqlServer;
