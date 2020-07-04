@@ -39,7 +39,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 
 	// Selection Functions
 	async list() {
-		this.stat.command = 'select';
+		this.stat.command = sql.Command.SELECT;
 		let alias: string = this.stat.collection.alias;
 
 		this.dbSet.mapping.fields.forEach((field) => {
@@ -56,7 +56,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 
 	// Selection Functions
 	async select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
-		this.stat.command = 'select';
+		this.stat.command = sql.Command.SELECT;
 		if (param) {
 			let a = this.dbSet.getEntity(this.stat.collection.alias);
 			let temp: sql.Expression[] = [];
@@ -166,7 +166,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		return s;
 	}
 
-	async	mapData(input: bean.ResultSet): Promise<Array<T>> {
+	async mapData(input: bean.ResultSet): Promise<Array<T>> {
 		let data = new Array<T>();
 		let that = this;
 		for (let j = 0; j < input.rows.length; j++) {

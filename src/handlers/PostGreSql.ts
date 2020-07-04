@@ -137,9 +137,5 @@ export default class PostgreSql extends Handler {
 		return query;
 	}
 
-	insertQuery(collection: string, columns: string, values: string) {
-		return super.insertQuery(collection, columns, values) + ' returning id';
-	}
-
 	limit(val0: string, val1: string): string { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }

@@ -12,7 +12,7 @@ class QuerySet {
         return this.dbSet.getEntity(alias);
     }
     async list() {
-        this.stat.command = 'select';
+        this.stat.command = sql.Command.SELECT;
         let alias = this.stat.collection.alias;
         this.dbSet.mapping.fields.forEach((field) => {
             let c = new sql.Collection();
@@ -25,7 +25,7 @@ class QuerySet {
         return this.mapData(result);
     }
     async select(param) {
-        this.stat.command = 'select';
+        this.stat.command = sql.Command.SELECT;
         if (param) {
             let a = this.dbSet.getEntity(this.stat.collection.alias);
             let temp = [];

@@ -134,7 +134,7 @@ class DBSet {
     }
     async insert(entity) {
         let stat = new sql.Statement();
-        stat.command = 'insert';
+        stat.command = sql.Command.INSERT;
         stat.collection.value = this.mapping.name;
         await Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
@@ -178,7 +178,7 @@ class DBSet {
     }
     async update(entity) {
         let stat = new sql.Statement();
-        stat.command = 'update';
+        stat.command = sql.Command.UPDATE;
         stat.collection.value = this.mapping.name;
         let primaryFields = this.getPrimaryFields();
         await Reflect.ownKeys(entity).forEach((key) => {
@@ -234,7 +234,7 @@ class DBSet {
     }
     async delete(entity) {
         let stat = new sql.Statement();
-        stat.command = 'delete';
+        stat.command = sql.Command.DELETE;
         stat.collection.value = this.mapping.name;
         stat.where = this.whereExpr(entity);
         await this.context.execute(stat);

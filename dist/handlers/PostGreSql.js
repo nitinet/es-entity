@@ -128,9 +128,6 @@ class PostgreSql extends Handler_1.default {
         }
         return query;
     }
-    insertQuery(collection, columns, values) {
-        return super.insertQuery(collection, columns, values) + ' returning id';
-    }
     limit(val0, val1) { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
 }
 exports.default = PostgreSql;

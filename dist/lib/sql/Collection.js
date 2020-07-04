@@ -10,7 +10,7 @@ class Collection extends INode_1.default {
         this.alias = null;
     }
     eval(handler) {
-        let result = '';
+        let result = null;
         if (this.value) {
             result = this.colAlias ? this.colAlias + '.' + this.value : this.value;
         }

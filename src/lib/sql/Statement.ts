@@ -1,12 +1,13 @@
 import Handler from '../Handler';
 import INode from './INode';
+import Command from './Command';
 import Expression from './Expression';
 import Collection from './Collection';
 /**
  * SqlStatement
  */
 class Statement extends INode {
-	command: string = '';
+	command: Command = null;
 	columns: Array<INode> = new Array<INode>();
 	values: Array<Expression> = new Array<Expression>();
 	collection: Collection = new Collection();
@@ -23,97 +24,120 @@ class Statement extends INode {
 		if (!handler) {
 			throw 'No Handler Found';
 		}
-		let result: string = '';
 
-		// Column
-		let columnStr: string = '';
-		for (let i = 0; i < this.columns.length; i++) {
-			let element = this.columns[i];
-			let val = element.eval(handler);
-			if (i == 0) {
-				columnStr = columnStr.concat(' ' + val);
-			} else {
-				columnStr = columnStr.concat(', ' + val);
-			}
-			this.args = this.args.concat(element.args);
+		let result: string = null;
+		switch (this.command) {
+			case Command.SELECT:
+				result = this.selectQuery(handler);
+				break;
+			case Command.INSERT:
+				result = this.insertQuery(handler);
+				break;
+			case Command.UPDATE:
+				result = this.updateQuery(handler);
+				break;
+			case Command.DELETE:
+				result = this.deleteQuery(handler);
+				break;
+			default:
+				break;
 		}
 
-		// Collection
-		let collectionStr: string = this.collection.eval(handler);
-		this.args = this.args.concat(this.collection.args);
-
-		// Where
-		let whereStr: string = this.where.eval(handler);
-		this.args = this.args.concat(this.where.args);
-
-		// Group By
-		let groupByStr: string = '';
-		for (let i = 0; i < this.groupBy.length; i++) {
-			let element = this.groupBy[i];
-			let val = element.eval(handler);
-			if (i == 0) {
-				groupByStr = groupByStr.concat(' ' + val);
-			} else {
-				groupByStr = groupByStr.concat(', ' + val);
-			}
-			this.args = this.args.concat(element.args);
-		}
-
-		// Order By
-		let orderByStr: string = '';
-		for (let i = 0; i < this.orderBy.length; i++) {
-			let element = this.orderBy[i];
-			let val = element.eval(handler);
-			if (i == 0) {
-				orderByStr = orderByStr.concat(' ' + val);
-			} else {
-				orderByStr = orderByStr.concat(', ' + val);
-			}
-			this.args = this.args.concat(element.args);
-		}
-
-		// Where
-		let limitStr: string = this.limit.eval(handler);
-		this.args = this.args.concat(this.limit.args);
-
-		// Values
-		let valueStr: string = '';
-		for (let i = 0; i < this.values.length; i++) {
-			let element = this.values[i];
-			let val = element.eval(handler);
-			if (i == 0) {
-				valueStr = valueStr.concat(' ' + val);
-			} else {
-				valueStr = valueStr.concat(', ' + val);
-			}
-			this.args = this.args.concat(element.args);
-		}
-
-		this.command = this.command.toLowerCase();
-		if (this.command === 'insert') {
-			result = result.concat(handler.insertQuery(collectionStr, columnStr, valueStr));
-		} else if (this.command == 'select') {
-			result = result.concat(handler.selectQuery(collectionStr, columnStr));
-			if (whereStr) {
-				result = result.concat(handler.whereQuery(whereStr));
-			}
-			if (groupByStr) {
-				result = result.concat(handler.groupQuery(groupByStr));
-			}
-			if (orderByStr) {
-				result = result.concat(handler.orderQuery(orderByStr));
-			}
-			if (limitStr) {
-				result = result.concat(limitStr);
-			}
-		} else if (this.command === 'update') {
-			result = result.concat(handler.updateQuery(collectionStr, columnStr, whereStr));
-		} else if (this.command === 'delete') {
-			result = result.concat(handler.deleteQuery(collectionStr, whereStr));
-		}
 		result = handler.convertPlaceHolder(result);
 		return result;
 	}
+
+	insertQuery(handler: Handler) {
+		let collectionStr = this.getCollectionStr(handler);
+		let columnStr = this.getColumnStr(handler);
+		let valueStr = this.getValueStr(handler);
+
+		return `insert into ${collectionStr} (${columnStr}) values (${valueStr})`;
+	}
+
+	selectQuery(handler: Handler) {
+		let collectionStr = this.getCollectionStr(handler);
+		let columnStr = this.getColumnStr(handler);
+		let whereStr = this.getWhereStr(handler);
+		let groupByStr = this.getGroupByStr(handler);
+		let orderByStr = this.getOrderByStr(handler);
+		let limitStr = this.getLimitStr(handler);
+
+		return `select ${columnStr} from ${collectionStr}${whereStr}${groupByStr}${orderByStr}${limitStr}`;
+	}
+
+	updateQuery(handler: Handler) {
+		let collectionStr = this.getCollectionStr(handler);
+		let columnStr = this.getColumnStr(handler);
+		let whereStr = this.getWhereStr(handler);
+
+		return `update ${collectionStr} set ${columnStr}${whereStr}`;
+	}
+
+	deleteQuery(handler: Handler) {
+		let collectionStr = this.getCollectionStr(handler);
+		let whereStr = this.getWhereStr(handler);
+
+		return `delete from ${collectionStr}${whereStr}`;
+	}
+
+	// Collection
+	getCollectionStr(handler: Handler) {
+		let collectionStr: string = this.collection.eval(handler);
+		this.args = this.args.concat(this.collection.args);
+		return collectionStr;
+	}
+
+	// Column
+	getColumnStr(handler: Handler) {
+		let columnStr = this.columns.map(ele => {
+			this.args = this.args.concat(ele.args);
+			return ele.eval(handler);
+		}, this).join(', ');
+		return columnStr;
+	}
+
+	// Where
+	getWhereStr(handler: Handler) {
+		let whereStr: string = this.where.eval(handler);
+		this.args = this.args.concat(this.where.args);
+		return whereStr ? ` where ${whereStr}` : '';
+	}
+
+	// Values
+	getValueStr(handler: Handler) {
+		let valueStr = this.values.map(ele => {
+			this.args = this.args.concat(ele.args);
+			return ele.eval(handler);
+		}, this).join(', ');
+		return valueStr;
+	}
+
+	// Group By
+	getGroupByStr(handler: Handler) {
+		let groupByStr = this.groupBy.map(ele => {
+			this.args = this.args.concat(ele.args);
+			return ele.eval(handler);
+		}, this).join(', ');
+		return groupByStr ? ` group by ${groupByStr}` : '';
+	}
+
+	// Order By
+	getOrderByStr(handler: Handler) {
+		let orderByStr = this.orderBy.map(ele => {
+			this.args = this.args.concat(ele.args);
+			return ele.eval(handler);
+		}, this).join(', ');
+		return orderByStr ? ` order by ${orderByStr}` : '';
+	}
+
+	// Limit
+	getLimitStr(handler: Handler) {
+		let limitStr: string = this.limit.eval(handler);
+		this.args = this.args.concat(this.limit.args);
+		return limitStr;
+	}
+
 }
 
 export default Statement;

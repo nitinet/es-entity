@@ -17,7 +17,7 @@ class Collection extends INode {
 	}
 
 	eval(handler: Handler): string {
-		let result: string = '';
+		let result: string = null;
 		if (this.value) {
 			result = this.colAlias ? this.colAlias + '.' + this.value : this.value;
 		} else if (this.stat) {

@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const INode_1 = require("./INode");
+const Command_1 = require("./Command");
 const Expression_1 = require("./Expression");
 const Collection_1 = require("./Collection");
 class Statement extends INode_1.default {
     constructor() {
         super();
-        this.command = '';
+        this.command = null;
         this.columns = new Array();
         this.values = new Array();
         this.collection = new Collection_1.default();
@@ -19,88 +20,94 @@ class Statement extends INode_1.default {
         if (!handler) {
             throw 'No Handler Found';
         }
-        let result = '';
-        let columnStr = '';
-        for (let i = 0; i < this.columns.length; i++) {
-            let element = this.columns[i];
-            let val = element.eval(handler);
-            if (i == 0) {
-                columnStr = columnStr.concat(' ' + val);
-            }
-            else {
-                columnStr = columnStr.concat(', ' + val);
-            }
-            this.args = this.args.concat(element.args);
-        }
-        let collectionStr = this.collection.eval(handler);
-        this.args = this.args.concat(this.collection.args);
-        let whereStr = this.where.eval(handler);
-        this.args = this.args.concat(this.where.args);
-        let groupByStr = '';
-        for (let i = 0; i < this.groupBy.length; i++) {
-            let element = this.groupBy[i];
-            let val = element.eval(handler);
-            if (i == 0) {
-                groupByStr = groupByStr.concat(' ' + val);
-            }
-            else {
-                groupByStr = groupByStr.concat(', ' + val);
-            }
-            this.args = this.args.concat(element.args);
-        }
-        let orderByStr = '';
-        for (let i = 0; i < this.orderBy.length; i++) {
-            let element = this.orderBy[i];
-            let val = element.eval(handler);
-            if (i == 0) {
-                orderByStr = orderByStr.concat(' ' + val);
-            }
-            else {
-                orderByStr = orderByStr.concat(', ' + val);
-            }
-            this.args = this.args.concat(element.args);
-        }
-        let limitStr = this.limit.eval(handler);
-        this.args = this.args.concat(this.limit.args);
-        let valueStr = '';
-        for (let i = 0; i < this.values.length; i++) {
-            let element = this.values[i];
-            let val = element.eval(handler);
-            if (i == 0) {
-                valueStr = valueStr.concat(' ' + val);
-            }
-            else {
-                valueStr = valueStr.concat(', ' + val);
-            }
-            this.args = this.args.concat(element.args);
-        }
-        this.command = this.command.toLowerCase();
-        if (this.command === 'insert') {
-            result = result.concat(handler.insertQuery(collectionStr, columnStr, valueStr));
-        }
-        else if (this.command == 'select') {
-            result = result.concat(handler.selectQuery(collectionStr, columnStr));
-            if (whereStr) {
-                result = result.concat(handler.whereQuery(whereStr));
-            }
-            if (groupByStr) {
-                result = result.concat(handler.groupQuery(groupByStr));
-            }
-            if (orderByStr) {
-                result = result.concat(handler.orderQuery(orderByStr));
-            }
-            if (limitStr) {
-                result = result.concat(limitStr);
-            }
-        }
-        else if (this.command === 'update') {
-            result = result.concat(handler.updateQuery(collectionStr, columnStr, whereStr));
-        }
-        else if (this.command === 'delete') {
-            result = result.concat(handler.deleteQuery(collectionStr, whereStr));
+        let result = null;
+        switch (this.command) {
+            case Command_1.default.SELECT:
+                result = this.selectQuery(handler);
+                break;
+            case Command_1.default.INSERT:
+                result = this.insertQuery(handler);
+                break;
+            case Command_1.default.UPDATE:
+                result = this.updateQuery(handler);
+                break;
+            case Command_1.default.DELETE:
+                result = this.deleteQuery(handler);
+                break;
+            default:
+                break;
         }
         result = handler.convertPlaceHolder(result);
         return result;
+    }
+    insertQuery(handler) {
+        let collectionStr = this.getCollectionStr(handler);
+        let columnStr = this.getColumnStr(handler);
+        let valueStr = this.getValueStr(handler);
+        return `insert into ${collectionStr} (${columnStr}) values (${valueStr})`;
+    }
+    selectQuery(handler) {
+        let collectionStr = this.getCollectionStr(handler);
+        let columnStr = this.getColumnStr(handler);
+        let whereStr = this.getWhereStr(handler);
+        let groupByStr = this.getGroupByStr(handler);
+        let orderByStr = this.getOrderByStr(handler);
+        let limitStr = this.getLimitStr(handler);
+        return `select ${columnStr} from ${collectionStr}${whereStr}${groupByStr}${orderByStr}${limitStr}`;
+    }
+    updateQuery(handler) {
+        let collectionStr = this.getCollectionStr(handler);
+        let columnStr = this.getColumnStr(handler);
+        let whereStr = this.getWhereStr(handler);
+        return `update ${collectionStr} set ${columnStr}${whereStr}`;
+    }
+    deleteQuery(handler) {
+        let collectionStr = this.getCollectionStr(handler);
+        let whereStr = this.getWhereStr(handler);
+        return `delete from ${collectionStr}${whereStr}`;
+    }
+    getCollectionStr(handler) {
+        let collectionStr = this.collection.eval(handler);
+        this.args = this.args.concat(this.collection.args);
+        return collectionStr;
+    }
+    getColumnStr(handler) {
+        let columnStr = this.columns.map(ele => {
+            this.args = this.args.concat(ele.args);
+            return ele.eval(handler);
+        }, this).join(', ');
+        return columnStr;
+    }
+    getWhereStr(handler) {
+        let whereStr = this.where.eval(handler);
+        this.args = this.args.concat(this.where.args);
+        return whereStr ? ` where ${whereStr}` : '';
+    }
+    getValueStr(handler) {
+        let valueStr = this.values.map(ele => {
+            this.args = this.args.concat(ele.args);
+            return ele.eval(handler);
+        }, this).join(', ');
+        return valueStr;
+    }
+    getGroupByStr(handler) {
+        let groupByStr = this.groupBy.map(ele => {
+            this.args = this.args.concat(ele.args);
+            return ele.eval(handler);
+        }, this).join(', ');
+        return groupByStr ? ` group by ${groupByStr}` : '';
+    }
+    getOrderByStr(handler) {
+        let orderByStr = this.orderBy.map(ele => {
+            this.args = this.args.concat(ele.args);
+            return ele.eval(handler);
+        }, this).join(', ');
+        return orderByStr ? ` order by ${orderByStr}` : '';
+    }
+    getLimitStr(handler) {
+        let limitStr = this.limit.eval(handler);
+        this.args = this.args.concat(this.limit.args);
+        return limitStr;
     }
 }
 exports.default = Statement;
