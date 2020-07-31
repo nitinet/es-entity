@@ -35,11 +35,10 @@ class Mysql extends Handler_1.default {
             });
             conn.connect((err) => {
                 if (err) {
-                    that.context.log('Connection Creation Failed');
+                    that.context.log('Connection Creation Failed', err);
                     reject(err);
                 }
                 else {
-                    that.context.log('Connection Creation Successful');
                     let res = new Connection_1.default(this, conn);
                     resolve(res);
                 }
@@ -57,11 +56,10 @@ class Mysql extends Handler_1.default {
             });
             conn.conn.connect((err) => {
                 if (err) {
-                    that.context.log('Connection Creation Failed');
+                    that.context.log('Connection Creation Failed', err);
                     reject(err);
                 }
                 else {
-                    that.context.log('Connection Creation Successful');
                     resolve(conn);
                 }
             });
@@ -72,11 +70,10 @@ class Mysql extends Handler_1.default {
         return new Promise((resolve, reject) => {
             conn.conn.beginTransaction((err) => {
                 if (err) {
-                    that.context.log('Initializing Transaction Failed');
+                    that.context.log('Initializing Transaction Failed', err);
                     reject(err);
                 }
                 else {
-                    that.context.log('Initializing Transaction Successful');
                     resolve();
                 }
             });
@@ -87,11 +84,10 @@ class Mysql extends Handler_1.default {
         return new Promise((resolve, reject) => {
             conn.conn.commit((err) => {
                 if (err) {
-                    that.context.log('Commiting Transaction Failed');
+                    that.context.log('Commiting Transaction Failed', err);
                     reject(err);
                 }
                 else {
-                    that.context.log('Commiting Transaction Successful');
                     resolve();
                 }
             });
@@ -109,11 +105,10 @@ class Mysql extends Handler_1.default {
         return new Promise((resolve, reject) => {
             conn.conn.end((err) => {
                 if (err) {
-                    that.context.log('Connection Close Failed');
+                    that.context.log('Connection Close Failed', err);
                     reject(err);
                 }
                 else {
-                    that.context.log('Connection Close Successful');
                     resolve();
                 }
             });
@@ -182,7 +177,16 @@ class Mysql extends Handler_1.default {
         else {
             let con = null;
             try {
-                con = this.connectionPool.getConnection();
+                con = await new Promise((resolve, reject) => {
+                    this.connectionPool.getConnection(function (err, newConn) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(newConn);
+                        }
+                    });
+                });
                 temp = await new Promise((resolve, reject) => {
                     con.query(q, args, function (err, r) {
                         if (err) {
@@ -195,7 +199,9 @@ class Mysql extends Handler_1.default {
                 });
             }
             finally {
-                con.release();
+                if (con) {
+                    con.release();
+                }
             }
         }
         let result = new bean.ResultSet();

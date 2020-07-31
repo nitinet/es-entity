@@ -43,7 +43,7 @@ export default class PostgreSql extends Handler {
 			await conn.connect();
 			return new Connection(this, conn);
 		} catch (err) {
-			this.context.log('Connection Creation Failed');
+			this.context.log('Connection Creation Failed', err);
 			throw err;
 		}
 	}

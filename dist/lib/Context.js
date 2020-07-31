@@ -49,7 +49,7 @@ class Context {
             this.logger = config.logger;
         }
     }
-    log(arg) {
+    log(...arg) {
         if (this.logger) {
             this.logger.error(arg);
         }

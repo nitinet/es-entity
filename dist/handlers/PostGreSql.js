@@ -39,7 +39,7 @@ class PostgreSql extends Handler_1.default {
             return new Connection_1.default(this, conn);
         }
         catch (err) {
-            this.context.log('Connection Creation Failed');
+            this.context.log('Connection Creation Failed', err);
             throw err;
         }
     }
