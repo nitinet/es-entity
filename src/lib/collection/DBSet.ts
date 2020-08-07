@@ -158,7 +158,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		stat.command = sql.Command.INSERT;
 		stat.collection.value = this.mapping.name;
 
-		await Reflect.ownKeys(entity).forEach((key) => {
+		Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
 			if (q instanceof expression.Field && this.isUpdated(entity, <string>key)) {
 				let field = this.getKeyField(key);
@@ -178,8 +178,12 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 
 		if (primaryFields.length == 1) {
 			let primaryField = primaryFields[0];
-			let id = this.getValue(entity, primaryField.fieldName);
-			return await this.get(id);
+			let id = result.id || this.getValue(entity, primaryField.fieldName);
+			try {
+				return await this.get(id);
+			} catch (err) {
+				return null;
+			}
 		} else if (primaryFields.length > 1) {
 			//TODO: check for table with multiple primary keys
 			return null;
@@ -211,7 +215,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		stat.collection.value = this.mapping.name;
 
 		let primaryFields = this.getPrimaryFields();
-		await Reflect.ownKeys(entity).forEach((key) => {
+		Reflect.ownKeys(entity).forEach((key) => {
 			let field = this.getKeyField(key);
 
 			let q = entity[key];

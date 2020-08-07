@@ -136,7 +136,7 @@ class DBSet {
         let stat = new sql.Statement();
         stat.command = sql.Command.INSERT;
         stat.collection.value = this.mapping.name;
-        await Reflect.ownKeys(entity).forEach((key) => {
+        Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
             if (q instanceof expression.Field && this.isUpdated(entity, key)) {
                 let field = this.getKeyField(key);
@@ -152,8 +152,13 @@ class DBSet {
         let primaryFields = this.getPrimaryFields();
         if (primaryFields.length == 1) {
             let primaryField = primaryFields[0];
-            let id = this.getValue(entity, primaryField.fieldName);
-            return await this.get(id);
+            let id = result.id || this.getValue(entity, primaryField.fieldName);
+            try {
+                return await this.get(id);
+            }
+            catch (err) {
+                return null;
+            }
         }
         else if (primaryFields.length > 1) {
             return null;
@@ -181,7 +186,7 @@ class DBSet {
         stat.command = sql.Command.UPDATE;
         stat.collection.value = this.mapping.name;
         let primaryFields = this.getPrimaryFields();
-        await Reflect.ownKeys(entity).forEach((key) => {
+        Reflect.ownKeys(entity).forEach((key) => {
             let field = this.getKeyField(key);
             let q = entity[key];
             let isPrimaryField = false;
