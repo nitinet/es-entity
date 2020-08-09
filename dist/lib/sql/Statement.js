@@ -73,8 +73,9 @@ class Statement extends INode_1.default {
     }
     getColumnStr(handler) {
         let columnStr = this.columns.map(ele => {
+            let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
-            return ele.eval(handler);
+            return r;
         }, this).join(', ');
         return columnStr;
     }
@@ -85,22 +86,25 @@ class Statement extends INode_1.default {
     }
     getValueStr(handler) {
         let valueStr = this.values.map(ele => {
+            let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
-            return ele.eval(handler);
+            return r;
         }, this).join(', ');
         return valueStr;
     }
     getGroupByStr(handler) {
         let groupByStr = this.groupBy.map(ele => {
+            let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
-            return ele.eval(handler);
+            return r;
         }, this).join(', ');
         return groupByStr ? ` group by ${groupByStr}` : '';
     }
     getOrderByStr(handler) {
         let orderByStr = this.orderBy.map(ele => {
+            let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
-            return ele.eval(handler);
+            return r;
         }, this).join(', ');
         return orderByStr ? ` order by ${orderByStr}` : '';
     }

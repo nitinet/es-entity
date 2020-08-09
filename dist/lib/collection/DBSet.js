@@ -161,7 +161,11 @@ class DBSet {
             }
         }
         else if (primaryFields.length > 1) {
-            return null;
+            let param = {};
+            primaryFields.forEach(field => {
+                param[field.fieldName] = this.getValue(entity, field.fieldName);
+            });
+            return await this.get(param);
         }
     }
     getPrimaryFields() {
@@ -177,7 +181,7 @@ class DBSet {
             let w1 = new sql.Expression(priField.colName);
             let w2 = new sql.Expression('?');
             w2.args.push(this.getValue(entity, priField.fieldName));
-            whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+            whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
         });
         return whereExpr;
     }
@@ -210,6 +214,10 @@ class DBSet {
             let result = await this.context.execute(stat);
             if (result.error) {
                 throw result.error;
+            }
+            else if (primaryFields.length == 1) {
+                let param = this.getValue(entity, primaryFields[0].fieldName);
+                return await this.get(param);
             }
             else {
                 let param = {};
@@ -265,7 +273,7 @@ class DBSet {
                 let w1 = new sql.Expression(priField.colName);
                 let w2 = new sql.Expression('?');
                 w2.args.push(id[priField.fieldName]);
-                whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+                whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
             });
             return await this.where(whereExpr).unique();
         }
