@@ -1,8 +1,9 @@
 import Handler from '../Handler';
 import INode from './INode';
-import Command from './Command';
+import Command from './types/Command';
 import Expression from './Expression';
 import Collection from './Collection';
+
 /**
  * SqlStatement
  */

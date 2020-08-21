@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const INode_1 = require("./INode");
-const Command_1 = require("./Command");
+const Command_1 = require("./types/Command");
 const Expression_1 = require("./Expression");
 const Collection_1 = require("./Collection");
 class Statement extends INode_1.default {

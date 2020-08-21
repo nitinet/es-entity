@@ -1,6 +1,6 @@
 import Handler from '../Handler';
 import INode from './INode';
-import Operator from './Operator';
+import Operator from './types/Operator';
 import Column from './Column';
 
 class Field<T> extends Column {
@@ -83,9 +83,9 @@ class Field<T> extends Column {
 	// Inclusion Funtions
 	in(...operand: T[]) {
 		let arg: Expression = new Expression(null, Operator.Comma);
-		for (let i = 0; i < operand.length; i++) {
-			arg.exps.push(this._argExp(operand[i]));
-		}
+		operand.forEach(oper => {
+			arg.exps.push(this._argExp(oper));
+		});
 		return new Expression(null, Operator.In, this.expr(), arg);
 	}
 
@@ -186,9 +186,9 @@ class Expression extends Field<any> implements INode {
 			return exp;
 		} else {
 			let exp: Expression = new Expression(null, Operator.And, this);
-			for (var i = 0; i < expressions.length; i++) {
-				exp.add(expressions[i]);
-			}
+			expressions.forEach(expr => {
+				exp.add(expr);
+			});
 			return exp;
 		}
 	}
@@ -197,14 +197,12 @@ class Expression extends Field<any> implements INode {
 		if (this.value) {
 			return this.value;
 		} else if (this.exps) {
-			let values: Array<string> = new Array<string>();
-			for (let i = 0; i < this.exps.length; i++) {
-				let exp = this.exps[i];
+			let values = this.exps.map(exp => {
 				if (exp) {
-					values[i] = exp.eval(handler);
 					this.args = this.args.concat(exp.args);
+					return exp.eval(handler);
 				}
-			}
+			});
 
 			if (!this.operator && this.exps.length > 1) {
 				this.operator = Operator.And;
@@ -278,15 +276,11 @@ class Expression extends Field<any> implements INode {
 				case Operator.Desc:
 					r = handler.desc(val0);
 					break;
-				case Operator.Limit: {
+				case Operator.Limit:
 					r = handler.limit(val0, val1);
-				}
 					break;
-				case Operator.Comma: {
-					for (let i = 0; i < values.length; i++)
-						r = r.concat(values[i], ', ');
-					r = r.slice(0, r.length - 2);
-				}
+				case Operator.Comma:
+					r = values.join(', ');
 					break;
 				case Operator.Count:
 					r = handler.count(val0);

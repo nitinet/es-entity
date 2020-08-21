@@ -129,9 +129,6 @@ class DBSet {
     getValue(obj, key) {
         return obj[key].get();
     }
-    async executeStatement(stat) {
-        return await this.context.execute(stat);
-    }
     async insert(entity) {
         let stat = new sql.Statement();
         stat.command = sql.Command.INSERT;
@@ -284,14 +281,16 @@ class DBSet {
         stat.collection.value = this.mapping.name;
         stat.collection.alias = alias;
         let res = null;
-        if (param instanceof Function) {
-            let a = this.getEntity(stat.collection.alias);
-            res = param(a, args);
+        if (param) {
+            if (param instanceof Function) {
+                let a = this.getEntity(alias);
+                res = param(a, args);
+            }
+            else {
+                res = param;
+            }
         }
-        else {
-            res = param;
-        }
-        if (res instanceof sql.Expression && res.exps.length > 0) {
+        if (res && res instanceof sql.Expression && res.exps.length > 0) {
             stat.where = res;
         }
         return new QuerySet_1.default(stat, this);
@@ -320,9 +319,17 @@ class DBSet {
         let q = this.where();
         return q.select(param);
     }
-    mapData(input) {
-        let q = this.where();
-        return q.mapData(input);
+    async mapData(input) {
+        let data = new Array();
+        for (let j = 0; j < input.rows.length; j++) {
+            let row = input.rows[j];
+            let a = this.getEntity();
+            this.mapping.fields.forEach((field) => {
+                this.setValue(a, field.fieldName, row[field.fieldName]);
+            });
+            data.push(a);
+        }
+        return data;
     }
 }
 exports.default = DBSet;

@@ -149,10 +149,6 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		return (<expression.Field<any>>obj[key]).get();
 	}
 
-	async executeStatement(stat: sql.Statement): Promise<bean.ResultSet> {
-		return await this.context.execute(stat);
-	}
-
 	async insert(entity: T) {
 		let stat: sql.Statement = new sql.Statement();
 		stat.command = sql.Command.INSERT;
@@ -163,7 +159,7 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			if (q instanceof expression.Field && this.isUpdated(entity, <string>key)) {
 				let field = this.getKeyField(key);
 
-				let col: sql.Collection = new sql.Collection();
+				let col = new sql.Collection();
 				col.value = field.colName;
 				stat.columns.push(col);
 
@@ -317,13 +313,15 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		stat.collection.alias = alias;
 
 		let res: sql.Expression = null;
-		if (param instanceof Function) {
-			let a = this.getEntity(stat.collection.alias);
-			res = param(a, args);
-		} else {
-			res = param;
+		if (param) {
+			if (param instanceof Function) {
+				let a = this.getEntity(alias);
+				res = param(a, args);
+			} else {
+				res = param;
+			}
 		}
-		if (res instanceof sql.Expression && res.exps.length > 0) {
+		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			stat.where = res;
 		}
 		return new QuerySet(stat, this);
@@ -359,9 +357,17 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		return q.select(param);
 	}
 
-	mapData(input: bean.ResultSet) {
-		let q = this.where();
-		return q.mapData(input);
+	async mapData(input: bean.ResultSet): Promise<Array<T>> {
+		let data = new Array<T>();
+		for (let j = 0; j < input.rows.length; j++) {
+			let row = input.rows[j];
+			let a = this.getEntity();
+			this.mapping.fields.forEach((field) => {
+				this.setValue(a, field.fieldName, row[field.fieldName]);
+			});
+			data.push(a);
+		}
+		return data;
 	}
 
 }

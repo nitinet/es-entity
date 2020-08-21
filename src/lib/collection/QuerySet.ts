@@ -3,7 +3,6 @@ import * as sql from '../sql';
 import * as funcs from './funcs';
 import IQuerySet from './IQuerySet';
 import DBSet from './DBSet';
-import ForeignSet from './ForeignSet';
 
 /**
  * QuerySet
@@ -18,24 +17,9 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 	}
 
 	getEntity(alias?: string) {
+		alias = alias || this.stat.collection.alias;
 		return this.dbSet.getEntity(alias);
 	}
-
-	// insert(entity: T) {
-	// 	return this.dbSet.insert(entity);
-	// }
-
-	// update(entity: T) {
-	// 	return this.dbSet.update(entity);
-	// }
-
-	// insertOrUpdate(entity: T) {
-	// 	return this.dbSet.insertOrUpdate(entity);
-	// }
-
-	// delete(entity: T) {
-	// 	return this.dbSet.delete(entity);
-	// }
 
 	// Selection Functions
 	async list() {
@@ -43,22 +27,26 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		let alias: string = this.stat.collection.alias;
 
 		this.dbSet.mapping.fields.forEach((field) => {
-			let c: sql.Collection = new sql.Collection();
+			let c = new sql.Collection();
 			c.colAlias = alias;
 			c.value = field.colName;
 			c.alias = field.fieldName;
 			this.stat.columns.push(c);
 		});
 
-		let result = await this.dbSet.executeStatement(this.stat);
+		let result = await this.dbSet.context.execute(this.stat);
 		return this.mapData(result);
+	}
+
+	async mapData(input: bean.ResultSet): Promise<Array<T>> {
+		return this.dbSet.mapData(input);
 	}
 
 	// Selection Functions
 	async select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
 		this.stat.command = sql.Command.SELECT;
 		if (param) {
-			let a = this.dbSet.getEntity(this.stat.collection.alias);
+			let a = this.getEntity();
 			let temp: sql.Expression[] = [];
 			if (typeof param == 'function') {
 				param = param(a);
@@ -73,8 +61,8 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 			});
 		} else {
 			let alias: string = this.stat.collection.alias;
-			await this.dbSet.mapping.fields.forEach((field, fieldName) => {
-				let c: sql.Collection = new sql.Collection();
+			this.dbSet.mapping.fields.forEach((field) => {
+				let c = new sql.Collection();
 				c.colAlias = alias;
 				c.value = field.colName;
 				c.alias = field.fieldName;
@@ -82,7 +70,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 			});
 		}
 
-		let result = await this.dbSet.executeStatement(this.stat);
+		let result = await this.dbSet.context.execute(this.stat);
 		return result.rows;
 	}
 
@@ -98,62 +86,70 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 	// Conditional Functions
 	where(param?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T> {
 		let res = null;
-		if (param instanceof Function) {
-			let a = this.dbSet.getEntity(this.stat.collection.alias);
-			res = param(a, args);
-		} else {
-			res = param;
+		if (param) {
+			if (param instanceof Function) {
+				let a = this.getEntity();
+				res = param(a, args);
+			} else {
+				res = param;
+			}
 		}
-		if (res instanceof sql.Expression && res.exps.length > 0) {
+		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
 		}
-		return new QuerySet(this.stat, this.dbSet);
+		return this;
 	}
 
 	groupBy(param?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
-		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res = null;
-		if (param instanceof Function) {
-			res = param(a);
-		} else if (param instanceof Array) {
-			res = param;
+		if (param) {
+			if (param instanceof Function) {
+				let a = this.getEntity();
+				res = param(a);
+			} else if (param instanceof Array) {
+				res = param;
+			}
 		}
-		if (res instanceof Array) {
-			for (let i = 0; i < res.length; i++) {
-				if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-					this.stat.groupBy.push((<sql.Expression>res[i]).expr());
+		if (res) {
+			if (res instanceof Array) {
+				for (let i = 0; i < res.length; i++) {
+					if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
+						this.stat.groupBy.push((<sql.Expression>res[i]).expr());
+					}
+				}
+			} else {
+				if (res instanceof sql.Expression && res.exps.length > 0) {
+					this.stat.groupBy.push(res.expr());
 				}
 			}
-		} else {
-			if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.groupBy.push(res.expr());
-			}
 		}
-		let s: QuerySet<T> = new QuerySet(this.stat, this.dbSet);
-		return s;
+		return this;
 	}
 
 	orderBy(param?: funcs.IArrFieldFunc<T> | sql.Expression[]): IQuerySet<T> {
-		let a = this.dbSet.getEntity(this.stat.collection.alias);
 		let res = null;
-		if (param instanceof Function) {
-			res = param(a);
-		} else if (param instanceof Array) {
-			res = param;
+		if (param) {
+			if (param instanceof Function) {
+				let a = this.getEntity();
+				res = param(a);
+			} else if (param instanceof Array) {
+				res = param;
+			}
 		}
-		if (res instanceof Array) {
-			for (let i = 0; i < res.length; i++) {
-				if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-					this.stat.orderBy.push((<sql.Expression>res[i]).expr());
+		if (res) {
+			if (res instanceof Array) {
+				for (let i = 0; i < res.length; i++) {
+					if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
+						this.stat.orderBy.push((<sql.Expression>res[i]).expr());
+					}
+				}
+			} else {
+				if (res instanceof sql.Expression && res.exps.length > 0) {
+					this.stat.orderBy.push(res.expr());
 				}
 			}
-		} else {
-			if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.orderBy.push(res.expr());
-			}
 		}
-		let s: QuerySet<T> = new QuerySet(this.stat, this.dbSet);
-		return s;
+		return this;
 	}
 
 	limit(size: number, index?: number): IQuerySet<T> {
@@ -162,25 +158,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 			this.stat.limit.exps.push(new sql.Expression(index.toString()));
 		}
 		this.stat.limit.exps.push(new sql.Expression(size.toString()));
-		let s: QuerySet<T> = new QuerySet(this.stat, this.dbSet);
-		return s;
-	}
-
-	async mapData(input: bean.ResultSet): Promise<Array<T>> {
-		let data = new Array<T>();
-		let that = this;
-		for (let j = 0; j < input.rows.length; j++) {
-			let row = input.rows[j];
-			let a = this.dbSet.getEntity();
-			await this.dbSet.mapping.fields.forEach((field) => {
-				this.dbSet.setValue(a, field.fieldName, row[field.fieldName]);
-			});
-			await this.dbSet.mapping.foreignRels.forEach((foreignRel) => {
-				(<ForeignSet<any>>a[foreignRel]).setup(that.dbSet.context, a);
-			});
-			data.push(a);
-		}
-		return data;
+		return this;
 	}
 
 }
