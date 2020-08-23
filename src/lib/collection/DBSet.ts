@@ -18,16 +18,17 @@ interface IOptions {
 	entityPath?: string,
 }
 
-class DBSet<T extends Object> implements IQuerySet<T> {
+class DBSet<T extends Object> extends IQuerySet<T> {
 	private entityType: types.IEntityType<T>;
 	private options: IOptions = null;
 
-	context: Context;
 	mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 
 	private columns: bean.ColumnInfo[] = null;
 
 	constructor(entityType: types.IEntityType<T>, options?: IOptions) {
+		super();
+
 		this.entityType = entityType;
 		this.options = options || {};
 
@@ -306,25 +307,21 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 	}
 
 	where(param?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T> {
-		let stat = new sql.Statement();
-
-		let alias = this.mapping.name.charAt(0);
-		stat.collection.value = this.mapping.name;
-		stat.collection.alias = alias;
+		let q = new QuerySet(this);
 
 		let res: sql.Expression = null;
 		if (param) {
 			if (param instanceof Function) {
-				let a = this.getEntity(alias);
+				let a = this.getEntity(q.alias);
 				res = param(a, args);
 			} else {
 				res = param;
 			}
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
-			stat.where = res;
+			q.stat.where = q.stat.where.add(res);
 		}
-		return new QuerySet(stat, this);
+		return q;
 	}
 
 	groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression[]) {
@@ -352,6 +349,11 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 		return q.unique();
 	}
 
+	run() {
+		let q = this.where();
+		return q.run();
+	}
+
 	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
 		let q = this.where();
 		return q.select(param);
@@ -368,6 +370,11 @@ class DBSet<T extends Object> implements IQuerySet<T> {
 			data.push(a);
 		}
 		return data;
+	}
+
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join) {
+		let q = this.where();
+		return q.join(coll, param);
 	}
 
 }

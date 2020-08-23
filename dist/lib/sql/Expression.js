@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Operator_1 = require("./Operator");
+const Operator_1 = require("./types/Operator");
 const Column_1 = require("./Column");
 class Field extends Column_1.default {
     constructor() {
@@ -71,9 +71,9 @@ class Field extends Column_1.default {
     }
     in(...operand) {
         let arg = new Expression(null, Operator_1.default.Comma);
-        for (let i = 0; i < operand.length; i++) {
-            arg.exps.push(this._argExp(operand[i]));
-        }
+        operand.forEach(oper => {
+            arg.exps.push(this._argExp(oper));
+        });
         return new Expression(null, Operator_1.default.In, this.expr(), arg);
     }
     between(first, second) {
@@ -151,9 +151,9 @@ class Expression extends Field {
         }
         else {
             let exp = new Expression(null, Operator_1.default.And, this);
-            for (var i = 0; i < expressions.length; i++) {
-                exp.add(expressions[i]);
-            }
+            expressions.forEach(expr => {
+                exp.add(expr);
+            });
             return exp;
         }
     }
@@ -162,14 +162,12 @@ class Expression extends Field {
             return this.value;
         }
         else if (this.exps) {
-            let values = new Array();
-            for (let i = 0; i < this.exps.length; i++) {
-                let exp = this.exps[i];
+            let values = this.exps.map(exp => {
                 if (exp) {
-                    values[i] = exp.eval(handler);
                     this.args = this.args.concat(exp.args);
+                    return exp.eval(handler);
                 }
-            }
+            });
             if (!this.operator && this.exps.length > 1) {
                 this.operator = Operator_1.default.And;
             }
@@ -242,16 +240,10 @@ class Expression extends Field {
                     r = handler.desc(val0);
                     break;
                 case Operator_1.default.Limit:
-                    {
-                        r = handler.limit(val0, val1);
-                    }
+                    r = handler.limit(val0, val1);
                     break;
                 case Operator_1.default.Comma:
-                    {
-                        for (let i = 0; i < values.length; i++)
-                            r = r.concat(values[i], ', ');
-                        r = r.slice(0, r.length - 2);
-                    }
+                    r = values.join(', ');
                     break;
                 case Operator_1.default.Count:
                     r = handler.count(val0);

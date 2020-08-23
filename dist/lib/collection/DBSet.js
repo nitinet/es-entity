@@ -7,10 +7,12 @@ const bean = require("../../bean");
 const sql = require("../sql");
 const expression = require("../sql/Expression");
 const Mapping = require("../Mapping");
+const IQuerySet_1 = require("./IQuerySet");
 const QuerySet_1 = require("./QuerySet");
 const ForeignSet_1 = require("./ForeignSet");
-class DBSet {
+class DBSet extends IQuerySet_1.default {
     constructor(entityType, options) {
+        super();
         this.options = null;
         this.mapping = new Mapping.EntityMapping();
         this.columns = null;
@@ -276,14 +278,11 @@ class DBSet {
         }
     }
     where(param, ...args) {
-        let stat = new sql.Statement();
-        let alias = this.mapping.name.charAt(0);
-        stat.collection.value = this.mapping.name;
-        stat.collection.alias = alias;
+        let q = new QuerySet_1.default(this);
         let res = null;
         if (param) {
             if (param instanceof Function) {
-                let a = this.getEntity(alias);
+                let a = this.getEntity(q.alias);
                 res = param(a, args);
             }
             else {
@@ -291,9 +290,9 @@ class DBSet {
             }
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
-            stat.where = res;
+            q.stat.where = q.stat.where.add(res);
         }
-        return new QuerySet_1.default(stat, this);
+        return q;
     }
     groupBy(func) {
         let q = this.where();
@@ -315,6 +314,10 @@ class DBSet {
         let q = this.where();
         return q.unique();
     }
+    run() {
+        let q = this.where();
+        return q.run();
+    }
     select(param) {
         let q = this.where();
         return q.select(param);
@@ -330,6 +333,10 @@ class DBSet {
             data.push(a);
         }
         return data;
+    }
+    join(coll, param, joinType) {
+        let q = this.where();
+        return q.join(coll, param);
     }
 }
 exports.default = DBSet;

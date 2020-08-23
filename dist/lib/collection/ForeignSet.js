@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ForeignSet {
+const IQuerySet_1 = require("./IQuerySet");
+class ForeignSet extends IQuerySet_1.default {
     constructor(entityType, foreignFunc) {
+        super();
         this.foreignFunc = null;
-        this.context = null;
         this.dbSet = null;
         this.entityType = entityType;
         this.foreignFunc = foreignFunc;
@@ -20,6 +21,9 @@ class ForeignSet {
     }
     unique() {
         return this.dbSet.unique();
+    }
+    run() {
+        return this.dbSet.run();
     }
     select(param) {
         return this.dbSet.select(param);
@@ -38,6 +42,10 @@ class ForeignSet {
     }
     mapData(input) {
         return this.dbSet.mapData(input);
+    }
+    join(coll, param, joinType) {
+        let q = this.where();
+        return q.join(coll, param);
     }
 }
 exports.default = ForeignSet;

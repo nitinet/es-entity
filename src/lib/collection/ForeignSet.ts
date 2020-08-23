@@ -5,13 +5,13 @@ import Context from '../Context';
 import IQuerySet from './IQuerySet';
 import * as funcs from './funcs';
 
-class ForeignSet<T extends Object> implements IQuerySet<T>{
+class ForeignSet<T extends Object> extends IQuerySet<T>{
 	private entityType: types.IEntityType<T>;
 	private foreignFunc: funcs.IForeignFunc<T> = null;
-	private context: Context = null;
 	private dbSet: IQuerySet<T> = null;
 
 	constructor(entityType: types.IEntityType<T>, foreignFunc: funcs.IForeignFunc<T>) {
+		super();
 		this.entityType = entityType;
 		this.foreignFunc = foreignFunc;
 	}
@@ -32,6 +32,10 @@ class ForeignSet<T extends Object> implements IQuerySet<T>{
 
 	unique() {
 		return this.dbSet.unique();
+	}
+
+	run() {
+		return this.dbSet.run();
 	}
 
 	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
@@ -57,6 +61,11 @@ class ForeignSet<T extends Object> implements IQuerySet<T>{
 
 	mapData(input: bean.ResultSet) {
 		return this.dbSet.mapData(input);
+	}
+
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join) {
+		let q = this.where();
+		return q.join(coll, param);
 	}
 
 }

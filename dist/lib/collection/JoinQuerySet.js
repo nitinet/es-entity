@@ -1,23 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
 const IQuerySet_1 = require("./IQuerySet");
-const JoinQuerySet_1 = require("./JoinQuerySet");
-class QuerySet extends IQuerySet_1.default {
-    constructor(dbSet) {
+const sql = require("../sql");
+class JoinQuerySet extends IQuerySet_1.default {
+    constructor(mainSet, joinSet, joinType, expr) {
         super();
-        this.dbSet = null;
-        this.alias = null;
-        this.dbSet = dbSet;
-        this.context = this.dbSet.context;
+        this.mainSet = null;
+        this.joinSet = null;
+        this.mainSet = mainSet;
+        this.context = mainSet.context;
+        this.joinSet = joinSet;
         this.stat = new sql.Statement();
-        this.alias = dbSet.mapping.name.charAt(0);
-        this.stat.collection.value = dbSet.mapping.name;
-        this.stat.collection.alias = this.alias;
+        this.stat.collection.leftColl = this.mainSet.stat.collection;
+        this.stat.collection.rightColl = this.joinSet.stat.collection;
+        this.stat.collection.join = joinType;
+        this.stat.where = this.stat.where.add(expr);
     }
     getEntity(alias) {
-        alias = alias || this.stat.collection.alias;
-        return this.dbSet.getEntity(alias);
+        let mainObj = this.mainSet.getEntity(alias);
+        let joinObj = this.joinSet.getEntity(alias);
+        return Object.assign(mainObj, joinObj);
     }
     async list() {
         this.select();
@@ -25,7 +27,25 @@ class QuerySet extends IQuerySet_1.default {
         return this.mapData(result);
     }
     async mapData(input) {
-        return this.dbSet.mapData(input);
+        let resMain = await this.mainSet.mapData(input);
+        let resJoin = await this.joinSet.mapData(input);
+        let res = new Array();
+        for (let i = 0; i < input.rowCount; i++) {
+            let objMain = resMain[i];
+            let objJoin = resJoin[i];
+            let objFinal = Object.assign(objMain, objJoin);
+            res.push(objFinal);
+        }
+        return res;
+    }
+    async unique() {
+        let l = await this.list();
+        if (l.length > 1) {
+            throw new Error('More than one row found in unique call');
+        }
+        else {
+            return l[0];
+        }
     }
     async run() {
         if (!this.stat.columns.length) {
@@ -37,9 +57,9 @@ class QuerySet extends IQuerySet_1.default {
     select(param) {
         this.stat.command = sql.Command.SELECT;
         if (param) {
-            let a = this.getEntity();
             let temp = [];
             if (param instanceof Function) {
+                let a = this.getEntity();
                 param = param(a);
             }
             if (param instanceof sql.Expression) {
@@ -53,25 +73,16 @@ class QuerySet extends IQuerySet_1.default {
             });
         }
         else {
-            let alias = this.stat.collection.alias;
-            this.dbSet.mapping.fields.forEach((field) => {
-                let c = new sql.Collection();
-                c.colAlias = alias;
-                c.value = field.colName;
-                c.alias = field.fieldName;
-                this.stat.columns.push(c);
+            this.mainSet = this.mainSet.select();
+            this.mainSet.stat.columns.forEach((col) => {
+                this.stat.columns.push(col);
+            });
+            this.joinSet = this.joinSet.select();
+            this.joinSet.stat.columns.forEach((col) => {
+                this.stat.columns.push(col);
             });
         }
         return this;
-    }
-    async unique() {
-        let l = await this.list();
-        if (l.length > 1) {
-            throw new Error('More than one row found in unique call');
-        }
-        else {
-            return l[0];
-        }
     }
     where(param, ...args) {
         let res = null;
@@ -150,24 +161,20 @@ class QuerySet extends IQuerySet_1.default {
     join(coll, param, joinType) {
         joinType = joinType | sql.Join.InnerJoin;
         let temp = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                let b = coll.getEntity();
-                temp = param(a, b);
-            }
-            else {
-                temp = param;
-            }
-        }
-        if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-            let res = new JoinQuerySet_1.default(this, coll, joinType, temp);
-            return res;
+        if (param instanceof Function) {
+            let a = this.getEntity();
+            let b = coll.getEntity();
+            temp = param(a, b);
         }
         else {
-            throw 'Invalid Join';
+            temp = param;
         }
+        let res = null;
+        if (temp instanceof sql.Expression && temp.exps.length > 0) {
+            res = new JoinQuerySet(this, coll, joinType, temp);
+        }
+        return res;
     }
 }
-exports.default = QuerySet;
-//# sourceMappingURL=QuerySet.js.map
+exports.default = JoinQuerySet;
+//# sourceMappingURL=JoinQuerySet.js.map

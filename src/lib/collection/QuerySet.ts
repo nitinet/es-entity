@@ -3,17 +3,25 @@ import * as sql from '../sql';
 import * as funcs from './funcs';
 import IQuerySet from './IQuerySet';
 import DBSet from './DBSet';
+import JoinQuerySet from './JoinQuerySet';
 
 /**
  * QuerySet
  */
-class QuerySet<T extends Object> implements IQuerySet<T> {
+class QuerySet<T extends Object> extends IQuerySet<T> {
 	private dbSet: DBSet<T> = null;
-	private stat: sql.Statement = null;
+	alias: string = null;
 
-	constructor(stat: sql.Statement, dbSet: DBSet<T>) {
-		this.stat = stat;
+	constructor(dbSet: DBSet<T>) {
+		super();
+
 		this.dbSet = dbSet;
+		this.context = this.dbSet.context;
+
+		this.stat = new sql.Statement();
+		this.alias = dbSet.mapping.name.charAt(0);
+		this.stat.collection.value = dbSet.mapping.name;
+		this.stat.collection.alias = this.alias;
 	}
 
 	getEntity(alias?: string) {
@@ -23,18 +31,9 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 
 	// Selection Functions
 	async list() {
-		this.stat.command = sql.Command.SELECT;
-		let alias: string = this.stat.collection.alias;
+		this.select();
 
-		this.dbSet.mapping.fields.forEach((field) => {
-			let c = new sql.Collection();
-			c.colAlias = alias;
-			c.value = field.colName;
-			c.alias = field.fieldName;
-			this.stat.columns.push(c);
-		});
-
-		let result = await this.dbSet.context.execute(this.stat);
+		let result = await this.context.execute(this.stat);
 		return this.mapData(result);
 	}
 
@@ -42,13 +41,22 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		return this.dbSet.mapData(input);
 	}
 
+	async run() {
+		if (!this.stat.columns.length) {
+			return this.list();
+		}
+
+		let result = await this.context.execute(this.stat);
+		return result.rows;
+	}
+
 	// Selection Functions
-	async select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
+	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
 		this.stat.command = sql.Command.SELECT;
 		if (param) {
 			let a = this.getEntity();
 			let temp: sql.Expression[] = [];
-			if (typeof param == 'function') {
+			if (param instanceof Function) {
 				param = param(a);
 			}
 			if (param instanceof sql.Expression) {
@@ -60,7 +68,9 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 				this.stat.columns.push(val.expr());
 			});
 		} else {
+			// Get all Columns
 			let alias: string = this.stat.collection.alias;
+
 			this.dbSet.mapping.fields.forEach((field) => {
 				let c = new sql.Collection();
 				c.colAlias = alias;
@@ -69,9 +79,7 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 				this.stat.columns.push(c);
 			});
 		}
-
-		let result = await this.dbSet.context.execute(this.stat);
-		return result.rows;
+		return this;
 	}
 
 	async unique() {
@@ -112,15 +120,13 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		}
 		if (res) {
 			if (res instanceof Array) {
-				for (let i = 0; i < res.length; i++) {
-					if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-						this.stat.groupBy.push((<sql.Expression>res[i]).expr());
+				res.forEach(a => {
+					if (a instanceof sql.Expression && a.exps.length > 0) {
+						this.stat.groupBy.push(a.expr());
 					}
-				}
-			} else {
-				if (res instanceof sql.Expression && res.exps.length > 0) {
-					this.stat.groupBy.push(res.expr());
-				}
+				});
+			} else if (res instanceof sql.Expression && res.exps.length > 0) {
+				this.stat.groupBy.push(res.expr());
 			}
 		}
 		return this;
@@ -138,15 +144,13 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		}
 		if (res) {
 			if (res instanceof Array) {
-				for (let i = 0; i < res.length; i++) {
-					if (res[i] instanceof sql.Expression && res[i].exps.length > 0) {
-						this.stat.orderBy.push((<sql.Expression>res[i]).expr());
+				res.forEach(a => {
+					if (a instanceof sql.Expression && a.exps.length > 0) {
+						this.stat.orderBy.push(a.expr());
 					}
-				}
-			} else {
-				if (res instanceof sql.Expression && res.exps.length > 0) {
-					this.stat.orderBy.push(res.expr());
-				}
+				});
+			} else if (res instanceof sql.Expression && res.exps.length > 0) {
+				this.stat.orderBy.push(res.expr());
 			}
 		}
 		return this;
@@ -159,6 +163,28 @@ class QuerySet<T extends Object> implements IQuerySet<T> {
 		}
 		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		return this;
+	}
+
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join) {
+		joinType = joinType | sql.Join.InnerJoin;
+
+		let temp: sql.Expression = null;
+		if (param) {
+			if (param instanceof Function) {
+				let a = this.getEntity();
+				let b = coll.getEntity();
+				temp = param(a, b);
+			} else {
+				temp = param;
+			}
+		}
+
+		if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
+			let res: JoinQuerySet<T, A> = new JoinQuerySet<T, A>(this, coll, joinType, temp);
+			return res;
+		} else {
+			throw 'Invalid Join';
+		}
 	}
 
 }

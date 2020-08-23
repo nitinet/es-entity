@@ -4,8 +4,12 @@ interface IWhereFunc<T> {
 	(source: T, ...args: any[]): Expression;
 }
 
+interface IJoinFunc<A, B> {
+	(sourceA: A, sourceB: B): Expression;
+}
+
 interface IArrFieldFunc<T> {
-	(source: T): Expression | Expression[];
+	(...source: T[]): Expression | Expression[];
 }
 
 interface IForeignFunc<T> {
@@ -13,5 +17,6 @@ interface IForeignFunc<T> {
 }
 
 export { IWhereFunc };
+export { IJoinFunc };
 export { IArrFieldFunc };
 export { IForeignFunc };
