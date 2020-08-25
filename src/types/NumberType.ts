@@ -10,7 +10,7 @@ class NumberType extends Field<number> {
 			get(target, prop) {
 				if (prop in target) {
 					return target[prop];
-				} else if (prop in <Number>target._value) {
+				} else if (target._value) {
 					return target._value[prop];
 				}
 			},

@@ -2,10 +2,10 @@ import * as funcs from './funcs';
 import IQuerySet from './IQuerySet';
 import DBSet from './DBSet';
 import QuerySet from './QuerySet';
-import ForeignSet from './ForeignSet';
+import LinkSet from './LinkSet';
 
 export { funcs };
 export { IQuerySet };
 export { DBSet };
 export { QuerySet };
-export { ForeignSet };
+export { LinkSet };

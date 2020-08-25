@@ -10,7 +10,7 @@ class ObjectType extends Field_1.default {
                 if (prop in target) {
                     return target[prop];
                 }
-                else if (prop in target._value) {
+                else if (target._value) {
                     return target._value[prop];
                 }
             },

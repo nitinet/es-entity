@@ -8,12 +8,19 @@ class QuerySet extends IQuerySet_1.default {
         super();
         this.dbSet = null;
         this.alias = null;
-        this.dbSet = dbSet;
-        this.context = this.dbSet.context;
-        this.stat = new sql.Statement();
-        this.alias = dbSet.mapping.name.charAt(0);
-        this.stat.collection.value = dbSet.mapping.name;
-        this.stat.collection.alias = this.alias;
+        if (dbSet) {
+            this.bind(dbSet);
+        }
+    }
+    bind(dbSet) {
+        if (dbSet) {
+            this.dbSet = dbSet;
+            this.context = this.dbSet.context;
+            this.stat = new sql.Statement();
+            this.alias = dbSet.mapping.name.charAt(0);
+            this.stat.collection.value = dbSet.mapping.name;
+            this.stat.collection.alias = this.alias;
+        }
     }
     getEntity(alias) {
         alias = alias || this.stat.collection.alias;
@@ -31,8 +38,10 @@ class QuerySet extends IQuerySet_1.default {
         if (!this.stat.columns.length) {
             return this.list();
         }
-        let result = await this.context.execute(this.stat);
-        return result.rows;
+        else {
+            let result = await this.context.execute(this.stat);
+            return result.rows;
+        }
     }
     select(param) {
         this.stat.command = sql.Command.SELECT;

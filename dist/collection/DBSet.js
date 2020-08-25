@@ -6,10 +6,10 @@ const Case = require("case");
 const bean = require("../bean");
 const sql = require("../sql");
 const Field_1 = require("../sql/Field");
+const types = require("../types");
 const Mapping = require("../Mapping");
 const IQuerySet_1 = require("./IQuerySet");
 const QuerySet_1 = require("./QuerySet");
-const ForeignSet_1 = require("./ForeignSet");
 class DBSet extends IQuerySet_1.default {
     constructor(entityType, options) {
         super();
@@ -40,16 +40,12 @@ class DBSet extends IQuerySet_1.default {
             this.columns = await this.context.handler.getTableInfo(this.mapping.name);
             let obj = new this.entityType();
             let keys = Reflect.ownKeys(obj);
-            for (let i = 0; i < keys.length; i++) {
-                let key = keys[i].toString();
+            keys.forEach(key => {
                 let field = obj[key];
                 if (field instanceof Field_1.default) {
-                    this.bindField(key);
+                    this.bindField(key.toString());
                 }
-                else if (field instanceof ForeignSet_1.default) {
-                    this.bindForeignRel(key);
-                }
-            }
+            });
         }
     }
     bindField(key) {
@@ -94,9 +90,6 @@ class DBSet extends IQuerySet_1.default {
             this.context.log(err);
         }
     }
-    bindForeignRel(key) {
-        this.mapping.foreignRels.push(key);
-    }
     getEntityType() {
         return this.entityType;
     }
@@ -109,24 +102,22 @@ class DBSet extends IQuerySet_1.default {
     getEntity(alias) {
         let a = new this.entityType();
         let keys = Reflect.ownKeys(a);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            let field = this.getKeyField(key);
-            let q = a[key];
-            q._name = field && field.colName ? field.colName : '';
-            q._alias = alias;
-            q._updated = false;
-        }
+        keys.forEach(key => {
+            let field = a[key];
+            if (field instanceof Field_1.default) {
+                let fieldInfo = this.getKeyField(key);
+                field._name = fieldInfo && fieldInfo.colName ? fieldInfo.colName : '';
+                field._alias = alias;
+                field._updated = false;
+            }
+            else if (field instanceof types.LinkObject || field instanceof types.LinkArray) {
+                field.bind(this.context);
+            }
+        });
         return a;
     }
     isUpdated(obj, key) {
         return obj[key]._updated ? true : false;
-    }
-    setValue(obj, key, value) {
-        if (value != null) {
-            obj[key].set(value);
-            obj[key]._updated = false;
-        }
     }
     getValue(obj, key) {
         return obj[key].get();
@@ -266,7 +257,6 @@ class DBSet extends IQuerySet_1.default {
             }).unique();
         }
         else if (primaryFields.length > 1 && typeof id === 'object') {
-            let primaryFields = this.getPrimaryFields();
             let whereExpr = new sql.Expression();
             primaryFields.forEach(priField => {
                 let w1 = new sql.Expression(priField.colName);
@@ -324,14 +314,26 @@ class DBSet extends IQuerySet_1.default {
     }
     async mapData(input) {
         let data = new Array();
-        for (let j = 0; j < input.rows.length; j++) {
-            let row = input.rows[j];
-            let a = this.getEntity();
-            this.mapping.fields.forEach((field) => {
-                this.setValue(a, field.fieldName, row[field.fieldName]);
+        await Promise.all(input.rows.map(async (row) => {
+            let obj = this.getEntity();
+            let keys = Reflect.ownKeys(obj);
+            keys.filter(key => {
+                let field = obj[key];
+                return field instanceof Field_1.default;
+            }).forEach(key => {
+                let field = obj[key];
+                field.set(row[key.toString()]);
+                field._updated = false;
             });
-            data.push(a);
-        }
+            await Promise.all(keys.filter(key => {
+                let field = obj[key];
+                return (field instanceof types.LinkObject || field instanceof types.LinkArray);
+            }).map(async (key) => {
+                let field = obj[key];
+                await field.apply(obj);
+            }));
+            data.push(obj);
+        }));
         return data;
     }
     join(coll, param, joinType) {

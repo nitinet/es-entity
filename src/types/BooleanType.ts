@@ -10,7 +10,7 @@ class BooleanType extends Field<boolean> {
 			get(target, prop) {
 				if (prop in target) {
 					return target[prop];
-				} else if (prop in <Boolean>target._value) {
+				} else if (target._value) {
 					return target._value[prop];
 				}
 			},

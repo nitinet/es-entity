@@ -14,7 +14,7 @@ class DateType extends Field<Date> {
 			get(target, prop) {
 				if (prop in target) {
 					return target[prop];
-				} else if (prop in <Date>target._value) {
+				} else if (target._value) {
 					return target._value[prop];
 				}
 			},

@@ -10,7 +10,7 @@ class StringType extends Field<string> {
 			get(target, prop) {
 				if (prop in target) {
 					return target[prop];
-				} else if (prop in <String>target._value) {
+				} else if (target._value) {
 					return target._value[prop];
 				}
 			},

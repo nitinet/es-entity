@@ -10,7 +10,7 @@ class ObjectType extends Field<object> {
 			get(target, prop) {
 				if (prop in target) {
 					return target[prop];
-				} else if (prop in <Object>target._value) {
+				} else if (target._value) {
 					return target._value[prop];
 				}
 			},

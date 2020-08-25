@@ -9,19 +9,26 @@ import JoinQuerySet from './JoinQuerySet';
  * QuerySet
  */
 class QuerySet<T extends Object> extends IQuerySet<T> {
-	private dbSet: DBSet<T> = null;
+	protected dbSet: DBSet<T> = null;
 	alias: string = null;
 
-	constructor(dbSet: DBSet<T>) {
+	constructor(dbSet?: DBSet<T>) {
 		super();
+		if (dbSet) {
+			this.bind(dbSet);
+		}
+	}
 
-		this.dbSet = dbSet;
-		this.context = this.dbSet.context;
+	bind(dbSet: DBSet<T>) {
+		if (dbSet) {
+			this.dbSet = dbSet;
+			this.context = this.dbSet.context;
 
-		this.stat = new sql.Statement();
-		this.alias = dbSet.mapping.name.charAt(0);
-		this.stat.collection.value = dbSet.mapping.name;
-		this.stat.collection.alias = this.alias;
+			this.stat = new sql.Statement();
+			this.alias = dbSet.mapping.name.charAt(0);
+			this.stat.collection.value = dbSet.mapping.name;
+			this.stat.collection.alias = this.alias;
+		}
 	}
 
 	getEntity(alias?: string) {
@@ -44,10 +51,10 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 	async run() {
 		if (!this.stat.columns.length) {
 			return this.list();
+		} else {
+			let result = await this.context.execute(this.stat);
+			return result.rows;
 		}
-
-		let result = await this.context.execute(this.stat);
-		return result.rows;
 	}
 
 	// Selection Functions

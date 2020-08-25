@@ -3,7 +3,7 @@ import Expression from './Expression';
 import Operator from './types/Operator';
 
 class Field<T> extends Column {
-  _value: T = null;
+  protected _value: T = null;
   _alias: string = '';
   _name: string = '';
   _updated: boolean = false;

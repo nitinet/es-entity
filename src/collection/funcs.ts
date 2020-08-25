@@ -12,11 +12,6 @@ interface IArrFieldFunc<T> {
 	(...source: T[]): Expression | Expression[];
 }
 
-interface IForeignFunc<T> {
-	(source: T, parent: any): Expression;
-}
-
 export { IWhereFunc };
 export { IJoinFunc };
 export { IArrFieldFunc };
-export { IForeignFunc };
