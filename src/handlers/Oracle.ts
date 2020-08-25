@@ -1,7 +1,7 @@
 import * as bean from '../bean';
-import Handler from '../lib/Handler';
-import * as sql from '../lib/sql';
-import Connection from '../lib/Connection';
+import Handler from '../Handler';
+import * as sql from '../sql';
+import Connection from '../Connection';
 
 // import * as oracledb from 'oracledb';
 

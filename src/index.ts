@@ -1,10 +1,10 @@
 import * as bean from './bean';
 import * as handlers from './handlers';
-import * as types from './lib/types';
-import * as collection from './lib/collection';
-import * as Util from './lib/Util'
-import Context from './lib/Context';
-import { Expression } from './lib/sql';
+import * as types from './types';
+import * as collection from './collection';
+import * as Util from './Util'
+import Context from './Context';
+import { Expression } from './sql';
 
 
 export { types };

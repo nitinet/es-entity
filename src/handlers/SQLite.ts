@@ -1,6 +1,6 @@
 import * as bean from '../bean';
-import Handler from '../lib/Handler';
-import * as sql from '../lib/sql';
+import Handler from '../Handler';
+import * as sql from '../sql';
 
 export default class SQlite extends Handler {
 	handlerName = 'sqlite';
