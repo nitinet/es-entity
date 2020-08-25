@@ -1,6 +1,6 @@
-import * as sql from '../sql/Expression';
+import Field from '../sql/Field';
 
-class DateType extends sql.Field<Date> {
+class DateType extends Field<Date> {
 
 	constructor(data?: Date) {
 		super();
@@ -19,7 +19,7 @@ class DateType extends sql.Field<Date> {
 				}
 			},
 			getPrototypeOf() {
-				return sql.Field.prototype;
+				return Field.prototype;
 			}
 		});
 	}

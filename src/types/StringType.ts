@@ -1,6 +1,6 @@
-import * as sql from '../sql/Expression';
+import Field from '../sql/Field';
 
-class StringType extends sql.Field<string> {
+class StringType extends Field<string> {
 
 	constructor(data?: string) {
 		super();
@@ -15,7 +15,7 @@ class StringType extends sql.Field<string> {
 				}
 			},
 			getPrototypeOf() {
-				return sql.Field.prototype;
+				return Field.prototype;
 			}
 		});
 	}

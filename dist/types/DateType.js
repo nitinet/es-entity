@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql/Expression");
-class DateType extends sql.Field {
+const Field_1 = require("../sql/Field");
+class DateType extends Field_1.default {
     constructor(data) {
         super();
         if (data instanceof Date) {
@@ -20,7 +20,7 @@ class DateType extends sql.Field {
                 }
             },
             getPrototypeOf() {
-                return sql.Field.prototype;
+                return Field_1.default.prototype;
             }
         });
     }

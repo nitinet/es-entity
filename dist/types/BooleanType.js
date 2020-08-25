@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql/Expression");
-class BooleanType extends sql.Field {
+const Field_1 = require("../sql/Field");
+class BooleanType extends Field_1.default {
     constructor(data) {
         super();
         this.set(data);
@@ -15,7 +15,7 @@ class BooleanType extends sql.Field {
                 }
             },
             getPrototypeOf() {
-                return sql.Field.prototype;
+                return Field_1.default.prototype;
             }
         });
     }

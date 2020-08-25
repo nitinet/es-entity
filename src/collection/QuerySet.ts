@@ -65,7 +65,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 				temp = temp.concat(param);
 			}
 			temp.forEach(val => {
-				this.stat.columns.push(val.expr());
+				this.stat.columns.push(val);
 			});
 		} else {
 			// Get all Columns
@@ -122,11 +122,11 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 			if (res instanceof Array) {
 				res.forEach(a => {
 					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.groupBy.push(a.expr());
+						this.stat.groupBy.push(a);
 					}
 				});
 			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.groupBy.push(res.expr());
+				this.stat.groupBy.push(res);
 			}
 		}
 		return this;
@@ -146,11 +146,11 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 			if (res instanceof Array) {
 				res.forEach(a => {
 					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.orderBy.push(a.expr());
+						this.stat.orderBy.push(a);
 					}
 				});
 			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.orderBy.push(res.expr());
+				this.stat.orderBy.push(res);
 			}
 		}
 		return this;

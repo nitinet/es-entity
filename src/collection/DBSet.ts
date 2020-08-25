@@ -4,7 +4,7 @@ import * as Case from 'case';
 
 import * as bean from '../bean';
 import * as sql from '../sql';
-import * as expression from '../sql/Expression';
+import Field from '../sql/Field';
 import * as types from '../types';
 import * as Mapping from '../Mapping';
 import Context from '../Context';
@@ -61,7 +61,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				let field = obj[key];
 
 				// Bind Fields
-				if (field instanceof expression.Field) {
+				if (field instanceof Field) {
 					this.bindField(key);
 				} else if (field instanceof ForeignSet) {
 					this.bindForeignRel(key);
@@ -141,13 +141,13 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 	setValue(obj, key: string, value): void {
 		if (value != null) {
-			(<expression.Field<any>>obj[key]).set(value);
-			(<expression.Field<any>>obj[key])._updated = false;
+			(<Field<any>>obj[key]).set(value);
+			(<Field<any>>obj[key])._updated = false;
 		}
 	}
 
 	getValue(obj, key: string) {
-		return (<expression.Field<any>>obj[key]).get();
+		return (<Field<any>>obj[key]).get();
 	}
 
 	async insert(entity: T) {
@@ -157,7 +157,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 		Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
-			if (q instanceof expression.Field && this.isUpdated(entity, <string>key)) {
+			if (q instanceof Field && this.isUpdated(entity, <string>key)) {
 				let field = this.getKeyField(key);
 
 				let col = new sql.Collection();
@@ -227,7 +227,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 					break;
 				}
 			}
-			if (q instanceof expression.Field && this.isUpdated(entity, <string>key) && isPrimaryField == false) {
+			if (q instanceof Field && this.isUpdated(entity, <string>key) && isPrimaryField == false) {
 				let c1 = new sql.Expression(field.colName);
 				let c2 = new sql.Expression('?');
 				c2.args.push(this.getValue(entity, <string>key));

@@ -1,6 +1,6 @@
-import * as sql from '../sql/Expression';
+import Field from '../sql/Field';
 
-class NumberType extends sql.Field<number> {
+class NumberType extends Field<number> {
 
 	constructor(data?: number) {
 		super();
@@ -15,7 +15,7 @@ class NumberType extends sql.Field<number> {
 				}
 			},
 			getPrototypeOf() {
-				return sql.Field.prototype;
+				return Field.prototype;
 			}
 		});
 

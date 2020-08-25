@@ -1,6 +1,6 @@
-import * as sql from '../sql/Expression';
+import Field from '../sql/Field';
 
-class BooleanType extends sql.Field<boolean> {
+class BooleanType extends Field<boolean> {
 
 	constructor(data?: boolean) {
 		super();
@@ -15,7 +15,7 @@ class BooleanType extends sql.Field<boolean> {
 				}
 			},
 			getPrototypeOf() {
-				return sql.Field.prototype;
+				return Field.prototype;
 			}
 		});
 

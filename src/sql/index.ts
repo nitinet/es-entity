@@ -6,6 +6,7 @@ import Join from './types/Join';
 import Collection from './Collection';
 import Expression from './Expression';
 import Statement from './Statement';
+import Field from './Field';
 
 export { Column };
 export { INode };
@@ -15,3 +16,4 @@ export { Collection };
 export { Expression };
 export { Statement };
 export { Join };
+export { Field };

@@ -5,7 +5,7 @@ const path = require("path");
 const Case = require("case");
 const bean = require("../bean");
 const sql = require("../sql");
-const expression = require("../sql/Expression");
+const Field_1 = require("../sql/Field");
 const Mapping = require("../Mapping");
 const IQuerySet_1 = require("./IQuerySet");
 const QuerySet_1 = require("./QuerySet");
@@ -43,7 +43,7 @@ class DBSet extends IQuerySet_1.default {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i].toString();
                 let field = obj[key];
-                if (field instanceof expression.Field) {
+                if (field instanceof Field_1.default) {
                     this.bindField(key);
                 }
                 else if (field instanceof ForeignSet_1.default) {
@@ -137,7 +137,7 @@ class DBSet extends IQuerySet_1.default {
         stat.collection.value = this.mapping.name;
         Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
-            if (q instanceof expression.Field && this.isUpdated(entity, key)) {
+            if (q instanceof Field_1.default && this.isUpdated(entity, key)) {
                 let field = this.getKeyField(key);
                 let col = new sql.Collection();
                 col.value = field.colName;
@@ -200,7 +200,7 @@ class DBSet extends IQuerySet_1.default {
                     break;
                 }
             }
-            if (q instanceof expression.Field && this.isUpdated(entity, key) && isPrimaryField == false) {
+            if (q instanceof Field_1.default && this.isUpdated(entity, key) && isPrimaryField == false) {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));
