@@ -159,7 +159,7 @@ class JoinQuerySet extends IQuerySet_1.default {
         return this;
     }
     join(coll, param, joinType) {
-        joinType = joinType | sql.Join.InnerJoin;
+        joinType = joinType || sql.Join.InnerJoin;
         let temp = null;
         if (param instanceof Function) {
             let a = this.getEntity();

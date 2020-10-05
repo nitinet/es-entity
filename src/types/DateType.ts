@@ -4,11 +4,7 @@ class DateType extends Field<Date> {
 
 	constructor(data?: Date) {
 		super();
-		if (data instanceof Date) {
-			this._value = data;
-		} else {
-			this._value = new Date(data);
-		}
+		this.set(data);
 
 		return new Proxy(this, {
 			get(target, prop) {
@@ -19,7 +15,7 @@ class DateType extends Field<Date> {
 				}
 			},
 			getPrototypeOf() {
-				return Field.prototype;
+				return DateType.prototype;
 			}
 		});
 	}

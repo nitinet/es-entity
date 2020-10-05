@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.EntityMapping = exports.FieldMapping = void 0;
 class FieldMapping {
     constructor(data) {
         this.fieldName = null;

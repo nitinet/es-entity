@@ -9,6 +9,10 @@ class Handler {
     convertPlaceHolder(query) {
         return query;
     }
+    mapData(row, fieldName, type) {
+        let val = row[fieldName];
+        return val;
+    }
     eq(val0, val1) {
         return `${val0} = ${val1}`;
     }

@@ -4,7 +4,7 @@ class ObjectType extends Field<object> {
 
 	constructor(data?: Object) {
 		super();
-		this._value = data;
+		this.set(data);
 
 		return new Proxy(this, {
 			get(target, prop) {
@@ -15,7 +15,7 @@ class ObjectType extends Field<object> {
 				}
 			},
 			getPrototypeOf() {
-				return Field.prototype;
+				return ObjectType.prototype;
 			}
 		});
 

@@ -4,13 +4,13 @@ import * as types from './types';
 import * as collection from './collection';
 import * as Util from './Util'
 import Context from './Context';
-import { Expression } from './sql';
+import * as sql from './sql';
 
 
 export { types };
 export { Context };
 export { collection };
 export { Util };
-export { Expression };
+export { sql };
 export { bean };
 export { handlers };

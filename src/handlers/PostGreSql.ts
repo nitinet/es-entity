@@ -119,7 +119,7 @@ export default class PostgreSql extends Handler {
 				con = await this.connectionPool.connect();
 				temp = await con.query(q, args);
 			} finally {
-				con.release();
+				if (con) { con.release(); }
 			}
 		}
 
@@ -137,5 +137,28 @@ export default class PostgreSql extends Handler {
 		return query;
 	}
 
-	limit(val0: string, val1: string): string { return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : ''); }
+	mapData(row: any, fieldName: string, type: string) {
+		let val = row[fieldName] || row[fieldName.toLowerCase()] || row[fieldName.toUpperCase()];
+		let res = null;
+		if (val && type) {
+			if (type == 'boolean') {
+				res = Boolean(val);
+			} else if (type == 'number') {
+				res = Number(val);
+			} else if (type == 'string') {
+				res = String(val);
+			} else if (type == 'date') {
+				res = new Date(val);
+			} else {
+				res = val;
+			}
+		} else {
+			res = val;
+		}
+		return res;
+	}
+
+	limit(val0: string, val1: string): string {
+		return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : '');
+	}
 }

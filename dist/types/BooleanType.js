@@ -15,7 +15,7 @@ class BooleanType extends Field_1.default {
                 }
             },
             getPrototypeOf() {
-                return Field_1.default.prototype;
+                return BooleanType.prototype;
             }
         });
     }

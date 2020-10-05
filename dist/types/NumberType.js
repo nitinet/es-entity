@@ -4,7 +4,7 @@ const Field_1 = require("../sql/Field");
 class NumberType extends Field_1.default {
     constructor(data) {
         super();
-        this._value = data;
+        this.set(data);
         return new Proxy(this, {
             get(target, prop) {
                 if (prop in target) {
@@ -15,7 +15,7 @@ class NumberType extends Field_1.default {
                 }
             },
             getPrototypeOf() {
-                return Field_1.default.prototype;
+                return NumberType.prototype;
             }
         });
     }

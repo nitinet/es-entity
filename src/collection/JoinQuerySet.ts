@@ -175,7 +175,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	}
 
 	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T & U, A> | sql.Expression, joinType?: sql.Join) {
-		joinType = joinType | sql.Join.InnerJoin;
+		joinType = joinType || sql.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
 		if (param instanceof Function) {

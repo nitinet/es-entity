@@ -321,8 +321,12 @@ class DBSet extends IQuerySet_1.default {
                 let field = obj[key];
                 return field instanceof Field_1.default;
             }).forEach(key => {
+                let fieldMapping = this.mapping.fields.find(f => {
+                    return f.fieldName == key;
+                });
+                let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
                 let field = obj[key];
-                field.set(row[key.toString()]);
+                field.set(val);
                 field._updated = false;
             });
             await Promise.all(keys.filter(key => {
@@ -338,7 +342,7 @@ class DBSet extends IQuerySet_1.default {
     }
     join(coll, param, joinType) {
         let q = this.where();
-        return q.join(coll, param);
+        return q.join(coll, param, joinType);
     }
 }
 exports.default = DBSet;

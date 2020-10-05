@@ -15,7 +15,7 @@ class BooleanType extends Field<boolean> {
 				}
 			},
 			getPrototypeOf() {
-				return Field.prototype;
+				return BooleanType.prototype;
 			}
 		});
 

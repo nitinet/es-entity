@@ -4,12 +4,7 @@ const Field_1 = require("../sql/Field");
 class DateType extends Field_1.default {
     constructor(data) {
         super();
-        if (data instanceof Date) {
-            this._value = data;
-        }
-        else {
-            this._value = new Date(data);
-        }
+        this.set(data);
         return new Proxy(this, {
             get(target, prop) {
                 if (prop in target) {
@@ -20,7 +15,7 @@ class DateType extends Field_1.default {
                 }
             },
             getPrototypeOf() {
-                return Field_1.default.prototype;
+                return DateType.prototype;
             }
         });
     }

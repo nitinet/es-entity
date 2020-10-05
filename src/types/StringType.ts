@@ -4,7 +4,7 @@ class StringType extends Field<string> {
 
 	constructor(data?: string) {
 		super();
-		this._value = data;
+		this.set(data);
 
 		return new Proxy(this, {
 			get(target, prop) {
@@ -15,7 +15,7 @@ class StringType extends Field<string> {
 				}
 			},
 			getPrototypeOf() {
-				return Field.prototype;
+				return StringType.prototype;
 			}
 		});
 	}

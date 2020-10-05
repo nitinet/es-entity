@@ -28,6 +28,11 @@ export default abstract class Handler {
 		return query;
 	}
 
+	mapData(row: any, fieldName: string, type: string) {
+		let val = row[fieldName];
+		return val;
+	}
+
 	// Comparison Operators
 	eq(val0: string, val1: string): string {
 		return `${val0} = ${val1}`;

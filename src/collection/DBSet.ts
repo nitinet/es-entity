@@ -356,8 +356,12 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				let field = obj[key];
 				return field instanceof Field;
 			}).forEach(key => {
+				let fieldMapping = this.mapping.fields.find(f => {
+					return f.fieldName == key;
+				});
+				let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
 				let field: Field<any> = obj[key];
-				field.set(row[key.toString()]);
+				field.set(val);
 				field._updated = false;
 			});
 
@@ -376,7 +380,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join) {
 		let q = this.where();
-		return q.join(coll, param);
+		return q.join(coll, param, joinType);
 	}
 
 }

@@ -4,7 +4,7 @@ class NumberType extends Field<number> {
 
 	constructor(data?: number) {
 		super();
-		this._value = data;
+		this.set(data);
 
 		return new Proxy(this, {
 			get(target, prop) {
@@ -15,7 +15,7 @@ class NumberType extends Field<number> {
 				}
 			},
 			getPrototypeOf() {
-				return Field.prototype;
+				return NumberType.prototype;
 			}
 		});
 
