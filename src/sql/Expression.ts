@@ -67,8 +67,8 @@ class Expression implements INode {
 				this.operator = Operator.And;
 			}
 
-			let val0: string = values[0] = values[0] ? values[0] : '';
-			let val1: string = values[1] = values[1] ? values[1] : '';
+			let val0: string = values[0] ? values[0] : '';
+			let val1: string = values[1] ? values[1] : '';
 
 			let r: string = '';
 			switch (this.operator) {
@@ -124,7 +124,7 @@ class Expression implements INode {
 					r = handler.like(val0, val1);
 					break;
 				case Operator.IsNull:
-					r = handler.isNull(val0);;
+					r = handler.isNull(val0);
 					break;
 				case Operator.IsNotNull:
 					r = handler.isNotNull(val0);
@@ -137,9 +137,6 @@ class Expression implements INode {
 					break;
 				case Operator.Limit:
 					r = handler.limit(val0, val1);
-					break;
-				case Operator.Comma:
-					r = values.join(', ');
 					break;
 				case Operator.Count:
 					r = handler.count(val0);

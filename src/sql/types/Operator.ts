@@ -21,7 +21,6 @@ enum Operator {
 	Asc,
 	Desc,
 	Limit,
-	Comma,
 	Count,
 	Sum,
 	Min,

@@ -57,8 +57,8 @@ class Expression {
             if (!this.operator && this.exps.length > 1) {
                 this.operator = Operator_1.default.And;
             }
-            let val0 = values[0] = values[0] ? values[0] : '';
-            let val1 = values[1] = values[1] ? values[1] : '';
+            let val0 = values[0] ? values[0] : '';
+            let val1 = values[1] ? values[1] : '';
             let r = '';
             switch (this.operator) {
                 case Operator_1.default.Equal:
@@ -114,7 +114,6 @@ class Expression {
                     break;
                 case Operator_1.default.IsNull:
                     r = handler.isNull(val0);
-                    ;
                     break;
                 case Operator_1.default.IsNotNull:
                     r = handler.isNotNull(val0);
@@ -127,9 +126,6 @@ class Expression {
                     break;
                 case Operator_1.default.Limit:
                     r = handler.limit(val0, val1);
-                    break;
-                case Operator_1.default.Comma:
-                    r = values.join(', ');
                     break;
                 case Operator_1.default.Count:
                     r = handler.count(val0);

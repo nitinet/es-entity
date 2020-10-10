@@ -24,12 +24,11 @@ var Operator;
     Operator[Operator["Asc"] = 20] = "Asc";
     Operator[Operator["Desc"] = 21] = "Desc";
     Operator[Operator["Limit"] = 22] = "Limit";
-    Operator[Operator["Comma"] = 23] = "Comma";
-    Operator[Operator["Count"] = 24] = "Count";
-    Operator[Operator["Sum"] = 25] = "Sum";
-    Operator[Operator["Min"] = 26] = "Min";
-    Operator[Operator["Max"] = 27] = "Max";
-    Operator[Operator["Avg"] = 28] = "Avg";
+    Operator[Operator["Count"] = 23] = "Count";
+    Operator[Operator["Sum"] = 24] = "Sum";
+    Operator[Operator["Min"] = 25] = "Min";
+    Operator[Operator["Max"] = 26] = "Max";
+    Operator[Operator["Avg"] = 27] = "Avg";
 })(Operator || (Operator = {}));
 exports.default = Operator;
 //# sourceMappingURL=Operator.js.map
