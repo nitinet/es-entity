@@ -58,8 +58,9 @@ class Expression implements INode {
 		} else if (this.exps) {
 			let values = this.exps.map(exp => {
 				if (exp) {
+					let str = exp.eval(handler);
 					this.args = this.args.concat(exp.args);
-					return exp.eval(handler);
+					return str;
 				}
 			});
 

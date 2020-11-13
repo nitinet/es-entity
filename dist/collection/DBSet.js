@@ -324,10 +324,12 @@ class DBSet extends IQuerySet_1.default {
                 let fieldMapping = this.mapping.fields.find(f => {
                     return f.fieldName == key;
                 });
-                let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
-                let field = obj[key];
-                field.set(val);
-                field._updated = false;
+                if (fieldMapping) {
+                    let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
+                    let field = obj[key];
+                    field.set(val);
+                    field._updated = false;
+                }
             });
             await Promise.all(keys.filter(key => {
                 let field = obj[key];

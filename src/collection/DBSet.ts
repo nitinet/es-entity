@@ -359,10 +359,12 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				let fieldMapping = this.mapping.fields.find(f => {
 					return f.fieldName == key;
 				});
-				let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
-				let field: Field<any> = obj[key];
-				field.set(val);
-				field._updated = false;
+				if (fieldMapping) {
+					let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
+					let field: Field<any> = obj[key];
+					field.set(val);
+					field._updated = false;
+				}
 			});
 
 			await Promise.all(keys.filter(key => {
