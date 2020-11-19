@@ -32,13 +32,13 @@ class Handler {
         return `${val0} >= ${val1}`;
     }
     and(values) {
-        let r = values.map(val => {
+        let r = values.filter(x => x).map(val => {
             return `(${val})`;
         }).join(' and ');
         return r;
     }
     or(values) {
-        let r = values.map(val => {
+        let r = values.filter(x => x).map(val => {
             return `(${val})`;
         }).join(' or ');
         return r;

@@ -55,13 +55,13 @@ export default abstract class Handler {
 
 	// Logical Operators
 	and(values: string[]): string {
-		let r = values.map(val => {
+		let r = values.filter(x => x).map(val => {
 			return `(${val})`;
 		}).join(' and ');
 		return r;
 	}
 	or(values: string[]): string {
-		let r = values.map(val => {
+		let r = values.filter(x => x).map(val => {
 			return `(${val})`;
 		}).join(' or ');
 		return r;
