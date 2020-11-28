@@ -71,17 +71,19 @@ class Field extends Column_1.default {
         return new Expression_1.default(null, Operator_1.default.Not, this.expr());
     }
     in(...operand) {
-        let arg = new Expression_1.default('?');
         let vals = operand.map(val => {
+            let arg = new Expression_1.default('?');
+            let temp = null;
             if (typeof val == 'string') {
-                return `'${val}'`;
+                temp = `'${val}'`;
             }
             else {
-                return val;
+                temp = val;
             }
-        }).join(', ');
-        arg.args = arg.args.concat(vals);
-        return new Expression_1.default(null, Operator_1.default.In, this.expr(), arg);
+            arg.args = arg.args.concat(temp);
+            return arg;
+        });
+        return new Expression_1.default(null, Operator_1.default.In, this.expr(), ...vals);
     }
     between(first, second) {
         return new Expression_1.default(null, Operator_1.default.Between, this.expr(), this._argExp(first), this._argExp(second));

@@ -119,7 +119,7 @@ class Expression implements INode {
 					r = handler.exists(val0);
 					break;
 				case Operator.In:
-					r = handler.in(val0, val1);
+					r = handler.in(values);
 					break;
 				case Operator.Like:
 					r = handler.like(val0, val1);

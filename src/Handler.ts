@@ -71,8 +71,10 @@ export default abstract class Handler {
 	}
 
 	// Inclusion Funtions
-	in(val0: string, val1: string): string {
-		return `${val0} in (${val1})`;
+	in(values: string[]): string {
+		let lhs = values[0];
+		let rhs = values.slice(1).join(', ');
+		return `${lhs} in (${rhs})`;
 	}
 	between(values: string[]): string {
 		return `${values[0]} between ${values[1]} and ${values[2]}`;

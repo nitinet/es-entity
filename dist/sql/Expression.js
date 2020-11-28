@@ -108,7 +108,7 @@ class Expression {
                     r = handler.exists(val0);
                     break;
                 case Operator_1.default.In:
-                    r = handler.in(val0, val1);
+                    r = handler.in(values);
                     break;
                 case Operator_1.default.Like:
                     r = handler.like(val0, val1);

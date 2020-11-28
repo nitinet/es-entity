@@ -46,8 +46,10 @@ class Handler {
     not(val0) {
         return ` not ${val0}`;
     }
-    in(val0, val1) {
-        return `${val0} in (${val1})`;
+    in(values) {
+        let lhs = values[0];
+        let rhs = values.slice(1).join(', ');
+        return `${lhs} in (${rhs})`;
     }
     between(values) {
         return `${values[0]} between ${values[1]} and ${values[2]}`;

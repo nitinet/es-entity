@@ -81,16 +81,18 @@ class Field<T> extends Column {
 
 	// Inclusion Funtions
 	in(...operand: T[]) {
-		let arg = new Expression('?');
 		let vals = operand.map(val => {
+			let arg = new Expression('?');
+			let temp = null;
 			if (typeof val == 'string') {
-				return `'${val}'`;
+				temp = `'${val}'`;
 			} else {
-				return val;
+				temp = val;
 			}
-		}).join(', ');
-		arg.args = arg.args.concat(vals);
-		return new Expression(null, Operator.In, this.expr(), arg);
+			arg.args = arg.args.concat(temp);
+			return arg;
+		});
+		return new Expression(null, Operator.In, this.expr(), ...vals);
 	}
 
 	between(first: T, second: T) {
