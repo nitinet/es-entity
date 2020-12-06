@@ -10,19 +10,19 @@ export default abstract class Handler {
 	abstract driver;
 	config: bean.IConnectionConfig;
 
-	abstract async init(): Promise<void>;
+	abstract init(): Promise<void>;
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> { return null; }
 	async run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
 
 	// Connetion manage functions
-	abstract async getConnection(): Promise<Connection>;
-	abstract async openConnetion(conn): Promise<any>;
-	abstract async initTransaction(conn): Promise<void>;
-	abstract async commit(conn): Promise<void>;
-	abstract async rollback(conn): Promise<void>;
-	abstract async close(conn): Promise<void>;
-	abstract async end(): Promise<void>;
+	abstract getConnection(): Promise<Connection>;
+	abstract openConnetion(conn): Promise<any>;
+	abstract initTransaction(conn): Promise<void>;
+	abstract commit(conn): Promise<void>;
+	abstract rollback(conn): Promise<void>;
+	abstract close(conn): Promise<void>;
+	abstract end(): Promise<void>;
 
 	convertPlaceHolder(query: string) {
 		return query;
