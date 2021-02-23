@@ -131,7 +131,7 @@ class PostgreSql extends Handler_1.default {
         return query;
     }
     mapData(row, fieldName, type) {
-        let val = row[fieldName] || row[fieldName.toLowerCase()] || row[fieldName.toUpperCase()];
+        let val = row[fieldName] ?? row[fieldName.toLowerCase()] ?? row[fieldName.toUpperCase()];
         let res = null;
         if (val && type) {
             if (type == 'boolean') {
