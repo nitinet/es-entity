@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"target": "esnext",
+		"target": "ES2020",
 		"module": "CommonJS",
-		"moduleResolution": "node",
+		"moduleResolution": "Node",
 		"sourceMap": true,
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
