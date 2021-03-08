@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Column_1 = require("./Column");
 const Expression_1 = require("./Expression");
 const Operator_1 = require("./types/Operator");
-class Field extends Column_1.default {
+class Field {
     constructor() {
-        super();
         this._value = null;
         this._alias = '';
         this._name = '';
@@ -34,7 +32,7 @@ class Field extends Column_1.default {
     }
     _argExp(operand) {
         let w = null;
-        if (operand instanceof Column_1.default) {
+        if (operand instanceof Field) {
             w = operand.expr();
         }
         else {
