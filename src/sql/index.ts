@@ -1,4 +1,3 @@
-import Column from './Column';
 import INode from './INode';
 import Operator from './types/Operator';
 import Command from './types/Command';
@@ -8,7 +7,6 @@ import Expression from './Expression';
 import Statement from './Statement';
 import Field from './Field';
 
-export { Column };
 export { INode };
 export { Operator };
 export { Command };

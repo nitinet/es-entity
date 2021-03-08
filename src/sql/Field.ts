@@ -1,15 +1,13 @@
-import Column from './Column';
 import Expression from './Expression';
 import Operator from './types/Operator';
 
-class Field<T> extends Column {
+class Field<T>  {
 	protected _value: T = null;
 	_alias: string = '';
 	_name: string = '';
 	_updated: boolean = false;
 
 	constructor() {
-		super();
 	}
 
 	get(): T {
@@ -36,10 +34,10 @@ class Field<T> extends Column {
 		return new Expression(name);
 	}
 
-	_argExp(operand: T | Column) {
+	_argExp(operand: T | Field<T>) {
 		let w: Expression = null;
-		if (operand instanceof Column) {
-			w = (<Column>operand).expr();
+		if (operand instanceof Field) {
+			w = (<Field<T>>operand).expr();
 		} else {
 			w = new Expression('?');
 			w.args = w.args.concat(operand);
@@ -47,7 +45,6 @@ class Field<T> extends Column {
 		return w;
 	}
 
-	// Column Interface functions
 	// Comparison Operators
 	eq(operand: T) {
 		return new Expression(null, Operator.Equal, this.expr(), this._argExp(operand));
@@ -69,10 +66,10 @@ class Field<T> extends Column {
 	}
 
 	// Logical Operators
-	and(operand: Column) {
+	and(operand: Field<T>) {
 		return new Expression(null, Operator.And, this.expr(), this._argExp(operand));
 	}
-	or(operand: Column): Expression {
+	or(operand: Field<T>): Expression {
 		return new Expression(null, Operator.Or, this.expr(), this._argExp(operand));
 	}
 	not(): Expression {

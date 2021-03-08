@@ -5,7 +5,6 @@ const path = require("path");
 const Case = require("case");
 const bean = require("../bean");
 const sql = require("../sql");
-const Field_1 = require("../sql/Field");
 const types = require("../types");
 const Mapping = require("../Mapping");
 const IQuerySet_1 = require("./IQuerySet");
@@ -42,7 +41,7 @@ class DBSet extends IQuerySet_1.default {
             let keys = Reflect.ownKeys(obj);
             keys.forEach(key => {
                 let field = obj[key];
-                if (field instanceof Field_1.default) {
+                if (field instanceof sql.Field) {
                     this.bindField(key.toString());
                 }
             });
@@ -104,7 +103,7 @@ class DBSet extends IQuerySet_1.default {
         let keys = Reflect.ownKeys(a);
         keys.forEach(key => {
             let field = a[key];
-            if (field instanceof Field_1.default) {
+            if (field instanceof sql.Field) {
                 let fieldInfo = this.getKeyField(key);
                 field._name = fieldInfo && fieldInfo.colName ? fieldInfo.colName : '';
                 field._alias = alias;
@@ -116,9 +115,6 @@ class DBSet extends IQuerySet_1.default {
         });
         return a;
     }
-    isUpdated(obj, key) {
-        return obj[key]._updated ? true : false;
-    }
     getValue(obj, key) {
         return obj[key].get();
     }
@@ -128,7 +124,7 @@ class DBSet extends IQuerySet_1.default {
         stat.collection.value = this.mapping.name;
         Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
-            if (q instanceof Field_1.default && this.isUpdated(entity, key)) {
+            if (q instanceof sql.Field && q._updated) {
                 let field = this.getKeyField(key);
                 let col = new sql.Collection();
                 col.value = field.colName;
@@ -191,7 +187,7 @@ class DBSet extends IQuerySet_1.default {
                     break;
                 }
             }
-            if (q instanceof Field_1.default && this.isUpdated(entity, key) && isPrimaryField == false) {
+            if (q instanceof sql.Field && q._updated && isPrimaryField == false) {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));
@@ -319,7 +315,7 @@ class DBSet extends IQuerySet_1.default {
             let keys = Reflect.ownKeys(obj);
             keys.filter(key => {
                 let field = obj[key];
-                return field instanceof Field_1.default;
+                return field instanceof sql.Field;
             }).forEach(key => {
                 let fieldMapping = this.mapping.fields.find(f => {
                     return f.fieldName == key;

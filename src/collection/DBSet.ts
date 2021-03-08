@@ -4,7 +4,6 @@ import * as Case from 'case';
 
 import * as bean from '../bean';
 import * as sql from '../sql';
-import Field from '../sql/Field';
 import * as types from '../types';
 import * as Mapping from '../Mapping';
 import Context from '../Context';
@@ -59,7 +58,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				let field = obj[key];
 
 				// Bind Fields
-				if (field instanceof Field) {
+				if (field instanceof sql.Field) {
 					this.bindField(key.toString());
 				}
 			});
@@ -117,7 +116,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		let keys = Reflect.ownKeys(a);
 		keys.forEach(key => {
 			let field = a[key];
-			if (field instanceof Field) {
+			if (field instanceof sql.Field) {
 				let fieldInfo = this.getKeyField(key);
 
 				field._name = fieldInfo && fieldInfo.colName ? fieldInfo.colName : '';
@@ -130,12 +129,8 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		return a;
 	}
 
-	private isUpdated(obj, key: string): boolean {
-		return (<sql.Column>obj[key])._updated ? true : false;
-	}
-
 	getValue(obj, key: string) {
-		return (<Field<any>>obj[key]).get();
+		return (<sql.Field<any>>obj[key]).get();
 	}
 
 	async insert(entity: T) {
@@ -145,7 +140,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 		Reflect.ownKeys(entity).forEach((key) => {
 			let q = entity[key];
-			if (q instanceof Field && this.isUpdated(entity, <string>key)) {
+			if (q instanceof sql.Field && q._updated) {
 				let field = this.getKeyField(key);
 
 				let col = new sql.Collection();
@@ -215,7 +210,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 					break;
 				}
 			}
-			if (q instanceof Field && this.isUpdated(entity, <string>key) && isPrimaryField == false) {
+			if (q instanceof sql.Field && q._updated && isPrimaryField == false) {
 				let c1 = new sql.Expression(field.colName);
 				let c2 = new sql.Expression('?');
 				c2.args.push(this.getValue(entity, <string>key));
@@ -279,7 +274,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		} else if (primaryFields.length == 1) {
 			let field = primaryFields[0];
 			return await this.where((a) => {
-				return (<sql.Column>a[field.fieldName]).eq(id);
+				return (<sql.Field<any>>a[field.fieldName]).eq(id);
 			}).unique();
 		} else if (primaryFields.length > 1 && typeof id === 'object') {
 			let whereExpr = new sql.Expression();
@@ -354,14 +349,14 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 			keys.filter(key => {
 				let field = obj[key];
-				return field instanceof Field;
+				return field instanceof sql.Field;
 			}).forEach(key => {
 				let fieldMapping = this.mapping.fields.find(f => {
 					return f.fieldName == key;
 				});
 				if (fieldMapping) {
 					let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
-					let field: Field<any> = obj[key];
+					let field: sql.Field<any> = obj[key];
 					field.set(val);
 					field._updated = false;
 				}
