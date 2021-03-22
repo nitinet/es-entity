@@ -150,6 +150,39 @@ class QuerySet extends IQuerySet_1.default {
         this.stat.limit.exps.push(new sql.Expression(size.toString()));
         return this;
     }
+    async update(param) {
+        if (!(param && param instanceof Function)) {
+            throw new Error('Select Function not found');
+        }
+        let stat = new sql.Statement();
+        stat.command = sql.Command.UPDATE;
+        stat.collection.value = this.dbSet.mapping.name;
+        let a = this.getEntity();
+        let tempObj = param(a);
+        Reflect.ownKeys(tempObj).forEach((key) => {
+            let field = this.dbSet.getKeyField(key);
+            let q = tempObj[key];
+            if (q instanceof sql.Field && q._updated) {
+                let c1 = new sql.Expression(field.colName);
+                let c2 = new sql.Expression('?');
+                c2.args.push(this.dbSet.getValue(tempObj, key));
+                let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
+                stat.columns.push(c);
+            }
+        });
+        if (stat.columns.length > 0) {
+            let result = await this.context.execute(stat);
+            if (result.error) {
+                throw result.error;
+            }
+        }
+    }
+    async delete() {
+        let stat = new sql.Statement();
+        stat.command = sql.Command.DELETE;
+        stat.collection.value = this.dbSet.mapping.name;
+        await this.context.execute(stat);
+    }
     join(coll, param, joinType) {
         joinType = joinType | sql.Join.InnerJoin;
         let temp = null;

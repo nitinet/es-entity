@@ -16,7 +16,12 @@ interface ISelectFunc<T, U> {
 	(source: T): U;
 }
 
+interface IUpdateFunc<T> {
+	(source: T): T;
+}
+
 export { IWhereFunc };
 export { IJoinFunc };
 export { IArrFieldFunc };
 export { ISelectFunc };
+export { IUpdateFunc };
