@@ -9,9 +9,14 @@ interface IJoinFunc<A, B> {
 }
 
 interface IArrFieldFunc<T> {
-	(...source: T[]): Expression | Expression[];
+	(source: T): Expression | Expression[];
+}
+
+interface ISelectFunc<T, U> {
+	(source: T): U;
 }
 
 export { IWhereFunc };
 export { IJoinFunc };
 export { IArrFieldFunc };
+export { ISelectFunc };

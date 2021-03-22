@@ -300,10 +300,6 @@ class DBSet extends IQuerySet_1.default {
         let q = this.where();
         return q.unique();
     }
-    run() {
-        let q = this.where();
-        return q.run();
-    }
     select(param) {
         let q = this.where();
         return q.select(param);

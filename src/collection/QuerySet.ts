@@ -38,7 +38,27 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	// Selection Functions
 	async list() {
-		this.select();
+		this.stat.command = sql.Command.SELECT;
+		// Get all Columns
+
+		let tempObj = this.getEntity();
+		let tempKeys = Reflect.ownKeys(tempObj);
+
+		tempKeys.forEach(k => {
+			let f = tempObj[k];
+			if (f instanceof sql.Field) {
+				let exp = f.expr();
+				this.stat.columns.push(exp);
+			}
+		});
+
+		// this.dbSet.mapping.fields.forEach((field) => {
+		// 	let c = new sql.Collection();
+		// 	c.colAlias = alias;
+		// 	c.value = field.colName;
+		// 	c.alias = field.fieldName;
+		// 	this.stat.columns.push(c);
+		// });
 
 		let result = await this.context.execute(this.stat);
 		return this.mapData(result);
@@ -48,45 +68,43 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		return this.dbSet.mapData(input);
 	}
 
-	async run() {
-		if (!this.stat.columns.length) {
-			return this.list();
-		} else {
-			let result = await this.context.execute(this.stat);
-			return result.rows;
-		}
-	}
+	// async run() {
+	// 	if (!this.stat.columns.length) {
+	// 		return this.list();
+	// 	} else {
+	// 		let result = await this.context.execute(this.stat);
+	// 		return result.rows;
+	// 	}
+	// }
 
 	// Selection Functions
-	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
+	async select<U extends Object>(param?: funcs.ISelectFunc<T, U>) {
 		this.stat.command = sql.Command.SELECT;
-		if (param) {
-			let a = this.getEntity();
-			let temp: sql.Expression[] = [];
-			if (param instanceof Function) {
-				param = param(a);
-			}
-			if (param instanceof sql.Expression) {
-				temp.push(param);
-			} else if (param instanceof Array) {
-				temp = temp.concat(param);
-			}
-			temp.forEach(val => {
-				this.stat.columns.push(val);
-			});
-		} else {
-			// Get all Columns
-			let alias: string = this.stat.collection.alias;
-
-			this.dbSet.mapping.fields.forEach((field) => {
-				let c = new sql.Collection();
-				c.colAlias = alias;
-				c.value = field.colName;
-				c.alias = field.fieldName;
-				this.stat.columns.push(c);
-			});
+		if (!(param && param instanceof Function)) {
+			throw new Error('Select Function not found');
 		}
-		return this;
+
+		let a = this.getEntity();
+		let tempObj = param(a);
+		let tempKeys = Reflect.ownKeys(tempObj);
+
+		tempKeys.forEach(k => {
+			let f = tempObj[k];
+			if (f instanceof sql.Field) {
+				let exp = f.expr();
+				this.stat.columns.push(exp);
+			}
+		});
+
+		let result = await this.context.execute(this.stat);
+		let temps = await this.mapData(result);
+		let res: U[] = [];
+		temps.forEach(t => {
+			let r = param(t);
+			res.push(r);
+		});
+
+		return res;
 	}
 
 	async unique() {

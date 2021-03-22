@@ -130,31 +130,6 @@ class PostgreSql extends Handler_1.default {
         }
         return query;
     }
-    mapData(row, fieldName, type) {
-        let val = row[fieldName] ?? row[fieldName.toLowerCase()] ?? row[fieldName.toUpperCase()];
-        let res = null;
-        if (val && type) {
-            if (type == 'boolean') {
-                res = Boolean(val);
-            }
-            else if (type == 'number') {
-                res = Number(val);
-            }
-            else if (type == 'string') {
-                res = String(val);
-            }
-            else if (type == 'date') {
-                res = new Date(val);
-            }
-            else {
-                res = val;
-            }
-        }
-        else {
-            res = val;
-        }
-        return res;
-    }
     limit(val0, val1) {
         return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : '');
     }

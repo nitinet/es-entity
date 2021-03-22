@@ -2,10 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const LinkSet_1 = require("../collection/LinkSet");
 class LinkObjectType {
-    constructor(entityType, foreignFunc) {
+    constructor(entityType, foreignFunc, earlyLoad) {
         this.linkSet = null;
+        this.applied = false;
         this._value = null;
+        this.earlyLoad = false;
         this.linkSet = new LinkSet_1.default(entityType, foreignFunc);
+        this.earlyLoad = earlyLoad ?? false;
         return new Proxy(this, {
             get(target, prop) {
                 if (prop in target) {
@@ -27,7 +30,25 @@ class LinkObjectType {
     }
     async apply(parentObj) {
         this.linkSet.apply(parentObj);
-        this._value = await this.linkSet.unique();
+        if (this.earlyLoad) {
+            this._value = await this.linkSet.unique();
+            this.applied = true;
+        }
+    }
+    async get() {
+        if (!this.applied) {
+            this._value = await this.linkSet.unique();
+            this.applied = true;
+        }
+        return this._value;
+    }
+    toJSON() {
+        if (this._value != null) {
+            return this._value.valueOf();
+        }
+        else {
+            return null;
+        }
     }
 }
 exports.default = LinkObjectType;

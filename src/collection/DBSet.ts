@@ -331,14 +331,9 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		return q.unique();
 	}
 
-	run() {
+	select<U>(param?: funcs.ISelectFunc<T, U>) {
 		let q = this.where();
-		return q.run();
-	}
-
-	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
-		let q = this.where();
-		return q.select(param);
+		return q.select<U>(param);
 	}
 
 	async mapData(input: bean.ResultSet): Promise<Array<T>> {

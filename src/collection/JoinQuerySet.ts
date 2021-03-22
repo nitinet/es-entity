@@ -31,7 +31,18 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 	// Selection Functions
 	async list(): Promise<Array<T & U>> {
-		this.select();
+		this.stat.command = sql.Command.SELECT;
+
+		let tempObj = this.getEntity();
+		let tempKeys = Reflect.ownKeys(tempObj);
+
+		tempKeys.forEach(k => {
+			let f = tempObj[k];
+			if (f instanceof sql.Field) {
+				let exp = f.expr();
+				this.stat.columns.push(exp);
+			}
+		});
 
 		let result = await this.context.execute(this.stat);
 		return this.mapData(result);
@@ -60,44 +71,43 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		}
 	}
 
-	async run() {
-		if (!this.stat.columns.length) {
-			return this.list();
-		}
+	// async run() {
+	// 	if (!this.stat.columns.length) {
+	// 		return this.list();
+	// 	}
 
-		let result = await this.context.execute(this.stat);
-		return result.rows;
-	}
+	// 	let result = await this.context.execute(this.stat);
+	// 	return result.rows;
+	// }
 
-	select(param?: funcs.IArrFieldFunc<T & U> | sql.Expression | sql.Expression[]): IQuerySet<T & U> {
+	async select<V extends Object>(param?: funcs.ISelectFunc<T & U, V>): Promise<V[]> {
 		this.stat.command = sql.Command.SELECT;
 
-		if (param) {
-			let temp: sql.Expression[] = [];
-			if (param instanceof Function) {
-				let a = this.getEntity();
-				param = param(a);
-			}
-			if (param instanceof sql.Expression) {
-				temp.push(param);
-			} else if (param instanceof Array) {
-				temp = temp.concat(param);
-			}
-			temp.forEach(val => {
-				this.stat.columns.push(val);
-			});
-		} else {
-			this.mainSet = this.mainSet.select();
-			this.mainSet.stat.columns.forEach((col) => {
-				this.stat.columns.push(col);
-			});
-
-			this.joinSet = this.joinSet.select();
-			this.joinSet.stat.columns.forEach((col) => {
-				this.stat.columns.push(col);
-			});
+		if (!(param && param instanceof Function)) {
+			throw new Error('Select Function not found');
 		}
-		return this;
+
+		let a = this.getEntity();
+		let tempObj = param(a);
+		let tempKeys = Reflect.ownKeys(tempObj);
+
+		tempKeys.forEach(k => {
+			let f = tempObj[k];
+			if (f instanceof sql.Field) {
+				let exp = f.expr();
+				this.stat.columns.push(exp);
+			}
+		});
+
+		let result = await this.context.execute(this.stat);
+		let temps = await this.mapData(result);
+		let res: V[] = [];
+		temps.forEach(t => {
+			let r = param(t);
+			res.push(r);
+		});
+
+		return res;
 	}
 
 	// Conditional Functions
