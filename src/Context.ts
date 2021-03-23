@@ -50,12 +50,20 @@ export default class Context {
 	private _entityPath: string;
 	private connection: Connection = null;
 	private logger = null;
+
 	public dbSetMap = new Map<IEntityType<any>, DBSet<any>>();
+	public config: bean.IConfig = null;
 
 	constructor(config?: bean.IConfig) {
-		if (config) { this.handler = getHandler(config.dbConfig); }
-		if (config.entityPath) { this.setEntityPath(config.entityPath); }
-		if (config.logger) { this.logger = config.logger; }
+		this.config = config;
+
+		if (!this.config.dbConfig) {
+			throw new Error('Database Config Not Found');
+		}
+
+		this.handler = getHandler(this.config.dbConfig);
+		if (this.config.entityPath) { this.setEntityPath(this.config.entityPath); }
+		if (this.config.logger) { this.logger = this.config.logger; }
 	}
 
 	log(...arg) {
@@ -67,17 +75,15 @@ export default class Context {
 	async init() {
 		await this.handler.init();
 
-		let keys: (string | number | symbol)[] = Reflect.ownKeys(this);
-		let ps: Promise<void>[] = new Array();
-		for (let i = 0; i < keys.length; i++) {
-			let key = keys[i];
+		await Promise.all(Reflect.ownKeys(this).filter(key => {
 			let o: any = Reflect.get(this, key);
-			if (o instanceof DBSet) {
-				ps.push((<DBSet<any>>o).bind(this));
-				this.dbSetMap.set(o.getEntityType(), o);
-			}
-		}
-		return Promise.all(ps);
+			return o instanceof DBSet;
+		}, this).map(key => {
+			let obj: DBSet<any> = Reflect.get(this, key);
+			obj.context = this;
+			obj.bind();
+			this.dbSetMap.set(obj.getEntityType(), obj);
+		}));
 	}
 
 	get handler() {

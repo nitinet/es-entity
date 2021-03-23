@@ -7,11 +7,9 @@ class LinkObjectType<T extends Object> {
 	private linkSet: LinkSet<T> = null;
 	private applied: boolean = false;
 	private _value: T = null;
-	private earlyLoad: boolean = false;
 
-	constructor(entityType: IEntityType<T>, foreignFunc: funcs.IJoinFunc<T, any>, earlyLoad?: boolean) {
+	constructor(entityType: IEntityType<T>, foreignFunc: funcs.IJoinFunc<T, any>) {
 		this.linkSet = new LinkSet<T>(entityType, foreignFunc);
-		this.earlyLoad = earlyLoad ?? false;
 
 		return new Proxy(this, {
 			get(target, prop) {
@@ -35,10 +33,6 @@ class LinkObjectType<T extends Object> {
 
 	async apply(parentObj) {
 		this.linkSet.apply(parentObj);
-		if (this.earlyLoad) {
-			this._value = await this.linkSet.unique();
-			this.applied = true;
-		}
 	}
 
 	async get() {

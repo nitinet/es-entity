@@ -39,14 +39,17 @@ class Context {
         this.connection = null;
         this.logger = null;
         this.dbSetMap = new Map();
-        if (config) {
-            this.handler = getHandler(config.dbConfig);
+        this.config = null;
+        this.config = config;
+        if (!this.config.dbConfig) {
+            throw new Error('Database Config Not Found');
         }
-        if (config.entityPath) {
-            this.setEntityPath(config.entityPath);
+        this.handler = getHandler(this.config.dbConfig);
+        if (this.config.entityPath) {
+            this.setEntityPath(this.config.entityPath);
         }
-        if (config.logger) {
-            this.logger = config.logger;
+        if (this.config.logger) {
+            this.logger = this.config.logger;
         }
     }
     log(...arg) {
@@ -56,17 +59,15 @@ class Context {
     }
     async init() {
         await this.handler.init();
-        let keys = Reflect.ownKeys(this);
-        let ps = new Array();
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
+        await Promise.all(Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
-            if (o instanceof collection_1.DBSet) {
-                ps.push(o.bind(this));
-                this.dbSetMap.set(o.getEntityType(), o);
-            }
-        }
-        return Promise.all(ps);
+            return o instanceof collection_1.DBSet;
+        }, this).map(key => {
+            let obj = Reflect.get(this, key);
+            obj.context = this;
+            obj.bind();
+            this.dbSetMap.set(obj.getEntityType(), obj);
+        }));
     }
     get handler() {
         return this._handler;

@@ -19,8 +19,7 @@ class DBSet extends IQuerySet_1.default {
         this.options = options || {};
         this.options.entityName = this.options.entityName || this.entityType.name;
     }
-    async bind(context) {
-        this.context = context;
+    async bind() {
         let filePath = null;
         if (this.options.entityPath) {
             filePath = this.options.entityPath;
