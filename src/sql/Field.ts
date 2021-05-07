@@ -77,7 +77,7 @@ class Field<T>  {
 	}
 
 	// Inclusion Funtions
-	in(...operand: T[]) {
+	in(operand: T[]) {
 		let vals = operand.map(val => {
 			let arg = new Expression('?');
 			let temp = null;
