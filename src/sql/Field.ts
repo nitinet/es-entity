@@ -77,15 +77,11 @@ class Field<T>  {
 	}
 
 	// Inclusion Funtions
-	in(operand: T[]) {
+	in(...operand: T[]) {
 		let vals = operand.map(val => {
 			let arg = new Expression('?');
 			let temp = null;
-			if (typeof val == 'string') {
-				temp = `'${val}'`;
-			} else {
-				temp = val;
-			}
+			temp = val;
 			arg.args = arg.args.concat(temp);
 			return arg;
 		});

@@ -348,7 +348,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 					return f.fieldName == key;
 				});
 				if (fieldMapping) {
-					let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
+					let val = this.context.handler.mapData(row, fieldMapping.colName, fieldMapping.type);
 					let field: sql.Field<any> = obj[key];
 					field.set(val);
 					field._updated = false;

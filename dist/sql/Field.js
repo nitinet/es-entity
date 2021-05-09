@@ -68,16 +68,11 @@ class Field {
     not() {
         return new Expression_1.default(null, Operator_1.default.Not, this.expr());
     }
-    in(operand) {
+    in(...operand) {
         let vals = operand.map(val => {
             let arg = new Expression_1.default('?');
             let temp = null;
-            if (typeof val == 'string') {
-                temp = `'${val}'`;
-            }
-            else {
-                temp = val;
-            }
+            temp = val;
             arg.args = arg.args.concat(temp);
             return arg;
         });
