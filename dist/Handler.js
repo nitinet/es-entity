@@ -10,8 +10,29 @@ class Handler {
         return query;
     }
     mapData(row, fieldName, type) {
-        let val = row[fieldName];
-        return val;
+        let val = row[fieldName] ?? row[fieldName.toLowerCase()] ?? row[fieldName.toUpperCase()];
+        let res = null;
+        if (val && type) {
+            if (type == 'boolean') {
+                res = Boolean(val);
+            }
+            else if (type == 'number') {
+                res = Number(val);
+            }
+            else if (type == 'string') {
+                res = String(val);
+            }
+            else if (type == 'date') {
+                res = new Date(val);
+            }
+            else {
+                res = val;
+            }
+        }
+        else {
+            res = val;
+        }
+        return res;
     }
     eq(val0, val1) {
         return `${val0} = ${val1}`;

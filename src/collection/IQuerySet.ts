@@ -12,10 +12,8 @@ abstract class IQuerySet<T> {
 	// Selection Functions
 	abstract list(): Promise<Array<T>>;
 	abstract unique(): Promise<T>;
-	abstract run(): Promise<Array<any>>;
+	abstract select<U extends Object>(param?: funcs.ISelectFunc<T, U>): Promise<U[]>;
 
-	// Conditional Functions
-	abstract select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
 	abstract where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T>;
 	abstract groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
 	abstract orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;

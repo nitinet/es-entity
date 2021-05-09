@@ -4,6 +4,7 @@ const LinkSet_1 = require("../collection/LinkSet");
 class LinkObjectType {
     constructor(entityType, foreignFunc) {
         this.linkSet = null;
+        this.applied = false;
         this._value = null;
         this.linkSet = new LinkSet_1.default(entityType, foreignFunc);
         return new Proxy(this, {
@@ -27,7 +28,21 @@ class LinkObjectType {
     }
     async apply(parentObj) {
         this.linkSet.apply(parentObj);
-        this._value = await this.linkSet.unique();
+    }
+    async get() {
+        if (!this.applied) {
+            this._value = await this.linkSet.unique();
+            this.applied = true;
+        }
+        return this._value;
+    }
+    toJSON() {
+        if (this._value != null) {
+            return this._value.valueOf();
+        }
+        else {
+            return null;
+        }
     }
 }
 exports.default = LinkObjectType;

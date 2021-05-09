@@ -19,8 +19,7 @@ class DBSet extends IQuerySet_1.default {
         this.options = options || {};
         this.options.entityName = this.options.entityName || this.entityType.name;
     }
-    async bind(context) {
-        this.context = context;
+    async bind() {
         let filePath = null;
         if (this.options.entityPath) {
             filePath = this.options.entityPath;
@@ -300,10 +299,6 @@ class DBSet extends IQuerySet_1.default {
         let q = this.where();
         return q.unique();
     }
-    run() {
-        let q = this.where();
-        return q.run();
-    }
     select(param) {
         let q = this.where();
         return q.select(param);
@@ -321,7 +316,7 @@ class DBSet extends IQuerySet_1.default {
                     return f.fieldName == key;
                 });
                 if (fieldMapping) {
-                    let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
+                    let val = this.context.handler.mapData(row, fieldMapping.colName, fieldMapping.type);
                     let field = obj[key];
                     field.set(val);
                     field._updated = false;

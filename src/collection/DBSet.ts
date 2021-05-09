@@ -6,7 +6,6 @@ import * as bean from '../bean';
 import * as sql from '../sql';
 import * as types from '../types';
 import * as Mapping from '../Mapping';
-import Context from '../Context';
 import * as funcs from './funcs';
 import IQuerySet from './IQuerySet';
 import QuerySet from './QuerySet';
@@ -33,8 +32,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		this.options.entityName = this.options.entityName || this.entityType.name;
 	}
 
-	async bind(context: Context) {
-		this.context = context;
+	async bind() {
 		let filePath: string = null;
 		if (this.options.entityPath) {
 			filePath = this.options.entityPath;
@@ -65,7 +63,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		}
 	}
 
-	bindField(key: string) {
+	private bindField(key: string) {
 		let colName = Case.snake(key);
 		let column = this.columns.filter(col => {
 			return col.field == colName;
@@ -331,14 +329,9 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		return q.unique();
 	}
 
-	run() {
+	select<U>(param?: funcs.ISelectFunc<T, U>) {
 		let q = this.where();
-		return q.run();
-	}
-
-	select(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]) {
-		let q = this.where();
-		return q.select(param);
+		return q.select<U>(param);
 	}
 
 	async mapData(input: bean.ResultSet): Promise<Array<T>> {
@@ -355,7 +348,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 					return f.fieldName == key;
 				});
 				if (fieldMapping) {
-					let val = this.context.handler.mapData(row, fieldMapping.fieldName, fieldMapping.type);
+					let val = this.context.handler.mapData(row, fieldMapping.colName, fieldMapping.type);
 					let field: sql.Field<any> = obj[key];
 					field.set(val);
 					field._updated = false;

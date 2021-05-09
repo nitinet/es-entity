@@ -27,51 +27,45 @@ class QuerySet extends IQuerySet_1.default {
         return this.dbSet.getEntity(alias);
     }
     async list() {
-        this.select();
+        this.stat.command = sql.Command.SELECT;
+        let tempObj = this.getEntity();
+        let tempKeys = Reflect.ownKeys(tempObj);
+        tempKeys.forEach(k => {
+            let f = tempObj[k];
+            if (f instanceof sql.Field) {
+                let exp = f.expr();
+                this.stat.columns.push(exp);
+            }
+        });
         let result = await this.context.execute(this.stat);
         return this.mapData(result);
     }
     async mapData(input) {
         return this.dbSet.mapData(input);
     }
-    async run() {
-        if (!this.stat.columns.length) {
-            return this.list();
-        }
-        else {
-            let result = await this.context.execute(this.stat);
-            return result.rows;
-        }
-    }
-    select(param) {
+    async select(param) {
         this.stat.command = sql.Command.SELECT;
-        if (param) {
-            let a = this.getEntity();
-            let temp = [];
-            if (param instanceof Function) {
-                param = param(a);
-            }
-            if (param instanceof sql.Expression) {
-                temp.push(param);
-            }
-            else if (param instanceof Array) {
-                temp = temp.concat(param);
-            }
-            temp.forEach(val => {
-                this.stat.columns.push(val);
-            });
+        if (!(param && param instanceof Function)) {
+            throw new Error('Select Function not found');
         }
-        else {
-            let alias = this.stat.collection.alias;
-            this.dbSet.mapping.fields.forEach((field) => {
-                let c = new sql.Collection();
-                c.colAlias = alias;
-                c.value = field.colName;
-                c.alias = field.fieldName;
-                this.stat.columns.push(c);
-            });
-        }
-        return this;
+        let a = this.getEntity();
+        let tempObj = param(a);
+        let tempKeys = Reflect.ownKeys(tempObj);
+        tempKeys.forEach(k => {
+            let f = tempObj[k];
+            if (f instanceof sql.Field) {
+                let exp = f.expr();
+                this.stat.columns.push(exp);
+            }
+        });
+        let result = await this.context.execute(this.stat);
+        let temps = await this.mapData(result);
+        let res = [];
+        temps.forEach(t => {
+            let r = param(t);
+            res.push(r);
+        });
+        return res;
     }
     async unique() {
         let l = await this.list();
@@ -155,6 +149,39 @@ class QuerySet extends IQuerySet_1.default {
         }
         this.stat.limit.exps.push(new sql.Expression(size.toString()));
         return this;
+    }
+    async update(param) {
+        if (!(param && param instanceof Function)) {
+            throw new Error('Select Function not found');
+        }
+        let stat = new sql.Statement();
+        stat.command = sql.Command.UPDATE;
+        stat.collection.value = this.dbSet.mapping.name;
+        let a = this.getEntity();
+        let tempObj = param(a);
+        Reflect.ownKeys(tempObj).forEach((key) => {
+            let field = this.dbSet.getKeyField(key);
+            let q = tempObj[key];
+            if (q instanceof sql.Field && q._updated) {
+                let c1 = new sql.Expression(field.colName);
+                let c2 = new sql.Expression('?');
+                c2.args.push(this.dbSet.getValue(tempObj, key));
+                let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
+                stat.columns.push(c);
+            }
+        });
+        if (stat.columns.length > 0) {
+            let result = await this.context.execute(stat);
+            if (result.error) {
+                throw result.error;
+            }
+        }
+    }
+    async delete() {
+        let stat = new sql.Statement();
+        stat.command = sql.Command.DELETE;
+        stat.collection.value = this.dbSet.mapping.name;
+        await this.context.execute(stat);
     }
     join(coll, param, joinType) {
         joinType = joinType | sql.Join.InnerJoin;

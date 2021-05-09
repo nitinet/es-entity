@@ -4,7 +4,8 @@ import * as funcs from '../collection/funcs';
 import Context from '../Context';
 
 class LinkArrayType<T extends Object> {
-	linkSet: LinkSet<T> = null;
+	private linkSet: LinkSet<T> = null;
+	private applied: boolean = false;
 	private _value: T[] = null;
 
 	constructor(entityType: IEntityType<T>, foreignFunc: funcs.IJoinFunc<T, any>) {
@@ -32,7 +33,22 @@ class LinkArrayType<T extends Object> {
 
 	async apply(parentObj) {
 		this.linkSet.apply(parentObj);
-		this._value = await this.linkSet.list();
+	}
+
+	async get() {
+		if (!this.applied) {
+			this._value = await this.linkSet.list();
+			this.applied = true;
+		}
+		return this._value;
+	}
+
+	toJSON() {
+		if (this._value != null) {
+			return this._value.valueOf();
+		} else {
+			return null;
+		}
 	}
 
 }
