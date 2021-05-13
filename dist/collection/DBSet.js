@@ -246,10 +246,18 @@ class DBSet extends IQuerySet_1.default {
             throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
         }
         else if (primaryFields.length == 1) {
-            let field = primaryFields[0];
-            return await this.where((a) => {
-                return a[field.fieldName].eq(id);
-            }).unique();
+            if (typeof id === 'object') {
+                let field = primaryFields[0];
+                return await this.where((a) => {
+                    return a[field.fieldName].eq(id[field.fieldName]);
+                }).unique();
+            }
+            else {
+                let field = primaryFields[0];
+                return await this.where((a) => {
+                    return a[field.fieldName].eq(id);
+                }).unique();
+            }
         }
         else if (primaryFields.length > 1 && typeof id === 'object') {
             let whereExpr = new sql.Expression();
