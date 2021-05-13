@@ -38,7 +38,5 @@ function reverse<T extends Object>(res: T, ignoreKeys: (string | number | symbol
 	return res;
 }
 
-export default {
-	convert,
-	reverse
-};
+export { convert };
+export { reverse };

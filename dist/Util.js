@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.reverse = exports.convert = void 0;
 const types = require("./types");
 const sql = require("./sql");
 const moment = require("moment");
@@ -23,6 +24,7 @@ function convert(res, ignoreKeys, ...srcs) {
     });
     return res;
 }
+exports.convert = convert;
 function reverse(res, ignoreKeys, ...srcs) {
     ignoreKeys || (ignoreKeys = []);
     srcs.forEach(src => {
@@ -36,8 +38,5 @@ function reverse(res, ignoreKeys, ...srcs) {
     });
     return res;
 }
-exports.default = {
-    convert,
-    reverse
-};
+exports.reverse = reverse;
 //# sourceMappingURL=util.js.map
