@@ -2,12 +2,16 @@ import * as types from './types';
 import * as sql from './sql';
 import * as moment from 'moment';
 
-function convert<T extends Object>(res: T, ignoreKeys: (string | number | symbol)[], ...srcs: any[]) {
+function convert<T extends Object>(res: T, ignoreKeys?: any | any[], ...srcs: any[]) {
+	if (!(srcs != null && srcs.length)) {
+		srcs = [ignoreKeys];
+		ignoreKeys = null;
+	}
 	ignoreKeys ||= [];
 
 	srcs.forEach(src => {
 		Reflect.ownKeys(src).filter((key) => {
-			return !ignoreKeys.includes(key)
+			return ignoreKeys.includes(key) == false
 				&& src[key] != null
 				&& res[key] instanceof sql.Field
 				&& res[key].get() != src[key];
@@ -23,12 +27,16 @@ function convert<T extends Object>(res: T, ignoreKeys: (string | number | symbol
 	return res;
 }
 
-function reverse<T extends Object>(res: T, ignoreKeys: (string | number | symbol)[], ...srcs: any[]) {
+function reverse<T extends Object>(res: T, ignoreKeys?: any | any[], ...srcs: any[]) {
+	if (!(srcs != null && srcs.length)) {
+		srcs = [ignoreKeys];
+		ignoreKeys = null;
+	}
 	ignoreKeys ||= [];
 
 	srcs.forEach(src => {
 		Reflect.ownKeys(src).filter((key) => {
-			return !ignoreKeys.includes(key)
+			return ignoreKeys.includes(key) == false
 				&& src[key] instanceof sql.Field
 				&& res[key] != src[key].get();
 		}).forEach((key: string) => {

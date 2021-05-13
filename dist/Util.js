@@ -5,10 +5,14 @@ const types = require("./types");
 const sql = require("./sql");
 const moment = require("moment");
 function convert(res, ignoreKeys, ...srcs) {
+    if (!(srcs != null && srcs.length)) {
+        srcs = [ignoreKeys];
+        ignoreKeys = null;
+    }
     ignoreKeys || (ignoreKeys = []);
     srcs.forEach(src => {
         Reflect.ownKeys(src).filter((key) => {
-            return !ignoreKeys.includes(key)
+            return ignoreKeys.includes(key) == false
                 && src[key] != null
                 && res[key] instanceof sql.Field
                 && res[key].get() != src[key];
@@ -26,10 +30,14 @@ function convert(res, ignoreKeys, ...srcs) {
 }
 exports.convert = convert;
 function reverse(res, ignoreKeys, ...srcs) {
+    if (!(srcs != null && srcs.length)) {
+        srcs = [ignoreKeys];
+        ignoreKeys = null;
+    }
     ignoreKeys || (ignoreKeys = []);
     srcs.forEach(src => {
         Reflect.ownKeys(src).filter((key) => {
-            return !ignoreKeys.includes(key)
+            return ignoreKeys.includes(key) == false
                 && src[key] instanceof sql.Field
                 && res[key] != src[key].get();
         }).forEach((key) => {
