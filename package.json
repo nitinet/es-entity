@@ -1,6 +1,6 @@
 {
 	"name": "es-entity",
-	"version": "2.0.8",
+	"version": "2.1.0",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
@@ -25,6 +25,9 @@
 	"homepage": "https://github.com/InHeap/es-entity#readme",
 	"dependencies": {
 		"case": "^1.6.3"
+	},
+	"peerDependencies": {
+		"moment": "^2.29.1"
 	},
 	"devDependencies": {
 		"@types/mssql": "^6.0.7",
