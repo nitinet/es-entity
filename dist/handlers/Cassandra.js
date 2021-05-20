@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Handler_1 = require("../Handler");
+const Handler_1 = require("./Handler");
 class Cassandra extends Handler_1.default {
     constructor(config) {
         super();

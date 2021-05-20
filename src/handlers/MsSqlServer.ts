@@ -1,7 +1,7 @@
 // import * as mssql from 'mssql';
 
 import * as bean from '../bean/index';
-import Handler from '../Handler';
+import Handler from './Handler';
 import * as sql from '../sql';
 import Connection from '../Connection';
 

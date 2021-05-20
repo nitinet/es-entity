@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
-const Handler_1 = require("../Handler");
+const Handler_1 = require("./Handler");
 const sql = require("../sql");
 const Connection_1 = require("../Connection");
 class PostgreSql extends Handler_1.default {

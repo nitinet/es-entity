@@ -1,4 +1,4 @@
-import Handler from './Handler';
+import Handler from './handlers/Handler';
 
 export default class Connection {
 	private handler: Handler = null;

@@ -1,5 +1,5 @@
 import * as bean from '../bean';
-import Handler from '../Handler';
+import Handler from './Handler';
 import * as sql from '../sql';
 import Connection from '../Connection';
 

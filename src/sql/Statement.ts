@@ -1,4 +1,4 @@
-import Handler from '../Handler';
+import Handler from '../handlers/Handler';
 import INode from './INode';
 import Command from './types/Command';
 import Expression from './Expression';
