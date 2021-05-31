@@ -5,7 +5,7 @@ const types = require("./types");
 const sql = require("./sql");
 const moment = require("moment");
 function convert(res, option, ...srcs) {
-    if (srcs == null) {
+    if (srcs == null || srcs.length == 0) {
         srcs = [option];
         option = null;
     }
@@ -33,7 +33,7 @@ function convert(res, option, ...srcs) {
 }
 exports.convert = convert;
 function reverse(res, option, ...srcs) {
-    if (srcs == null) {
+    if (srcs == null || srcs.length == 0) {
         srcs = [option];
         option = null;
     }

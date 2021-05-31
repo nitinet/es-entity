@@ -7,8 +7,8 @@ interface IOption {
 	allowKeys?: (string | number | symbol)[]
 }
 
-function convert<T extends Object>(res: T, option?: IOption, ...srcs: any[]) {
-	if (srcs == null) {
+function convert<T extends Object>(res: T, option?: IOption | any, ...srcs: any[]) {
+	if (srcs == null || srcs.length == 0) {
 		srcs = [option];
 		option = null;
 	}
@@ -36,8 +36,8 @@ function convert<T extends Object>(res: T, option?: IOption, ...srcs: any[]) {
 	return res;
 }
 
-function reverse<T extends Object>(res: T, option?: IOption, ...srcs: any[]) {
-	if (srcs == null) {
+function reverse<T extends Object>(res: T, option?: IOption | any, ...srcs: any[]) {
+	if (srcs == null || srcs.length == 0) {
 		srcs = [option];
 		option = null;
 	}
