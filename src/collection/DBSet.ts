@@ -61,6 +61,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				}
 			});
 		}
+		return this;
 	}
 
 	private bindField(key: string) {

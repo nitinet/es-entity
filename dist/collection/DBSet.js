@@ -45,6 +45,7 @@ class DBSet extends IQuerySet_1.default {
                 }
             });
         }
+        return this;
     }
     bindField(key) {
         let colName = Case.snake(key);

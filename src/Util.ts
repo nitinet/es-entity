@@ -2,16 +2,20 @@ import * as types from './types';
 import * as sql from './sql';
 import * as moment from 'moment';
 
-function convert<T extends Object>(res: T, ignoreKeys?: any | any[], ...srcs: any[]) {
-	if (!(srcs != null && srcs.length)) {
-		srcs = [ignoreKeys];
-		ignoreKeys = null;
-	}
-	ignoreKeys ||= [];
+interface IOption {
+	ignoreKeys?: (string | number | symbol)[],
+	allowKeys?: (string | number | symbol)[]
+}
+
+function convert<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
+	option = option || {};
+	option.ignoreKeys = option.ignoreKeys || [];
 
 	srcs.forEach(src => {
+		let allowKeys = option.allowKeys ?? Reflect.ownKeys(src);
 		Reflect.ownKeys(src).filter((key) => {
-			return ignoreKeys.includes(key) == false
+			return allowKeys.includes(key)
+				&& !option.ignoreKeys.includes(key)
 				&& src[key] != null
 				&& res[key] instanceof sql.Field
 				&& res[key].get() != src[key];
@@ -27,16 +31,16 @@ function convert<T extends Object>(res: T, ignoreKeys?: any | any[], ...srcs: an
 	return res;
 }
 
-function reverse<T extends Object>(res: T, ignoreKeys?: any | any[], ...srcs: any[]) {
-	if (!(srcs != null && srcs.length)) {
-		srcs = [ignoreKeys];
-		ignoreKeys = null;
-	}
-	ignoreKeys ||= [];
+function reverse<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
+	option = option || {};
+	option.ignoreKeys = option.ignoreKeys || [];
+	option.allowKeys = option.allowKeys || [];
 
 	srcs.forEach(src => {
+		let allowKeys = option.allowKeys ?? Reflect.ownKeys(src);
 		Reflect.ownKeys(src).filter((key) => {
-			return ignoreKeys.includes(key) == false
+			return allowKeys.includes(key)
+				&& !option.ignoreKeys.includes(key)
 				&& src[key] instanceof sql.Field
 				&& res[key] != src[key].get();
 		}).forEach((key: string) => {

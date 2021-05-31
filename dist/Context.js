@@ -26,10 +26,10 @@ class Context {
         await Promise.all(Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
             return o instanceof collection_1.DBSet;
-        }, this).map(key => {
+        }, this).map(async (key) => {
             let obj = Reflect.get(this, key);
             obj.context = this;
-            obj.bind();
+            obj = await obj.bind();
             this.dbSetMap.set(obj.getEntityType(), obj);
         }));
     }

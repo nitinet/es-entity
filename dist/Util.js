@@ -4,15 +4,14 @@ exports.reverse = exports.convert = void 0;
 const types = require("./types");
 const sql = require("./sql");
 const moment = require("moment");
-function convert(res, ignoreKeys, ...srcs) {
-    if (!(srcs != null && srcs.length)) {
-        srcs = [ignoreKeys];
-        ignoreKeys = null;
-    }
-    ignoreKeys || (ignoreKeys = []);
+function convert(res, option, ...srcs) {
+    option = option || {};
+    option.ignoreKeys = option.ignoreKeys || [];
     srcs.forEach(src => {
+        let allowKeys = option.allowKeys ?? Reflect.ownKeys(src);
         Reflect.ownKeys(src).filter((key) => {
-            return ignoreKeys.includes(key) == false
+            return allowKeys.includes(key)
+                && !option.ignoreKeys.includes(key)
                 && src[key] != null
                 && res[key] instanceof sql.Field
                 && res[key].get() != src[key];
@@ -29,15 +28,15 @@ function convert(res, ignoreKeys, ...srcs) {
     return res;
 }
 exports.convert = convert;
-function reverse(res, ignoreKeys, ...srcs) {
-    if (!(srcs != null && srcs.length)) {
-        srcs = [ignoreKeys];
-        ignoreKeys = null;
-    }
-    ignoreKeys || (ignoreKeys = []);
+function reverse(res, option, ...srcs) {
+    option = option || {};
+    option.ignoreKeys = option.ignoreKeys || [];
+    option.allowKeys = option.allowKeys || [];
     srcs.forEach(src => {
+        let allowKeys = option.allowKeys ?? Reflect.ownKeys(src);
         Reflect.ownKeys(src).filter((key) => {
-            return ignoreKeys.includes(key) == false
+            return allowKeys.includes(key)
+                && !option.ignoreKeys.includes(key)
                 && src[key] instanceof sql.Field
                 && res[key] != src[key].get();
         }).forEach((key) => {
