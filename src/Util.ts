@@ -34,7 +34,6 @@ function convert<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
 function reverse<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
 	option = option || {};
 	option.ignoreKeys = option.ignoreKeys || [];
-	option.allowKeys = option.allowKeys || [];
 
 	srcs.forEach(src => {
 		let allowKeys = option.allowKeys ?? Reflect.ownKeys(src);

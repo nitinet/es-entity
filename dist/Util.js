@@ -31,7 +31,6 @@ exports.convert = convert;
 function reverse(res, option, ...srcs) {
     option = option || {};
     option.ignoreKeys = option.ignoreKeys || [];
-    option.allowKeys = option.allowKeys || [];
     srcs.forEach(src => {
         let allowKeys = option.allowKeys ?? Reflect.ownKeys(src);
         Reflect.ownKeys(src).filter((key) => {
