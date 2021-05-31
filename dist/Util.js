@@ -5,6 +5,10 @@ const types = require("./types");
 const sql = require("./sql");
 const moment = require("moment");
 function convert(res, option, ...srcs) {
+    if (srcs == null) {
+        srcs = [option];
+        option = null;
+    }
     option = option || {};
     option.ignoreKeys = option.ignoreKeys || [];
     srcs.forEach(src => {
@@ -29,6 +33,10 @@ function convert(res, option, ...srcs) {
 }
 exports.convert = convert;
 function reverse(res, option, ...srcs) {
+    if (srcs == null) {
+        srcs = [option];
+        option = null;
+    }
     option = option || {};
     option.ignoreKeys = option.ignoreKeys || [];
     srcs.forEach(src => {

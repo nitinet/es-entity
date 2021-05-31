@@ -7,7 +7,12 @@ interface IOption {
 	allowKeys?: (string | number | symbol)[]
 }
 
-function convert<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
+function convert<T extends Object>(res: T, option?: IOption, ...srcs: any[]) {
+	if (srcs == null) {
+		srcs = [option];
+		option = null;
+	}
+
 	option = option || {};
 	option.ignoreKeys = option.ignoreKeys || [];
 
@@ -31,7 +36,12 @@ function convert<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
 	return res;
 }
 
-function reverse<T extends Object>(res: T, option: IOption, ...srcs: any[]) {
+function reverse<T extends Object>(res: T, option?: IOption, ...srcs: any[]) {
+	if (srcs == null) {
+		srcs = [option];
+		option = null;
+	}
+
 	option = option || {};
 	option.ignoreKeys = option.ignoreKeys || [];
 
