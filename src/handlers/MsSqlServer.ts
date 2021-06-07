@@ -66,6 +66,9 @@ export default class MsSqlServer extends Handler {
 				col.type = bean.ColumnType.STRING;
 			} else if (columnType.includes('timestamp')) {
 				col.type = bean.ColumnType.DATE;
+			} else {
+				// If not matching column found then use as string column
+				col.type = bean.ColumnType.STRING;
 			}
 
 			col.nullable = row['Null'] == 'YES' ? true : false;

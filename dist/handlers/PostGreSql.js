@@ -83,6 +83,9 @@ class PostgreSql extends Handler_1.default {
             else if (columnType.includes('json')) {
                 col.type = bean.ColumnType.JSON;
             }
+            else {
+                col.type = bean.ColumnType.STRING;
+            }
             col.nullable = !row['is_nullable'];
             col.primaryKey = row['primarykey'];
             col.default = row['column_default'];

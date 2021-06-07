@@ -91,7 +91,11 @@ export default class PostgreSql extends Handler {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.JSON;
+			} else {
+				// If not matching column found then use as string column
+				col.type = bean.ColumnType.STRING;
 			}
+
 			col.nullable = !row['is_nullable'];
 			col.primaryKey = row['primarykey'];
 			col.default = row['column_default'];
