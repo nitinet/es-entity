@@ -47,7 +47,7 @@ class Context {
         this._entityPath = entityPath;
     }
     async execute(query, args) {
-        return await this.handler.run(query, args, this.connection);
+        return this.handler.run(query, args, this.connection);
     }
     flush() { }
     async initTransaction() {

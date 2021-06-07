@@ -53,16 +53,14 @@ class Handler {
         return `${val0} >= ${val1}`;
     }
     and(values) {
-        let r = values.filter(x => x).map(val => {
+        return values.filter(x => x).map(val => {
             return `(${val})`;
         }).join(' and ');
-        return r;
     }
     or(values) {
-        let r = values.filter(x => x).map(val => {
+        return values.filter(x => x).map(val => {
             return `(${val})`;
         }).join(' or ');
-        return r;
     }
     not(val0) {
         return ` not ${val0}`;
@@ -88,7 +86,8 @@ class Handler {
         return ` exists (${val0})`;
     }
     limit(val0, val1) {
-        return ` limit ${val0}${val1 ? `,${val1}` : ''}`;
+        let value = val1 ? `,${val1}` : '';
+        return ` limit ${val0}${value}`;
     }
     plus(val0, val1) {
         return `${val0} + ${val1}`;

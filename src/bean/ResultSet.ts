@@ -3,7 +3,4 @@ export default class ResultSet {
 	id: any = null;
 	rows: Array<any> = null;
 	error: string = null;
-
-	constructor() {
-	}
 }

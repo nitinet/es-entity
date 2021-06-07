@@ -39,6 +39,19 @@ abstract class IQuerySet<T> {
 		return this.join(coll, param, sql.Join.OuterJoin);
 	}
 
+	// utils functions
+	setStatColumns(tempObj) {
+		let tempKeys = Reflect.ownKeys(tempObj);
+		tempKeys.forEach(k => {
+			let f = tempObj[k];
+			if (f instanceof sql.Field) {
+				let exp = f.expr();
+				this.stat.columns.push(exp);
+			}
+		});
+		return this;
+	}
+
 }
 
 export default IQuerySet;

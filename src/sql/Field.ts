@@ -7,9 +7,6 @@ class Field<T>  {
 	_name: string = '';
 	_updated: boolean = false;
 
-	constructor() {
-	}
-
 	get(): T {
 		return this._value;
 	}
@@ -37,7 +34,7 @@ class Field<T>  {
 	_argExp(operand: T | Field<T>) {
 		let w: Expression = null;
 		if (operand instanceof Field) {
-			w = (<Field<T>>operand).expr();
+			w = operand.expr();
 		} else {
 			w = new Expression('?');
 			w.args = w.args.concat(operand);

@@ -147,9 +147,6 @@ export default class Mysql extends Handler {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.JSON;
-			} else {
-				// If not matching column found then use as string column
-				col.type = bean.ColumnType.STRING;
 			}
 
 			col.nullable = row['Null'] == 'YES' ? true : false;
@@ -208,8 +205,8 @@ export default class Mysql extends Handler {
 		if (temp.changedRows) {
 			result.rowCount = temp.changedRows;
 		} else if (Array.isArray(temp)) {
-			result.rows = <Array<any>>temp;
-			result.rowCount = (<Array<any>>temp).length;
+			result.rows = temp;
+			result.rowCount = temp.length;
 		}
 		return result;
 	}

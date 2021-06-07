@@ -52,7 +52,7 @@ class Collection extends INode {
 			}
 		}
 		if (!res) {
-			throw 'No Collection Found';
+			throw new Error('No Collection Found');
 		}
 		if (this.alias) {
 			res = `${res} as ${this.alias}`;

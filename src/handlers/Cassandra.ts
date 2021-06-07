@@ -11,7 +11,7 @@ export default class Cassandra extends Handler {
 	}
 
 	async init() { }
-	
+
 	async getConnection() { return null; }
 	async openConnetion(conn) { return null; }
 	async initTransaction(conn) { return null; }
@@ -20,7 +20,7 @@ export default class Cassandra extends Handler {
 	async close(conn) { return null; }
 	async end() { return null; }
 
-	async	getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
+	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		return null;
 	}
 

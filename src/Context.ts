@@ -63,7 +63,7 @@ export default class Context {
 	}
 
 	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {
-		return await this.handler.run(query, args, this.connection);
+		return this.handler.run(query, args, this.connection);
 	}
 
 	flush(): void { }

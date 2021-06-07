@@ -41,48 +41,52 @@ class DBSet extends IQuerySet_1.default {
             keys.forEach(key => {
                 let field = obj[key];
                 if (field instanceof sql.Field) {
-                    this.bindField(key.toString());
+                    this.bindField(key.toString(), field);
                 }
             });
         }
         return this;
     }
-    bindField(key) {
+    bindField(key, field) {
         let colName = Case.snake(key);
         let column = this.columns.filter(col => {
             return col.field == colName;
         })[0];
         try {
             if (column) {
-                let field = new Mapping.FieldMapping({
+                let fieldMapping = new Mapping.FieldMapping({
                     fieldName: key,
                     colName: colName
                 });
-                if (column.type == bean.ColumnType.STRING) {
-                    field.type = 'string';
+                if (column.type == bean.ColumnType.STRING && field instanceof types.String) {
+                    fieldMapping.type = 'string';
                 }
-                else if (column.type == bean.ColumnType.NUMBER) {
-                    field.type = 'number';
+                else if (column.type == bean.ColumnType.NUMBER && field instanceof types.Number) {
+                    fieldMapping.type = 'number';
                 }
-                else if (column.type == bean.ColumnType.BOOLEAN) {
-                    field.type = 'boolean';
+                else if (column.type == bean.ColumnType.BOOLEAN && field instanceof types.Boolean) {
+                    fieldMapping.type = 'boolean';
                 }
-                else if (column.type == bean.ColumnType.DATE) {
-                    field.type = 'date';
+                else if (column.type == bean.ColumnType.DATE && field instanceof types.Date) {
+                    fieldMapping.type = 'date';
                 }
-                else if (column.type == bean.ColumnType.JSON) {
-                    field.type = 'jsonObject';
+                else if (column.type == bean.ColumnType.JSON && field instanceof types.Json) {
+                    fieldMapping.type = 'jsonObject';
+                }
+                else if (field instanceof types.String) {
+                    this.context.log(`Type not found for Column: ${colName} in Table:${this.mapping.name}. Using default string type.`);
+                    fieldMapping.type = 'string';
                 }
                 else {
-                    throw new Error('Type mismatch found for Column: ' + colName + ' in Table:' + this.mapping.name);
+                    throw new Error(`Type mismatch found for Column: ${colName} in Table:${this.mapping.name}`);
                 }
                 if (column.primaryKey) {
-                    field.primaryKey = true;
+                    fieldMapping.primaryKey = true;
                 }
-                this.mapping.fields.push(field);
+                this.mapping.fields.push(fieldMapping);
             }
             else {
-                throw new Error('Column: ' + colName + ' not found in Table: ' + this.mapping.name);
+                throw new Error(`Column: ${colName} not found in Table: ${this.mapping.name}`);
             }
         }
         catch (err) {
@@ -93,10 +97,9 @@ class DBSet extends IQuerySet_1.default {
         return this.entityType;
     }
     getKeyField(key) {
-        let field = this.mapping.fields.filter(a => {
+        return this.mapping.fields.filter(a => {
             return a.fieldName == key;
         })[0];
-        return field;
     }
     getEntity(alias) {
         let a = new this.entityType();
@@ -151,14 +154,13 @@ class DBSet extends IQuerySet_1.default {
             primaryFields.forEach(field => {
                 param[field.fieldName] = this.getValue(entity, field.fieldName);
             });
-            return await this.get(param);
+            return this.get(param);
         }
     }
     getPrimaryFields() {
-        let primaryFields = this.mapping.fields.filter(f => {
+        return this.mapping.fields.filter(f => {
             return f.primaryKey;
         });
-        return primaryFields;
     }
     whereExpr(entity) {
         let primaryFields = this.getPrimaryFields();
@@ -180,14 +182,13 @@ class DBSet extends IQuerySet_1.default {
             let field = this.getKeyField(key);
             let q = entity[key];
             let isPrimaryField = false;
-            for (let i = 0; i < primaryFields.length; i++) {
-                const f = primaryFields[i];
+            for (let f of primaryFields) {
                 if (f.fieldName == field.fieldName) {
                     isPrimaryField = true;
                     break;
                 }
             }
-            if (q instanceof sql.Field && q._updated && isPrimaryField == false) {
+            if (q instanceof sql.Field && q._updated && !isPrimaryField) {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));
@@ -203,14 +204,14 @@ class DBSet extends IQuerySet_1.default {
             }
             else if (primaryFields.length == 1) {
                 let param = this.getValue(entity, primaryFields[0].fieldName);
-                return await this.get(param);
+                return this.get(param);
             }
             else {
                 let param = {};
                 primaryFields.forEach(field => {
                     param[field.fieldName] = this.getValue(entity, field.fieldName);
                 });
-                return await this.get(param);
+                return this.get(param);
             }
         }
         else {
@@ -249,13 +250,13 @@ class DBSet extends IQuerySet_1.default {
         else if (primaryFields.length == 1) {
             if (typeof id === 'object') {
                 let field = primaryFields[0];
-                return await this.where((a) => {
+                return this.where((a) => {
                     return a[field.fieldName].eq(id[field.fieldName]);
                 }).unique();
             }
             else {
                 let field = primaryFields[0];
-                return await this.where((a) => {
+                return this.where((a) => {
                     return a[field.fieldName].eq(id);
                 }).unique();
             }
@@ -268,7 +269,7 @@ class DBSet extends IQuerySet_1.default {
                 w2.args.push(id[priField.fieldName]);
                 whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
             });
-            return await this.where(whereExpr).unique();
+            return this.where(whereExpr).unique();
         }
     }
     where(param, ...args) {

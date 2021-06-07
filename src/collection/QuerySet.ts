@@ -42,15 +42,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		// Get all Columns
 
 		let tempObj = this.getEntity();
-		let tempKeys = Reflect.ownKeys(tempObj);
-
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
+		this.setStatColumns(tempObj);
 
 		// this.dbSet.mapping.fields.forEach((field) => {
 		// 	let c = new sql.Collection();
@@ -86,15 +78,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 		let a = this.getEntity();
 		let tempObj = param(a);
-		let tempKeys = Reflect.ownKeys(tempObj);
-
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
+		this.setStatColumns(tempObj);
 
 		let result = await this.context.execute(this.stat);
 		let temps = await this.mapData(result);
@@ -247,10 +231,9 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		}
 
 		if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-			let res: JoinQuerySet<T, A> = new JoinQuerySet<T, A>(this, coll, joinType, temp);
-			return res;
+			return new JoinQuerySet<T, A>(this, coll, joinType, temp);
 		} else {
-			throw 'Invalid Join';
+			throw new Error('Invalid Join');
 		}
 	}
 

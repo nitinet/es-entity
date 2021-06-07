@@ -23,7 +23,7 @@ class Statement extends INode {
 
 	eval(handler: Handler): string {
 		if (!handler) {
-			throw 'No Handler Found';
+			throw new Error('No Handler Found');
 		}
 
 		let result: string = null;
@@ -91,12 +91,11 @@ class Statement extends INode {
 
 	// Column
 	getColumnStr(handler: Handler) {
-		let columnStr = this.columns.map(ele => {
+		return this.columns.map(ele => {
 			let r = ele.eval(handler);
 			this.args = this.args.concat(ele.args);
 			return r;
 		}, this).join(', ');
-		return columnStr;
 	}
 
 	// Where
@@ -108,12 +107,11 @@ class Statement extends INode {
 
 	// Values
 	getValueStr(handler: Handler) {
-		let valueStr = this.values.map(ele => {
+		return this.values.map(ele => {
 			let r = ele.eval(handler);
 			this.args = this.args.concat(ele.args);
 			return r;
 		}, this).join(', ');
-		return valueStr;
 	}
 
 	// Group By

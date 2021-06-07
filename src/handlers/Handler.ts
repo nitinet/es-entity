@@ -71,17 +71,17 @@ export default abstract class Handler {
 
 	// Logical Operators
 	and(values: string[]): string {
-		let r = values.filter(x => x).map(val => {
+		return values.filter(x => x).map(val => {
 			return `(${val})`;
 		}).join(' and ');
-		return r;
 	}
+
 	or(values: string[]): string {
-		let r = values.filter(x => x).map(val => {
+		return values.filter(x => x).map(val => {
 			return `(${val})`;
 		}).join(' or ');
-		return r;
 	}
+
 	not(val0: string): string {
 		return ` not ${val0}`;
 	}
@@ -108,7 +108,8 @@ export default abstract class Handler {
 		return ` exists (${val0})`;
 	}
 	limit(val0: string, val1: string): string {
-		return ` limit ${val0}${val1 ? `,${val1}` : ''}`;
+		let value = val1 ? `,${val1}` : '';
+		return ` limit ${val0}${value}`;
 	}
 
 	// Arithmatic Operators

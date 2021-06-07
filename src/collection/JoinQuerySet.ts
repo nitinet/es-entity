@@ -34,15 +34,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		this.stat.command = sql.Command.SELECT;
 
 		let tempObj = this.getEntity();
-		let tempKeys = Reflect.ownKeys(tempObj);
-
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
+		this.setStatColumns(tempObj);
 
 		let result = await this.context.execute(this.stat);
 		return this.mapData(result);
@@ -89,15 +81,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 		let a = this.getEntity();
 		let tempObj = param(a);
-		let tempKeys = Reflect.ownKeys(tempObj);
-
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
+		this.setStatColumns(tempObj);
 
 		let result = await this.context.execute(this.stat);
 		let temps = await this.mapData(result);

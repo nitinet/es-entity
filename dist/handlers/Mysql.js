@@ -144,9 +144,6 @@ class Mysql extends Handler_1.default {
             else if (columnType.includes('json')) {
                 col.type = bean.ColumnType.JSON;
             }
-            else {
-                col.type = bean.ColumnType.STRING;
-            }
             col.nullable = row['Null'] == 'YES' ? true : false;
             col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
             col.default = row['Default'];

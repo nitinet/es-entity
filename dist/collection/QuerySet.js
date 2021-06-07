@@ -29,14 +29,7 @@ class QuerySet extends IQuerySet_1.default {
     async list() {
         this.stat.command = sql.Command.SELECT;
         let tempObj = this.getEntity();
-        let tempKeys = Reflect.ownKeys(tempObj);
-        tempKeys.forEach(k => {
-            let f = tempObj[k];
-            if (f instanceof sql.Field) {
-                let exp = f.expr();
-                this.stat.columns.push(exp);
-            }
-        });
+        this.setStatColumns(tempObj);
         let result = await this.context.execute(this.stat);
         return this.mapData(result);
     }
@@ -50,14 +43,7 @@ class QuerySet extends IQuerySet_1.default {
         }
         let a = this.getEntity();
         let tempObj = param(a);
-        let tempKeys = Reflect.ownKeys(tempObj);
-        tempKeys.forEach(k => {
-            let f = tempObj[k];
-            if (f instanceof sql.Field) {
-                let exp = f.expr();
-                this.stat.columns.push(exp);
-            }
-        });
+        this.setStatColumns(tempObj);
         let result = await this.context.execute(this.stat);
         let temps = await this.mapData(result);
         let res = [];
@@ -197,11 +183,10 @@ class QuerySet extends IQuerySet_1.default {
             }
         }
         if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-            let res = new JoinQuerySet_1.default(this, coll, joinType, temp);
-            return res;
+            return new JoinQuerySet_1.default(this, coll, joinType, temp);
         }
         else {
-            throw 'Invalid Join';
+            throw new Error('Invalid Join');
         }
     }
 }
