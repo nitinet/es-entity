@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reverse = exports.convert = void 0;
-const types = require("../types");
 const sql = require("../sql");
+const types = require("../types");
 class Converter {
     constructor(option) {
         this.option = null;
@@ -51,43 +50,5 @@ class Converter {
         return res;
     }
 }
-function convert(res, ...srcs) {
-    srcs.forEach(src => {
-        let allowKeys = Object.keys(src);
-        Object.keys(src).filter((key) => {
-            return allowKeys.includes(key)
-                && src[key] != null
-                && res[key] instanceof sql.Field
-                && res[key].get() != src[key];
-        }).forEach((key) => {
-            if (res[key] instanceof types.Date) {
-                let d = null;
-                if (src[key] instanceof Date) {
-                    d = src[key];
-                }
-                res[key].set(d);
-            }
-            else {
-                res[key].set(src[key]);
-            }
-        });
-    });
-    return res;
-}
-exports.convert = convert;
-function reverse(res, ...srcs) {
-    srcs.forEach(src => {
-        let allowKeys = Object.keys(src);
-        Object.keys(src).filter((key) => {
-            return allowKeys.includes(key)
-                && src[key] instanceof sql.Field
-                && res[key] != src[key].get();
-        }).forEach((key) => {
-            res[key] = src[key].get();
-        });
-    });
-    return res;
-}
-exports.reverse = reverse;
 exports.default = Converter;
 //# sourceMappingURL=Converter.js.map

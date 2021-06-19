@@ -1,5 +1,5 @@
-import * as types from '../types';
 import * as sql from '../sql';
+import * as types from '../types';
 
 interface IOption {
 	ignoreKeys?: (string | number | symbol)[],
@@ -59,43 +59,4 @@ class Converter {
 
 }
 
-function convert<T extends Object>(res: T, ...srcs: any[]) {
-	srcs.forEach(src => {
-		let allowKeys = Object.keys(src);
-		Object.keys(src).filter((key) => {
-			return allowKeys.includes(key)
-				&& src[key] != null
-				&& res[key] instanceof sql.Field
-				&& res[key].get() != src[key];
-		}).forEach((key: string) => {
-			if (res[key] instanceof types.Date) {
-				let d: Date = null;
-				if (src[key] instanceof Date) {
-					d = src[key];
-				}
-				res[key].set(d);
-			} else {
-				res[key].set(src[key]);
-			}
-		});
-	});
-	return res;
-}
-
-function reverse<T extends Object>(res: T, ...srcs: any[]) {
-	srcs.forEach(src => {
-		let allowKeys = Object.keys(src);
-		Object.keys(src).filter((key) => {
-			return allowKeys.includes(key)
-				&& src[key] instanceof sql.Field
-				&& res[key] != src[key].get();
-		}).forEach((key: string) => {
-			res[key] = src[key].get();
-		});
-	});
-	return res;
-}
-
 export default Converter;
-export { convert };
-export { reverse };
