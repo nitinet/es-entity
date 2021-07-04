@@ -1,6 +1,6 @@
 import IEntityType from './IEntityType';
 import LinkSet from '../collection/LinkSet';
-import * as funcs from '../collection/funcs';
+import * as funcs from '../funcs';
 import Context from '../Context';
 
 class LinkArrayType<T extends Object> {

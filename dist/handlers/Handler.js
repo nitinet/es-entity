@@ -10,7 +10,16 @@ class Handler {
         return query;
     }
     mapData(row, fieldName, type) {
-        let val = row[fieldName] ?? row[fieldName.toLowerCase()] ?? row[fieldName.toUpperCase()];
+        let val = null;
+        if (row[fieldName] != null && row[fieldName] != undefined) {
+            val = row[fieldName];
+        }
+        else if (row[fieldName.toLowerCase()] != null && row[fieldName.toLowerCase()] != undefined) {
+            val = row[fieldName.toLowerCase()];
+        }
+        else if (row[fieldName.toUpperCase()] != null && row[fieldName.toUpperCase()] != undefined) {
+            val = row[fieldName.toUpperCase()];
+        }
         let res = null;
         if (val && type) {
             if (type == 'boolean') {

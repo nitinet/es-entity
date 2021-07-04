@@ -1,9 +1,9 @@
-import { DBSet } from './collection';
-import Handler from './handlers/Handler';
 import * as sql from './sql';
-import Connection from './Connection';
 import * as bean from './bean';
-import { IEntityType } from './types';
+import DBSet from './collection/DBSet.js';
+import Handler from './handlers/Handler.js';
+import Connection from './Connection.js';
+import IEntityType from './types/IEntityType.js';
 import getHandler from './handlers/getHandler.js';
 
 export default class Context {
@@ -24,7 +24,7 @@ export default class Context {
 
 		this.handler = getHandler(this.config.dbConfig);
 		if (this.config.entityPath) { this.setEntityPath(this.config.entityPath); }
-		this.logger = this.config.logger ?? console;
+		this.logger = this.config.logger || console;
 	}
 
 	log(...arg) {

@@ -1,13 +1,24 @@
-import MsSqlServer from './MsSqlServer';
-import Mysql from './Mysql';
-import OracleDb from './Oracle';
-import PostGreSql from './PostGreSql';
-import SqlLite from './SQLite';
-import Cassandra from './Cassandra';
+import MsSqlServer from './MsSqlServer.js';
+import Mysql from './Mysql.js';
+import OracleDb from './Oracle.js';
+import PostGreSql from './PostGreSql.js';
+import SqlLite from './SQLite.js';
+import Cassandra from './Cassandra.js';
 
-export { MsSqlServer };
-export { Mysql };
-export { OracleDb };
-export { PostGreSql };
-export { SqlLite };
-export { Cassandra };
+export default {
+	MsSqlServer,
+	Mysql,
+	OracleDb,
+	PostGreSql,
+	SqlLite,
+	Cassandra
+};
+
+export {
+	MsSqlServer,
+	Mysql,
+	OracleDb,
+	PostGreSql,
+	SqlLite,
+	Cassandra
+};

@@ -1,4 +1,5 @@
 import Field from '../sql/Field';
+import * as bean from '../bean';
 
 class ObjectType extends Field<object> {
 
@@ -26,6 +27,8 @@ class ObjectType extends Field<object> {
 			super.set(null);
 		} else if (typeof value == 'object') {
 			super.set(value);
+		} else {
+			throw new bean.SqlException('Invalid Object Value');
 		}
 	}
 

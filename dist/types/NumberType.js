@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Field_1 = require("../sql/Field");
+const bean = require("../bean");
 class NumberType extends Field_1.default {
     constructor(data) {
         super();
@@ -23,8 +24,11 @@ class NumberType extends Field_1.default {
         if (value == null || value == undefined) {
             super.set(null);
         }
-        else if (typeof value == 'number' || value instanceof Number) {
+        else if (typeof value == 'number') {
             super.set(value);
+        }
+        else {
+            throw new bean.SqlException('Invalid Number Value');
         }
     }
 }

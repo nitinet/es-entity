@@ -1,9 +1,9 @@
 import * as bean from '../bean';
 import * as sql from '../sql';
-import * as funcs from './funcs';
-import IQuerySet from './IQuerySet';
-import DBSet from './DBSet';
-import JoinQuerySet from './JoinQuerySet';
+import * as funcs from '../funcs';
+import IQuerySet from './IQuerySet.js';
+import DBSet from './DBSet.js';
+import JoinQuerySet from './JoinQuerySet.js';
 
 /**
  * QuerySet

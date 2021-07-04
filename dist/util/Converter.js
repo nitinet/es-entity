@@ -10,7 +10,7 @@ class Converter {
     }
     convert(res, ...srcs) {
         srcs.forEach(src => {
-            let allowKeys = this.option.allowKeys ?? Object.keys(src);
+            let allowKeys = this.option.allowKeys || Object.keys(src);
             Object.keys(src).filter((key) => {
                 return allowKeys.includes(key)
                     && !this.option.ignoreKeys.includes(key)
@@ -37,7 +37,7 @@ class Converter {
     }
     reverse(res, ...srcs) {
         srcs.forEach(src => {
-            let allowKeys = this.option.allowKeys ?? Object.keys(src);
+            let allowKeys = this.option.allowKeys || Object.keys(src);
             Object.keys(src).filter((key) => {
                 return allowKeys.includes(key)
                     && !this.option.ignoreKeys.includes(key)

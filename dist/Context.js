@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const collection_1 = require("./collection");
+const DBSet_js_1 = require("./collection/DBSet.js");
 const getHandler_js_1 = require("./handlers/getHandler.js");
 class Context {
     constructor(config) {
@@ -16,7 +16,7 @@ class Context {
         if (this.config.entityPath) {
             this.setEntityPath(this.config.entityPath);
         }
-        this.logger = this.config.logger ?? console;
+        this.logger = this.config.logger || console;
     }
     log(...arg) {
         this.logger.error(arg);
@@ -25,7 +25,7 @@ class Context {
         await this.handler.init();
         await Promise.all(Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
-            return o instanceof collection_1.DBSet;
+            return o instanceof DBSet_js_1.default;
         }, this).map(async (key) => {
             let obj = Reflect.get(this, key);
             obj.context = this;
@@ -58,7 +58,7 @@ class Context {
             let keys = Reflect.ownKeys(res);
             keys.forEach((key) => {
                 let prop = Reflect.get(res, key);
-                if (prop instanceof collection_1.DBSet) {
+                if (prop instanceof DBSet_js_1.default) {
                     prop.context = res;
                 }
             });

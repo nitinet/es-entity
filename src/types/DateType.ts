@@ -1,4 +1,5 @@
 import Field from '../sql/Field';
+import * as bean from '../bean';
 
 class DateType extends Field<Date> {
 
@@ -25,6 +26,8 @@ class DateType extends Field<Date> {
 			super.set(null);
 		} else if (value instanceof Date) {
 			super.set(value);
+		} else {
+			throw new bean.SqlException('Invalid Date Value');
 		}
 	}
 

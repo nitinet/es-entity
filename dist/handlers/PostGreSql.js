@@ -13,7 +13,7 @@ class PostgreSql extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('pg'));
+        this.driver = this.config.driver || await (Promise.resolve().then(() => require('pg')).native) || await Promise.resolve().then(() => require('pg'));
         this.connectionPool = new this.driver.Pool({
             user: this.config.username,
             password: this.config.password,

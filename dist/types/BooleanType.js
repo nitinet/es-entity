@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Field_1 = require("../sql/Field");
+const bean = require("../bean");
 class BooleanType extends Field_1.default {
     constructor(data) {
         super();
@@ -23,11 +24,11 @@ class BooleanType extends Field_1.default {
         if (value == null || value == undefined) {
             super.set(null);
         }
-        else if (typeof value == 'boolean' || value instanceof Boolean) {
-            super.set(value);
+        else if (typeof value == 'boolean') {
+            super.set(!!value);
         }
         else {
-            super.set(value ? true : false);
+            throw new bean.SqlException('Invalid Boolean Value');
         }
     }
 }

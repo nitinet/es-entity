@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const IQuerySet_1 = require("./IQuerySet");
+const IQuerySet_js_1 = require("./IQuerySet.js");
 const sql = require("../sql");
-class JoinQuerySet extends IQuerySet_1.default {
+class JoinQuerySet extends IQuerySet_js_1.default {
     constructor(mainSet, joinSet, joinType, expr) {
         super();
         this.mainSet = null;

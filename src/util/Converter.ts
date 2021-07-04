@@ -18,7 +18,7 @@ class Converter {
 
 	convert<T extends Object>(res: T, ...srcs: any[]) {
 		srcs.forEach(src => {
-			let allowKeys = this.option.allowKeys ?? Object.keys(src);
+			let allowKeys = this.option.allowKeys || Object.keys(src);
 			Object.keys(src).filter((key) => {
 				return allowKeys.includes(key)
 					&& !this.option.ignoreKeys.includes(key)
@@ -44,7 +44,7 @@ class Converter {
 
 	reverse<T extends Object>(res: T, ...srcs: any[]) {
 		srcs.forEach(src => {
-			let allowKeys = this.option.allowKeys ?? Object.keys(src);
+			let allowKeys = this.option.allowKeys || Object.keys(src);
 			Object.keys(src).filter((key) => {
 				return allowKeys.includes(key)
 					&& !this.option.ignoreKeys.includes(key)

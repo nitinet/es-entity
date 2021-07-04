@@ -36,5 +36,11 @@
 		"mysql": "^2.18.1",
 		"oracledb": "^5.1.0",
 		"pg": "^8.5.1"
+	},
+	"optionalDependencies": {
+		"pg": "^8.6.0",
+		"pg-native": "^3.0.0",
+		"mysql": "^2.18.1",
+		"mssql": "^7.1.3"
 	}
 }

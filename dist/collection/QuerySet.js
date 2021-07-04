@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require("../sql");
-const IQuerySet_1 = require("./IQuerySet");
-const JoinQuerySet_1 = require("./JoinQuerySet");
-class QuerySet extends IQuerySet_1.default {
+const IQuerySet_js_1 = require("./IQuerySet.js");
+const JoinQuerySet_js_1 = require("./JoinQuerySet.js");
+class QuerySet extends IQuerySet_js_1.default {
     constructor(dbSet) {
         super();
         this.dbSet = null;
@@ -183,7 +183,7 @@ class QuerySet extends IQuerySet_1.default {
             }
         }
         if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-            return new JoinQuerySet_1.default(this, coll, joinType, temp);
+            return new JoinQuerySet_js_1.default(this, coll, joinType, temp);
         }
         else {
             throw new Error('Invalid Join');

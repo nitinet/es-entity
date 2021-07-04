@@ -62,6 +62,10 @@ class MsSqlServer extends Handler_1.default {
             else if (columnType.includes('timestamp')) {
                 col.type = bean.ColumnType.DATE;
             }
+            else if (columnType.includes('blob')
+                || columnType.includes('binary')) {
+                col.type = bean.ColumnType.BINARY;
+            }
             col.nullable = row['Null'] == 'YES' ? true : false;
             col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
             col.default = row['Default'];

@@ -1,17 +1,32 @@
-import IEntityType from './IEntityType';
-import BooleanType from './BooleanType';
-import DateType from './DateType';
-import ObjectType from './ObjectType';
-import NumberType from './NumberType';
-import StringType from './StringType';
-import LinkObjectType from './LinkObjectType';
-import LinkArrayType from './LinkArrayType';
+import IEntityType from './IEntityType.js';
+import BooleanType from './BooleanType.js';
+import DateType from './DateType.js';
+import BinaryType from './BinaryType.js';
+import ObjectType from './ObjectType.js';
+import NumberType from './NumberType.js';
+import StringType from './StringType.js';
+import LinkObjectType from './LinkObjectType.js';
+import LinkArrayType from './LinkArrayType.js';
 
-export { IEntityType };
-export { BooleanType as Boolean };
-export { DateType as Date };
-export { ObjectType as Json };
-export { NumberType as Number };
-export { StringType as String };
-export { LinkObjectType as LinkObject };
-export { LinkArrayType as LinkArray };
+export default {
+	Boolean: BooleanType,
+	Date: DateType,
+	Binary: BinaryType,
+	Json: ObjectType,
+	Number: NumberType,
+	String: StringType,
+	LinkObject: LinkObjectType,
+	LinkArray: LinkArrayType
+};
+
+export {
+	IEntityType,
+	BooleanType as Boolean,
+	DateType as Date,
+	BinaryType as Binary,
+	ObjectType as Json,
+	NumberType as Number,
+	StringType as String,
+	LinkObjectType as LinkObject,
+	LinkArrayType as LinkArray
+};

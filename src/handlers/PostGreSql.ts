@@ -16,7 +16,7 @@ export default class PostgreSql extends Handler {
 
 	async init() {
 		// @ts-ignore
-		this.driver = this.config.driver || await import('pg');
+		this.driver = this.config.driver || await (import('pg').native) || await import('pg');
 		this.connectionPool = new this.driver.Pool({
 			user: this.config.username,
 			password: this.config.password,

@@ -145,6 +145,9 @@ export default class Mysql extends Handler {
 			} else if (columnType.includes('timestamp')
 				|| columnType.includes('date')) {
 				col.type = bean.ColumnType.DATE;
+			} else if (columnType.includes('blob')
+				|| columnType.includes('binary')) {
+				col.type = bean.ColumnType.BINARY;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.JSON;
 			}

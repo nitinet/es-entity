@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const QuerySet_1 = require("./QuerySet");
-class LinkSet extends QuerySet_1.default {
+const QuerySet_js_1 = require("./QuerySet.js");
+class LinkSet extends QuerySet_js_1.default {
     constructor(entityType, foreignFunc) {
         super();
         this.foreignFunc = null;

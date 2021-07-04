@@ -1,6 +1,6 @@
-import IQuerySet from './IQuerySet';
+import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql';
-import * as funcs from './funcs';
+import * as funcs from '../funcs';
 import * as bean from '../bean';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{

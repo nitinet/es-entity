@@ -6,9 +6,9 @@ import * as bean from '../bean';
 import * as sql from '../sql';
 import * as types from '../types';
 import * as Mapping from '../Mapping';
-import * as funcs from './funcs';
-import IQuerySet from './IQuerySet';
-import QuerySet from './QuerySet';
+import * as funcs from '../funcs';
+import IQuerySet from './IQuerySet.js';
+import QuerySet from './QuerySet.js';
 
 interface IOptions {
 	entityName?: string;
@@ -84,6 +84,8 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 					fieldMapping.type = 'boolean';
 				} else if (column.type == bean.ColumnType.DATE && field instanceof types.Date) {
 					fieldMapping.type = 'date';
+				} else if (column.type == bean.ColumnType.BINARY && field instanceof types.Binary) {
+					fieldMapping.type = 'binary';
 				} else if (column.type == bean.ColumnType.JSON && field instanceof types.Json) {
 					fieldMapping.type = 'jsonObject';
 				} else if (field instanceof types.String) {

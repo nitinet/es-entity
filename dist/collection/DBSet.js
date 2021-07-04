@@ -7,9 +7,9 @@ const bean = require("../bean");
 const sql = require("../sql");
 const types = require("../types");
 const Mapping = require("../Mapping");
-const IQuerySet_1 = require("./IQuerySet");
-const QuerySet_1 = require("./QuerySet");
-class DBSet extends IQuerySet_1.default {
+const IQuerySet_js_1 = require("./IQuerySet.js");
+const QuerySet_js_1 = require("./QuerySet.js");
+class DBSet extends IQuerySet_js_1.default {
     constructor(entityType, options) {
         super();
         this.options = null;
@@ -69,6 +69,9 @@ class DBSet extends IQuerySet_1.default {
                 }
                 else if (column.type == bean.ColumnType.DATE && field instanceof types.Date) {
                     fieldMapping.type = 'date';
+                }
+                else if (column.type == bean.ColumnType.BINARY && field instanceof types.Binary) {
+                    fieldMapping.type = 'binary';
                 }
                 else if (column.type == bean.ColumnType.JSON && field instanceof types.Json) {
                     fieldMapping.type = 'jsonObject';
@@ -273,7 +276,7 @@ class DBSet extends IQuerySet_1.default {
         }
     }
     where(param, ...args) {
-        let q = new QuerySet_1.default(this);
+        let q = new QuerySet_js_1.default(this);
         let res = null;
         if (param) {
             if (param instanceof Function) {
