@@ -94,9 +94,9 @@ class Handler {
     exists(val0) {
         return ` exists (${val0})`;
     }
-    limit(val0, val1) {
-        let value = val1 ? `,${val1}` : '';
-        return ` limit ${val0}${value}`;
+    limit(size, index) {
+        let indexStr = index ? `${index}, ` : '';
+        return ` limit ${indexStr}${size}`;
     }
     plus(val0, val1) {
         return `${val0} + ${val1}`;

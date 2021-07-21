@@ -132,8 +132,8 @@ class PostgreSql extends Handler_1.default {
         }
         return query;
     }
-    limit(val0, val1) {
-        return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : '');
+    limit(size, index) {
+        return ' limit ' + size + (index ? ' OFFSET ' + index : '');
     }
 }
 exports.default = PostgreSql;

@@ -140,7 +140,7 @@ export default class PostgreSql extends Handler {
 		return query;
 	}
 
-	limit(val0: string, val1: string): string {
-		return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : '');
+	limit(size: string, index?: string): string {
+		return ' limit ' + size + (index ? ' OFFSET ' + index : '');
 	}
 }

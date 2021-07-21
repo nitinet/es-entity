@@ -134,10 +134,10 @@ class JoinQuerySet extends IQuerySet_js_1.default {
     }
     limit(size, index) {
         this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         if (index) {
             this.stat.limit.exps.push(new sql.Expression(index.toString()));
         }
-        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         return this;
     }
     join(coll, param, joinType) {

@@ -114,9 +114,9 @@ export default abstract class Handler {
 	exists(val0: string): string {
 		return ` exists (${val0})`;
 	}
-	limit(val0: string, val1: string): string {
-		let value = val1 ? `,${val1}` : '';
-		return ` limit ${val0}${value}`;
+	limit(size: string, index?: string): string {
+		let indexStr = index ? `${index}, ` : '';
+		return ` limit ${indexStr}${size}`;
 	}
 
 	// Arithmatic Operators

@@ -167,10 +167,10 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	limit(size: number, index?: number): IQuerySet<T> {
 		this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		if (index) {
 			this.stat.limit.exps.push(new sql.Expression(index.toString()));
 		}
-		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		return this;
 	}
 

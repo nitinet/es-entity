@@ -161,10 +161,10 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 	limit(size: number, index?: number): IQuerySet<T & U> {
 		this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		if (index) {
 			this.stat.limit.exps.push(new sql.Expression(index.toString()));
 		}
-		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		return this;
 	}
 
