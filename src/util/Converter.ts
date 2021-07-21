@@ -17,11 +17,14 @@ class Converter {
 	}
 
 	convert<T extends Object>(res: T, ...srcs: any[]) {
+		let allowKeys = this.option.allowKeys || Object.keys(res);
+		allowKeys = allowKeys.filter(key => {
+			return !this.option.ignoreKeys.includes(key);
+		});
+
 		srcs.forEach(src => {
-			let allowKeys = this.option.allowKeys || Object.keys(src);
 			Object.keys(src).filter((key) => {
 				return allowKeys.includes(key)
-					&& !this.option.ignoreKeys.includes(key)
 					&& src[key] != null
 					&& res[key] instanceof sql.Field
 					&& res[key].get() != src[key];
@@ -43,11 +46,14 @@ class Converter {
 	}
 
 	reverse<T extends Object>(res: T, ...srcs: any[]) {
+		let allowKeys = this.option.allowKeys || Object.keys(res);
+		allowKeys = allowKeys.filter(key => {
+			return !this.option.ignoreKeys.includes(key);
+		});
+
 		srcs.forEach(src => {
-			let allowKeys = this.option.allowKeys || Object.keys(src);
 			Object.keys(src).filter((key) => {
 				return allowKeys.includes(key)
-					&& !this.option.ignoreKeys.includes(key)
 					&& src[key] instanceof sql.Field
 					&& res[key] != src[key].get();
 			}).forEach((key: string) => {

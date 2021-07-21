@@ -1,8 +1,8 @@
 import * as sql from '../sql';
 
 function reverse<T extends Object>(res: T, ...srcs: any[]) {
+	let allowKeys = Object.keys(res);
 	srcs.forEach(src => {
-		let allowKeys = Object.keys(src);
 		Object.keys(src).filter((key) => {
 			return allowKeys.includes(key)
 				&& src[key] instanceof sql.Field
