@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean/index");
-const Handler_1 = require("./Handler");
-const sql = require("../sql");
-const Connection_1 = require("../Connection");
-class MsSqlServer extends Handler_1.default {
+import * as bean from '../bean/index';
+import Handler from './Handler';
+import * as sql from '../sql';
+import Connection from '../Connection';
+export default class MsSqlServer extends Handler {
     constructor(config) {
         super();
         this.handlerName = 'mssql';
@@ -13,7 +11,7 @@ class MsSqlServer extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('mssql'));
+        this.driver = this.config.driver || await import('mssql');
         this.connectionPool = new this.driver.ConnectionPool({
             server: this.config.host,
             port: this.config.port,
@@ -31,7 +29,7 @@ class MsSqlServer extends Handler_1.default {
             database: this.config.database
         });
         let conn = new this.driver.Request();
-        return new Connection_1.default(this, conn);
+        return new Connection(this, conn);
     }
     async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
@@ -85,7 +83,7 @@ class MsSqlServer extends Handler_1.default {
         }
         let temp = null;
         let conn = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }
         else {
@@ -111,5 +109,4 @@ class MsSqlServer extends Handler_1.default {
         return result;
     }
 }
-exports.default = MsSqlServer;
 //# sourceMappingURL=MsSqlServer.js.map

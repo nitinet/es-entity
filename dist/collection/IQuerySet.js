@@ -1,21 +1,19 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
+import * as sql from '../sql';
 class IQuerySet {
     constructor() {
         this.stat = null;
     }
     innerJoin(coll, param) {
-        return this.join(coll, param, sql.Join.InnerJoin);
+        return this.join(coll, param, sql.types.Join.InnerJoin);
     }
     leftJoin(coll, param) {
-        return this.join(coll, param, sql.Join.LeftJoin);
+        return this.join(coll, param, sql.types.Join.LeftJoin);
     }
     rightJoin(coll, param) {
-        return this.join(coll, param, sql.Join.RightJoin);
+        return this.join(coll, param, sql.types.Join.RightJoin);
     }
     outerJoin(coll, param) {
-        return this.join(coll, param, sql.Join.OuterJoin);
+        return this.join(coll, param, sql.types.Join.OuterJoin);
     }
     setStatColumns(tempObj) {
         let tempKeys = Reflect.ownKeys(tempObj);
@@ -29,5 +27,5 @@ class IQuerySet {
         return this;
     }
 }
-exports.default = IQuerySet;
+export default IQuerySet;
 //# sourceMappingURL=IQuerySet.js.map

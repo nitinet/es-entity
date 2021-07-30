@@ -138,7 +138,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 	async insert(entity: T) {
 		let stat: sql.Statement = new sql.Statement();
-		stat.command = sql.Command.INSERT;
+		stat.command = sql.types.Command.INSERT;
 		stat.collection.value = this.mapping.name;
 
 		Reflect.ownKeys(entity).forEach((key) => {
@@ -189,14 +189,14 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 			let w1 = new sql.Expression(priField.colName);
 			let w2 = new sql.Expression('?');
 			w2.args.push(this.getValue(entity, priField.fieldName));
-			whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+			whereExpr = whereExpr.add(new sql.Expression(null, sql.types.Operator.Equal, w1, w2));
 		});
 		return whereExpr;
 	}
 
 	async update(entity: T) {
 		let stat = new sql.Statement();
-		stat.command = sql.Command.UPDATE;
+		stat.command = sql.types.Command.UPDATE;
 		stat.collection.value = this.mapping.name;
 
 		let primaryFields = this.getPrimaryFields();
@@ -216,7 +216,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				let c2 = new sql.Expression('?');
 				c2.args.push(this.getValue(entity, <string>key));
 
-				let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
+				let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
 				stat.columns.push(c);
 			}
 		});
@@ -259,7 +259,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 	async delete(entity: T) {
 		let stat = new sql.Statement();
-		stat.command = sql.Command.DELETE;
+		stat.command = sql.types.Command.DELETE;
 		stat.collection.value = this.mapping.name;
 
 		stat.where = this.whereExpr(entity);
@@ -290,7 +290,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 				let w1 = new sql.Expression(priField.colName);
 				let w2 = new sql.Expression('?');
 				w2.args.push(id[priField.fieldName]);
-				whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+				whereExpr = whereExpr.add(new sql.Expression(null, sql.types.Operator.Equal, w1, w2));
 			});
 			return this.where(whereExpr).unique();
 		}
@@ -378,7 +378,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		return data;
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join) {
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join) {
 		let q = this.where();
 		return q.join(coll, param, joinType);
 	}

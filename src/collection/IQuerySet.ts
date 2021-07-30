@@ -21,22 +21,22 @@ abstract class IQuerySet<T> {
 
 	abstract mapData(input: bean.ResultSet): Promise<Array<T>>;
 
-	abstract join<A>(collection: IQuerySet<A>, func: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join): IQuerySet<T & A>;
+	abstract join<A>(collection: IQuerySet<A>, func: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A>;
 
 	innerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
-		return this.join(coll, param, sql.Join.InnerJoin);
+		return this.join(coll, param, sql.types.Join.InnerJoin);
 	}
 
 	leftJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
-		return this.join(coll, param, sql.Join.LeftJoin);
+		return this.join(coll, param, sql.types.Join.LeftJoin);
 	}
 
 	rightJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
-		return this.join(coll, param, sql.Join.RightJoin);
+		return this.join(coll, param, sql.types.Join.RightJoin);
 	}
 
 	outerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
-		return this.join(coll, param, sql.Join.OuterJoin);
+		return this.join(coll, param, sql.types.Join.OuterJoin);
 	}
 
 	// utils functions

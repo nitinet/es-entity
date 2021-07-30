@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
-const types = require("../types");
+import * as sql from '../sql';
+import * as types from '../types';
 function convert(res, ...srcs) {
     let allowKeys = Object.keys(res);
     srcs.forEach(src => {
@@ -25,5 +23,5 @@ function convert(res, ...srcs) {
     });
     return res;
 }
-exports.default = convert;
+export default convert;
 //# sourceMappingURL=convert.js.map

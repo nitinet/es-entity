@@ -1,15 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs");
-const path = require("path");
-const Case = require("case");
-const bean = require("../bean");
-const sql = require("../sql");
-const types = require("../types");
-const Mapping = require("../Mapping");
-const IQuerySet_js_1 = require("./IQuerySet.js");
-const QuerySet_js_1 = require("./QuerySet.js");
-class DBSet extends IQuerySet_js_1.default {
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Case from 'case';
+import * as bean from '../bean';
+import * as sql from '../sql';
+import * as types from '../types';
+import * as Mapping from '../Mapping';
+import IQuerySet from './IQuerySet.js';
+import QuerySet from './QuerySet.js';
+class DBSet extends IQuerySet {
     constructor(entityType, options) {
         super();
         this.options = null;
@@ -126,7 +124,7 @@ class DBSet extends IQuerySet_js_1.default {
     }
     async insert(entity) {
         let stat = new sql.Statement();
-        stat.command = sql.Command.INSERT;
+        stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.mapping.name;
         Reflect.ownKeys(entity).forEach((key) => {
             let q = entity[key];
@@ -172,13 +170,13 @@ class DBSet extends IQuerySet_js_1.default {
             let w1 = new sql.Expression(priField.colName);
             let w2 = new sql.Expression('?');
             w2.args.push(this.getValue(entity, priField.fieldName));
-            whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+            whereExpr = whereExpr.add(new sql.Expression(null, sql.types.Operator.Equal, w1, w2));
         });
         return whereExpr;
     }
     async update(entity) {
         let stat = new sql.Statement();
-        stat.command = sql.Command.UPDATE;
+        stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.mapping.name;
         let primaryFields = this.getPrimaryFields();
         Reflect.ownKeys(entity).forEach((key) => {
@@ -195,7 +193,7 @@ class DBSet extends IQuerySet_js_1.default {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.getValue(entity, key));
-                let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
+                let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
                 stat.columns.push(c);
             }
         });
@@ -237,7 +235,7 @@ class DBSet extends IQuerySet_js_1.default {
     }
     async delete(entity) {
         let stat = new sql.Statement();
-        stat.command = sql.Command.DELETE;
+        stat.command = sql.types.Command.DELETE;
         stat.collection.value = this.mapping.name;
         stat.where = this.whereExpr(entity);
         await this.context.execute(stat);
@@ -270,13 +268,13 @@ class DBSet extends IQuerySet_js_1.default {
                 let w1 = new sql.Expression(priField.colName);
                 let w2 = new sql.Expression('?');
                 w2.args.push(id[priField.fieldName]);
-                whereExpr = whereExpr.add(new sql.Expression(null, sql.Operator.Equal, w1, w2));
+                whereExpr = whereExpr.add(new sql.Expression(null, sql.types.Operator.Equal, w1, w2));
             });
             return this.where(whereExpr).unique();
         }
     }
     where(param, ...args) {
-        let q = new QuerySet_js_1.default(this);
+        let q = new QuerySet(this);
         let res = null;
         if (param) {
             if (param instanceof Function) {
@@ -351,5 +349,5 @@ class DBSet extends IQuerySet_js_1.default {
         return q.join(coll, param, joinType);
     }
 }
-exports.default = DBSet;
+export default DBSet;
 //# sourceMappingURL=DBSet.js.map

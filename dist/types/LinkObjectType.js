@@ -1,12 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const LinkSet_1 = require("../collection/LinkSet");
+import LinkSet from '../collection/LinkSet';
 class LinkObjectType {
     constructor(entityType, foreignFunc) {
         this.linkSet = null;
         this.applied = false;
         this._value = null;
-        this.linkSet = new LinkSet_1.default(entityType, foreignFunc);
+        this.linkSet = new LinkSet(entityType, foreignFunc);
         return new Proxy(this, {
             get(target, prop) {
                 if (prop in target) {
@@ -45,5 +43,5 @@ class LinkObjectType {
         }
     }
 }
-exports.default = LinkObjectType;
+export default LinkObjectType;
 //# sourceMappingURL=LinkObjectType.js.map

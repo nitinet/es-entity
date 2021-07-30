@@ -38,7 +38,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	// Selection Functions
 	async list() {
-		this.stat.command = sql.Command.SELECT;
+		this.stat.command = sql.types.Command.SELECT;
 		// Get all Columns
 
 		let tempObj = this.getEntity();
@@ -71,7 +71,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	// Selection Functions
 	async select<U extends Object>(param?: funcs.ISelectFunc<T, U>) {
-		this.stat.command = sql.Command.SELECT;
+		this.stat.command = sql.types.Command.SELECT;
 		if (!(param && param instanceof Function)) {
 			throw new Error('Select Function not found');
 		}
@@ -166,7 +166,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 	}
 
 	limit(size: number, index?: number): IQuerySet<T> {
-		this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+		this.stat.limit = new sql.Expression(null, sql.types.Operator.Limit);
 		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		if (index) {
 			this.stat.limit.exps.push(new sql.Expression(index.toString()));
@@ -174,13 +174,13 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		return this;
 	}
 
-	async update(param?: funcs.IUpdateFunc<T>): Promise<void> {
+	async update(param: funcs.IUpdateFunc<T>): Promise<void> {
 		if (!(param && param instanceof Function)) {
 			throw new Error('Select Function not found');
 		}
 
 		let stat = new sql.Statement();
-		stat.command = sql.Command.UPDATE;
+		stat.command = sql.types.Command.UPDATE;
 		stat.collection.value = this.dbSet.mapping.name;
 
 		let a = this.getEntity();
@@ -195,7 +195,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 				let c2 = new sql.Expression('?');
 				c2.args.push(this.dbSet.getValue(tempObj, <string>key));
 
-				let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
+				let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
 				stat.columns.push(c);
 			}
 		});
@@ -210,14 +210,14 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	async delete(): Promise<void> {
 		let stat = new sql.Statement();
-		stat.command = sql.Command.DELETE;
+		stat.command = sql.types.Command.DELETE;
 		stat.collection.value = this.dbSet.mapping.name;
 
 		await this.context.execute(stat);
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.Join) {
-		joinType = joinType | sql.Join.InnerJoin;
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join) {
+		joinType = joinType | sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
 		if (param) {

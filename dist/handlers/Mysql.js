@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean/index");
-const Handler_1 = require("./Handler");
-const sql = require("../sql");
-const Connection_1 = require("../Connection");
-class Mysql extends Handler_1.default {
+import * as bean from '../bean/index';
+import Handler from './Handler';
+import * as sql from '../sql';
+import Connection from '../Connection';
+export default class Mysql extends Handler {
     constructor(config) {
         super();
         this.handlerName = 'mysql';
@@ -13,7 +11,7 @@ class Mysql extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('mysql'));
+        this.driver = this.config.driver || await import('mysql');
         this.connectionPool = this.driver.createPool({
             connectionLimit: this.config.connectionLimit,
             host: this.config.host,
@@ -39,7 +37,7 @@ class Mysql extends Handler_1.default {
                     reject(err);
                 }
                 else {
-                    let res = new Connection_1.default(this, conn);
+                    let res = new Connection(this, conn);
                     resolve(res);
                 }
             });
@@ -166,7 +164,7 @@ class Mysql extends Handler_1.default {
             args = query.args;
         }
         let temp = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await new Promise((resolve, reject) => {
                 connection.conn.query(q, args, function (err, r) {
                     if (err) {
@@ -221,5 +219,4 @@ class Mysql extends Handler_1.default {
         return result;
     }
 }
-exports.default = Mysql;
 //# sourceMappingURL=Mysql.js.map

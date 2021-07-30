@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class ResultSet {
+export default class ResultSet {
     constructor() {
         this.rowCount = 0;
         this.id = null;
@@ -8,5 +6,4 @@ class ResultSet {
         this.error = null;
     }
 }
-exports.default = ResultSet;
 //# sourceMappingURL=ResultSet.js.map
