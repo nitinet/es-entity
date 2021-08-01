@@ -1,5 +1,7 @@
-import QuerySet from './QuerySet.js';
-class LinkSet extends QuerySet {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const QuerySet_js_1 = require("./QuerySet.js");
+class LinkSet extends QuerySet_js_1.default {
     constructor(entityType, foreignFunc) {
         super();
         this.foreignFunc = null;
@@ -12,5 +14,5 @@ class LinkSet extends QuerySet {
         this.where(expr);
     }
 }
-export default LinkSet;
+exports.default = LinkSet;
 //# sourceMappingURL=LinkSet.js.map

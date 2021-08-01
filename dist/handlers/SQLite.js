@@ -1,5 +1,7 @@
-import Handler from './Handler';
-export default class SQlite extends Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Handler_1 = require("./Handler");
+class SQlite extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'sqlite';
@@ -20,4 +22,5 @@ export default class SQlite extends Handler {
         return null;
     }
 }
+exports.default = SQlite;
 //# sourceMappingURL=SQLite.js.map

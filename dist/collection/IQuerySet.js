@@ -1,4 +1,6 @@
-import * as sql from '../sql';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const sql = require("../sql");
 class IQuerySet {
     constructor() {
         this.stat = null;
@@ -27,5 +29,5 @@ class IQuerySet {
         return this;
     }
 }
-export default IQuerySet;
+exports.default = IQuerySet;
 //# sourceMappingURL=IQuerySet.js.map

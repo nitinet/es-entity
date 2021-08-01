@@ -1,4 +1,6 @@
-import * as sql from '../sql';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const sql = require("../sql");
 function reverse(res, ...srcs) {
     let allowKeys = Object.keys(res);
     srcs.forEach(src => {
@@ -12,5 +14,5 @@ function reverse(res, ...srcs) {
     });
     return res;
 }
-export default reverse;
+exports.default = reverse;
 //# sourceMappingURL=reverse.js.map

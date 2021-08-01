@@ -1,13 +1,15 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as Case from 'case';
-import * as bean from '../bean';
-import * as sql from '../sql';
-import * as types from '../types';
-import * as Mapping from '../Mapping';
-import IQuerySet from './IQuerySet.js';
-import QuerySet from './QuerySet.js';
-class DBSet extends IQuerySet {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require("fs");
+const path = require("path");
+const Case = require("case");
+const bean = require("../bean");
+const sql = require("../sql");
+const types = require("../types");
+const Mapping = require("../Mapping");
+const IQuerySet_js_1 = require("./IQuerySet.js");
+const QuerySet_js_1 = require("./QuerySet.js");
+class DBSet extends IQuerySet_js_1.default {
     constructor(entityType, options) {
         super();
         this.options = null;
@@ -274,7 +276,7 @@ class DBSet extends IQuerySet {
         }
     }
     where(param, ...args) {
-        let q = new QuerySet(this);
+        let q = new QuerySet_js_1.default(this);
         let res = null;
         if (param) {
             if (param instanceof Function) {
@@ -349,5 +351,5 @@ class DBSet extends IQuerySet {
         return q.join(coll, param, joinType);
     }
 }
-export default DBSet;
+exports.default = DBSet;
 //# sourceMappingURL=DBSet.js.map

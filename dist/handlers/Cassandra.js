@@ -1,5 +1,7 @@
-import Handler from './Handler';
-export default class Cassandra extends Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Handler_1 = require("./Handler");
+class Cassandra extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'cassandra';
@@ -20,4 +22,5 @@ export default class Cassandra extends Handler {
         return null;
     }
 }
+exports.default = Cassandra;
 //# sourceMappingURL=Cassandra.js.map

@@ -1,4 +1,7 @@
-export class FieldMapping {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EntityMapping = exports.FieldMapping = void 0;
+class FieldMapping {
     constructor(data) {
         this.fieldName = null;
         this.colName = null;
@@ -7,7 +10,8 @@ export class FieldMapping {
         Object.assign(this, data);
     }
 }
-export class EntityMapping {
+exports.FieldMapping = FieldMapping;
+class EntityMapping {
     constructor(data) {
         this.name = '';
         this.entityName = '';
@@ -22,4 +26,5 @@ export class EntityMapping {
         }
     }
 }
+exports.EntityMapping = EntityMapping;
 //# sourceMappingURL=Mapping.js.map

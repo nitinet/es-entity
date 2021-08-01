@@ -1,8 +1,10 @@
-import * as bean from '../bean/index';
-import Handler from './Handler';
-import * as sql from '../sql';
-import Connection from '../Connection';
-export default class MsSqlServer extends Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const bean = require("../bean/index");
+const Handler_1 = require("./Handler");
+const sql = require("../sql");
+const Connection_1 = require("../Connection");
+class MsSqlServer extends Handler_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mssql';
@@ -11,7 +13,7 @@ export default class MsSqlServer extends Handler {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await import('mssql');
+        this.driver = this.config.driver || await Promise.resolve().then(() => require('mssql'));
         this.connectionPool = new this.driver.ConnectionPool({
             server: this.config.host,
             port: this.config.port,
@@ -29,7 +31,7 @@ export default class MsSqlServer extends Handler {
             database: this.config.database
         });
         let conn = new this.driver.Request();
-        return new Connection(this, conn);
+        return new Connection_1.default(this, conn);
     }
     async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
@@ -83,7 +85,7 @@ export default class MsSqlServer extends Handler {
         }
         let temp = null;
         let conn = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }
         else {
@@ -109,4 +111,5 @@ export default class MsSqlServer extends Handler {
         return result;
     }
 }
+exports.default = MsSqlServer;
 //# sourceMappingURL=MsSqlServer.js.map

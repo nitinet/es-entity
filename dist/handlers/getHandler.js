@@ -1,35 +1,37 @@
-import * as bean from '../bean';
-import Mysql from './Mysql.js';
-import OracleHandler from './Oracle.js';
-import MsSqlServer from './MsSqlServer.js';
-import PostgreSql from './PostGreSql.js';
-import SQLite from './SQLite.js';
-import Cassandra from './Cassandra.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const bean = require("../bean");
+const Mysql_js_1 = require("./Mysql.js");
+const Oracle_js_1 = require("./Oracle.js");
+const MsSqlServer_js_1 = require("./MsSqlServer.js");
+const PostGreSql_js_1 = require("./PostGreSql.js");
+const SQLite_js_1 = require("./SQLite.js");
+const Cassandra_js_1 = require("./Cassandra.js");
 function getHandler(config) {
     let handler = null;
     switch (config.handler) {
         case bean.HandlerType.mysql:
-            handler = new Mysql(config);
+            handler = new Mysql_js_1.default(config);
             break;
         case bean.HandlerType.oracle:
-            handler = new OracleHandler(config);
+            handler = new Oracle_js_1.default(config);
             break;
         case bean.HandlerType.postgresql:
-            handler = new PostgreSql(config);
+            handler = new PostGreSql_js_1.default(config);
             break;
         case bean.HandlerType.mssql:
-            handler = new MsSqlServer(config);
+            handler = new MsSqlServer_js_1.default(config);
             break;
         case bean.HandlerType.sqlite:
-            handler = new SQLite(config);
+            handler = new SQLite_js_1.default(config);
             break;
         case bean.HandlerType.cassandra:
-            handler = new Cassandra(config);
+            handler = new Cassandra_js_1.default(config);
             break;
         default:
             throw new Error('No Handler Found');
     }
     return handler;
 }
-export default getHandler;
+exports.default = getHandler;
 //# sourceMappingURL=getHandler.js.map

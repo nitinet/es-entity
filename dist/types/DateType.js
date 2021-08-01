@@ -1,6 +1,8 @@
-import Field from '../sql/Field';
-import * as bean from '../bean';
-class DateType extends Field {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Field_1 = require("../sql/Field");
+const bean = require("../bean");
+class DateType extends Field_1.default {
     constructor(data) {
         super();
         this.set(data);
@@ -30,5 +32,5 @@ class DateType extends Field {
         }
     }
 }
-export default DateType;
+exports.default = DateType;
 //# sourceMappingURL=DateType.js.map

@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var HandlerType;
 (function (HandlerType) {
     HandlerType["none"] = "none";
@@ -8,5 +10,5 @@ var HandlerType;
     HandlerType["sqlite"] = "sqlite";
     HandlerType["cassandra"] = "cassandra";
 })(HandlerType || (HandlerType = {}));
-export default HandlerType;
+exports.default = HandlerType;
 //# sourceMappingURL=HandlerType.js.map

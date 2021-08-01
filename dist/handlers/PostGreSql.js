@@ -1,8 +1,10 @@
-import * as bean from '../bean/index';
-import Handler from './Handler';
-import * as sql from '../sql';
-import Connection from '../Connection';
-export default class PostgreSql extends Handler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const bean = require("../bean/index");
+const Handler_1 = require("./Handler");
+const sql = require("../sql");
+const Connection_1 = require("../Connection");
+class PostgreSql extends Handler_1.default {
     constructor(config) {
         super();
         this.driver = null;
@@ -11,7 +13,7 @@ export default class PostgreSql extends Handler {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await (import('pg').native) || await import('pg');
+        this.driver = this.config.driver || await (Promise.resolve().then(() => require('pg')).native) || await Promise.resolve().then(() => require('pg'));
         this.connectionPool = new this.driver.Pool({
             user: this.config.username,
             password: this.config.password,
@@ -34,7 +36,7 @@ export default class PostgreSql extends Handler {
     async openConnetion(conn) {
         try {
             await conn.connect();
-            return new Connection(this, conn);
+            return new Connection_1.default(this, conn);
         }
         catch (err) {
             this.context.log('Connection Creation Failed', err);
@@ -98,7 +100,7 @@ export default class PostgreSql extends Handler {
             args = (query.args == undefined ? [] : query.args);
         }
         let temp = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await connection.conn.query(q, args);
         }
         else {
@@ -134,4 +136,5 @@ export default class PostgreSql extends Handler {
         return ' limit ' + size + (index ? ' OFFSET ' + index : '');
     }
 }
+exports.default = PostgreSql;
 //# sourceMappingURL=PostGreSql.js.map

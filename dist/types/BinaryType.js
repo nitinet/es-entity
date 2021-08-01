@@ -1,6 +1,8 @@
-import Field from '../sql/Field';
-import * as bean from '../bean';
-class BinaryType extends Field {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Field_1 = require("../sql/Field");
+const bean = require("../bean");
+class BinaryType extends Field_1.default {
     constructor(data) {
         super();
         this.set(data);
@@ -30,5 +32,5 @@ class BinaryType extends Field {
         }
     }
 }
-export default BinaryType;
+exports.default = BinaryType;
 //# sourceMappingURL=BinaryType.js.map
