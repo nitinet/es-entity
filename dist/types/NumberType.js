@@ -24,7 +24,7 @@ class NumberType extends Field_1.default {
         if (value == null || value == undefined) {
             super.set(null);
         }
-        else if (typeof value == 'number') {
+        else if (typeof value == 'number' || typeof value == 'bigint') {
             super.set(value);
         }
         else {
