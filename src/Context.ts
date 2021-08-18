@@ -1,49 +1,10 @@
-import { DBSet } from './collection';
-import Handler from './Handler';
 import * as sql from './sql';
-import Connection from './Connection';
 import * as bean from './bean';
-import { IEntityType } from './types';
-
-import Mysql from './handlers/Mysql';
-import OracleHandler from './handlers/Oracle';
-import MsSqlServer from './handlers/MsSqlServer';
-import PostgreSql from './handlers/PostGreSql';
-import SQLite from './handlers/SQLite';
-import Cassandra from './handlers/Cassandra'
-
-function getHandler(config: bean.IConnectionConfig): Handler {
-	let handler: Handler = null;
-	switch (config.handler) {
-		case bean.HandlerType.mysql:
-			handler = new Mysql(config);
-			break;
-
-		case bean.HandlerType.oracle:
-			handler = new OracleHandler(config);
-			break;
-
-		case bean.HandlerType.postgresql:
-			handler = new PostgreSql(config);
-			break;
-
-		case bean.HandlerType.mssql:
-			handler = new MsSqlServer(config);
-			break;
-
-		case bean.HandlerType.sqlite:
-			handler = new SQLite(config);
-			break;
-
-		case bean.HandlerType.cassandra:
-			handler = new Cassandra(config);
-			break;
-
-		default:
-			throw 'No Handler Found';
-	}
-	return handler;
-}
+import DBSet from './collection/DBSet.js';
+import Handler from './handlers/Handler.js';
+import Connection from './Connection.js';
+import IEntityType from './types/IEntityType.js';
+import getHandler from './handlers/getHandler.js';
 
 export default class Context {
 	private _handler: Handler;
@@ -63,13 +24,11 @@ export default class Context {
 
 		this.handler = getHandler(this.config.dbConfig);
 		if (this.config.entityPath) { this.setEntityPath(this.config.entityPath); }
-		if (this.config.logger) { this.logger = this.config.logger; }
+		this.logger = this.config.logger || console;
 	}
 
 	log(...arg) {
-		if (this.logger) {
-			this.logger.error(arg);
-		}
+		this.logger.error(arg);
 	}
 
 	async init() {
@@ -78,10 +37,10 @@ export default class Context {
 		await Promise.all(Reflect.ownKeys(this).filter(key => {
 			let o: any = Reflect.get(this, key);
 			return o instanceof DBSet;
-		}, this).map(key => {
+		}, this).map(async key => {
 			let obj: DBSet<any> = Reflect.get(this, key);
 			obj.context = this;
-			obj.bind();
+			obj = await obj.bind();
 			this.dbSetMap.set(obj.getEntityType(), obj);
 		}));
 	}
@@ -104,7 +63,7 @@ export default class Context {
 	}
 
 	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {
-		return await this.handler.run(query, args, this.connection);
+		return this.handler.run(query, args, this.connection);
 	}
 
 	flush(): void { }

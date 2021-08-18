@@ -1,4 +1,5 @@
 import Field from '../sql/Field';
+import * as bean from '../bean';
 
 class StringType extends Field<string> {
 
@@ -20,11 +21,13 @@ class StringType extends Field<string> {
 		});
 	}
 
-	set(value: string | String) {
+	set(value: string) {
 		if (value == null || value == undefined) {
 			super.set(null);
-		} else if (typeof value == 'string' || value instanceof String) {
-			super.set(<string>value);
+		} else if (typeof value == 'string') {
+			super.set(value);
+		} else {
+			throw new bean.SqlException('Invalid String Value');
 		}
 	}
 

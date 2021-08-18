@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Field_1 = require("../sql/Field");
+const bean = require("../bean");
 class DateType extends Field_1.default {
     constructor(data) {
         super();
@@ -25,6 +26,9 @@ class DateType extends Field_1.default {
         }
         else if (value instanceof Date) {
             super.set(value);
+        }
+        else {
+            throw new bean.SqlException('Invalid Date Value');
         }
     }
 }

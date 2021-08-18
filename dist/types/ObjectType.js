@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Field_1 = require("../sql/Field");
+const bean = require("../bean");
 class ObjectType extends Field_1.default {
     constructor(data) {
         super();
@@ -25,6 +26,9 @@ class ObjectType extends Field_1.default {
         }
         else if (typeof value == 'object') {
             super.set(value);
+        }
+        else {
+            throw new bean.SqlException('Invalid Object Value');
         }
     }
 }

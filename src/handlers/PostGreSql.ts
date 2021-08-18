@@ -1,6 +1,6 @@
 // import * as pg from 'pg';
 import * as bean from '../bean/index';
-import Handler from '../Handler';
+import Handler from './Handler';
 import * as sql from '../sql';
 import Connection from '../Connection';
 
@@ -16,7 +16,7 @@ export default class PostgreSql extends Handler {
 
 	async init() {
 		// @ts-ignore
-		this.driver = this.config.driver || await import('pg');
+		this.driver = this.config.driver || await (import('pg').native) || await import('pg');
 		this.connectionPool = new this.driver.Pool({
 			user: this.config.username,
 			password: this.config.password,
@@ -92,6 +92,7 @@ export default class PostgreSql extends Handler {
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.JSON;
 			}
+
 			col.nullable = !row['is_nullable'];
 			col.primaryKey = row['primarykey'];
 			col.default = row['column_default'];
@@ -131,13 +132,15 @@ export default class PostgreSql extends Handler {
 	}
 
 	convertPlaceHolder(query: string) {
-		for (let i = 1; query.includes('?'); i++) {
-			query = query.replace('?', '$' + i);
+		let i = 1
+		while (query.includes('?')) {
+			query = query.replace('?', `$${i}`);
+			i++;
 		}
 		return query;
 	}
 
-	limit(val0: string, val1: string): string {
-		return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : '');
+	limit(size: string, index?: string): string {
+		return ' limit ' + size + (index ? ' OFFSET ' + index : '');
 	}
 }

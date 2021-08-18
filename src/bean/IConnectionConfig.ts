@@ -1,4 +1,4 @@
-import HandlerType from './HandlerType';
+import HandlerType from './HandlerType.js';
 
 interface IConnectionConfig {
 	handler: HandlerType | string;

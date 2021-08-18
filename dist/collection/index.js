@@ -1,14 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LinkSet = exports.QuerySet = exports.DBSet = exports.IQuerySet = exports.funcs = void 0;
-const funcs = require("./funcs");
-exports.funcs = funcs;
-const IQuerySet_1 = require("./IQuerySet");
-exports.IQuerySet = IQuerySet_1.default;
-const DBSet_1 = require("./DBSet");
-exports.DBSet = DBSet_1.default;
-const QuerySet_1 = require("./QuerySet");
-exports.QuerySet = QuerySet_1.default;
-const LinkSet_1 = require("./LinkSet");
-exports.LinkSet = LinkSet_1.default;
+exports.LinkSet = exports.QuerySet = exports.DBSet = exports.IQuerySet = void 0;
+const IQuerySet_js_1 = require("./IQuerySet.js");
+exports.IQuerySet = IQuerySet_js_1.default;
+const DBSet_js_1 = require("./DBSet.js");
+exports.DBSet = DBSet_js_1.default;
+const QuerySet_js_1 = require("./QuerySet.js");
+exports.QuerySet = QuerySet_js_1.default;
+const LinkSet_js_1 = require("./LinkSet.js");
+exports.LinkSet = LinkSet_js_1.default;
+exports.default = {
+    IQuerySet: IQuerySet_js_1.default,
+    DBSet: DBSet_js_1.default,
+    QuerySet: QuerySet_js_1.default,
+    LinkSet: LinkSet_js_1.default
+};
 //# sourceMappingURL=index.js.map

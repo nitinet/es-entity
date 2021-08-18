@@ -1,16 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cassandra = exports.SqlLite = exports.PostGreSql = exports.OracleDb = exports.Mysql = exports.MsSqlServer = void 0;
-const MsSqlServer_1 = require("./MsSqlServer");
-exports.MsSqlServer = MsSqlServer_1.default;
-const Mysql_1 = require("./Mysql");
-exports.Mysql = Mysql_1.default;
-const Oracle_1 = require("./Oracle");
-exports.OracleDb = Oracle_1.default;
-const PostGreSql_1 = require("./PostGreSql");
-exports.PostGreSql = PostGreSql_1.default;
-const SQLite_1 = require("./SQLite");
-exports.SqlLite = SQLite_1.default;
-const Cassandra_1 = require("./Cassandra");
-exports.Cassandra = Cassandra_1.default;
+const MsSqlServer_js_1 = require("./MsSqlServer.js");
+exports.MsSqlServer = MsSqlServer_js_1.default;
+const Mysql_js_1 = require("./Mysql.js");
+exports.Mysql = Mysql_js_1.default;
+const Oracle_js_1 = require("./Oracle.js");
+exports.OracleDb = Oracle_js_1.default;
+const PostGreSql_js_1 = require("./PostGreSql.js");
+exports.PostGreSql = PostGreSql_js_1.default;
+const SQLite_js_1 = require("./SQLite.js");
+exports.SqlLite = SQLite_js_1.default;
+const Cassandra_js_1 = require("./Cassandra.js");
+exports.Cassandra = Cassandra_js_1.default;
+exports.default = {
+    MsSqlServer: MsSqlServer_js_1.default,
+    Mysql: Mysql_js_1.default,
+    OracleDb: Oracle_js_1.default,
+    PostGreSql: PostGreSql_js_1.default,
+    SqlLite: SQLite_js_1.default,
+    Cassandra: Cassandra_js_1.default
+};
 //# sourceMappingURL=index.js.map

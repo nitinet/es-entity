@@ -1,4 +1,4 @@
-import Handler from '../Handler';
+import Handler from '../handlers/Handler';
 import INode from './INode';
 import Statement from './Statement';
 import Join from './types/Join';
@@ -52,7 +52,7 @@ class Collection extends INode {
 			}
 		}
 		if (!res) {
-			throw 'No Collection Found';
+			throw new Error('No Collection Found');
 		}
 		if (this.alias) {
 			res = `${res} as ${this.alias}`;

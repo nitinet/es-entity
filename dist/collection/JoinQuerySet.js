@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const IQuerySet_1 = require("./IQuerySet");
+const IQuerySet_js_1 = require("./IQuerySet.js");
 const sql = require("../sql");
-class JoinQuerySet extends IQuerySet_1.default {
+class JoinQuerySet extends IQuerySet_js_1.default {
     constructor(mainSet, joinSet, joinType, expr) {
         super();
         this.mainSet = null;
@@ -22,16 +22,9 @@ class JoinQuerySet extends IQuerySet_1.default {
         return Object.assign(mainObj, joinObj);
     }
     async list() {
-        this.stat.command = sql.Command.SELECT;
+        this.stat.command = sql.types.Command.SELECT;
         let tempObj = this.getEntity();
-        let tempKeys = Reflect.ownKeys(tempObj);
-        tempKeys.forEach(k => {
-            let f = tempObj[k];
-            if (f instanceof sql.Field) {
-                let exp = f.expr();
-                this.stat.columns.push(exp);
-            }
-        });
+        this.setStatColumns(tempObj);
         let result = await this.context.execute(this.stat);
         return this.mapData(result);
     }
@@ -57,20 +50,13 @@ class JoinQuerySet extends IQuerySet_1.default {
         }
     }
     async select(param) {
-        this.stat.command = sql.Command.SELECT;
+        this.stat.command = sql.types.Command.SELECT;
         if (!(param && param instanceof Function)) {
             throw new Error('Select Function not found');
         }
         let a = this.getEntity();
         let tempObj = param(a);
-        let tempKeys = Reflect.ownKeys(tempObj);
-        tempKeys.forEach(k => {
-            let f = tempObj[k];
-            if (f instanceof sql.Field) {
-                let exp = f.expr();
-                this.stat.columns.push(exp);
-            }
-        });
+        this.setStatColumns(tempObj);
         let result = await this.context.execute(this.stat);
         let temps = await this.mapData(result);
         let res = [];
@@ -147,15 +133,15 @@ class JoinQuerySet extends IQuerySet_1.default {
         return this;
     }
     limit(size, index) {
-        this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+        this.stat.limit = new sql.Expression(null, sql.types.Operator.Limit);
+        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         if (index) {
             this.stat.limit.exps.push(new sql.Expression(index.toString()));
         }
-        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         return this;
     }
     join(coll, param, joinType) {
-        joinType = joinType || sql.Join.InnerJoin;
+        joinType = joinType || sql.types.Join.InnerJoin;
         let temp = null;
         if (param instanceof Function) {
             let a = this.getEntity();

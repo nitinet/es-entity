@@ -1,4 +1,4 @@
-import ColumnType from './ColumnType';
+import ColumnType from './ColumnType.js';
 
 export default class ColumnInfo {
 	field: string = '';

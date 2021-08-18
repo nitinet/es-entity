@@ -1,4 +1,4 @@
-import Handler from '../Handler';
+import Handler from '../handlers/Handler';
 
 abstract class INode {
 	args: Array<any> = new Array<any>();

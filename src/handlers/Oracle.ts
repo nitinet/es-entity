@@ -1,5 +1,5 @@
 import * as bean from '../bean';
-import Handler from '../Handler';
+import Handler from './Handler';
 import * as sql from '../sql';
 import Connection from '../Connection';
 
@@ -106,8 +106,8 @@ export default class Oracle extends Handler {
 		if (temp.changedRows) {
 			result.rowCount = temp.changedRows;
 		} else if (Array.isArray(temp)) {
-			result.rows = <Array<any>>temp;
-			result.rowCount = (<Array<any>>temp).length;
+			result.rows = temp;
+			result.rowCount = temp.length;
 		}
 		return result;
 	}

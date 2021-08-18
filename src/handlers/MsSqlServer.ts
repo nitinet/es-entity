@@ -1,7 +1,7 @@
 // import * as mssql from 'mssql';
 
 import * as bean from '../bean/index';
-import Handler from '../Handler';
+import Handler from './Handler';
 import * as sql from '../sql';
 import Connection from '../Connection';
 
@@ -66,6 +66,9 @@ export default class MsSqlServer extends Handler {
 				col.type = bean.ColumnType.STRING;
 			} else if (columnType.includes('timestamp')) {
 				col.type = bean.ColumnType.DATE;
+			} else if (columnType.includes('blob')
+				|| columnType.includes('binary')) {
+				col.type = bean.ColumnType.BINARY;
 			}
 
 			col.nullable = row['Null'] == 'YES' ? true : false;

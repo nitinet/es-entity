@@ -1,4 +1,4 @@
-import IConnectionConfig from './IConnectionConfig';
+import IConnectionConfig from './IConnectionConfig.js';
 
 interface IConfig {
 	dbConfig: IConnectionConfig;

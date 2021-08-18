@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require("../sql");
-const IQuerySet_1 = require("./IQuerySet");
-const JoinQuerySet_1 = require("./JoinQuerySet");
-class QuerySet extends IQuerySet_1.default {
+const IQuerySet_js_1 = require("./IQuerySet.js");
+const JoinQuerySet_js_1 = require("./JoinQuerySet.js");
+class QuerySet extends IQuerySet_js_1.default {
     constructor(dbSet) {
         super();
         this.dbSet = null;
@@ -27,16 +27,9 @@ class QuerySet extends IQuerySet_1.default {
         return this.dbSet.getEntity(alias);
     }
     async list() {
-        this.stat.command = sql.Command.SELECT;
+        this.stat.command = sql.types.Command.SELECT;
         let tempObj = this.getEntity();
-        let tempKeys = Reflect.ownKeys(tempObj);
-        tempKeys.forEach(k => {
-            let f = tempObj[k];
-            if (f instanceof sql.Field) {
-                let exp = f.expr();
-                this.stat.columns.push(exp);
-            }
-        });
+        this.setStatColumns(tempObj);
         let result = await this.context.execute(this.stat);
         return this.mapData(result);
     }
@@ -44,20 +37,13 @@ class QuerySet extends IQuerySet_1.default {
         return this.dbSet.mapData(input);
     }
     async select(param) {
-        this.stat.command = sql.Command.SELECT;
+        this.stat.command = sql.types.Command.SELECT;
         if (!(param && param instanceof Function)) {
             throw new Error('Select Function not found');
         }
         let a = this.getEntity();
         let tempObj = param(a);
-        let tempKeys = Reflect.ownKeys(tempObj);
-        tempKeys.forEach(k => {
-            let f = tempObj[k];
-            if (f instanceof sql.Field) {
-                let exp = f.expr();
-                this.stat.columns.push(exp);
-            }
-        });
+        this.setStatColumns(tempObj);
         let result = await this.context.execute(this.stat);
         let temps = await this.mapData(result);
         let res = [];
@@ -143,11 +129,11 @@ class QuerySet extends IQuerySet_1.default {
         return this;
     }
     limit(size, index) {
-        this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+        this.stat.limit = new sql.Expression(null, sql.types.Operator.Limit);
+        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         if (index) {
             this.stat.limit.exps.push(new sql.Expression(index.toString()));
         }
-        this.stat.limit.exps.push(new sql.Expression(size.toString()));
         return this;
     }
     async update(param) {
@@ -155,7 +141,7 @@ class QuerySet extends IQuerySet_1.default {
             throw new Error('Select Function not found');
         }
         let stat = new sql.Statement();
-        stat.command = sql.Command.UPDATE;
+        stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.mapping.name;
         let a = this.getEntity();
         let tempObj = param(a);
@@ -166,7 +152,7 @@ class QuerySet extends IQuerySet_1.default {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(this.dbSet.getValue(tempObj, key));
-                let c = new sql.Expression(null, sql.Operator.Equal, c1, c2);
+                let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
                 stat.columns.push(c);
             }
         });
@@ -179,12 +165,12 @@ class QuerySet extends IQuerySet_1.default {
     }
     async delete() {
         let stat = new sql.Statement();
-        stat.command = sql.Command.DELETE;
+        stat.command = sql.types.Command.DELETE;
         stat.collection.value = this.dbSet.mapping.name;
         await this.context.execute(stat);
     }
     join(coll, param, joinType) {
-        joinType = joinType | sql.Join.InnerJoin;
+        joinType = joinType | sql.types.Join.InnerJoin;
         let temp = null;
         if (param) {
             if (param instanceof Function) {
@@ -197,11 +183,10 @@ class QuerySet extends IQuerySet_1.default {
             }
         }
         if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-            let res = new JoinQuerySet_1.default(this, coll, joinType, temp);
-            return res;
+            return new JoinQuerySet_js_1.default(this, coll, joinType, temp);
         }
         else {
-            throw 'Invalid Join';
+            throw new Error('Invalid Join');
         }
     }
 }

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
-const Handler_1 = require("../Handler");
+const Handler_1 = require("./Handler");
 const sql = require("../sql");
 const Connection_1 = require("../Connection");
 class PostgreSql extends Handler_1.default {
@@ -13,7 +13,7 @@ class PostgreSql extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('pg'));
+        this.driver = this.config.driver || await (Promise.resolve().then(() => require('pg')).native) || await Promise.resolve().then(() => require('pg'));
         this.connectionPool = new this.driver.Pool({
             user: this.config.username,
             password: this.config.password,
@@ -125,13 +125,15 @@ class PostgreSql extends Handler_1.default {
         return result;
     }
     convertPlaceHolder(query) {
-        for (let i = 1; query.includes('?'); i++) {
-            query = query.replace('?', '$' + i);
+        let i = 1;
+        while (query.includes('?')) {
+            query = query.replace('?', `$${i}`);
+            i++;
         }
         return query;
     }
-    limit(val0, val1) {
-        return ' limit ' + val0 + (val1 ? ' OFFSET ' + val1 : '');
+    limit(size, index) {
+        return ' limit ' + size + (index ? ' OFFSET ' + index : '');
     }
 }
 exports.default = PostgreSql;

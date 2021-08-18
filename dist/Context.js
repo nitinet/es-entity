@@ -1,39 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const collection_1 = require("./collection");
-const bean = require("./bean");
-const Mysql_1 = require("./handlers/Mysql");
-const Oracle_1 = require("./handlers/Oracle");
-const MsSqlServer_1 = require("./handlers/MsSqlServer");
-const PostGreSql_1 = require("./handlers/PostGreSql");
-const SQLite_1 = require("./handlers/SQLite");
-const Cassandra_1 = require("./handlers/Cassandra");
-function getHandler(config) {
-    let handler = null;
-    switch (config.handler) {
-        case bean.HandlerType.mysql:
-            handler = new Mysql_1.default(config);
-            break;
-        case bean.HandlerType.oracle:
-            handler = new Oracle_1.default(config);
-            break;
-        case bean.HandlerType.postgresql:
-            handler = new PostGreSql_1.default(config);
-            break;
-        case bean.HandlerType.mssql:
-            handler = new MsSqlServer_1.default(config);
-            break;
-        case bean.HandlerType.sqlite:
-            handler = new SQLite_1.default(config);
-            break;
-        case bean.HandlerType.cassandra:
-            handler = new Cassandra_1.default(config);
-            break;
-        default:
-            throw 'No Handler Found';
-    }
-    return handler;
-}
+const DBSet_js_1 = require("./collection/DBSet.js");
+const getHandler_js_1 = require("./handlers/getHandler.js");
 class Context {
     constructor(config) {
         this.connection = null;
@@ -44,28 +12,24 @@ class Context {
         if (!this.config.dbConfig) {
             throw new Error('Database Config Not Found');
         }
-        this.handler = getHandler(this.config.dbConfig);
+        this.handler = getHandler_js_1.default(this.config.dbConfig);
         if (this.config.entityPath) {
             this.setEntityPath(this.config.entityPath);
         }
-        if (this.config.logger) {
-            this.logger = this.config.logger;
-        }
+        this.logger = this.config.logger || console;
     }
     log(...arg) {
-        if (this.logger) {
-            this.logger.error(arg);
-        }
+        this.logger.error(arg);
     }
     async init() {
         await this.handler.init();
         await Promise.all(Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
-            return o instanceof collection_1.DBSet;
-        }, this).map(key => {
+            return o instanceof DBSet_js_1.default;
+        }, this).map(async (key) => {
             let obj = Reflect.get(this, key);
             obj.context = this;
-            obj.bind();
+            obj = await obj.bind();
             this.dbSetMap.set(obj.getEntityType(), obj);
         }));
     }
@@ -83,7 +47,7 @@ class Context {
         this._entityPath = entityPath;
     }
     async execute(query, args) {
-        return await this.handler.run(query, args, this.connection);
+        return this.handler.run(query, args, this.connection);
     }
     flush() { }
     async initTransaction() {
@@ -94,7 +58,7 @@ class Context {
             let keys = Reflect.ownKeys(res);
             keys.forEach((key) => {
                 let prop = Reflect.get(res, key);
-                if (prop instanceof collection_1.DBSet) {
+                if (prop instanceof DBSet_js_1.default) {
                     prop.context = res;
                 }
             });

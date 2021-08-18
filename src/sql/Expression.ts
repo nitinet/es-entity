@@ -1,4 +1,4 @@
-import Handler from '../Handler';
+import Handler from '../handlers/Handler';
 import INode from './INode';
 import Operator from './types/Operator';
 
@@ -28,15 +28,11 @@ class Expression implements INode {
 			return this;
 		} else if (!this.operator && this.exps.length == 0) {
 			let exp = expressions.pop();
-			for (var i = 0; i < expressions.length; i++) {
-				exp.add(expressions[i]);
-			}
+			expressions.forEach(expr => exp.add(expr));
 			return exp;
 		} else {
 			let exp: Expression = new Expression(null, Operator.And, this);
-			expressions.forEach(expr => {
-				exp.add(expr);
-			});
+			expressions.forEach(expr => exp.add(expr));
 			return exp;
 		}
 	}

@@ -1,17 +1,24 @@
-import INode from './INode';
-import Operator from './types/Operator';
-import Command from './types/Command';
-import Join from './types/Join';
-import Collection from './Collection';
-import Expression from './Expression';
-import Statement from './Statement';
-import Field from './Field';
+import Collection from './Collection.js';
+import Expression from './Expression.js';
+import Field from './Field.js';
+import INode from './INode.js';
+import Statement from './Statement.js';
+import * as types from './types';
 
-export { INode };
-export { Operator };
-export { Command };
-export { Collection };
-export { Expression };
-export { Statement };
-export { Join };
-export { Field };
+export default {
+	INode,
+	types,
+	Collection,
+	Expression,
+	Statement,
+	Field
+};
+
+export {
+	INode,
+	types,
+	Collection,
+	Expression,
+	Statement,
+	Field
+};

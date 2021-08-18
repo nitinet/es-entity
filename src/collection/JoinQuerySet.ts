@@ -1,13 +1,13 @@
-import IQuerySet from './IQuerySet';
+import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql';
-import * as funcs from './funcs';
+import * as funcs from '../funcs';
 import * as bean from '../bean';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	mainSet: IQuerySet<T> = null;
 	joinSet: IQuerySet<U> = null;
 
-	constructor(mainSet: IQuerySet<T>, joinSet: IQuerySet<U>, joinType: sql.Join, expr: sql.Expression) {
+	constructor(mainSet: IQuerySet<T>, joinSet: IQuerySet<U>, joinType: sql.types.Join, expr: sql.Expression) {
 		super();
 		this.mainSet = mainSet;
 		this.context = mainSet.context;
@@ -31,18 +31,10 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 	// Selection Functions
 	async list(): Promise<Array<T & U>> {
-		this.stat.command = sql.Command.SELECT;
+		this.stat.command = sql.types.Command.SELECT;
 
 		let tempObj = this.getEntity();
-		let tempKeys = Reflect.ownKeys(tempObj);
-
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
+		this.setStatColumns(tempObj);
 
 		let result = await this.context.execute(this.stat);
 		return this.mapData(result);
@@ -81,7 +73,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	// }
 
 	async select<V extends Object>(param?: funcs.ISelectFunc<T & U, V>): Promise<V[]> {
-		this.stat.command = sql.Command.SELECT;
+		this.stat.command = sql.types.Command.SELECT;
 
 		if (!(param && param instanceof Function)) {
 			throw new Error('Select Function not found');
@@ -89,15 +81,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 		let a = this.getEntity();
 		let tempObj = param(a);
-		let tempKeys = Reflect.ownKeys(tempObj);
-
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
+		this.setStatColumns(tempObj);
 
 		let result = await this.context.execute(this.stat);
 		let temps = await this.mapData(result);
@@ -176,16 +160,16 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	}
 
 	limit(size: number, index?: number): IQuerySet<T & U> {
-		this.stat.limit = new sql.Expression(null, sql.Operator.Limit);
+		this.stat.limit = new sql.Expression(null, sql.types.Operator.Limit);
+		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		if (index) {
 			this.stat.limit.exps.push(new sql.Expression(index.toString()));
 		}
-		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		return this;
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T & U, A> | sql.Expression, joinType?: sql.Join) {
-		joinType = joinType || sql.Join.InnerJoin;
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T & U, A> | sql.Expression, joinType?: sql.types.Join) {
+		joinType = joinType || sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
 		if (param instanceof Function) {

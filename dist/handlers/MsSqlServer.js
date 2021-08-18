@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
-const Handler_1 = require("../Handler");
+const Handler_1 = require("./Handler");
 const sql = require("../sql");
 const Connection_1 = require("../Connection");
 class MsSqlServer extends Handler_1.default {
@@ -61,6 +61,10 @@ class MsSqlServer extends Handler_1.default {
             }
             else if (columnType.includes('timestamp')) {
                 col.type = bean.ColumnType.DATE;
+            }
+            else if (columnType.includes('blob')
+                || columnType.includes('binary')) {
+                col.type = bean.ColumnType.BINARY;
             }
             col.nullable = row['Null'] == 'YES' ? true : false;
             col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;

@@ -21,16 +21,12 @@ class Expression {
         }
         else if (!this.operator && this.exps.length == 0) {
             let exp = expressions.pop();
-            for (var i = 0; i < expressions.length; i++) {
-                exp.add(expressions[i]);
-            }
+            expressions.forEach(expr => exp.add(expr));
             return exp;
         }
         else {
             let exp = new Expression(null, Operator_1.default.And, this);
-            expressions.forEach(expr => {
-                exp.add(expr);
-            });
+            expressions.forEach(expr => exp.add(expr));
             return exp;
         }
     }

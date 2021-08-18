@@ -7,10 +7,7 @@
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
 		"incremental": true,
-		"outDir": "./dist",
-		"typeRoots": [
-			"node_modules/@types"
-		]
+		"outDir": "./dist"
 	},
 	"include": [
 		"src/**/*"

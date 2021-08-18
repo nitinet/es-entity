@@ -1,8 +1,8 @@
-import * as sql from './sql';
-import Connection from './Connection';
-import Context from './Context';
+import * as sql from '../sql';
+import Connection from '../Connection';
+import Context from '../Context';
 
-import * as bean from './bean/index';
+import * as bean from '../bean/index';
 
 export default abstract class Handler {
 	context: Context = null;
@@ -29,7 +29,14 @@ export default abstract class Handler {
 	}
 
 	mapData(row: any, fieldName: string, type: string) {
-		let val = row[fieldName] ?? row[fieldName.toLowerCase()] ?? row[fieldName.toUpperCase()];
+		let val = null;
+		if (row[fieldName] != null && row[fieldName] != undefined) {
+			val = row[fieldName];
+		} else if (row[fieldName.toLowerCase()] != null && row[fieldName.toLowerCase()] != undefined) {
+			val = row[fieldName.toLowerCase()];
+		} else if (row[fieldName.toUpperCase()] != null && row[fieldName.toUpperCase()] != undefined) {
+			val = row[fieldName.toUpperCase()];
+		}
 		let res = null;
 		if (val && type) {
 			if (type == 'boolean') {
@@ -71,17 +78,17 @@ export default abstract class Handler {
 
 	// Logical Operators
 	and(values: string[]): string {
-		let r = values.filter(x => x).map(val => {
+		return values.filter(x => x).map(val => {
 			return `(${val})`;
 		}).join(' and ');
-		return r;
 	}
+
 	or(values: string[]): string {
-		let r = values.filter(x => x).map(val => {
+		return values.filter(x => x).map(val => {
 			return `(${val})`;
 		}).join(' or ');
-		return r;
 	}
+
 	not(val0: string): string {
 		return ` not ${val0}`;
 	}
@@ -107,8 +114,9 @@ export default abstract class Handler {
 	exists(val0: string): string {
 		return ` exists (${val0})`;
 	}
-	limit(val0: string, val1: string): string {
-		return ` limit ${val0}${val1 ? `,${val1}` : ''}`;
+	limit(size: string, index?: string): string {
+		let indexStr = index ? `${index}, ` : '';
+		return ` limit ${indexStr}${size}`;
 	}
 
 	// Arithmatic Operators

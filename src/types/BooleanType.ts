@@ -1,4 +1,5 @@
 import Field from '../sql/Field';
+import * as bean from '../bean';
 
 class BooleanType extends Field<boolean> {
 
@@ -21,13 +22,13 @@ class BooleanType extends Field<boolean> {
 
 	}
 
-	set(value: boolean | Boolean) {
+	set(value: boolean) {
 		if (value == null || value == undefined) {
 			super.set(null);
-		} else if (typeof value == 'boolean' || value instanceof Boolean) {
-			super.set(<boolean>value);
+		} else if (typeof value == 'boolean') {
+			super.set(!!value);
 		} else {
-			super.set(value ? true : false);
+			throw new bean.SqlException('Invalid Boolean Value');
 		}
 	}
 

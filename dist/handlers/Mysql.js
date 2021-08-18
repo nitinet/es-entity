@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
-const Handler_1 = require("../Handler");
+const Handler_1 = require("./Handler");
 const sql = require("../sql");
 const Connection_1 = require("../Connection");
 class Mysql extends Handler_1.default {
@@ -140,6 +140,10 @@ class Mysql extends Handler_1.default {
             else if (columnType.includes('timestamp')
                 || columnType.includes('date')) {
                 col.type = bean.ColumnType.DATE;
+            }
+            else if (columnType.includes('blob')
+                || columnType.includes('binary')) {
+                col.type = bean.ColumnType.BINARY;
             }
             else if (columnType.includes('json')) {
                 col.type = bean.ColumnType.JSON;

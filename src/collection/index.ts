@@ -1,11 +1,18 @@
-import * as funcs from './funcs';
-import IQuerySet from './IQuerySet';
-import DBSet from './DBSet';
-import QuerySet from './QuerySet';
-import LinkSet from './LinkSet';
+import IQuerySet from './IQuerySet.js';
+import DBSet from './DBSet.js';
+import QuerySet from './QuerySet.js';
+import LinkSet from './LinkSet.js';
 
-export { funcs };
-export { IQuerySet };
-export { DBSet };
-export { QuerySet };
-export { LinkSet };
+export default {
+	IQuerySet,
+	DBSet,
+	QuerySet,
+	LinkSet
+};
+
+export {
+	IQuerySet,
+	DBSet,
+	QuerySet,
+	LinkSet
+};

@@ -18,7 +18,7 @@ class Statement extends INode_1.default {
     }
     eval(handler) {
         if (!handler) {
-            throw 'No Handler Found';
+            throw new Error('No Handler Found');
         }
         let result = null;
         switch (this.command) {
@@ -72,12 +72,11 @@ class Statement extends INode_1.default {
         return collectionStr;
     }
     getColumnStr(handler) {
-        let columnStr = this.columns.map(ele => {
+        return this.columns.map(ele => {
             let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
             return r;
         }, this).join(', ');
-        return columnStr;
     }
     getWhereStr(handler) {
         let whereStr = this.where.eval(handler);
@@ -85,12 +84,11 @@ class Statement extends INode_1.default {
         return whereStr ? ` where ${whereStr}` : '';
     }
     getValueStr(handler) {
-        let valueStr = this.values.map(ele => {
+        return this.values.map(ele => {
             let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
             return r;
         }, this).join(', ');
-        return valueStr;
     }
     getGroupByStr(handler) {
         let groupByStr = this.groupBy.map(ele => {

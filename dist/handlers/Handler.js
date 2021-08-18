@@ -10,7 +10,16 @@ class Handler {
         return query;
     }
     mapData(row, fieldName, type) {
-        let val = row[fieldName] ?? row[fieldName.toLowerCase()] ?? row[fieldName.toUpperCase()];
+        let val = null;
+        if (row[fieldName] != null && row[fieldName] != undefined) {
+            val = row[fieldName];
+        }
+        else if (row[fieldName.toLowerCase()] != null && row[fieldName.toLowerCase()] != undefined) {
+            val = row[fieldName.toLowerCase()];
+        }
+        else if (row[fieldName.toUpperCase()] != null && row[fieldName.toUpperCase()] != undefined) {
+            val = row[fieldName.toUpperCase()];
+        }
         let res = null;
         if (val && type) {
             if (type == 'boolean') {
@@ -53,16 +62,14 @@ class Handler {
         return `${val0} >= ${val1}`;
     }
     and(values) {
-        let r = values.filter(x => x).map(val => {
+        return values.filter(x => x).map(val => {
             return `(${val})`;
         }).join(' and ');
-        return r;
     }
     or(values) {
-        let r = values.filter(x => x).map(val => {
+        return values.filter(x => x).map(val => {
             return `(${val})`;
         }).join(' or ');
-        return r;
     }
     not(val0) {
         return ` not ${val0}`;
@@ -87,8 +94,9 @@ class Handler {
     exists(val0) {
         return ` exists (${val0})`;
     }
-    limit(val0, val1) {
-        return ` limit ${val0}${val1 ? `,${val1}` : ''}`;
+    limit(size, index) {
+        let indexStr = index ? `${index}, ` : '';
+        return ` limit ${indexStr}${size}`;
     }
     plus(val0, val1) {
         return `${val0} + ${val1}`;

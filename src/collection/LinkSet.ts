@@ -1,6 +1,6 @@
 import * as types from '../types';
-import QuerySet from './QuerySet'
-import * as funcs from './funcs';
+import * as funcs from '../funcs';
+import QuerySet from './QuerySet.js'
 
 class LinkSet<T extends Object> extends QuerySet<T>{
 	entityType: types.IEntityType<T>;

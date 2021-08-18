@@ -1,13 +1,25 @@
-import ResultSet from './ResultSet';
-import IConnectionConfig from './IConnectionConfig';
-import IConfig from './IConfig';
-import ColumnType from './ColumnType';
-import ColumnInfo from './ColumnInfo';
-import HandlerType from './HandlerType';
+import ResultSet from './ResultSet.js';
+import IConnectionConfig from './IConnectionConfig.js';
+import IConfig from './IConfig.js';
+import ColumnType from './ColumnType.js';
+import ColumnInfo from './ColumnInfo.js';
+import HandlerType from './HandlerType.js';
+import SqlException from './SqlException.js';
 
-export { ResultSet };
-export { IConfig };
-export { IConnectionConfig };
-export { ColumnType };
-export { ColumnInfo };
-export { HandlerType };
+export default {
+	ColumnType,
+	ColumnInfo,
+	HandlerType,
+	ResultSet,
+	SqlException
+};
+
+export {
+	IConnectionConfig,
+	IConfig,
+	ColumnType,
+	ColumnInfo,
+	HandlerType,
+	ResultSet,
+	SqlException
+};
