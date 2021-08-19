@@ -53,47 +53,51 @@ class DBSet extends IQuerySet_js_1.default {
             return col.field == colName;
         })[0];
         try {
-            if (column) {
-                let fieldMapping = new Mapping.FieldMapping({
-                    fieldName: key,
-                    colName: colName
-                });
-                if (column.type == bean.ColumnType.STRING && field instanceof types.String) {
-                    fieldMapping.type = 'string';
-                }
-                else if (column.type == bean.ColumnType.NUMBER && field instanceof types.Number) {
-                    fieldMapping.type = 'number';
-                }
-                else if (column.type == bean.ColumnType.BOOLEAN && field instanceof types.Boolean) {
-                    fieldMapping.type = 'boolean';
-                }
-                else if (column.type == bean.ColumnType.DATE && field instanceof types.Date) {
-                    fieldMapping.type = 'date';
-                }
-                else if (column.type == bean.ColumnType.BINARY && field instanceof types.Binary) {
-                    fieldMapping.type = 'binary';
-                }
-                else if (column.type == bean.ColumnType.JSON && field instanceof types.Json) {
-                    fieldMapping.type = 'jsonObject';
-                }
-                else if (field instanceof types.String) {
-                    this.context.log(`Type not found for Column: ${colName} in Table:${this.mapping.name}. Using default string type.`);
-                    fieldMapping.type = 'string';
-                }
-                else {
-                    throw new Error(`Type mismatch found for Column: ${colName} in Table:${this.mapping.name}`);
-                }
-                if (column.primaryKey) {
-                    fieldMapping.primaryKey = true;
-                }
-                this.mapping.fields.push(fieldMapping);
-            }
-            else {
+            if (!column) {
                 throw new Error(`Column: ${colName} not found in Table: ${this.mapping.name}`);
             }
+            let fieldMapping = new Mapping.FieldMapping({
+                fieldName: key,
+                colName: colName
+            });
+            fieldMapping.type = this.checkColumnType(column, field);
+            if (column.primaryKey) {
+                fieldMapping.primaryKey = true;
+            }
+            this.mapping.fields.push(fieldMapping);
         }
         catch (err) {
             this.context.log(err);
+        }
+    }
+    checkColumnType(column, field) {
+        if (column.type == bean.ColumnType.STRING && field instanceof types.String) {
+            return 'string';
+        }
+        else if (column.type == bean.ColumnType.NUMBER && field instanceof types.Number) {
+            return 'number';
+        }
+        else if (column.type == bean.ColumnType.NUMBER && field instanceof types.BigInt) {
+            return 'bigint';
+        }
+        else if (column.type == bean.ColumnType.BOOLEAN && field instanceof types.Boolean) {
+            return 'boolean';
+        }
+        else if (column.type == bean.ColumnType.DATE && field instanceof types.Date) {
+            return 'date';
+        }
+        else if (column.type == bean.ColumnType.BINARY && field instanceof types.Binary) {
+            return 'binary';
+        }
+        else if (column.type == bean.ColumnType.JSON && field instanceof types.Json) {
+            return 'jsonObject';
+        }
+        else if (field instanceof types.String) {
+            this.context.log(`Type not found for Column: ${column.field} in Table:${this.mapping.name}. Using default string type.`);
+            return 'string';
+        }
+        else {
+            throw new Error(`Type mismatch found for Column: ${column.field} in Table:${this.mapping.name}`);
         }
     }
     getEntityType() {

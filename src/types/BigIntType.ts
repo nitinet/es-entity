@@ -1,9 +1,9 @@
 import Field from '../sql/Field';
 import * as bean from '../bean';
 
-class NumberType extends Field<number> {
+class BigIntType extends Field<bigint> {
 
-	constructor(data?: number) {
+	constructor(data?: bigint) {
 		super();
 		this.set(data);
 
@@ -16,21 +16,21 @@ class NumberType extends Field<number> {
 				}
 			},
 			getPrototypeOf() {
-				return NumberType.prototype;
+				return BigIntType.prototype;
 			}
 		});
 	}
 
-	set(value: number) {
+	set(value: bigint) {
 		if (value == null || value == undefined) {
 			super.set(null);
-		} else if (typeof value == 'number') {
+		} else if (typeof value == 'bigint') {
 			super.set(value);
 		} else {
-			throw new bean.SqlException('Invalid Number Value');
+			throw new bean.SqlException('Invalid BigInt Value');
 		}
 	}
 
 }
 
-export default NumberType;
+export default BigIntType;

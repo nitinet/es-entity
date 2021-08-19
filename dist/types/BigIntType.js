@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Field_1 = require("../sql/Field");
 const bean = require("../bean");
-class NumberType extends Field_1.default {
+class BigIntType extends Field_1.default {
     constructor(data) {
         super();
         this.set(data);
@@ -16,7 +16,7 @@ class NumberType extends Field_1.default {
                 }
             },
             getPrototypeOf() {
-                return NumberType.prototype;
+                return BigIntType.prototype;
             }
         });
     }
@@ -24,13 +24,13 @@ class NumberType extends Field_1.default {
         if (value == null || value == undefined) {
             super.set(null);
         }
-        else if (typeof value == 'number') {
+        else if (typeof value == 'bigint') {
             super.set(value);
         }
         else {
-            throw new bean.SqlException('Invalid Number Value');
+            throw new bean.SqlException('Invalid BigInt Value');
         }
     }
 }
-exports.default = NumberType;
-//# sourceMappingURL=NumberType.js.map
+exports.default = BigIntType;
+//# sourceMappingURL=BigIntType.js.map
