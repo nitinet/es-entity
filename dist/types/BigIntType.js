@@ -27,8 +27,14 @@ class BigIntType extends Field_1.default {
         else if (typeof value == 'bigint') {
             super.set(value);
         }
+        else if (typeof value == 'number') {
+            super.set(BigInt(value));
+        }
+        else if (typeof value == 'string') {
+            super.set(BigInt(value));
+        }
         else {
-            throw new bean.SqlException('Invalid BigInt Value');
+            throw new bean.SqlException('Invalid BigInt Value: ' + value);
         }
     }
 }

@@ -21,13 +21,17 @@ class BigIntType extends Field<bigint> {
 		});
 	}
 
-	set(value: bigint) {
+	set(value: bigint | number | string) {
 		if (value == null || value == undefined) {
 			super.set(null);
 		} else if (typeof value == 'bigint') {
 			super.set(value);
+		} else if (typeof value == 'number') {
+			super.set(BigInt(value));
+		} else if (typeof value == 'string') {
+			super.set(BigInt(value));
 		} else {
-			throw new bean.SqlException('Invalid BigInt Value');
+			throw new bean.SqlException('Invalid BigInt Value: ' + value);
 		}
 	}
 
