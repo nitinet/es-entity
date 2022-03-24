@@ -27,10 +27,7 @@ class BigIntType extends Field_1.default {
         else if (typeof value == 'bigint') {
             super.set(value);
         }
-        else if (typeof value == 'number') {
-            super.set(BigInt(value));
-        }
-        else if (typeof value == 'string') {
+        else if (typeof value == 'number' || typeof value == 'string') {
             super.set(BigInt(value));
         }
         else {

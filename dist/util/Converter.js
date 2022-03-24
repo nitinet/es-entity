@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require("../sql");
-const types = require("../types");
 class Converter {
     constructor(option) {
         this.option = null;
@@ -20,15 +19,9 @@ class Converter {
                     && res[key] instanceof sql.Field
                     && res[key].get() != src[key];
             }).forEach((key) => {
-                if (res[key] instanceof types.Date) {
-                    let d = null;
-                    if (this.option.dateFunc) {
-                        d = this.option.dateFunc(src[key]);
-                    }
-                    else if (src[key] instanceof Date) {
-                        d = src[key];
-                    }
-                    res[key].set(d);
+                let typeFunc = this.option.typeFuncs != null ? this.option.typeFuncs.get(res[key].constructor) : null;
+                if (typeFunc && typeof typeFunc == 'function') {
+                    res[key].set(typeFunc(src[key]));
                 }
                 else {
                     res[key].set(src[key]);

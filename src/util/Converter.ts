@@ -4,7 +4,7 @@ import * as types from '../types';
 interface IOption {
 	ignoreKeys?: (string | number | symbol)[],
 	allowKeys?: (string | number | symbol)[],
-	dateFunc?: (src: any) => Date
+	typeFuncs?: Map<types.IEntityType<any>, (src: any) => any>,
 }
 
 class Converter {
@@ -29,14 +29,9 @@ class Converter {
 					&& res[key] instanceof sql.Field
 					&& res[key].get() != src[key];
 			}).forEach((key: string) => {
-				if (res[key] instanceof types.Date) {
-					let d: Date = null;
-					if (this.option.dateFunc) {
-						d = this.option.dateFunc(src[key]);
-					} else if (src[key] instanceof Date) {
-						d = src[key];
-					}
-					res[key].set(d);
+				let typeFunc = this.option.typeFuncs != null ? this.option.typeFuncs.get(res[key].constructor) : null;
+				if (typeFunc && typeof typeFunc == 'function') {
+					res[key].set(typeFunc(src[key]));
 				} else {
 					res[key].set(src[key]);
 				}
