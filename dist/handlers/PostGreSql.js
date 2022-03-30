@@ -2,18 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const bean = require("../bean/index");
 const Handler_1 = require("./Handler");
-const sql = require("../sql");
 const Connection_1 = require("../Connection");
 class PostgreSql extends Handler_1.default {
     constructor(config) {
         super();
-        this.driver = null;
         this.handlerName = 'postgresql';
+        this.driver = null;
         this.connectionPool = null;
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await (Promise.resolve().then(() => require('pg')).native) || await Promise.resolve().then(() => require('pg'));
+        this.driver = this.config.driver ?? (await Promise.resolve().then(() => require('pg'))).native ?? await Promise.resolve().then(() => require('pg'));
         this.connectionPool = new this.driver.Pool({
             user: this.config.username,
             password: this.config.password,
@@ -31,9 +30,6 @@ class PostgreSql extends Handler_1.default {
             password: this.config.password,
             database: this.config.database
         });
-        return this.openConnetion(conn);
-    }
-    async openConnetion(conn) {
         try {
             await conn.connect();
             return new Connection_1.default(this, conn);
@@ -91,23 +87,16 @@ class PostgreSql extends Handler_1.default {
         return result;
     }
     async run(query, args, connection) {
-        let q = null;
-        if (typeof query === 'string') {
-            q = query;
-        }
-        else if (query instanceof sql.Statement) {
-            q = query.eval(this);
-            args = (query.args == undefined ? [] : query.args);
-        }
+        let queryObj = this.prepareQuery(query, args);
         let temp = null;
         if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            temp = await connection.conn.query(q, args);
+            temp = await connection.conn.query(queryObj.query, queryObj.args);
         }
         else {
             let con = null;
             try {
                 con = await this.connectionPool.connect();
-                temp = await con.query(q, args);
+                temp = await con.query(queryObj.query, queryObj.args);
             }
             finally {
                 if (con) {

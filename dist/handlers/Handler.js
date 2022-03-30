@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const sql = require("../sql");
 class Handler {
     constructor() {
         this.context = null;
@@ -42,6 +43,19 @@ class Handler {
             res = val;
         }
         return res;
+    }
+    prepareQuery(queryStmt, args) {
+        let query = null;
+        if (typeof queryStmt === 'string') {
+            query = queryStmt;
+        }
+        else if (queryStmt instanceof sql.Statement) {
+            query = queryStmt.eval(this);
+            args = queryStmt.args;
+        }
+        return {
+            query, args
+        };
     }
     eq(val0, val1) {
         return `${val0} = ${val1}`;

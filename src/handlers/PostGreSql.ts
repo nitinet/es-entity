@@ -1,13 +1,15 @@
-// import * as pg from 'pg';
+// @ts-ignore
+import * as pg from 'pg';
+
 import * as bean from '../bean/index';
 import Handler from './Handler';
 import * as sql from '../sql';
 import Connection from '../Connection';
 
 export default class PostgreSql extends Handler {
-	driver = null;
 	handlerName = 'postgresql';
-	connectionPool = null;
+	driver: typeof import('pg') = null;
+	connectionPool: pg.Pool = null;
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
@@ -15,8 +17,8 @@ export default class PostgreSql extends Handler {
 	}
 
 	async init() {
-		// @ts-ignore
-		this.driver = this.config.driver || await (import('pg').native) || await import('pg');
+		this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
+
 		this.connectionPool = new this.driver.Pool({
 			user: this.config.username,
 			password: this.config.password,
@@ -35,10 +37,6 @@ export default class PostgreSql extends Handler {
 			password: this.config.password,
 			database: this.config.database
 		});
-		return this.openConnetion(conn);
-	}
-
-	async openConnetion(conn) {
 		try {
 			await conn.connect();
 			return new Connection(this, conn);
@@ -102,23 +100,17 @@ export default class PostgreSql extends Handler {
 	}
 
 	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection) {
-		let q: string = null;
-		if (typeof query === 'string') {
-			q = query;
-		} else if (query instanceof sql.Statement) {
-			q = query.eval(this);
-			args = (query.args == undefined ? [] : query.args);
-		}
+		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			temp = await connection.conn.query(q, args);
+			temp = await connection.conn.query(queryObj.query, queryObj.args);
 		} else {
 			let con = null;
 			try {
 				con = await this.connectionPool.connect();
-				temp = await con.query(q, args);
+				temp = await con.query(queryObj.query, queryObj.args);
 			} finally {
 				if (con) { con.release(); }
 			}

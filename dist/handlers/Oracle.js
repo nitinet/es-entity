@@ -28,7 +28,6 @@ class Oracle extends Handler_1.default {
         });
         return new Connection_1.default(this, conn);
     }
-    async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
     async commit(conn) { return conn.conn.commit(); }
     async rollback(conn) { return conn.conn.rollback(); }

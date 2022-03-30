@@ -13,10 +13,6 @@ export default class Connection {
 		return this.handler;
 	}
 
-	async open() {
-		this.conn = await this.handler.openConnetion(this.conn);
-	}
-
 	async initTransaction() {
 		await this.handler.initTransaction(this.conn);
 	}

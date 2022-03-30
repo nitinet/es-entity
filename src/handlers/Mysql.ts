@@ -1,4 +1,5 @@
-// import * as mysql from 'mysql';
+// @ts-ignore
+import * as mysql from 'mysql';
 
 import * as bean from '../bean/index';
 import Handler from './Handler';
@@ -7,8 +8,8 @@ import Connection from '../Connection';
 
 export default class Mysql extends Handler {
 	handlerName = 'mysql';
-	connectionPool = null;
-	driver = null;
+	driver: typeof import('mysql') = null;
+	connectionPool: mysql.Pool = null;
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
@@ -16,8 +17,7 @@ export default class Mysql extends Handler {
 	}
 
 	async init() {
-		// @ts-ignore
-		this.driver = this.config.driver || await import('mysql');
+		this.driver = this.config.driver ?? await import('mysql');
 
 		this.connectionPool = this.driver.createPool({
 			connectionLimit: this.config.connectionLimit,
@@ -46,26 +46,6 @@ export default class Mysql extends Handler {
 				} else {
 					let res = new Connection(this, conn);
 					resolve(res);
-				}
-			});
-		});
-	}
-
-	openConnetion(conn: Connection) {
-		let that = this;
-		return new Promise((resolve, reject) => {
-			conn = this.driver.createConnection({
-				host: this.config.host,
-				user: this.config.username,
-				password: this.config.password,
-				database: this.config.database
-			});
-			conn.conn.connect((err: Error) => {
-				if (err) {
-					that.context.log('Connection Creation Failed', err);
-					reject(err);
-				} else {
-					resolve(conn);
 				}
 			});
 		});
@@ -162,27 +142,22 @@ export default class Mysql extends Handler {
 	}
 
 	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
-		let q: string = null;
-		if (typeof query === 'string') {
-			q = query;
-		} else if (query instanceof sql.Statement) {
-			q = query.eval(this);
-			args = query.args;
-		}
+		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+			let conn: mysql.Connection = connection.conn;
 			temp = await new Promise<any>((resolve, reject) => {
-				connection.conn.query(q, args, function (err: Error, r) {
+				conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});
 			});
 		} else {
-			let con = null;
+			let conn: mysql.PoolConnection = null;
 			try {
-				con = await new Promise((resolve, reject) => {
+				conn = await new Promise((resolve, reject) => {
 					this.connectionPool.getConnection(function (err, newConn) {
 						if (err) { reject(err); }
 						else { resolve(newConn); }
@@ -190,14 +165,14 @@ export default class Mysql extends Handler {
 				});
 
 				temp = await new Promise<any>((resolve, reject) => {
-					con.query(q, args, function (err: Error, r) {
+					conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
 						if (err) { reject(err); }
 						else { resolve(r); }
 					});
 				});
 			} finally {
-				if (con) {
-					con.release();
+				if (conn) {
+					conn.release();
 				}
 			}
 		}

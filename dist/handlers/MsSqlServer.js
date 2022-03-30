@@ -13,7 +13,7 @@ class MsSqlServer extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('mssql'));
+        this.driver = this.config.driver ?? await Promise.resolve().then(() => require('mssql'));
         this.connectionPool = new this.driver.ConnectionPool({
             server: this.config.host,
             port: this.config.port,
@@ -33,7 +33,6 @@ class MsSqlServer extends Handler_1.default {
         let conn = new this.driver.Request();
         return new Connection_1.default(this, conn);
     }
-    async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
     async commit(conn) { return null; }
     async rollback(conn) { return null; }

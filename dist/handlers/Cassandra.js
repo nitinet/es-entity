@@ -9,7 +9,6 @@ class Cassandra extends Handler_1.default {
     }
     async init() { }
     async getConnection() { return null; }
-    async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
     async commit(conn) { return null; }
     async rollback(conn) { return null; }
