@@ -6,19 +6,6 @@ class BigIntType extends Field_1.default {
     constructor(data) {
         super();
         this.set(data);
-        return new Proxy(this, {
-            get(target, prop) {
-                if (prop in target) {
-                    return target[prop];
-                }
-                else if (target._value) {
-                    return target._value[prop];
-                }
-            },
-            getPrototypeOf() {
-                return BigIntType.prototype;
-            }
-        });
     }
     set(value) {
         if (value == null || value == undefined) {

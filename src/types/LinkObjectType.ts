@@ -3,26 +3,13 @@ import LinkSet from '../collection/LinkSet';
 import * as funcs from '../funcs';
 import Context from '../Context';
 
-class LinkObjectType<T extends Object> {
+class LinkObjectType<T> {
 	private linkSet: LinkSet<T> = null;
 	private applied: boolean = false;
 	private _value: T = null;
 
 	constructor(entityType: IEntityType<T>, foreignFunc: funcs.IJoinFunc<T, any>) {
 		this.linkSet = new LinkSet<T>(entityType, foreignFunc);
-
-		return new Proxy(this, {
-			get(target, prop) {
-				if (prop in target) {
-					return target[prop];
-				} else if (target._value) {
-					return target._value[prop];
-				}
-			},
-			getPrototypeOf() {
-				return LinkObjectType.prototype;
-			}
-		});
 	}
 
 	bind(context: Context) {

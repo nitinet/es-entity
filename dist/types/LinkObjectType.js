@@ -7,19 +7,6 @@ class LinkObjectType {
         this.applied = false;
         this._value = null;
         this.linkSet = new LinkSet_1.default(entityType, foreignFunc);
-        return new Proxy(this, {
-            get(target, prop) {
-                if (prop in target) {
-                    return target[prop];
-                }
-                else if (target._value) {
-                    return target._value[prop];
-                }
-            },
-            getPrototypeOf() {
-                return LinkObjectType.prototype;
-            }
-        });
     }
     bind(context) {
         this.linkSet.context = context;
