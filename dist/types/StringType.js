@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Field_1 = require("../sql/Field");
-const bean = require("../bean");
-class StringType extends Field_1.default {
+import Field from '../sql/Field';
+import * as bean from '../bean';
+class StringType extends Field {
     constructor(data) {
         super();
         this.set(data);
@@ -19,5 +17,5 @@ class StringType extends Field_1.default {
         }
     }
 }
-exports.default = StringType;
+export default StringType;
 //# sourceMappingURL=StringType.js.map

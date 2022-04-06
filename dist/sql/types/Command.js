@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var Command;
 (function (Command) {
     Command[Command["SELECT"] = 0] = "SELECT";
@@ -7,5 +5,5 @@ var Command;
     Command[Command["UPDATE"] = 2] = "UPDATE";
     Command[Command["DELETE"] = 3] = "DELETE";
 })(Command || (Command = {}));
-exports.default = Command;
+export default Command;
 //# sourceMappingURL=Command.js.map

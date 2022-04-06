@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Field_1 = require("../sql/Field");
-const bean = require("../bean");
-class BigIntType extends Field_1.default {
+import Field from '../sql/Field';
+import * as bean from '../bean';
+class BigIntType extends Field {
     constructor(data) {
         super();
         this.set(data);
@@ -22,5 +20,5 @@ class BigIntType extends Field_1.default {
         }
     }
 }
-exports.default = BigIntType;
+export default BigIntType;
 //# sourceMappingURL=BigIntType.js.map

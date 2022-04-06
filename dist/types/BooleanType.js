@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Field_1 = require("../sql/Field");
-const bean = require("../bean");
-class BooleanType extends Field_1.default {
+import Field from '../sql/Field';
+import * as bean from '../bean';
+class BooleanType extends Field {
     constructor(data) {
         super();
         this.set(data);
@@ -19,5 +17,5 @@ class BooleanType extends Field_1.default {
         }
     }
 }
-exports.default = BooleanType;
+export default BooleanType;
 //# sourceMappingURL=BooleanType.js.map

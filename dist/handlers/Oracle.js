@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean");
-const Handler_1 = require("./Handler");
-const sql = require("../sql");
-const Connection_1 = require("../Connection");
-class Oracle extends Handler_1.default {
+import * as bean from '../bean';
+import Handler from './Handler';
+import * as sql from '../sql';
+import Connection from '../Connection';
+export default class Oracle extends Handler {
     constructor(config) {
         super();
         this.handlerName = 'oracle';
@@ -13,7 +11,7 @@ class Oracle extends Handler_1.default {
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('oracledb'));
+        this.driver = this.config.driver || await import('oracledb');
         this.connectionPool = await this.driver.createPool({
             user: this.config.username,
             password: this.config.password,
@@ -26,7 +24,7 @@ class Oracle extends Handler_1.default {
             password: this.config.password,
             connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
         });
-        return new Connection_1.default(this, conn);
+        return new Connection(this, conn);
     }
     async initTransaction(conn) { return null; }
     async commit(conn) { return conn.conn.commit(); }
@@ -77,7 +75,7 @@ class Oracle extends Handler_1.default {
             args = query.args;
         }
         let temp = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await connection.conn.execute(q, args);
         }
         else {
@@ -103,5 +101,4 @@ class Oracle extends Handler_1.default {
         return result;
     }
 }
-exports.default = Oracle;
 //# sourceMappingURL=Oracle.js.map
