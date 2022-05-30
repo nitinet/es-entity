@@ -31,4 +31,3 @@ class LinkObjectType {
     }
 }
 export default LinkObjectType;
-//# sourceMappingURL=LinkObjectType.js.map

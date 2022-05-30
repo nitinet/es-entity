@@ -13,4 +13,3 @@ export default {
     Field
 };
 export { INode, types, Collection, Expression, Statement, Field };
-//# sourceMappingURL=index.js.map

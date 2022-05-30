@@ -46,4 +46,3 @@ class Converter {
     }
 }
 export default Converter;
-//# sourceMappingURL=Converter.js.map

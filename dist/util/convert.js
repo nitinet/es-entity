@@ -24,4 +24,3 @@ function convert(res, ...srcs) {
     return res;
 }
 export default convert;
-//# sourceMappingURL=convert.js.map

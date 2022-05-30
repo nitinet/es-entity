@@ -18,4 +18,3 @@ class DateType extends Field {
     }
 }
 export default DateType;
-//# sourceMappingURL=DateType.js.map

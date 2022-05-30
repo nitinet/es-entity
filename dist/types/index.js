@@ -19,4 +19,3 @@ export default {
     LinkArray: LinkArrayType
 };
 export { BooleanType as Boolean, DateType as Date, BinaryType as Binary, ObjectType as Json, NumberType as Number, BigIntType as BigInt, StringType as String, LinkObjectType as LinkObject, LinkArrayType as LinkArray };
-//# sourceMappingURL=index.js.map

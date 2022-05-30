@@ -79,4 +79,3 @@ export default class SQlite extends Handler {
         return result;
     }
 }
-//# sourceMappingURL=SQLite.js.map

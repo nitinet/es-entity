@@ -123,4 +123,3 @@ class Field {
     }
 }
 export default Field;
-//# sourceMappingURL=Field.js.map

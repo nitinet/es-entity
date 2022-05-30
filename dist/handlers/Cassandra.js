@@ -19,4 +19,3 @@ export default class Cassandra extends Handler {
         return null;
     }
 }
-//# sourceMappingURL=Cassandra.js.map

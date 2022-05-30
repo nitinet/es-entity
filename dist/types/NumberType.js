@@ -18,4 +18,3 @@ class NumberType extends Field {
     }
 }
 export default NumberType;
-//# sourceMappingURL=NumberType.js.map

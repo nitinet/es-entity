@@ -18,4 +18,3 @@ class ObjectType extends Field {
     }
 }
 export default ObjectType;
-//# sourceMappingURL=ObjectType.js.map

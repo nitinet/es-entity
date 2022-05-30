@@ -101,4 +101,3 @@ export default class Oracle extends Handler {
         return result;
     }
 }
-//# sourceMappingURL=Oracle.js.map

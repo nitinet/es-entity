@@ -18,4 +18,3 @@ class StringType extends Field {
     }
 }
 export default StringType;
-//# sourceMappingURL=StringType.js.map

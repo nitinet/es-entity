@@ -31,4 +31,3 @@ class LinkArrayType {
     }
 }
 export default LinkArrayType;
-//# sourceMappingURL=LinkArrayType.js.map

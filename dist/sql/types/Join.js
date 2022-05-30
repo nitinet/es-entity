@@ -6,4 +6,3 @@ var Join;
     Join[Join["OuterJoin"] = 4] = "OuterJoin";
 })(Join || (Join = {}));
 export default Join;
-//# sourceMappingURL=Join.js.map

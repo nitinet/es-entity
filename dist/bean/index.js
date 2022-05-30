@@ -11,4 +11,3 @@ export default {
     SqlException
 };
 export { ColumnType, ColumnInfo, HandlerType, ResultSet, SqlException };
-//# sourceMappingURL=index.js.map

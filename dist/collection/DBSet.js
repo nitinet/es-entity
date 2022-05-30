@@ -354,4 +354,3 @@ class DBSet extends IQuerySet {
     }
 }
 export default DBSet;
-//# sourceMappingURL=DBSet.js.map

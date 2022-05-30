@@ -18,4 +18,3 @@ class BooleanType extends Field {
     }
 }
 export default BooleanType;
-//# sourceMappingURL=BooleanType.js.map

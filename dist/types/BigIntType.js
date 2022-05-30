@@ -21,4 +21,3 @@ class BigIntType extends Field {
     }
 }
 export default BigIntType;
-//# sourceMappingURL=BigIntType.js.map

@@ -123,4 +123,3 @@ export default class PostgreSql extends Handler {
         return ' limit ' + size + (index ? ' OFFSET ' + index : '');
     }
 }
-//# sourceMappingURL=PostGreSql.js.map

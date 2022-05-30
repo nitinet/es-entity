@@ -17,4 +17,3 @@ export default {
     handlers
 };
 export { funcs, types, Context, collection, util, sql, bean, handlers };
-//# sourceMappingURL=index.js.map

@@ -18,4 +18,3 @@ class BinaryType extends Field {
     }
 }
 export default BinaryType;
-//# sourceMappingURL=BinaryType.js.map

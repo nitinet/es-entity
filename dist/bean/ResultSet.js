@@ -6,4 +6,3 @@ export default class ResultSet {
         this.error = null;
     }
 }
-//# sourceMappingURL=ResultSet.js.map

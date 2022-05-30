@@ -192,4 +192,3 @@ export default class Mysql extends Handler {
         return result;
     }
 }
-//# sourceMappingURL=Mysql.js.map

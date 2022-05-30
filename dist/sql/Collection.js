@@ -50,4 +50,3 @@ class Collection extends INode {
     }
 }
 export default Collection;
-//# sourceMappingURL=Collection.js.map

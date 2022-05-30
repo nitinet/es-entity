@@ -9,4 +9,3 @@ var HandlerType;
     HandlerType["cassandra"] = "cassandra";
 })(HandlerType || (HandlerType = {}));
 export default HandlerType;
-//# sourceMappingURL=HandlerType.js.map

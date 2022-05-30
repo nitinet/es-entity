@@ -13,4 +13,3 @@ function reverse(res, ...srcs) {
     return res;
 }
 export default reverse;
-//# sourceMappingURL=reverse.js.map

@@ -8,4 +8,3 @@ export default class ColumnInfo {
         this.extra = '';
     }
 }
-//# sourceMappingURL=ColumnInfo.js.map
