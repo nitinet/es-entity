@@ -1,25 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const LinkSet_1 = require("../collection/LinkSet");
+import LinkSet from '../collection/LinkSet';
 class LinkObjectType {
     constructor(entityType, foreignFunc) {
         this.linkSet = null;
         this.applied = false;
         this._value = null;
-        this.linkSet = new LinkSet_1.default(entityType, foreignFunc);
-        return new Proxy(this, {
-            get(target, prop) {
-                if (prop in target) {
-                    return target[prop];
-                }
-                else if (target._value) {
-                    return target._value[prop];
-                }
-            },
-            getPrototypeOf() {
-                return LinkObjectType.prototype;
-            }
-        });
+        this.linkSet = new LinkSet(entityType, foreignFunc);
     }
     bind(context) {
         this.linkSet.context = context;
@@ -45,5 +30,5 @@ class LinkObjectType {
         }
     }
 }
-exports.default = LinkObjectType;
+export default LinkObjectType;
 //# sourceMappingURL=LinkObjectType.js.map

@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
-const IQuerySet_js_1 = require("./IQuerySet.js");
-const JoinQuerySet_js_1 = require("./JoinQuerySet.js");
-class QuerySet extends IQuerySet_js_1.default {
+import * as sql from '../sql';
+import IQuerySet from './IQuerySet.js';
+import JoinQuerySet from './JoinQuerySet.js';
+class QuerySet extends IQuerySet {
     constructor(dbSet) {
         super();
         this.dbSet = null;
@@ -183,12 +181,12 @@ class QuerySet extends IQuerySet_js_1.default {
             }
         }
         if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-            return new JoinQuerySet_js_1.default(this, coll, joinType, temp);
+            return new JoinQuerySet(this, coll, joinType, temp);
         }
         else {
             throw new Error('Invalid Join');
         }
     }
 }
-exports.default = QuerySet;
+export default QuerySet;
 //# sourceMappingURL=QuerySet.js.map

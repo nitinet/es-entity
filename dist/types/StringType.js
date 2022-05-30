@@ -1,24 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Field_1 = require("../sql/Field");
-const bean = require("../bean");
-class StringType extends Field_1.default {
+import Field from '../sql/Field';
+import * as bean from '../bean';
+class StringType extends Field {
     constructor(data) {
         super();
         this.set(data);
-        return new Proxy(this, {
-            get(target, prop) {
-                if (prop in target) {
-                    return target[prop];
-                }
-                else if (target._value) {
-                    return target._value[prop];
-                }
-            },
-            getPrototypeOf() {
-                return StringType.prototype;
-            }
-        });
     }
     set(value) {
         if (value == null || value == undefined) {
@@ -32,5 +17,5 @@ class StringType extends Field_1.default {
         }
     }
 }
-exports.default = StringType;
+export default StringType;
 //# sourceMappingURL=StringType.js.map

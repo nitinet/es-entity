@@ -6,20 +6,6 @@ class BooleanType extends Field<boolean> {
 	constructor(data?: boolean) {
 		super();
 		this.set(data);
-
-		return new Proxy(this, {
-			get(target, prop) {
-				if (prop in target) {
-					return target[prop];
-				} else if (target._value) {
-					return target._value[prop];
-				}
-			},
-			getPrototypeOf() {
-				return BooleanType.prototype;
-			}
-		});
-
 	}
 
 	set(value: boolean) {

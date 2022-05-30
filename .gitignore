@@ -10,6 +10,7 @@ tsconfig.tsbuildinfo
 # Yarn Integrity file
 .yarn-integrity
 yarn.lock
+pnpm-lock.yaml
 package-lock.json
 
 # dotenv environment variables file

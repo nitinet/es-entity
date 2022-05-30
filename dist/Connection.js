@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class Connection {
+export default class Connection {
     constructor(handler, conn) {
         this.handler = null;
         this.conn = null;
@@ -9,9 +7,6 @@ class Connection {
     }
     get Handler() {
         return this.handler;
-    }
-    async open() {
-        this.conn = await this.handler.openConnetion(this.conn);
     }
     async initTransaction() {
         await this.handler.initTransaction(this.conn);
@@ -27,5 +22,4 @@ class Connection {
         this.conn = null;
     }
 }
-exports.default = Connection;
 //# sourceMappingURL=Connection.js.map

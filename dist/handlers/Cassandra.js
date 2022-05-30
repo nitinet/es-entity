@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Handler_1 = require("./Handler");
-class Cassandra extends Handler_1.default {
+import Handler from './Handler';
+export default class Cassandra extends Handler {
     constructor(config) {
         super();
         this.handlerName = 'cassandra';
@@ -9,7 +7,6 @@ class Cassandra extends Handler_1.default {
     }
     async init() { }
     async getConnection() { return null; }
-    async openConnetion(conn) { return null; }
     async initTransaction(conn) { return null; }
     async commit(conn) { return null; }
     async rollback(conn) { return null; }
@@ -22,5 +19,4 @@ class Cassandra extends Handler_1.default {
         return null;
     }
 }
-exports.default = Cassandra;
 //# sourceMappingURL=Cassandra.js.map

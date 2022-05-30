@@ -1,30 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LinkArray = exports.LinkObject = exports.String = exports.Number = exports.Json = exports.Binary = exports.Date = exports.Boolean = void 0;
-const BooleanType_js_1 = require("./BooleanType.js");
-exports.Boolean = BooleanType_js_1.default;
-const DateType_js_1 = require("./DateType.js");
-exports.Date = DateType_js_1.default;
-const BinaryType_js_1 = require("./BinaryType.js");
-exports.Binary = BinaryType_js_1.default;
-const ObjectType_js_1 = require("./ObjectType.js");
-exports.Json = ObjectType_js_1.default;
-const NumberType_js_1 = require("./NumberType.js");
-exports.Number = NumberType_js_1.default;
-const StringType_js_1 = require("./StringType.js");
-exports.String = StringType_js_1.default;
-const LinkObjectType_js_1 = require("./LinkObjectType.js");
-exports.LinkObject = LinkObjectType_js_1.default;
-const LinkArrayType_js_1 = require("./LinkArrayType.js");
-exports.LinkArray = LinkArrayType_js_1.default;
-exports.default = {
-    Boolean: BooleanType_js_1.default,
-    Date: DateType_js_1.default,
-    Binary: BinaryType_js_1.default,
-    Json: ObjectType_js_1.default,
-    Number: NumberType_js_1.default,
-    String: StringType_js_1.default,
-    LinkObject: LinkObjectType_js_1.default,
-    LinkArray: LinkArrayType_js_1.default
+import BooleanType from './BooleanType.js';
+import DateType from './DateType.js';
+import BinaryType from './BinaryType.js';
+import ObjectType from './ObjectType.js';
+import NumberType from './NumberType.js';
+import BigIntType from './BigIntType.js';
+import StringType from './StringType.js';
+import LinkObjectType from './LinkObjectType.js';
+import LinkArrayType from './LinkArrayType.js';
+export default {
+    Boolean: BooleanType,
+    Date: DateType,
+    Binary: BinaryType,
+    Json: ObjectType,
+    Number: NumberType,
+    BigInt: BigIntType,
+    String: StringType,
+    LinkObject: LinkObjectType,
+    LinkArray: LinkArrayType
 };
+export { BooleanType as Boolean, DateType as Date, BinaryType as Binary, ObjectType as Json, NumberType as Number, BigIntType as BigInt, StringType as String, LinkObjectType as LinkObject, LinkArrayType as LinkArray };
 //# sourceMappingURL=index.js.map

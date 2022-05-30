@@ -1,19 +1,16 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean/index");
-const Handler_1 = require("./Handler");
-const sql = require("../sql");
-const Connection_1 = require("../Connection");
-class Mysql extends Handler_1.default {
+import * as bean from '../bean/index';
+import Handler from './Handler';
+import Connection from '../Connection';
+export default class Mysql extends Handler {
     constructor(config) {
         super();
         this.handlerName = 'mysql';
-        this.connectionPool = null;
         this.driver = null;
+        this.connectionPool = null;
         this.config = config;
     }
     async init() {
-        this.driver = this.config.driver || await Promise.resolve().then(() => require('mysql'));
+        this.driver = this.config.driver ?? await import('mysql');
         this.connectionPool = this.driver.createPool({
             connectionLimit: this.config.connectionLimit,
             host: this.config.host,
@@ -39,28 +36,8 @@ class Mysql extends Handler_1.default {
                     reject(err);
                 }
                 else {
-                    let res = new Connection_1.default(this, conn);
+                    let res = new Connection(this, conn);
                     resolve(res);
-                }
-            });
-        });
-    }
-    openConnetion(conn) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            conn = this.driver.createConnection({
-                host: this.config.host,
-                user: this.config.username,
-                password: this.config.password,
-                database: this.config.database
-            });
-            conn.conn.connect((err) => {
-                if (err) {
-                    that.context.log('Connection Creation Failed', err);
-                    reject(err);
-                }
-                else {
-                    resolve(conn);
                 }
             });
         });
@@ -157,18 +134,12 @@ class Mysql extends Handler_1.default {
         return result;
     }
     async run(query, args, connection) {
-        let q = null;
-        if (typeof query === 'string') {
-            q = query;
-        }
-        else if (query instanceof sql.Statement) {
-            q = query.eval(this);
-            args = query.args;
-        }
+        let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+            let conn = connection.conn;
             temp = await new Promise((resolve, reject) => {
-                connection.conn.query(q, args, function (err, r) {
+                conn.query(queryObj.query, queryObj.args, function (err, r) {
                     if (err) {
                         reject(err);
                     }
@@ -179,9 +150,9 @@ class Mysql extends Handler_1.default {
             });
         }
         else {
-            let con = null;
+            let conn = null;
             try {
-                con = await new Promise((resolve, reject) => {
+                conn = await new Promise((resolve, reject) => {
                     this.connectionPool.getConnection(function (err, newConn) {
                         if (err) {
                             reject(err);
@@ -192,7 +163,7 @@ class Mysql extends Handler_1.default {
                     });
                 });
                 temp = await new Promise((resolve, reject) => {
-                    con.query(q, args, function (err, r) {
+                    conn.query(queryObj.query, queryObj.args, function (err, r) {
                         if (err) {
                             reject(err);
                         }
@@ -203,8 +174,8 @@ class Mysql extends Handler_1.default {
                 });
             }
             finally {
-                if (con) {
-                    con.release();
+                if (conn) {
+                    conn.release();
                 }
             }
         }
@@ -221,5 +192,4 @@ class Mysql extends Handler_1.default {
         return result;
     }
 }
-exports.default = Mysql;
 //# sourceMappingURL=Mysql.js.map

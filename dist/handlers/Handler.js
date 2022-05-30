@@ -1,6 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class Handler {
+import * as sql from '../sql';
+export default class Handler {
     constructor() {
         this.context = null;
     }
@@ -42,6 +41,19 @@ class Handler {
             res = val;
         }
         return res;
+    }
+    prepareQuery(queryStmt, args) {
+        let query = null;
+        if (typeof queryStmt === 'string') {
+            query = queryStmt;
+        }
+        else if (queryStmt instanceof sql.Statement) {
+            query = queryStmt.eval(this);
+            args = queryStmt.args;
+        }
+        return {
+            query, args
+        };
     }
     eq(val0, val1) {
         return `${val0} = ${val1}`;
@@ -132,5 +144,4 @@ class Handler {
         return `avg(${val0})`;
     }
 }
-exports.default = Handler;
 //# sourceMappingURL=Handler.js.map

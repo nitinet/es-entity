@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const DBSet_js_1 = require("./collection/DBSet.js");
-const getHandler_js_1 = require("./handlers/getHandler.js");
-class Context {
+import DBSet from './collection/DBSet.js';
+import getHandler from './handlers/getHandler.js';
+export default class Context {
     constructor(config) {
         this.connection = null;
         this.logger = null;
@@ -12,7 +10,7 @@ class Context {
         if (!this.config.dbConfig) {
             throw new Error('Database Config Not Found');
         }
-        this.handler = getHandler_js_1.default(this.config.dbConfig);
+        this.handler = getHandler(this.config.dbConfig);
         if (this.config.entityPath) {
             this.setEntityPath(this.config.entityPath);
         }
@@ -25,7 +23,7 @@ class Context {
         await this.handler.init();
         await Promise.all(Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
-            return o instanceof DBSet_js_1.default;
+            return o instanceof DBSet;
         }, this).map(async (key) => {
             let obj = Reflect.get(this, key);
             obj.context = this;
@@ -58,7 +56,7 @@ class Context {
             let keys = Reflect.ownKeys(res);
             keys.forEach((key) => {
                 let prop = Reflect.get(res, key);
-                if (prop instanceof DBSet_js_1.default) {
+                if (prop instanceof DBSet) {
                     prop.context = res;
                 }
             });
@@ -79,5 +77,4 @@ class Context {
         return this.handler.end();
     }
 }
-exports.default = Context;
 //# sourceMappingURL=Context.js.map

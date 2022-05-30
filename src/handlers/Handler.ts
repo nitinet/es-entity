@@ -17,7 +17,6 @@ export default abstract class Handler {
 
 	// Connetion manage functions
 	abstract getConnection(): Promise<Connection>;
-	abstract openConnetion(conn): Promise<any>;
 	abstract initTransaction(conn): Promise<void>;
 	abstract commit(conn): Promise<void>;
 	abstract rollback(conn): Promise<void>;
@@ -54,6 +53,19 @@ export default abstract class Handler {
 			res = val;
 		}
 		return res;
+	}
+
+	prepareQuery(queryStmt: string | sql.INode, args?: Array<any>) {
+		let query: string = null;
+		if (typeof queryStmt === 'string') {
+			query = queryStmt;
+		} else if (queryStmt instanceof sql.Statement) {
+			query = queryStmt.eval(this);
+			args = queryStmt.args;
+		}
+		return {
+			query, args
+		}
 	}
 
 	// Comparison Operators
