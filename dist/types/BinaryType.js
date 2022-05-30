@@ -1,24 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Field_1 = require("../sql/Field");
-const bean = require("../bean");
-class BinaryType extends Field_1.default {
+import Field from '../sql/Field';
+import * as bean from '../bean';
+class BinaryType extends Field {
     constructor(data) {
         super();
         this.set(data);
-        return new Proxy(this, {
-            get(target, prop) {
-                if (prop in target) {
-                    return target[prop];
-                }
-                else if (target._value) {
-                    return target._value[prop];
-                }
-            },
-            getPrototypeOf() {
-                return BinaryType.prototype;
-            }
-        });
     }
     set(value) {
         if (value == null || value == undefined) {
@@ -32,5 +17,5 @@ class BinaryType extends Field_1.default {
         }
     }
 }
-exports.default = BinaryType;
+export default BinaryType;
 //# sourceMappingURL=BinaryType.js.map

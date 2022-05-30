@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Operator_1 = require("./types/Operator");
+import Operator from './types/Operator';
 class Expression {
     constructor(value, operator, ...expressions) {
         this.args = new Array();
@@ -15,7 +13,7 @@ class Expression {
         this.operator = operator;
     }
     add(...expressions) {
-        if (this.operator == Operator_1.default.And) {
+        if (this.operator == Operator.And) {
             this.exps = this.exps.concat(expressions);
             return this;
         }
@@ -25,19 +23,19 @@ class Expression {
             return exp;
         }
         else {
-            let exp = new Expression(null, Operator_1.default.And, this);
+            let exp = new Expression(null, Operator.And, this);
             expressions.forEach(expr => exp.add(expr));
             return exp;
         }
     }
     and(operand) {
-        return new Expression(null, Operator_1.default.And, this, operand);
+        return new Expression(null, Operator.And, this, operand);
     }
     or(operand) {
-        return new Expression(null, Operator_1.default.Or, this, operand);
+        return new Expression(null, Operator.Or, this, operand);
     }
     not() {
-        return new Expression(null, Operator_1.default.Not, this);
+        return new Expression(null, Operator.Not, this);
     }
     eval(handler) {
         if (this.value) {
@@ -52,91 +50,91 @@ class Expression {
                 }
             });
             if (!this.operator && this.exps.length > 1) {
-                this.operator = Operator_1.default.And;
+                this.operator = Operator.And;
             }
             let val0 = values[0] ? values[0] : '';
             let val1 = values[1] ? values[1] : '';
             let r = '';
             switch (this.operator) {
-                case Operator_1.default.Equal:
+                case Operator.Equal:
                     r = handler.eq(val0, val1);
                     break;
-                case Operator_1.default.NotEqual:
+                case Operator.NotEqual:
                     r = handler.neq(val0, val1);
                     break;
-                case Operator_1.default.LessThan:
+                case Operator.LessThan:
                     r = handler.lt(val0, val1);
                     break;
-                case Operator_1.default.LessThanEqual:
+                case Operator.LessThanEqual:
                     r = handler.lteq(val0, val1);
                     break;
-                case Operator_1.default.GreaterThan:
+                case Operator.GreaterThan:
                     r = handler.gt(val0, val1);
                     break;
-                case Operator_1.default.GreaterThanEqual:
+                case Operator.GreaterThanEqual:
                     r = handler.gteq(val0, val1);
                     break;
-                case Operator_1.default.And:
+                case Operator.And:
                     r = handler.and(values);
                     break;
-                case Operator_1.default.Or:
+                case Operator.Or:
                     r = handler.or(values);
                     break;
-                case Operator_1.default.Not:
+                case Operator.Not:
                     r = handler.not(val0);
                     break;
-                case Operator_1.default.Plus:
+                case Operator.Plus:
                     r = handler.plus(val0, val1);
                     break;
-                case Operator_1.default.Minus:
+                case Operator.Minus:
                     r = handler.minus(val0, val1);
                     break;
-                case Operator_1.default.Multiply:
+                case Operator.Multiply:
                     r = handler.multiply(val0, val1);
                     break;
-                case Operator_1.default.Devide:
+                case Operator.Devide:
                     r = handler.devide(val0, val1);
                     break;
-                case Operator_1.default.Between:
+                case Operator.Between:
                     r = handler.between(values);
                     break;
-                case Operator_1.default.Exists:
+                case Operator.Exists:
                     r = handler.exists(val0);
                     break;
-                case Operator_1.default.In:
+                case Operator.In:
                     r = handler.in(values);
                     break;
-                case Operator_1.default.Like:
+                case Operator.Like:
                     r = handler.like(val0, val1);
                     break;
-                case Operator_1.default.IsNull:
+                case Operator.IsNull:
                     r = handler.isNull(val0);
                     break;
-                case Operator_1.default.IsNotNull:
+                case Operator.IsNotNull:
                     r = handler.isNotNull(val0);
                     break;
-                case Operator_1.default.Asc:
+                case Operator.Asc:
                     r = handler.asc(val0);
                     break;
-                case Operator_1.default.Desc:
+                case Operator.Desc:
                     r = handler.desc(val0);
                     break;
-                case Operator_1.default.Limit:
+                case Operator.Limit:
                     r = handler.limit(val0, val1);
                     break;
-                case Operator_1.default.Count:
+                case Operator.Count:
                     r = handler.count(val0);
                     break;
-                case Operator_1.default.Sum:
+                case Operator.Sum:
                     r = handler.sum(val0);
                     break;
-                case Operator_1.default.Min:
+                case Operator.Min:
                     r = handler.min(val0);
                     break;
-                case Operator_1.default.Max:
+                case Operator.Max:
                     r = handler.max(val0);
                     break;
-                case Operator_1.default.Avg:
+                case Operator.Avg:
                     r = handler.average(val0);
                     break;
                 default:
@@ -146,5 +144,5 @@ class Expression {
         }
     }
 }
-exports.default = Expression;
+export default Expression;
 //# sourceMappingURL=Expression.js.map

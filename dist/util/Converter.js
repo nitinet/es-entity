@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
+import * as sql from '../sql';
 class Converter {
     constructor(option) {
         this.option = null;
@@ -47,5 +45,5 @@ class Converter {
         return res;
     }
 }
-exports.default = Converter;
+export default Converter;
 //# sourceMappingURL=Converter.js.map

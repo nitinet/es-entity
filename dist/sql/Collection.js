@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const INode_1 = require("./INode");
-const Join_1 = require("./types/Join");
-class Collection extends INode_1.default {
+import INode from './INode';
+import Join from './types/Join';
+class Collection extends INode {
     constructor() {
         super();
         this.colAlias = null;
@@ -26,16 +24,16 @@ class Collection extends INode_1.default {
             let val0 = this.leftColl.eval(handler);
             let val1 = this.rightColl.eval(handler);
             switch (this.join) {
-                case Join_1.default.InnerJoin:
+                case Join.InnerJoin:
                     res = `(${val0} inner join ${val1})`;
                     break;
-                case Join_1.default.LeftJoin:
+                case Join.LeftJoin:
                     res = `(${val0} left join ${val1})`;
                     break;
-                case Join_1.default.RightJoin:
+                case Join.RightJoin:
                     res = `(${val0} right join ${val1})`;
                     break;
-                case Join_1.default.OuterJoin:
+                case Join.OuterJoin:
                     res = `(${val0} outer join ${val1})`;
                     break;
                 default:
@@ -51,5 +49,5 @@ class Collection extends INode_1.default {
         return res;
     }
 }
-exports.default = Collection;
+export default Collection;
 //# sourceMappingURL=Collection.js.map

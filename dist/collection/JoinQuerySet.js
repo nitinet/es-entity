@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const IQuerySet_js_1 = require("./IQuerySet.js");
-const sql = require("../sql");
-class JoinQuerySet extends IQuerySet_js_1.default {
+import IQuerySet from './IQuerySet.js';
+import * as sql from '../sql';
+class JoinQuerySet extends IQuerySet {
     constructor(mainSet, joinSet, joinType, expr) {
         super();
         this.mainSet = null;
@@ -158,5 +156,5 @@ class JoinQuerySet extends IQuerySet_js_1.default {
         return res;
     }
 }
-exports.default = JoinQuerySet;
+export default JoinQuerySet;
 //# sourceMappingURL=JoinQuerySet.js.map
