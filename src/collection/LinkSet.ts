@@ -1,5 +1,5 @@
-import * as types from '../types';
-import * as funcs from '../funcs';
+import * as types from '../types/index.js';
+import * as funcs from '../funcs/index.js';
 import QuerySet from './QuerySet.js'
 
 class LinkSet<T extends Object> extends QuerySet<T>{

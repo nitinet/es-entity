@@ -1,4 +1,4 @@
-import * as bean from '../bean';
+import * as bean from '../bean/index.js';
 import Mysql from './Mysql.js';
 import OracleHandler from './Oracle.js';
 import MsSqlServer from './MsSqlServer.js';

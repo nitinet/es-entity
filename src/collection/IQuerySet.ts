@@ -1,6 +1,6 @@
-import * as bean from '../bean';
-import * as sql from '../sql';
-import * as funcs from '../funcs';
+import * as bean from '../bean/index.js';
+import * as sql from '../sql/index.js';
+import * as funcs from '../funcs/index.js';
 import Context from '../Context.js';
 
 abstract class IQuerySet<T> {

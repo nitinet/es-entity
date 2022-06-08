@@ -1,4 +1,4 @@
-import * as sql from '../sql';
+import * as sql from '../sql/index.js';
 function reverse(res, ...srcs) {
     let allowKeys = Object.keys(res);
     srcs.forEach(src => {

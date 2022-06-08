@@ -1,4 +1,4 @@
-import Handler from '../handlers/Handler';
+import Handler from '../handlers/Handler.js';
 
 abstract class INode {
 	args: Array<any> = new Array<any>();

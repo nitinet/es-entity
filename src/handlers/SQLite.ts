@@ -1,10 +1,10 @@
 // @ts-ignore
 import * as sqlite from 'sqlite3';
 
-import * as bean from '../bean';
-import Handler from './Handler';
-import * as sql from '../sql';
-import Connection from '../Connection';
+import * as bean from '../bean/index.js';
+import Handler from './Handler.js';
+import * as sql from '../sql/index.js';
+import Connection from '../Connection.js';
 
 export default class SQlite extends Handler {
 	handlerName = 'sqlite';

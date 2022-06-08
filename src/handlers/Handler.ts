@@ -1,8 +1,8 @@
-import * as sql from '../sql';
-import Connection from '../Connection';
-import Context from '../Context';
+import * as sql from '../sql/index.js';
+import Connection from '../Connection.js';
+import Context from '../Context.js';
 
-import * as bean from '../bean/index';
+import * as bean from '../bean/index.js';
 
 export default abstract class Handler {
 	context: Context = null;

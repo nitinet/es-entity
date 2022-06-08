@@ -1,5 +1,5 @@
-import Expression from './Expression';
-import Operator from './types/Operator';
+import Expression from './Expression.js';
+import Operator from './types/Operator.js';
 
 class Field<T>  {
 	protected _value: T = null;

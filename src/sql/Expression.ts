@@ -1,6 +1,6 @@
-import Handler from '../handlers/Handler';
-import INode from './INode';
-import Operator from './types/Operator';
+import Handler from '../handlers/Handler.js';
+import INode from './INode.js';
+import Operator from './types/Operator.js';
 
 /**
  * SqlExpression

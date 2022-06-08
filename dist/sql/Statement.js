@@ -1,7 +1,7 @@
-import INode from './INode';
-import Command from './types/Command';
-import Expression from './Expression';
-import Collection from './Collection';
+import INode from './INode.js';
+import Command from './types/Command.js';
+import Expression from './Expression.js';
+import Collection from './Collection.js';
 class Statement extends INode {
     constructor() {
         super();

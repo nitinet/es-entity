@@ -1,9 +1,10 @@
 {
 	"name": "es-entity",
-	"version": "2.4.1",
+	"version": "2.4.2",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
+	"type": "module",
 	"exports": {
 		"import": "./dist/index.js",
 		"require": "./distCjs/index.js"

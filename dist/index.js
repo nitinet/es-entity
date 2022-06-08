@@ -1,10 +1,10 @@
-import * as bean from './bean';
-import * as collection from './collection';
-import * as handlers from './handlers';
-import * as sql from './sql';
-import * as types from './types';
-import * as util from './util';
-import * as funcs from './funcs';
+import * as bean from './bean/index.js';
+import * as collection from './collection/index.js';
+import * as handlers from './handlers/index.js';
+import * as sql from './sql/index.js';
+import * as types from './types/index.js';
+import * as util from './util/index.js';
+import * as funcs from './funcs/index.js';
 import Context from './Context.js';
 export default {
     funcs,

@@ -1,4 +1,4 @@
-import * as sql from '../sql';
+import * as sql from '../sql/index.js';
 class IQuerySet {
     constructor() {
         this.stat = null;

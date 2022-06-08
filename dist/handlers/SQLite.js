@@ -1,6 +1,6 @@
-import * as bean from '../bean';
-import Handler from './Handler';
-import Connection from '../Connection';
+import * as bean from '../bean/index.js';
+import Handler from './Handler.js';
+import Connection from '../Connection.js';
 export default class SQlite extends Handler {
     constructor(config) {
         super();

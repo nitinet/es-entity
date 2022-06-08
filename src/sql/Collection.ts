@@ -1,7 +1,7 @@
-import Handler from '../handlers/Handler';
-import INode from './INode';
-import Statement from './Statement';
-import Join from './types/Join';
+import Handler from '../handlers/Handler.js';
+import INode from './INode.js';
+import Statement from './Statement.js';
+import Join from './types/Join.js';
 
 /**
  * SqlCollection

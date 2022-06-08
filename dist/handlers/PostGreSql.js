@@ -1,6 +1,6 @@
-import * as bean from '../bean/index';
-import Handler from './Handler';
-import Connection from '../Connection';
+import * as bean from '../bean/index.js';
+import Handler from './Handler.js';
+import Connection from '../Connection.js';
 export default class PostgreSql extends Handler {
     constructor(config) {
         super();

@@ -1,5 +1,5 @@
-import * as sql from '../sql';
-import * as types from '../types';
+import * as sql from '../sql/index.js';
+import * as types from '../types/index.js';
 
 interface IOption {
 	ignoreKeys?: (string | number | symbol)[],
