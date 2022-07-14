@@ -13,4 +13,3 @@ export default {
     Cassandra
 };
 export { MsSqlServer, Mysql, OracleDb, PostGreSql, SqlLite, Cassandra };
-//# sourceMappingURL=index.js.map

@@ -1,5 +1,5 @@
-import Field from '../sql/Field';
-import * as bean from '../bean';
+import Field from '../sql/Field.js';
+import * as bean from '../bean/index.js';
 class BigIntType extends Field {
     constructor(data) {
         super();
@@ -21,4 +21,3 @@ class BigIntType extends Field {
     }
 }
 export default BigIntType;
-//# sourceMappingURL=BigIntType.js.map

@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as Case from 'case';
-import * as bean from '../bean';
-import * as sql from '../sql';
-import * as types from '../types';
-import * as Mapping from '../Mapping';
+import Case from 'case';
+import * as bean from '../bean/index.js';
+import * as sql from '../sql/index.js';
+import * as types from '../types/index.js';
+import * as Mapping from '../Mapping.js';
 import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
 class DBSet extends IQuerySet {
@@ -169,6 +169,9 @@ class DBSet extends IQuerySet {
     }
     whereExpr(entity) {
         let primaryFields = this.getPrimaryFields();
+        if (!(primaryFields && primaryFields.length)) {
+            throw new bean.SqlException('Primary Key fields not found');
+        }
         let whereExpr = new sql.Expression();
         primaryFields.forEach(priField => {
             let w1 = new sql.Expression(priField.colName);
@@ -354,4 +357,3 @@ class DBSet extends IQuerySet {
     }
 }
 export default DBSet;
-//# sourceMappingURL=DBSet.js.map

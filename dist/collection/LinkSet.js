@@ -13,4 +13,3 @@ class LinkSet extends QuerySet {
     }
 }
 export default LinkSet;
-//# sourceMappingURL=LinkSet.js.map

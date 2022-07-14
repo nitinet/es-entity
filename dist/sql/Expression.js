@@ -1,4 +1,4 @@
-import Operator from './types/Operator';
+import Operator from './types/Operator.js';
 class Expression {
     constructor(value, operator, ...expressions) {
         this.args = new Array();
@@ -145,4 +145,3 @@ class Expression {
     }
 }
 export default Expression;
-//# sourceMappingURL=Expression.js.map

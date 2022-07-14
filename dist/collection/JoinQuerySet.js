@@ -1,5 +1,5 @@
 import IQuerySet from './IQuerySet.js';
-import * as sql from '../sql';
+import * as sql from '../sql/index.js';
 class JoinQuerySet extends IQuerySet {
     constructor(mainSet, joinSet, joinType, expr) {
         super();
@@ -157,4 +157,3 @@ class JoinQuerySet extends IQuerySet {
     }
 }
 export default JoinQuerySet;
-//# sourceMappingURL=JoinQuerySet.js.map

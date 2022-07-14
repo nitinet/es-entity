@@ -1,4 +1,4 @@
-import LinkSet from '../collection/LinkSet';
+import LinkSet from '../collection/LinkSet.js';
 class LinkObjectType {
     constructor(entityType, foreignFunc) {
         this.linkSet = null;
@@ -31,4 +31,3 @@ class LinkObjectType {
     }
 }
 export default LinkObjectType;
-//# sourceMappingURL=LinkObjectType.js.map

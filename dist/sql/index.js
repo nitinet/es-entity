@@ -3,7 +3,7 @@ import Expression from './Expression.js';
 import Field from './Field.js';
 import INode from './INode.js';
 import Statement from './Statement.js';
-import * as types from './types';
+import * as types from './types/index.js';
 export default {
     INode,
     types,
@@ -13,4 +13,3 @@ export default {
     Field
 };
 export { INode, types, Collection, Expression, Statement, Field };
-//# sourceMappingURL=index.js.map

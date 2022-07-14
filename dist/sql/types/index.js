@@ -7,4 +7,3 @@ export default {
     Operator
 };
 export { Command, Join, Operator };
-//# sourceMappingURL=index.js.map

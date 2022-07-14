@@ -1,7 +1,7 @@
-import IEntityType from './IEntityType';
-import LinkSet from '../collection/LinkSet';
-import * as funcs from '../funcs';
-import Context from '../Context';
+import IEntityType from './IEntityType.js';
+import LinkSet from '../collection/LinkSet.js';
+import * as funcs from '../funcs/index.js';
+import Context from '../Context.js';
 
 class LinkArrayType<T> {
 	private linkSet: LinkSet<T> = null;

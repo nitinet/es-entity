@@ -1,4 +1,4 @@
-import Handler from './Handler';
+import Handler from './Handler.js';
 export default class Cassandra extends Handler {
     constructor(config) {
         super();
@@ -19,4 +19,3 @@ export default class Cassandra extends Handler {
         return null;
     }
 }
-//# sourceMappingURL=Cassandra.js.map

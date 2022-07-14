@@ -1,4 +1,4 @@
-import * as sql from '../sql';
+import * as sql from '../sql/index.js';
 export default class Handler {
     constructor() {
         this.context = null;
@@ -144,4 +144,3 @@ export default class Handler {
         return `avg(${val0})`;
     }
 }
-//# sourceMappingURL=Handler.js.map

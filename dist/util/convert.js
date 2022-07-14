@@ -1,5 +1,5 @@
-import * as sql from '../sql';
-import * as types from '../types';
+import * as sql from '../sql/index.js';
+import * as types from '../types/index.js';
 function convert(res, ...srcs) {
     let allowKeys = Object.keys(res);
     srcs.forEach(src => {
@@ -24,4 +24,3 @@ function convert(res, ...srcs) {
     return res;
 }
 export default convert;
-//# sourceMappingURL=convert.js.map

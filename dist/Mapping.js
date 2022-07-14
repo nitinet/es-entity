@@ -22,4 +22,3 @@ export class EntityMapping {
         }
     }
 }
-//# sourceMappingURL=Mapping.js.map

@@ -1,5 +1,5 @@
-import Expression from './Expression';
-import Operator from './types/Operator';
+import Expression from './Expression.js';
+import Operator from './types/Operator.js';
 class Field {
     constructor() {
         this._value = null;
@@ -123,4 +123,3 @@ class Field {
     }
 }
 export default Field;
-//# sourceMappingURL=Field.js.map

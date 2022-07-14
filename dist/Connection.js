@@ -22,4 +22,3 @@ export default class Connection {
         this.conn = null;
     }
 }
-//# sourceMappingURL=Connection.js.map

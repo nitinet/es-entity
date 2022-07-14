@@ -1,6 +1,6 @@
-import * as bean from '../bean/index';
-import Handler from './Handler';
-import * as sql from '../sql';
+import * as bean from '../bean/index.js';
+import Handler from './Handler.js';
+import * as sql from '../sql/index.js';
 
 export default class Cassandra extends Handler {
 	handlerName = 'cassandra';

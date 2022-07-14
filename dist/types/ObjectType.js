@@ -1,5 +1,5 @@
-import Field from '../sql/Field';
-import * as bean from '../bean';
+import Field from '../sql/Field.js';
+import * as bean from '../bean/index.js';
 class ObjectType extends Field {
     constructor(data) {
         super();
@@ -18,4 +18,3 @@ class ObjectType extends Field {
     }
 }
 export default ObjectType;
-//# sourceMappingURL=ObjectType.js.map

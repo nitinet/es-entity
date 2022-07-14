@@ -1,7 +1,7 @@
 import IQuerySet from './IQuerySet.js';
-import * as sql from '../sql';
-import * as funcs from '../funcs';
-import * as bean from '../bean';
+import * as sql from '../sql/index.js';
+import * as funcs from '../funcs/index.js';
+import * as bean from '../bean/index.js';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	mainSet: IQuerySet<T> = null;

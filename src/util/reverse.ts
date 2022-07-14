@@ -1,4 +1,4 @@
-import * as sql from '../sql';
+import * as sql from '../sql/index.js';
 
 function reverse<T extends Object>(res: T, ...srcs: any[]) {
 	let allowKeys = Object.keys(res);

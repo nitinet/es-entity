@@ -1,4 +1,4 @@
-import * as sql from '../sql';
+import * as sql from '../sql/index.js';
 import IQuerySet from './IQuerySet.js';
 import JoinQuerySet from './JoinQuerySet.js';
 class QuerySet extends IQuerySet {
@@ -189,4 +189,3 @@ class QuerySet extends IQuerySet {
     }
 }
 export default QuerySet;
-//# sourceMappingURL=QuerySet.js.map

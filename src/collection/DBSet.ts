@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as Case from 'case';
+import Case from 'case';
 
-import * as bean from '../bean';
-import * as sql from '../sql';
-import * as types from '../types';
-import * as Mapping from '../Mapping';
-import * as funcs from '../funcs';
+import * as bean from '../bean/index.js';
+import * as sql from '../sql/index.js';
+import * as types from '../types/index.js';
+import * as Mapping from '../Mapping.js';
+import * as funcs from '../funcs/index.js';
 import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
 
@@ -189,6 +189,10 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 	private whereExpr(entity: T) {
 		let primaryFields = this.getPrimaryFields();
+		if (!(primaryFields && primaryFields.length)) {
+			throw new bean.SqlException('Primary Key fields not found');
+		}
+
 		let whereExpr = new sql.Expression();
 		primaryFields.forEach(priField => {
 			let w1 = new sql.Expression(priField.colName);

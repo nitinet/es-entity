@@ -6,4 +6,3 @@ var Command;
     Command[Command["DELETE"] = 3] = "DELETE";
 })(Command || (Command = {}));
 export default Command;
-//# sourceMappingURL=Command.js.map

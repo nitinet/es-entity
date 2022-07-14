@@ -1,5 +1,5 @@
-import Field from '../sql/Field';
-import * as bean from '../bean';
+import Field from '../sql/Field.js';
+import * as bean from '../bean/index.js';
 class DateType extends Field {
     constructor(data) {
         super();
@@ -18,4 +18,3 @@ class DateType extends Field {
     }
 }
 export default DateType;
-//# sourceMappingURL=DateType.js.map

@@ -1,4 +1,4 @@
-import * as bean from '../bean';
+import * as bean from '../bean/index.js';
 import Mysql from './Mysql.js';
 import OracleHandler from './Oracle.js';
 import MsSqlServer from './MsSqlServer.js';
@@ -32,4 +32,3 @@ function getHandler(config) {
     return handler;
 }
 export default getHandler;
-//# sourceMappingURL=getHandler.js.map

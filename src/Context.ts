@@ -1,5 +1,5 @@
-import * as sql from './sql';
-import * as bean from './bean';
+import * as sql from './sql/index.js';
+import * as bean from './bean/index.js';
 import DBSet from './collection/DBSet.js';
 import Handler from './handlers/Handler.js';
 import Connection from './Connection.js';

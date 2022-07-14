@@ -8,4 +8,3 @@ var ColumnType;
     ColumnType[ColumnType["JSON"] = 6] = "JSON";
 })(ColumnType || (ColumnType = {}));
 export default ColumnType;
-//# sourceMappingURL=ColumnType.js.map

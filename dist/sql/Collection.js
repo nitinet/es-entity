@@ -1,5 +1,5 @@
-import INode from './INode';
-import Join from './types/Join';
+import INode from './INode.js';
+import Join from './types/Join.js';
 class Collection extends INode {
     constructor() {
         super();
@@ -50,4 +50,3 @@ class Collection extends INode {
     }
 }
 export default Collection;
-//# sourceMappingURL=Collection.js.map

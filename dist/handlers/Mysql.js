@@ -1,6 +1,6 @@
-import * as bean from '../bean/index';
-import Handler from './Handler';
-import Connection from '../Connection';
+import * as bean from '../bean/index.js';
+import Handler from './Handler.js';
+import Connection from '../Connection.js';
 export default class Mysql extends Handler {
     constructor(config) {
         super();
@@ -192,4 +192,3 @@ export default class Mysql extends Handler {
         return result;
     }
 }
-//# sourceMappingURL=Mysql.js.map

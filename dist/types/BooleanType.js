@@ -1,5 +1,5 @@
-import Field from '../sql/Field';
-import * as bean from '../bean';
+import Field from '../sql/Field.js';
+import * as bean from '../bean/index.js';
 class BooleanType extends Field {
     constructor(data) {
         super();
@@ -18,4 +18,3 @@ class BooleanType extends Field {
     }
 }
 export default BooleanType;
-//# sourceMappingURL=BooleanType.js.map

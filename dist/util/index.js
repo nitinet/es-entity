@@ -7,4 +7,3 @@ export default {
     reverse
 };
 export { Converter, convert, reverse };
-//# sourceMappingURL=index.js.map
