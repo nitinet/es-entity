@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
-const types = require("../types");
+const sql = require("../sql/index.js");
+const types = require("../types/index.js");
 function convert(res, ...srcs) {
     let allowKeys = Object.keys(res);
     srcs.forEach(src => {

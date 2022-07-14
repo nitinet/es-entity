@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
-const Case = require("case");
-const bean = require("../bean");
-const sql = require("../sql");
-const types = require("../types");
-const Mapping = require("../Mapping");
+const case_1 = require("case");
+const bean = require("../bean/index.js");
+const sql = require("../sql/index.js");
+const types = require("../types/index.js");
+const Mapping = require("../Mapping.js");
 const IQuerySet_js_1 = require("./IQuerySet.js");
 const QuerySet_js_1 = require("./QuerySet.js");
 class DBSet extends IQuerySet_js_1.default {
@@ -34,7 +34,7 @@ class DBSet extends IQuerySet_js_1.default {
         else {
             this.mapping = new Mapping.EntityMapping();
             this.mapping.entityName = this.options.entityName;
-            this.mapping.name = Case.snake(this.options.entityName);
+            this.mapping.name = case_1.default.snake(this.options.entityName);
             this.columns = await this.context.handler.getTableInfo(this.mapping.name);
             let obj = new this.entityType();
             let keys = Reflect.ownKeys(obj);
@@ -48,7 +48,7 @@ class DBSet extends IQuerySet_js_1.default {
         return this;
     }
     bindField(key, field) {
-        let colName = Case.snake(key);
+        let colName = case_1.default.snake(key);
         let column = this.columns.filter(col => {
             return col.field == colName;
         })[0];
@@ -171,6 +171,9 @@ class DBSet extends IQuerySet_js_1.default {
     }
     whereExpr(entity) {
         let primaryFields = this.getPrimaryFields();
+        if (!(primaryFields && primaryFields.length)) {
+            throw new bean.SqlException('Primary Key fields not found');
+        }
         let whereExpr = new sql.Expression();
         primaryFields.forEach(priField => {
             let w1 = new sql.Expression(priField.colName);

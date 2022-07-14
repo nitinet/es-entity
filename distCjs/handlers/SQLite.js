@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean");
-const Handler_1 = require("./Handler");
-const Connection_1 = require("../Connection");
-class SQlite extends Handler_1.default {
+const bean = require("../bean/index.js");
+const Handler_js_1 = require("./Handler.js");
+const Connection_js_1 = require("../Connection.js");
+class SQlite extends Handler_js_1.default {
     constructor(config) {
         super();
         this.handlerName = 'sqlite';
@@ -15,7 +15,7 @@ class SQlite extends Handler_1.default {
         this.connectionPool = new this.driver.Database(this.config.database);
     }
     async getConnection() {
-        let res = new Connection_1.default(this, this.connectionPool);
+        let res = new Connection_js_1.default(this, this.connectionPool);
         return res;
     }
     async initTransaction(conn) { await conn.query('BEGIN TRANSACTION'); }
@@ -52,7 +52,7 @@ class SQlite extends Handler_1.default {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
         let conn = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection_js_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }
         else {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
+const sql = require("../sql/index.js");
 function reverse(res, ...srcs) {
     let allowKeys = Object.keys(res);
     srcs.forEach(src => {

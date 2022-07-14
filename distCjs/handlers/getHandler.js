@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean");
+const bean = require("../bean/index.js");
 const Mysql_js_1 = require("./Mysql.js");
 const Oracle_js_1 = require("./Oracle.js");
 const MsSqlServer_js_1 = require("./MsSqlServer.js");

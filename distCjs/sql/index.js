@@ -11,7 +11,7 @@ const INode_js_1 = require("./INode.js");
 exports.INode = INode_js_1.default;
 const Statement_js_1 = require("./Statement.js");
 exports.Statement = Statement_js_1.default;
-const types = require("./types");
+const types = require("./types/index.js");
 exports.types = types;
 exports.default = {
     INode: INode_js_1.default,

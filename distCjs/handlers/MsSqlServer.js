@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean/index");
-const Handler_1 = require("./Handler");
-const sql = require("../sql");
-const Connection_1 = require("../Connection");
-class MsSqlServer extends Handler_1.default {
+const bean = require("../bean/index.js");
+const Handler_js_1 = require("./Handler.js");
+const sql = require("../sql/index.js");
+const Connection_js_1 = require("../Connection.js");
+class MsSqlServer extends Handler_js_1.default {
     constructor(config) {
         super();
         this.handlerName = 'mssql';
@@ -31,7 +31,7 @@ class MsSqlServer extends Handler_1.default {
             database: this.config.database
         });
         let conn = new this.driver.Request();
-        return new Connection_1.default(this, conn);
+        return new Connection_js_1.default(this, conn);
     }
     async initTransaction(conn) { return null; }
     async commit(conn) { return null; }
@@ -84,7 +84,7 @@ class MsSqlServer extends Handler_1.default {
         }
         let temp = null;
         let conn = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection_js_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }
         else {

@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const LinkSet_1 = require("../collection/LinkSet");
+const LinkSet_js_1 = require("../collection/LinkSet.js");
 class LinkArrayType {
     constructor(entityType, foreignFunc) {
         this.linkSet = null;
         this.applied = false;
         this._value = null;
-        this.linkSet = new LinkSet_1.default(entityType, foreignFunc);
+        this.linkSet = new LinkSet_js_1.default(entityType, foreignFunc);
     }
     bind(context) {
         this.linkSet.context = context;

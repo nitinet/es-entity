@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bean = require("../bean/index");
-const Handler_1 = require("./Handler");
-const Connection_1 = require("../Connection");
-class PostgreSql extends Handler_1.default {
+const bean = require("../bean/index.js");
+const Handler_js_1 = require("./Handler.js");
+const Connection_js_1 = require("../Connection.js");
+class PostgreSql extends Handler_js_1.default {
     constructor(config) {
         super();
         this.handlerName = 'postgresql';
@@ -32,7 +32,7 @@ class PostgreSql extends Handler_1.default {
         });
         try {
             await conn.connect();
-            return new Connection_1.default(this, conn);
+            return new Connection_js_1.default(this, conn);
         }
         catch (err) {
             this.context.log('Connection Creation Failed', err);
@@ -89,7 +89,7 @@ class PostgreSql extends Handler_1.default {
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        if (connection && connection instanceof Connection_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof Connection_js_1.default && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await connection.conn.query(queryObj.query, queryObj.args);
         }
         else {

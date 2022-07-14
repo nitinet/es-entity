@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const INode_1 = require("./INode");
-const Join_1 = require("./types/Join");
-class Collection extends INode_1.default {
+const INode_js_1 = require("./INode.js");
+const Join_js_1 = require("./types/Join.js");
+class Collection extends INode_js_1.default {
     constructor() {
         super();
         this.colAlias = null;
@@ -26,16 +26,16 @@ class Collection extends INode_1.default {
             let val0 = this.leftColl.eval(handler);
             let val1 = this.rightColl.eval(handler);
             switch (this.join) {
-                case Join_1.default.InnerJoin:
+                case Join_js_1.default.InnerJoin:
                     res = `(${val0} inner join ${val1})`;
                     break;
-                case Join_1.default.LeftJoin:
+                case Join_js_1.default.LeftJoin:
                     res = `(${val0} left join ${val1})`;
                     break;
-                case Join_1.default.RightJoin:
+                case Join_js_1.default.RightJoin:
                     res = `(${val0} right join ${val1})`;
                     break;
-                case Join_1.default.OuterJoin:
+                case Join_js_1.default.OuterJoin:
                     res = `(${val0} outer join ${val1})`;
                     break;
                 default:

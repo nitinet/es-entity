@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sql = require("../sql");
+const sql = require("../sql/index.js");
 class Handler {
     constructor() {
         this.context = null;

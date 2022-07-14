@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const INode_1 = require("./INode");
-const Command_1 = require("./types/Command");
-const Expression_1 = require("./Expression");
-const Collection_1 = require("./Collection");
-class Statement extends INode_1.default {
+const INode_js_1 = require("./INode.js");
+const Command_js_1 = require("./types/Command.js");
+const Expression_js_1 = require("./Expression.js");
+const Collection_js_1 = require("./Collection.js");
+class Statement extends INode_js_1.default {
     constructor() {
         super();
         this.command = null;
         this.columns = new Array();
         this.values = new Array();
-        this.collection = new Collection_1.default();
-        this.where = new Expression_1.default();
+        this.collection = new Collection_js_1.default();
+        this.where = new Expression_js_1.default();
         this.groupBy = new Array();
         this.orderBy = new Array();
-        this.limit = new Expression_1.default();
+        this.limit = new Expression_js_1.default();
     }
     eval(handler) {
         if (!handler) {
@@ -22,16 +22,16 @@ class Statement extends INode_1.default {
         }
         let result = null;
         switch (this.command) {
-            case Command_1.default.SELECT:
+            case Command_js_1.default.SELECT:
                 result = this.selectQuery(handler);
                 break;
-            case Command_1.default.INSERT:
+            case Command_js_1.default.INSERT:
                 result = this.insertQuery(handler);
                 break;
-            case Command_1.default.UPDATE:
+            case Command_js_1.default.UPDATE:
                 result = this.updateQuery(handler);
                 break;
-            case Command_1.default.DELETE:
+            case Command_js_1.default.DELETE:
                 result = this.deleteQuery(handler);
                 break;
             default:

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Field_1 = require("../sql/Field");
-const bean = require("../bean");
-class BigIntType extends Field_1.default {
+const Field_js_1 = require("../sql/Field.js");
+const bean = require("../bean/index.js");
+class BigIntType extends Field_js_1.default {
     constructor(data) {
         super();
         this.set(data);

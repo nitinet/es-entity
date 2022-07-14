@@ -189,6 +189,10 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 
 	private whereExpr(entity: T) {
 		let primaryFields = this.getPrimaryFields();
+		if (!(primaryFields && primaryFields.length)) {
+			throw new bean.SqlException('Primary Key fields not found');
+		}
+
 		let whereExpr = new sql.Expression();
 		primaryFields.forEach(priField => {
 			let w1 = new sql.Expression(priField.colName);
