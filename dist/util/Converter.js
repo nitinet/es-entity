@@ -1,7 +1,7 @@
 import * as sql from '../sql/index.js';
 class Converter {
+    option = null;
     constructor(option) {
-        this.option = null;
         this.option = option || {};
         this.option.ignoreKeys = option.ignoreKeys || [];
     }
@@ -12,17 +12,19 @@ class Converter {
         });
         srcs.forEach(src => {
             Object.keys(src).filter((key) => {
+                let resVal = Reflect.get(res, key);
                 return allowKeys.includes(key)
                     && src[key] != null
-                    && res[key] instanceof sql.Field
-                    && res[key].get() != src[key];
+                    && resVal instanceof sql.Field
+                    && resVal.get() != src[key];
             }).forEach((key) => {
-                let typeFunc = this.option.typeFuncs != null ? this.option.typeFuncs.get(res[key].constructor) : null;
+                let resVal = Reflect.get(res, key);
+                let typeFunc = this.option.typeFuncs != null ? this.option.typeFuncs.get(resVal.constructor) : null;
                 if (typeFunc && typeof typeFunc == 'function') {
-                    res[key].set(typeFunc(src[key]));
+                    resVal.set(typeFunc(src[key]));
                 }
                 else {
-                    res[key].set(src[key]);
+                    resVal.set(src[key]);
                 }
             });
         });
@@ -35,11 +37,12 @@ class Converter {
         });
         srcs.forEach(src => {
             Object.keys(src).filter((key) => {
+                let resVal = Reflect.get(res, key);
                 return allowKeys.includes(key)
                     && src[key] instanceof sql.Field
-                    && res[key] != src[key].get();
+                    && resVal != src[key].get();
             }).forEach((key) => {
-                res[key] = src[key].get();
+                Reflect.set(res, key, src[key].get());
             });
         });
         return res;

@@ -189,7 +189,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		Reflect.ownKeys(tempObj).forEach((key) => {
 			let field = this.dbSet.getKeyField(key);
 
-			let q = tempObj[key];
+			let q = Reflect.get(tempObj, key);
 			if (q instanceof sql.Field && q._updated) {
 				let c1 = new sql.Expression(field.colName);
 				let c2 = new sql.Expression('?');
@@ -216,7 +216,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		await this.context.execute(stat);
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join) {
+	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A> {
 		joinType = joinType | sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;

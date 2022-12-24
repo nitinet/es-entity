@@ -10,7 +10,7 @@ export default class Context {
 	private _handler: Handler;
 	private _entityPath: string;
 	private connection: Connection = null;
-	private logger = null;
+	private logger: any = null;
 
 	public dbSetMap = new Map<IEntityType<any>, DBSet<any>>();
 	public config: bean.IConfig = null;
@@ -27,7 +27,7 @@ export default class Context {
 		this.logger = this.config.logger || console;
 	}
 
-	log(...arg) {
+	log(...arg: any[]) {
 		this.logger.error(arg);
 	}
 
@@ -38,7 +38,7 @@ export default class Context {
 			let o: any = Reflect.get(this, key);
 			return o instanceof DBSet;
 		}, this).map(async key => {
-			let obj: DBSet<any> = Reflect.get(this, key);
+			let obj = (<DBSet<any>>Reflect.get(this, key));
 			obj.context = this;
 			obj = await obj.bind();
 			this.dbSetMap.set(obj.getEntityType(), obj);

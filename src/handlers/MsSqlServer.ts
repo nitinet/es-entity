@@ -8,7 +8,7 @@ import Connection from '../Connection.js';
 
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
-	connectionPool = null;
+	connectionPool: any = null;
 	driver: typeof import('mssql') = null;
 
 	constructor(config: bean.IConnectionConfig) {
@@ -28,7 +28,7 @@ export default class MsSqlServer extends Handler {
 		}).connect();
 	}
 
-	async getConnection() {
+	async getConnection(): Promise<Connection> {
 		await this.driver.connect({
 			server: this.config.host,
 			port: this.config.port,
@@ -40,11 +40,11 @@ export default class MsSqlServer extends Handler {
 		return new Connection(this, conn);
 	}
 
-	async initTransaction(conn: Connection) { return null; }
-	async commit(conn: Connection) { return null; }
-	async rollback(conn: Connection) { return null; }
-	async close(conn: Connection) { return null; }
-	async end() { return null; }
+	async initTransaction(conn: Connection): Promise<void> { return null; }
+	async commit(conn: Connection): Promise<void> { return null; }
+	async rollback(conn: Connection): Promise<void> { return null; }
+	async close(conn: Connection): Promise<void> { return null; }
+	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
@@ -89,7 +89,7 @@ export default class MsSqlServer extends Handler {
 		}
 
 		let temp = null;
-		let conn = null;
+		let conn: any = null;
 
 		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			conn = connection.conn;
@@ -98,7 +98,7 @@ export default class MsSqlServer extends Handler {
 		}
 
 		temp = await new Promise<any>((resolve, reject) => {
-			conn.query(q, args, function (err: Error, r) {
+			conn.query(q, args, function (err: Error, r: any) {
 				if (err) { reject(err); }
 				else { resolve(r); }
 			});

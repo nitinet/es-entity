@@ -2,10 +2,10 @@ import * as sql from '../sql/index.js';
 import IQuerySet from './IQuerySet.js';
 import JoinQuerySet from './JoinQuerySet.js';
 class QuerySet extends IQuerySet {
+    dbSet = null;
+    alias = null;
     constructor(dbSet) {
         super();
-        this.dbSet = null;
-        this.alias = null;
         if (dbSet) {
             this.bind(dbSet);
         }
@@ -145,7 +145,7 @@ class QuerySet extends IQuerySet {
         let tempObj = param(a);
         Reflect.ownKeys(tempObj).forEach((key) => {
             let field = this.dbSet.getKeyField(key);
-            let q = tempObj[key];
+            let q = Reflect.get(tempObj, key);
             if (q instanceof sql.Field && q._updated) {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');

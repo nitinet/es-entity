@@ -46,15 +46,15 @@ export default class PostgreSql extends Handler {
 		}
 	}
 
-	async initTransaction(conn) { await conn.query('BEGIN'); }
+	async initTransaction(conn: any): Promise<void> { await conn.query('BEGIN'); }
 
-	async commit(conn) { await conn.query('COMMIT'); }
+	async commit(conn: any): Promise<void> { await conn.query('COMMIT'); }
 
-	async rollback(conn) { await conn.query('ROLLBACK'); }
+	async rollback(conn: any): Promise<void> { await conn.query('ROLLBACK'); }
 
-	async close(conn) { await conn.end(); }
+	async close(conn: any): Promise<void> { await conn.end(); }
 
-	async end() { return null; }
+	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string) {
 		let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,

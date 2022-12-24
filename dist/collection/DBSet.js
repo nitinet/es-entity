@@ -8,11 +8,12 @@ import * as Mapping from '../Mapping.js';
 import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
 class DBSet extends IQuerySet {
+    entityType;
+    options = null;
+    mapping = new Mapping.EntityMapping();
+    columns = null;
     constructor(entityType, options) {
         super();
-        this.options = null;
-        this.mapping = new Mapping.EntityMapping();
-        this.columns = null;
         this.entityType = entityType;
         this.options = options || {};
         this.options.entityName = this.options.entityName || this.entityType.name;
@@ -37,7 +38,7 @@ class DBSet extends IQuerySet {
             let obj = new this.entityType();
             let keys = Reflect.ownKeys(obj);
             keys.forEach(key => {
-                let field = obj[key];
+                let field = Reflect.get(obj, key);
                 if (field instanceof sql.Field) {
                     this.bindField(key.toString(), field);
                 }
@@ -110,7 +111,7 @@ class DBSet extends IQuerySet {
         let a = new this.entityType();
         let keys = Reflect.ownKeys(a);
         keys.forEach(key => {
-            let field = a[key];
+            let field = Reflect.get(a, key);
             if (field instanceof sql.Field) {
                 let fieldInfo = this.getKeyField(key);
                 field._name = fieldInfo && fieldInfo.colName ? fieldInfo.colName : '';
@@ -131,7 +132,7 @@ class DBSet extends IQuerySet {
         stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.mapping.name;
         Reflect.ownKeys(entity).forEach((key) => {
-            let q = entity[key];
+            let q = Reflect.get(entity, key);
             if (q instanceof sql.Field && q._updated) {
                 let field = this.getKeyField(key);
                 let col = new sql.Collection();
@@ -157,7 +158,7 @@ class DBSet extends IQuerySet {
         else if (primaryFields.length > 1) {
             let param = {};
             primaryFields.forEach(field => {
-                param[field.fieldName] = this.getValue(entity, field.fieldName);
+                Reflect.set(param, field.fieldName, this.getValue(entity, field.fieldName));
             });
             return this.get(param);
         }
@@ -188,7 +189,7 @@ class DBSet extends IQuerySet {
         let primaryFields = this.getPrimaryFields();
         Reflect.ownKeys(entity).forEach((key) => {
             let field = this.getKeyField(key);
-            let q = entity[key];
+            let q = Reflect.get(entity, key);
             let isPrimaryField = false;
             for (let f of primaryFields) {
                 if (f.fieldName == field.fieldName) {
@@ -217,7 +218,7 @@ class DBSet extends IQuerySet {
             else {
                 let param = {};
                 primaryFields.forEach(field => {
-                    param[field.fieldName] = this.getValue(entity, field.fieldName);
+                    Reflect.set(param, field.fieldName, this.getValue(entity, field.fieldName));
                 });
                 return this.get(param);
             }
@@ -230,7 +231,7 @@ class DBSet extends IQuerySet {
         let primaryFields = this.getPrimaryFields();
         let param = {};
         primaryFields.forEach(field => {
-            param[field.fieldName] = this.getValue(entity, field.fieldName);
+            Reflect.set(param, field.fieldName, this.getValue(entity, field.fieldName));
         });
         let obj = await this.get(param);
         if (obj) {
@@ -248,9 +249,8 @@ class DBSet extends IQuerySet {
         await this.context.execute(stat);
     }
     async get(id) {
-        if (id == null) {
+        if (id == null)
             throw new Error('Id parameter cannot be null');
-        }
         let primaryFields = this.getPrimaryFields();
         if (primaryFields.length == 0) {
             throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
@@ -259,13 +259,13 @@ class DBSet extends IQuerySet {
             if (typeof id === 'object') {
                 let field = primaryFields[0];
                 return this.where((a) => {
-                    return a[field.fieldName].eq(id[field.fieldName]);
+                    return Reflect.get(a, field.fieldName).eq(id[field.fieldName]);
                 }).unique();
             }
             else {
                 let field = primaryFields[0];
                 return this.where((a) => {
-                    return a[field.fieldName].eq(id);
+                    return Reflect.get(a, field.fieldName).eq(id);
                 }).unique();
             }
         }
@@ -327,7 +327,7 @@ class DBSet extends IQuerySet {
             let obj = this.getEntity();
             let keys = Reflect.ownKeys(obj);
             keys.filter(key => {
-                let field = obj[key];
+                let field = Reflect.get(obj, key);
                 return field instanceof sql.Field;
             }).forEach(key => {
                 let fieldMapping = this.mapping.fields.find(f => {
@@ -335,16 +335,16 @@ class DBSet extends IQuerySet {
                 });
                 if (fieldMapping) {
                     let val = this.context.handler.mapData(row, fieldMapping.colName, fieldMapping.type);
-                    let field = obj[key];
+                    let field = Reflect.get(obj, key);
                     field.set(val);
                     field._updated = false;
                 }
             });
             await Promise.all(keys.filter(key => {
-                let field = obj[key];
+                let field = Reflect.get(obj, key);
                 return (field instanceof types.LinkObject || field instanceof types.LinkArray);
             }).map(async (key) => {
-                let field = obj[key];
+                let field = Reflect.get(obj, key);
                 await field.apply(obj);
             }));
             data.push(obj);

@@ -1,8 +1,7 @@
 import * as sql from '../sql/index.js';
 export default class Handler {
-    constructor() {
-        this.context = null;
-    }
+    context = null;
+    config;
     async getTableInfo(tableName) { return null; }
     async run(query, args, connetction) { return null; }
     convertPlaceHolder(query) {

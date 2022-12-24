@@ -1,12 +1,10 @@
 import Expression from './Expression.js';
 import Operator from './types/Operator.js';
 class Field {
-    constructor() {
-        this._value = null;
-        this._alias = '';
-        this._name = '';
-        this._updated = false;
-    }
+    _value = null;
+    _alias = '';
+    _name = '';
+    _updated = false;
     get() {
         return this._value;
     }

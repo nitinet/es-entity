@@ -8,8 +8,8 @@ import Connection from '../Connection.js';
 export default class Oracle extends Handler {
 	handlerName = 'oracle';
 	// connectionPool: oracledb.IConnectionPool = null;
-	connectionPool = null;
-	driver = null;
+	connectionPool: any = null;
+	driver: any = null;
 	// driver = oracledb;
 
 	constructor(config: bean.IConnectionConfig) {
@@ -29,7 +29,7 @@ export default class Oracle extends Handler {
 
 	}
 
-	async getConnection() {
+	async getConnection(): Promise<Connection> {
 		let conn = await this.driver.getConnection({
 			user: this.config.username,
 			password: this.config.password,
@@ -38,11 +38,11 @@ export default class Oracle extends Handler {
 		return new Connection(this, conn);
 	}
 
-	async initTransaction(conn: Connection) { return null; }
-	async commit(conn: Connection) { return conn.conn.commit(); }
-	async rollback(conn: Connection) { return conn.conn.rollback(); }
-	async close(conn: Connection) { return conn.conn.close(); }
-	async end() { return null; }
+	async initTransaction(conn: Connection): Promise<void> { return null; }
+	async commit(conn: Connection): Promise<void> { return conn.conn.commit(); }
+	async rollback(conn: Connection): Promise<void> { return conn.conn.rollback(); }
+	async close(conn: Connection): Promise<void> { return conn.conn.close(); }
+	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);

@@ -40,7 +40,7 @@ abstract class IQuerySet<T> {
 	}
 
 	// utils functions
-	setStatColumns(tempObj) {
+	setStatColumns(tempObj:any) {
 		let tempKeys = Reflect.ownKeys(tempObj);
 		tempKeys.forEach(k => {
 			let f = tempObj[k];

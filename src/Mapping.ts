@@ -19,7 +19,7 @@ export class EntityMapping {
 		if (data) {
 			this.name = data.name;
 			this.entityName = data.entityName;
-			data.fields.forEach((val) => {
+			data.fields.forEach((val: any) => {
 				this.fields.push(new FieldMapping(val));
 			});
 		}

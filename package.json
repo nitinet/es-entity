@@ -1,6 +1,6 @@
 {
 	"name": "es-entity",
-	"version": "2.5.0",
+	"version": "2.5.1",
 	"description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -29,25 +29,25 @@
 		"case": "^1.6.3"
 	},
 	"devDependencies": {
-		"@types/mssql": "^8.0.3",
+		"@types/mssql": "^8.1.1",
 		"@types/mysql": "^2.15.21",
-		"@types/node": "18.0.4",
+		"@types/node": "18.11.17",
 		"@types/oracledb": "^5.2.3",
-		"@types/pg": "^8.6.5",
+		"@types/pg": "^8.6.6",
 		"@types/sqlite3": "^3.1.8",
-		"pg": "^8.7.3",
-		"pg-native": "^3.0.0",
+		"pg": "^8.8.0",
+		"pg-native": "^3.0.1",
 		"mysql": "^2.18.1",
-		"mssql": "^8.1.2",
-		"oracledb": "^5.4.0",
-		"sqlite3": "^5.0.8"
+		"mssql": "^9.0.1",
+		"oracledb": "^5.5.0",
+		"sqlite3": "^5.1.4"
 	},
 	"optionalDependencies": {
-		"pg": "^8.7.3",
-		"pg-native": "^3.0.0",
+		"pg": "^8.8.0",
+		"pg-native": "^3.0.1",
 		"mysql": "^2.18.1",
-		"mssql": "^8.1.2",
-		"oracledb": "^5.4.0",
-		"sqlite3": "^5.0.8"
+		"mssql": "^9.0.1",
+		"oracledb": "^5.5.0",
+		"sqlite3": "^5.1.4"
 	}
 }

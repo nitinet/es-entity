@@ -1,11 +1,13 @@
 import DBSet from './collection/DBSet.js';
 import getHandler from './handlers/getHandler.js';
 export default class Context {
+    _handler;
+    _entityPath;
+    connection = null;
+    logger = null;
+    dbSetMap = new Map();
+    config = null;
     constructor(config) {
-        this.connection = null;
-        this.logger = null;
-        this.dbSetMap = new Map();
-        this.config = null;
         this.config = config;
         if (!this.config.dbConfig) {
             throw new Error('Database Config Not Found');

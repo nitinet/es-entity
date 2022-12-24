@@ -12,7 +12,7 @@ class LinkSet<T extends Object> extends QuerySet<T>{
 		this.foreignFunc = foreignFunc;
 	}
 
-	apply(parentObj) {
+	apply(parentObj:any) {
 		let a = this.getEntity();
 		let expr = this.foreignFunc(a, parentObj);
 		this.where(expr);

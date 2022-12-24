@@ -5,19 +5,21 @@ function convert<T extends Object>(res: T, ...srcs: any[]) {
 	let allowKeys = Object.keys(res);
 	srcs.forEach(src => {
 		Object.keys(src).filter((key) => {
+			let resVal = Reflect.get(res, key);
 			return allowKeys.includes(key)
 				&& src[key] != null
-				&& res[key] instanceof sql.Field
-				&& res[key].get() != src[key];
+				&& resVal instanceof sql.Field
+				&& resVal.get() != src[key];
 		}).forEach((key: string) => {
-			if (res[key] instanceof types.Date) {
+			let resVal = (<sql.Field<any>>Reflect.get(res, key));
+			if (resVal instanceof types.Date) {
 				let d: Date = null;
 				if (src[key] instanceof Date) {
 					d = src[key];
 				}
-				res[key].set(d);
+				resVal.set(d);
 			} else {
-				res[key].set(src[key]);
+				resVal.set(src[key]);
 			}
 		});
 	});

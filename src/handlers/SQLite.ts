@@ -21,19 +21,19 @@ export default class SQlite extends Handler {
 	}
 
 	async getConnection() {
-		let res = new Connection(this, this.connectionPool);
+		let res: Connection = new Connection(this, this.connectionPool);
 		return res;
 	}
 
-	async initTransaction(conn) { await conn.query('BEGIN TRANSACTION'); }
+	async initTransaction(conn: any): Promise<void> { await conn.query('BEGIN TRANSACTION'); }
 
-	async commit(conn) { await conn.query('COMMIT'); }
+	async commit(conn: any): Promise<void> { await conn.query('COMMIT'); }
 
-	async rollback(conn) { await conn.query('ROLLBACK'); }
+	async rollback(conn: any): Promise<void> { await conn.query('ROLLBACK'); }
 
-	async close(conn) { await conn.end(); }
+	async close(conn: any): Promise<void> { await conn.end(); }
 
-	async end() { return null; }
+	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`pragma table_info('${tableName}')`);
@@ -73,7 +73,7 @@ export default class SQlite extends Handler {
 		}
 
 		temp = await new Promise<any>((resolve, reject) => {
-			conn.run(queryObj.query, queryObj.args, function (err: Error, r) {
+			conn.run(queryObj.query, queryObj.args, function (err: Error, r: any) {
 				if (err) { reject(err); }
 				else { resolve(r); }
 			});

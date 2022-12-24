@@ -7,7 +7,7 @@ import * as bean from '../bean/index.js';
 export default abstract class Handler {
 	context: Context = null;
 	abstract handlerName: string;
-	abstract driver;
+	abstract driver: any;
 	config: bean.IConnectionConfig;
 
 	abstract init(): Promise<void>;
@@ -17,10 +17,10 @@ export default abstract class Handler {
 
 	// Connetion manage functions
 	abstract getConnection(): Promise<Connection>;
-	abstract initTransaction(conn): Promise<void>;
-	abstract commit(conn): Promise<void>;
-	abstract rollback(conn): Promise<void>;
-	abstract close(conn): Promise<void>;
+	abstract initTransaction(conn: any): Promise<void>;
+	abstract commit(conn: any): Promise<void>;
+	abstract rollback(conn: any): Promise<void>;
+	abstract close(conn: any): Promise<void>;
 	abstract end(): Promise<void>;
 
 	convertPlaceHolder(query: string) {

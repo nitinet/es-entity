@@ -4,11 +4,12 @@ function reverse<T extends Object>(res: T, ...srcs: any[]) {
 	let allowKeys = Object.keys(res);
 	srcs.forEach(src => {
 		Object.keys(src).filter((key) => {
+			let resVal = Reflect.get(res, key);
 			return allowKeys.includes(key)
 				&& src[key] instanceof sql.Field
-				&& res[key] != src[key].get();
+				&& resVal != src[key].get();
 		}).forEach((key: string) => {
-			res[key] = src[key].get();
+			Reflect.set(res, key, src[key].get());
 		});
 	});
 	return res;

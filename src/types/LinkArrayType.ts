@@ -18,7 +18,7 @@ class LinkArrayType<T> {
 		this.linkSet.bind(dbSet);
 	}
 
-	async apply(parentObj) {
+	async apply(parentObj: any) {
 		this.linkSet.apply(parentObj);
 	}
 

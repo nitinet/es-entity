@@ -4,7 +4,7 @@ import * as sql from '../sql/index.js';
 
 export default class Cassandra extends Handler {
 	handlerName = 'cassandra';
-	driver = null;
+	driver: any = null;
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
@@ -12,12 +12,12 @@ export default class Cassandra extends Handler {
 
 	async init() { }
 
-	async getConnection() { return null; }
-	async initTransaction(conn) { return null; }
-	async commit(conn) { return null; }
-	async rollback(conn) { return null; }
-	async close(conn) { return null; }
-	async end() { return null; }
+	async getConnection(): Promise<any> { return null; }
+	async initTransaction(conn: any): Promise<void> { return null; }
+	async commit(conn: any): Promise<void> { return null; }
+	async rollback(conn: any): Promise<void> { return null; }
+	async close(con: any): Promise<void> { return null; }
+	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		return null;

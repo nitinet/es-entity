@@ -4,7 +4,7 @@ export default class Connection {
 	private handler: Handler = null;
 	conn: any = null;
 
-	constructor(handler: Handler, conn?) {
+	constructor(handler: Handler, conn?:any) {
 		this.handler = handler;
 		this.conn = conn;
 	}
