@@ -1,9 +1,6 @@
 import Operator from './types/Operator.js';
 class Expression {
     args = new Array();
-    _alias = '';
-    _name = '';
-    _updated = false;
     value = null;
     exps = null;
     operator = null;

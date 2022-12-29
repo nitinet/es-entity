@@ -8,10 +8,6 @@ import Operator from './types/Operator.js';
 class Expression implements INode {
 	args: Array<any> = new Array<any>();
 
-	_alias: string = '';
-	_name: string = '';
-	_updated: boolean = false;
-
 	value: string = null;
 	exps: Array<Expression> = null;
 	operator: Operator = null;

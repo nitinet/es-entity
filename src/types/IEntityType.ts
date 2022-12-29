@@ -1,4 +1,4 @@
-interface IEntityType<T> {
+interface IEntityType<T extends Object> {
 	new(): T;
 }
 

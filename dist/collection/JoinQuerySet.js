@@ -20,60 +20,22 @@ class JoinQuerySet extends IQuerySet {
         return Object.assign(mainObj, joinObj);
     }
     async list() {
-        this.stat.command = sql.types.Command.SELECT;
-        let tempObj = this.getEntity();
-        this.setStatColumns(tempObj);
-        let result = await this.context.execute(this.stat);
-        return this.mapData(result);
+        return null;
     }
     async mapData(input) {
-        let resMain = await this.mainSet.mapData(input);
-        let resJoin = await this.joinSet.mapData(input);
-        let res = new Array();
-        for (let i = 0; i < input.rowCount; i++) {
-            let objMain = resMain[i];
-            let objJoin = resJoin[i];
-            let objFinal = Object.assign(objMain, objJoin);
-            res.push(objFinal);
-        }
-        return res;
+        return null;
     }
-    async unique() {
-        let l = await this.list();
-        if (l.length > 1) {
-            throw new Error('More than one row found in unique call');
-        }
-        else {
-            return l[0];
-        }
+    async select(TargetType) {
+        return null;
     }
-    async select(param) {
-        this.stat.command = sql.types.Command.SELECT;
-        if (!(param && param instanceof Function)) {
-            throw new Error('Select Function not found');
-        }
-        let a = this.getEntity();
-        let tempObj = param(a);
-        this.setStatColumns(tempObj);
-        let result = await this.context.execute(this.stat);
-        let temps = await this.mapData(result);
-        let res = [];
-        temps.forEach(t => {
-            let r = param(t);
-            res.push(r);
-        });
-        return res;
+    selectPlain(keys) {
+        return null;
     }
     where(param, ...args) {
         let res = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                res = param(a, args);
-            }
-            else {
-                res = param;
-            }
+        if (param && param instanceof Function) {
+            let a = new sql.OperatorEntity();
+            res = param(a, args);
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
             this.stat.where = this.stat.where.add(res);
@@ -82,14 +44,9 @@ class JoinQuerySet extends IQuerySet {
     }
     groupBy(param) {
         let res = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                res = param(a);
-            }
-            else if (param instanceof Array) {
-                res = param;
-            }
+        if (param && param instanceof Function) {
+            let a = new sql.OperatorEntity();
+            res = param(a);
         }
         if (res) {
             if (res instanceof Array) {
@@ -107,14 +64,9 @@ class JoinQuerySet extends IQuerySet {
     }
     orderBy(param) {
         let res = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                res = param(a);
-            }
-            else if (param instanceof Array) {
-                res = param;
-            }
+        if (param && param instanceof Function) {
+            let a = new sql.OperatorEntity();
+            res = param(a);
         }
         if (res) {
             if (res instanceof Array) {

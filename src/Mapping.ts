@@ -1,7 +1,7 @@
 export class FieldMapping {
 	fieldName: string = null;
 	colName: string = null;
-	type: string = null;
+	// type: string = null;
 	primaryKey: boolean = false;
 
 	constructor(data: any) {

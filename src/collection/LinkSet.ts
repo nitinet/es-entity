@@ -1,21 +1,21 @@
 import * as types from '../types/index.js';
-import * as funcs from '../funcs/index.js';
+import * as funcs from '../types/index.js';
 import QuerySet from './QuerySet.js'
+import OperatorEntity from '../model/OperatorEntity.js';
 
 class LinkSet<T extends Object> extends QuerySet<T>{
 	entityType: types.IEntityType<T>;
-	foreignFunc: funcs.IJoinFunc<T, any> = null;
+	foreignFunc: funcs.IJoinFunc<OperatorEntity<T>, any> = null;
 
-	constructor(entityType: types.IEntityType<T>, foreignFunc: funcs.IJoinFunc<T, any>) {
+	constructor(entityType: types.IEntityType<T>, foreignFunc: funcs.IJoinFunc<OperatorEntity<T>, any>) {
 		super();
 		this.entityType = entityType;
 		this.foreignFunc = foreignFunc;
 	}
 
-	apply(parentObj:any) {
+	apply(parentObj: any) {
 		let a = this.getEntity();
-		let expr = this.foreignFunc(a, parentObj);
-		this.where(expr);
+		this.where(this.foreignFunc);
 	}
 
 }

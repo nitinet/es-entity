@@ -9,8 +9,7 @@ class LinkSet extends QuerySet {
     }
     apply(parentObj) {
         let a = this.getEntity();
-        let expr = this.foreignFunc(a, parentObj);
-        this.where(expr);
+        this.where(this.foreignFunc);
     }
 }
 export default LinkSet;

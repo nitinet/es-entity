@@ -1,4 +1,5 @@
 import * as sql from '../sql/index.js';
+import * as model from '../model/index.js';
 import IQuerySet from './IQuerySet.js';
 import JoinQuerySet from './JoinQuerySet.js';
 class QuerySet extends IQuerySet {
@@ -26,50 +27,62 @@ class QuerySet extends IQuerySet {
     }
     async list() {
         this.stat.command = sql.types.Command.SELECT;
-        let tempObj = this.getEntity();
-        this.setStatColumns(tempObj);
+        let temp = new (this.dbSet.getEntityType());
+        let targetKeys = Reflect.ownKeys(temp);
+        let fields = this.dbSet.filterFields(targetKeys);
+        this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
         let result = await this.context.execute(this.stat);
-        return this.mapData(result);
+        return this.mapData(this.dbSet.getEntityType(), result);
     }
-    async mapData(input) {
-        return this.dbSet.mapData(input);
-    }
-    async select(param) {
+    async select(TargetType) {
         this.stat.command = sql.types.Command.SELECT;
-        if (!(param && param instanceof Function)) {
-            throw new Error('Select Function not found');
-        }
-        let a = this.getEntity();
-        let tempObj = param(a);
-        this.setStatColumns(tempObj);
+        let temp = new TargetType();
+        let targetKeys = Reflect.ownKeys(temp);
+        let fields = this.dbSet.filterFields(targetKeys);
+        this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
         let result = await this.context.execute(this.stat);
-        let temps = await this.mapData(result);
-        let res = [];
-        temps.forEach(t => {
-            let r = param(t);
-            res.push(r);
-        });
-        return res;
+        return this.mapData(TargetType, result);
     }
-    async unique() {
-        let l = await this.list();
-        if (l.length > 1) {
-            throw new Error('More than one row found in unique call');
-        }
-        else {
-            return l[0];
-        }
+    async selectPlain(keys) {
+        this.stat.command = sql.types.Command.SELECT;
+        let fields = this.dbSet.filterFields(keys);
+        this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
+        let input = await this.context.execute(this.stat);
+        let data = input.rows.map(row => {
+            let obj = {};
+            keys.forEach(key => {
+                let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
+                let colName = fieldMapping.colName;
+                obj[key] = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+            });
+            return obj;
+        });
+        return data;
+    }
+    async mapData(TargetEntityType, input) {
+        let data = input.rows.map(row => {
+            let obj = new TargetEntityType();
+            let keys = Reflect.ownKeys(obj);
+            keys.forEach(key => {
+                let field = Reflect.get(obj, key);
+                let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
+                if (fieldMapping) {
+                    let colName = fieldMapping.colName;
+                    field = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+                }
+                else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+                    field.bind(this.context);
+                }
+            });
+            return obj;
+        });
+        return data;
     }
     where(param, ...args) {
         let res = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                res = param(a, args);
-            }
-            else {
-                res = param;
-            }
+        if (param && param instanceof Function) {
+            let a = new sql.OperatorEntity();
+            res = param(a, args);
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
             this.stat.where = this.stat.where.add(res);
@@ -78,14 +91,9 @@ class QuerySet extends IQuerySet {
     }
     groupBy(param) {
         let res = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                res = param(a);
-            }
-            else if (param instanceof Array) {
-                res = param;
-            }
+        if (param && param instanceof Function) {
+            let a = new sql.OperatorEntity();
+            res = param(a);
         }
         if (res) {
             if (res instanceof Array) {
@@ -103,14 +111,9 @@ class QuerySet extends IQuerySet {
     }
     orderBy(param) {
         let res = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                res = param(a);
-            }
-            else if (param instanceof Array) {
-                res = param;
-            }
+        if (param && param instanceof Function) {
+            let a = new sql.OperatorEntity();
+            res = param(a);
         }
         if (res) {
             if (res instanceof Array) {
@@ -145,14 +148,13 @@ class QuerySet extends IQuerySet {
         let tempObj = param(a);
         Reflect.ownKeys(tempObj).forEach((key) => {
             let field = this.dbSet.getKeyField(key);
-            let q = Reflect.get(tempObj, key);
-            if (q instanceof sql.Field && q._updated) {
-                let c1 = new sql.Expression(field.colName);
-                let c2 = new sql.Expression('?');
-                c2.args.push(this.dbSet.getValue(tempObj, key));
-                let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-                stat.columns.push(c);
-            }
+            if (!field)
+                return;
+            let c1 = new sql.Expression(field.colName);
+            let c2 = new sql.Expression('?');
+            c2.args.push(Reflect.get(tempObj, key));
+            let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+            stat.columns.push(c);
         });
         if (stat.columns.length > 0) {
             let result = await this.context.execute(stat);
@@ -160,12 +162,6 @@ class QuerySet extends IQuerySet {
                 throw result.error;
             }
         }
-    }
-    async delete() {
-        let stat = new sql.Statement();
-        stat.command = sql.types.Command.DELETE;
-        stat.collection.value = this.dbSet.mapping.name;
-        await this.context.execute(stat);
     }
     join(coll, param, joinType) {
         joinType = joinType | sql.types.Join.InnerJoin;

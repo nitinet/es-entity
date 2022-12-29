@@ -1,7 +1,6 @@
 export class FieldMapping {
     fieldName = null;
     colName = null;
-    type = null;
     primaryKey = false;
     constructor(data) {
         Object.assign(this, data);

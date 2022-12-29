@@ -1,9 +1,11 @@
-import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
-import * as funcs from '../funcs/index.js';
+import * as funcs from '../types/index.js';
+import IEntityType from '../types/IEntityType.js';
+import SelectType from '../types/SelectType.js';
 import Context from '../Context.js';
+import OperatorEntity from '../model/OperatorEntity.js';
 
-abstract class IQuerySet<T> {
+abstract class IQuerySet<T extends Object> {
 	context: Context;
 	stat: sql.Statement = null;
 
@@ -11,15 +13,20 @@ abstract class IQuerySet<T> {
 
 	// Selection Functions
 	abstract list(): Promise<Array<T>>;
-	abstract unique(): Promise<T>;
-	abstract select<U extends Object>(param?: funcs.ISelectFunc<T, U>): Promise<U[]>;
 
-	abstract where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T>;
-	abstract groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
-	abstract orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
+	async unique(): Promise<T> {
+		let arr = await this.list();
+		if (arr.length > 1) throw new Error('More than one row found in unique call');
+		else return arr[0];
+	}
+
+	abstract select<U extends T>(TargetType: IEntityType<U>): Promise<U[]>;
+	abstract selectPlain(keys: (keyof T)[]): Promise<SelectType<T>[]>;
+
+	abstract where(func?: funcs.IWhereFunc<OperatorEntity<T>>, ...args: any[]): IQuerySet<T>;
+	abstract groupBy(func?: funcs.IArrFieldFunc<OperatorEntity<T>>): IQuerySet<T>;
+	abstract orderBy(func?: funcs.IArrFieldFunc<OperatorEntity<T>>): IQuerySet<T>;
 	abstract limit(size: number, index?: number): IQuerySet<T>;
-
-	abstract mapData(input: bean.ResultSet): Promise<Array<T>>;
 
 	abstract join<A>(collection: IQuerySet<A>, func: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A>;
 
@@ -37,19 +44,6 @@ abstract class IQuerySet<T> {
 
 	outerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.OuterJoin);
-	}
-
-	// utils functions
-	setStatColumns(tempObj:any) {
-		let tempKeys = Reflect.ownKeys(tempObj);
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
-		});
-		return this;
 	}
 
 }

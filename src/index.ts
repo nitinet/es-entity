@@ -3,8 +3,7 @@ import * as collection from './collection/index.js';
 import * as handlers from './handlers/index.js';
 import * as sql from './sql/index.js';
 import * as types from './types/index.js';
-import * as util from './util/index.js';
-import * as funcs from './funcs/index.js';
+import * as funcs from './types/index.js';
 import Context from './Context.js';
 
 export default {
@@ -12,7 +11,6 @@ export default {
 	types,
 	Context,
 	collection,
-	util,
 	sql,
 	bean,
 	handlers
@@ -23,7 +21,6 @@ export {
 	types,
 	Context,
 	collection,
-	util,
 	sql,
 	bean,
 	handlers
