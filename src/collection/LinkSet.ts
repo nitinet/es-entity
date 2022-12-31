@@ -9,14 +9,14 @@ class LinkSet<T extends Entity, U extends Entity> extends QuerySet<T, T>{
 	foreignFunc: types.IJoinFunc<OperatorEntity<T>, U> = null;
 
 	constructor(context: Context, entityType: types.IEntityType<T>, foreignFunc: types.IJoinFunc<OperatorEntity<T>, U>) {
-		super(context, context.tableSetMap.get(entityType).dbSet, entityType);
+		super(context, context.tableSetMap.get(entityType), entityType);
 		this.foreignFunc = foreignFunc;
 	}
 
 	apply(parentObj: U) {
 		let expr: sql.Expression = null;
 		if (this.foreignFunc && this.foreignFunc instanceof Function) {
-			let a = new sql.OperatorEntity<T>();
+			let a = new sql.OperatorEntity<T>(this.dbSet.fieldMap);
 			expr = this.foreignFunc(a, parentObj);
 		}
 		if (expr && expr instanceof sql.Expression && expr.exps.length > 0) {

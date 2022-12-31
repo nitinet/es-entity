@@ -26,11 +26,11 @@ class DBSet {
         return this;
     }
     bindField(key, tableColumns) {
-        let colName = Case.snake(key);
-        let column = tableColumns.find(col => col.field == colName);
+        let snakeCaseKey = Case.snake(key);
+        let column = tableColumns.find(col => col.field == key || col.field == snakeCaseKey);
         if (!column)
-            throw new Error(`Column: ${colName} not found in Table: ${this.tableName}`);
-        let fieldMapping = new model.FieldMapping(key, colName, column.primaryKey);
+            throw new Error(`Column: ${key} not found in Table: ${this.tableName}`);
+        let fieldMapping = new model.FieldMapping(key, column.field, column.primaryKey);
         this.fieldMap.set(key, fieldMapping);
         if (column.primaryKey)
             this.primaryFields.push(fieldMapping);

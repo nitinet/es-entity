@@ -1,20 +1,24 @@
 import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
 import Entity from './Entity.js';
+import FieldMapping from './FieldMapping.js';
 import { PropKeys } from './types.js';
 
 type ValueType = boolean | number | string | Date | Buffer;
 type OperandType = ValueType | Expression;
 
 class OperatorEntity<T extends Entity> {
+	fieldMap: Map<string | number | symbol, FieldMapping> = null;
 	alias: string = null;
 
-	constructor(alias?: string) {
+	constructor(fieldMap: Map<string | symbol, FieldMapping>, alias?: string) {
+		this.fieldMap = fieldMap;
 		this.alias = alias;
 	}
 
 	expr(propName: PropKeys<T>) {
-		let name = this.alias ? this.alias + '.' + <string>propName : <string>propName;
+		let field = this.fieldMap.get(propName);
+		let name = this.alias ? this.alias + '.' + field.colName : field.colName;
 		return new Expression(name);
 	}
 

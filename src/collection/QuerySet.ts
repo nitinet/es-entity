@@ -25,7 +25,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 		this.EntityType = EntityType;
 	}
 
-	bind(dbSet: DBSet<T>) {
+	private bind(dbSet: DBSet<T>) {
 		this.dbSet = dbSet;
 
 		this.alias = dbSet.tableName.charAt(0);
@@ -109,7 +109,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 	where(param: types.IWhereFunc<sql.OperatorEntity<U>>, ...args: any[]): IQuerySet<U> {
 		let res: sql.Expression = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity<U>();
+			let a = new sql.OperatorEntity<U>(this.dbSet.fieldMap);
 			res = param(a, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
@@ -121,7 +121,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity()
+			let a = new sql.OperatorEntity(this.dbSet.fieldMap);
 			res = param(a);
 		}
 		if (res && Array.isArray(res)) {
@@ -137,7 +137,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity()
+			let a = new sql.OperatorEntity(this.dbSet.fieldMap);
 			res = param(a);
 		}
 		if (res && Array.isArray(res)) {

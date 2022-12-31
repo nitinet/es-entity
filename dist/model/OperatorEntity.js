@@ -1,12 +1,15 @@
 import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
 class OperatorEntity {
+    fieldMap = null;
     alias = null;
-    constructor(alias) {
+    constructor(fieldMap, alias) {
+        this.fieldMap = fieldMap;
         this.alias = alias;
     }
     expr(propName) {
-        let name = this.alias ? this.alias + '.' + propName : propName;
+        let field = this.fieldMap.get(propName);
+        let name = this.alias ? this.alias + '.' + field.colName : field.colName;
         return new Expression(name);
     }
     _argExp(operand) {

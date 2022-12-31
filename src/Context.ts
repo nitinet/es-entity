@@ -4,6 +4,7 @@ import Handler from './handlers/Handler.js';
 import * as types from './model/types.js';
 import getHandler from './handlers/getHandler.js';
 import TableSet from './collection/TableSet.js';
+import DBSet from './collection/DBSet.js';
 
 export default class Context {
 	private _handler: Handler;
@@ -11,7 +12,7 @@ export default class Context {
 	private connection: bean.Connection = null;
 	private logger: any = null;
 
-	public tableSetMap = new Map<types.IEntityType<any>, TableSet<any>>();
+	public tableSetMap = new Map<types.IEntityType<any>, DBSet<any>>();
 	public config: bean.IConfig = null;
 
 	constructor(config?: bean.IConfig) {
@@ -40,7 +41,7 @@ export default class Context {
 			let table = (<TableSet<any>>Reflect.get(this, key));
 			table.context = this;
 			await table.bind();
-			this.tableSetMap.set(table.getEntityType(), table);
+			this.tableSetMap.set(table.getEntityType(), table.dbSet);
 		}));
 	}
 

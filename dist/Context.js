@@ -30,7 +30,7 @@ export default class Context {
             let table = Reflect.get(this, key);
             table.context = this;
             await table.bind();
-            this.tableSetMap.set(table.getEntityType(), table);
+            this.tableSetMap.set(table.getEntityType(), table.dbSet);
         }));
     }
     get handler() {

@@ -1,8 +1,6 @@
-import * as fs from 'fs';
 import Case from 'case';
 
 import * as bean from '../bean/index.js';
-import * as sql from '../sql/index.js';
 import * as types from '../model/types.js';
 import * as model from '../model/index.js';
 import Context from '../Context.js';
@@ -48,12 +46,12 @@ class DBSet<T extends model.Entity>  {
 	}
 
 	private bindField(key: string, tableColumns: bean.ColumnInfo[]) {
-		let colName = Case.snake(key);
-		let column = tableColumns.find(col => col.field == colName);
+		let snakeCaseKey = Case.snake(key);
+		let column = tableColumns.find(col => col.field == key || col.field == snakeCaseKey);
 
-		if (!column) throw new Error(`Column: ${colName} not found in Table: ${this.tableName}`);
+		if (!column) throw new Error(`Column: ${key} not found in Table: ${this.tableName}`);
 
-		let fieldMapping = new model.FieldMapping(key, colName, column.primaryKey);
+		let fieldMapping = new model.FieldMapping(key, column.field, column.primaryKey);
 		// fieldMapping.type = this.checkColumnType(column, field);
 		this.fieldMap.set(key, fieldMapping);
 		if (column.primaryKey) this.primaryFields.push(fieldMapping);

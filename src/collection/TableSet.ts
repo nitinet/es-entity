@@ -91,7 +91,7 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 			throw new Error('Primary Key fields not found');
 		}
 
-		let a = new sql.OperatorEntity<T>();
+		let a = new sql.OperatorEntity<T>(this.dbSet.fieldMap);
 		let expr = new sql.Expression();
 		primaryFields.forEach((pri, idx) => {
 			let temp: any = Reflect.get(entity, pri.fieldName);

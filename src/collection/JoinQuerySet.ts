@@ -89,7 +89,12 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 	where(param: types.IWhereFunc<sql.OperatorEntity<T & U>>, ...args: any[]): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity()
+			//TODO: fix join fieldMap
+			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+
+			let a = new sql.OperatorEntity(finalFieldMap);
 			res = param(a, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
@@ -101,7 +106,12 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity()
+			//TODO: fix join fieldMap
+			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+
+			let a = new sql.OperatorEntity(finalFieldMap);
 			res = param(a);
 		}
 		if (res && Array.isArray(res)) {
@@ -117,7 +127,12 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity()
+			//TODO: fix join fieldMap
+			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+
+			let a = new sql.OperatorEntity(finalFieldMap);
 			res = param(a);
 		}
 		if (res && Array.isArray(res)) {
