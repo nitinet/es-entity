@@ -3,8 +3,9 @@ import LinkSet from '../collection/LinkSet.js';
 import * as funcs from '../types/index.js';
 import Context from '../Context.js';
 import OperatorEntity from './OperatorEntity.js';
+import Entity from './Entity.js';
 
-class LinkArray<T> {
+class LinkArray<T extends Entity> {
 	private linkSet: LinkSet<T> = null;
 	private applied: boolean = false;
 	private _value: T[] = null;

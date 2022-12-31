@@ -1,11 +1,9 @@
 import * as sql from '../sql/index.js';
-import * as funcs from '../types/index.js';
-import IEntityType from '../types/IEntityType.js';
-import SelectType from '../types/SelectType.js';
+import * as types from '../types/index.js';
 import Context from '../Context.js';
-import OperatorEntity from '../model/OperatorEntity.js';
+import * as model from '../model/index.js';
 
-abstract class IQuerySet<T extends Object> {
+abstract class IQuerySet<T extends model.Entity> {
 	context: Context;
 	stat: sql.Statement = null;
 
@@ -20,29 +18,29 @@ abstract class IQuerySet<T extends Object> {
 		else return arr[0];
 	}
 
-	abstract select<U extends T>(TargetType: IEntityType<U>): Promise<U[]>;
-	abstract selectPlain(keys: (keyof T)[]): Promise<SelectType<T>[]>;
+	abstract select<U extends T>(TargetType: types.IEntityType<U>): Promise<U[]>;
+	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
 
-	abstract where(func?: funcs.IWhereFunc<OperatorEntity<T>>, ...args: any[]): IQuerySet<T>;
-	abstract groupBy(func?: funcs.IArrFieldFunc<OperatorEntity<T>>): IQuerySet<T>;
-	abstract orderBy(func?: funcs.IArrFieldFunc<OperatorEntity<T>>): IQuerySet<T>;
+	abstract where(func: types.IWhereFunc<model.OperatorEntity<T>>, ...args: any[]): IQuerySet<T>;
+	abstract groupBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
+	abstract orderBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
 	abstract limit(size: number, index?: number): IQuerySet<T>;
 
-	abstract join<A>(collection: IQuerySet<A>, func: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A>;
+	abstract join<A extends model.Entity>(collection: IQuerySet<A>, func: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A>;
 
-	innerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	innerJoin<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.InnerJoin);
 	}
 
-	leftJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	leftJoin<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.LeftJoin);
 	}
 
-	rightJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	rightJoin<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.RightJoin);
 	}
 
-	outerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	outerJoin<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.OuterJoin);
 	}
 

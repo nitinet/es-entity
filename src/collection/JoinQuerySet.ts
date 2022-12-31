@@ -2,8 +2,9 @@ import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
 import * as bean from '../bean/index.js';
 import * as types from '../types/index.js';
+import Entity from '../model/Entity.js';
 
-class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
+class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 	mainSet: IQuerySet<T> = null;
 	joinSet: IQuerySet<U> = null;
 
@@ -84,7 +85,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	}
 
 	// Conditional Functions
-	where(param?: types.IWhereFunc<sql.OperatorEntity<T & U>>, ...args: any[]): IQuerySet<T & U> {
+	where(param: types.IWhereFunc<sql.OperatorEntity<T & U>>, ...args: any[]): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
@@ -96,42 +97,34 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	groupBy(param?: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
+	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
 			res = param(a);
 		}
-		if (res) {
-			if (res instanceof Array) {
-				res.forEach(a => {
-					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.groupBy.push(a);
-					}
-				});
-			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.groupBy.push(res);
-			}
+		if (res && Array.isArray(res)) {
+			res.forEach(a => {
+				if (a instanceof sql.Expression && a.exps.length > 0) {
+					this.stat.groupBy.push(a);
+				}
+			});
 		}
 		return this;
 	}
 
-	orderBy(param?: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
+	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
 			res = param(a);
 		}
-		if (res) {
-			if (res instanceof Array) {
-				res.forEach(a => {
-					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.orderBy.push(a);
-					}
-				});
-			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.orderBy.push(res);
-			}
+		if (res && Array.isArray(res)) {
+			res.forEach(a => {
+				if (a instanceof sql.Expression && a.exps.length > 0) {
+					this.stat.orderBy.push(a);
+				}
+			});
 		}
 		return this;
 	}
@@ -145,16 +138,14 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: types.IJoinFunc<T & U, A> | sql.Expression, joinType?: sql.types.Join) {
+	join<A extends Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join) {
 		joinType = joinType || sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
-		if (param instanceof Function) {
+		if (param && param instanceof Function) {
 			let a = this.getEntity();
 			let b = coll.getEntity();
 			temp = param(a, b);
-		} else {
-			temp = param;
 		}
 		let res: JoinQuerySet<T & U, A> = null;
 		if (temp instanceof sql.Expression && temp.exps.length > 0) {

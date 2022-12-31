@@ -9,7 +9,7 @@ import JoinQuerySet from './JoinQuerySet.js';
 /**
  * QuerySet
  */
-class QuerySet<T extends Object> extends IQuerySet<T> {
+class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 	protected dbSet: DBSet<T> = null;
 	alias: string = null;
 
@@ -93,7 +93,8 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 				let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
 				if (fieldMapping) {
 					let colName = fieldMapping.colName;
-					field = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+					Reflect.set(obj, key, val);
 				} else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
 					field.bind(this.context);
 				}
@@ -104,7 +105,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 	}
 
 	// Conditional Functions
-	where(param?: types.IWhereFunc<sql.OperatorEntity<T>>, ...args: any[]): IQuerySet<T> {
+	where(param: types.IWhereFunc<sql.OperatorEntity<T>>, ...args: any[]): IQuerySet<T> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
@@ -116,42 +117,34 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		return this;
 	}
 
-	groupBy(param?: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
 			res = param(a);
 		}
-		if (res) {
-			if (res instanceof Array) {
-				res.forEach(a => {
-					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.groupBy.push(a);
-					}
-				});
-			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.groupBy.push(res);
-			}
+		if (res && Array.isArray(res)) {
+			res.forEach(a => {
+				if (a instanceof sql.Expression && a.exps.length > 0) {
+					this.stat.groupBy.push(a);
+				}
+			});
 		}
 		return this;
 	}
 
-	orderBy(param?: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
 			res = param(a);
 		}
-		if (res) {
-			if (res instanceof Array) {
-				res.forEach(a => {
-					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.orderBy.push(a);
-					}
-				});
-			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.orderBy.push(res);
-			}
+		if (res && Array.isArray(res)) {
+			res.forEach(a => {
+				if (a instanceof sql.Expression && a.exps.length > 0) {
+					this.stat.orderBy.push(a);
+				}
+			});
 		}
 		return this;
 	}
@@ -177,11 +170,12 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		let a = this.getEntity();
 		let tempObj = param(a);
 
-		Reflect.ownKeys(tempObj).forEach((key) => {
+		// Dynamic update
+		let keys = Reflect.ownKeys(tempObj).filter(k => tempObj.getChangeProps().includes(k));
+		keys.forEach((key) => {
 			let field = this.dbSet.getKeyField(key);
 			if (!field) return;
 
-			// TODO: dynamic update
 			let c1 = new sql.Expression(field.colName);
 			let c2 = new sql.Expression('?');
 			c2.args.push(Reflect.get(tempObj, key));
@@ -198,18 +192,14 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		}
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: types.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A> {
+	join<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
 		joinType = joinType | sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
-		if (param) {
-			if (param instanceof Function) {
-				let a = this.getEntity();
-				let b = coll.getEntity();
-				temp = param(a, b);
-			} else {
-				temp = param;
-			}
+		if (param && param instanceof Function) {
+			let a = this.getEntity();
+			let b = coll.getEntity();
+			temp = param(a, b);
 		}
 
 		if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {

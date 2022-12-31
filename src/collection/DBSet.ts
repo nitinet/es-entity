@@ -15,7 +15,7 @@ interface IOptions {
 	entityPath?: string,
 }
 
-class DBSet<T extends Object> extends IQuerySet<T> {
+class DBSet<T extends model.Entity> extends IQuerySet<T> {
 	protected entityType: types.IEntityType<T>;
 	protected options: IOptions = null;
 
@@ -130,11 +130,12 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		stat.command = sql.types.Command.INSERT;
 		stat.collection.value = this.mapping.name;
 
-		Reflect.ownKeys(entity).forEach((key) => {
+		// Dynamic insert
+		let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
+		keys.forEach((key) => {
 			let field = this.getKeyField(key);
 			if (!field) return;
 
-			// TODO: dynamic insert
 			let col = new sql.Collection();
 			col.value = field.colName;
 			stat.columns.push(col);
@@ -192,7 +193,10 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		stat.collection.value = this.mapping.name;
 
 		let primaryFields = this.getPrimaryFields();
-		Reflect.ownKeys(entity).forEach((key) => {
+
+		// Dynamic update
+		let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
+		keys.forEach((key) => {
 			let field = this.getKeyField(key);
 			if (!field) return;
 
@@ -203,7 +207,6 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 					break;
 				}
 			}
-			// TODO: dynamic update
 			if (!isPrimaryField) {
 				let c1 = new sql.Expression(field.colName);
 				let c2 = new sql.Expression('?');
@@ -259,39 +262,22 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		await this.context.execute(stat);
 	}
 
-	async get(id: any) {
-		if (id == null) throw new Error('Id parameter cannot be null');
+	async get(...idParams: any[]) {
+		if (idParams == null) throw new Error('Id parameter cannot be null');
 
 		let primaryFields = this.getPrimaryFields();
 		if (primaryFields.length == 0) {
 			throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
-		} else if (primaryFields.length == 1) {
-			if (typeof id === 'object') {
-				let field = primaryFields[0];
-				return this.where((a) => {
-					// return (<sql.Field<any>>Reflect.get(a, field.fieldName)).eq(id[field.fieldName]);
-					//TODO: implementation
-					return null;
-				}).unique();
-			} else {
-				let field = primaryFields[0];
-				return this.where((a) => {
-					// return (<sql.Field<any>>Reflect.get(a, field.fieldName)).eq(id);
-					//TODO: implementation
-					return null;
-				}).unique();
-			}
-		} else if (primaryFields.length > 1 && typeof id === 'object') {
-			let whereExpr = new sql.Expression();
-			primaryFields.forEach(priField => {
-				let w1 = new sql.Expression(priField.colName);
-				let w2 = new sql.Expression('?');
-				w2.args.push(id[priField.fieldName]);
-				whereExpr = whereExpr.add(new sql.Expression(null, sql.types.Operator.Equal, w1, w2));
-			});
-			//TODO: fix where expr
-			// return this.where(whereExpr).unique();
-			return null;
+		} else if (primaryFields.length != idParams.length) {
+			throw new Error('Invalid Arguments Length');
+		} else {
+			return this.where(a => {
+				let expr = new sql.Expression();
+				primaryFields.forEach((pri, idx) => {
+					expr = expr.add(a.eq(<types.PropKeys<T>>pri.fieldName, idParams[idx]));
+				});
+				return expr;
+			}).unique()
 		}
 	}
 
@@ -307,28 +293,28 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		return exprs;
 	}
 
-	where(param?: types.IWhereFunc<sql.OperatorEntity<T>>, ...args: any[]): IQuerySet<T> {
+	where(param: types.IWhereFunc<sql.OperatorEntity<T>>, ...args: any[]): IQuerySet<T> {
 		let q = new QuerySet(this);
 		return q.where(param, args);
 	}
 
-	groupBy(func?: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	groupBy(func: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
 		let q = new QuerySet(this);
 		return q.groupBy(func);
 	}
 
-	orderBy(func?: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	orderBy(func: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
 		let q = new QuerySet(this);
 		return q.orderBy(func);
 	}
 
-	limit(size: number, index?: number) {
-		let q = this.where();
+	limit(size: number, index?: number): IQuerySet<T> {
+		let q = new QuerySet(this);
 		return q.limit(size, index);
 	}
 
-	list() {
-		let q = this.where();
+	list(): Promise<T[]> {
+		let q = new QuerySet(this);
 		return q.list();
 	}
 
@@ -342,7 +328,7 @@ class DBSet<T extends Object> extends IQuerySet<T> {
 		return q.selectPlain(keys);
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: types.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A> {
+	join<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
 		let q = new QuerySet(this);
 		return q.join(coll, param, joinType);
 	}

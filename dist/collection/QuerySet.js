@@ -68,7 +68,8 @@ class QuerySet extends IQuerySet {
                 let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
                 if (fieldMapping) {
                     let colName = fieldMapping.colName;
-                    field = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+                    let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+                    Reflect.set(obj, key, val);
                 }
                 else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
                     field.bind(this.context);
@@ -95,17 +96,12 @@ class QuerySet extends IQuerySet {
             let a = new sql.OperatorEntity();
             res = param(a);
         }
-        if (res) {
-            if (res instanceof Array) {
-                res.forEach(a => {
-                    if (a instanceof sql.Expression && a.exps.length > 0) {
-                        this.stat.groupBy.push(a);
-                    }
-                });
-            }
-            else if (res instanceof sql.Expression && res.exps.length > 0) {
-                this.stat.groupBy.push(res);
-            }
+        if (res && Array.isArray(res)) {
+            res.forEach(a => {
+                if (a instanceof sql.Expression && a.exps.length > 0) {
+                    this.stat.groupBy.push(a);
+                }
+            });
         }
         return this;
     }
@@ -115,17 +111,12 @@ class QuerySet extends IQuerySet {
             let a = new sql.OperatorEntity();
             res = param(a);
         }
-        if (res) {
-            if (res instanceof Array) {
-                res.forEach(a => {
-                    if (a instanceof sql.Expression && a.exps.length > 0) {
-                        this.stat.orderBy.push(a);
-                    }
-                });
-            }
-            else if (res instanceof sql.Expression && res.exps.length > 0) {
-                this.stat.orderBy.push(res);
-            }
+        if (res && Array.isArray(res)) {
+            res.forEach(a => {
+                if (a instanceof sql.Expression && a.exps.length > 0) {
+                    this.stat.orderBy.push(a);
+                }
+            });
         }
         return this;
     }
@@ -146,7 +137,8 @@ class QuerySet extends IQuerySet {
         stat.collection.value = this.dbSet.mapping.name;
         let a = this.getEntity();
         let tempObj = param(a);
-        Reflect.ownKeys(tempObj).forEach((key) => {
+        let keys = Reflect.ownKeys(tempObj).filter(k => tempObj.getChangeProps().includes(k));
+        keys.forEach((key) => {
             let field = this.dbSet.getKeyField(key);
             if (!field)
                 return;
@@ -166,15 +158,10 @@ class QuerySet extends IQuerySet {
     join(coll, param, joinType) {
         joinType = joinType | sql.types.Join.InnerJoin;
         let temp = null;
-        if (param) {
-            if (param instanceof Function) {
-                let a = this.getEntity();
-                let b = coll.getEntity();
-                temp = param(a, b);
-            }
-            else {
-                temp = param;
-            }
+        if (param && param instanceof Function) {
+            let a = this.getEntity();
+            let b = coll.getEntity();
+            temp = param(a, b);
         }
         if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
             return new JoinQuerySet(this, coll, joinType, temp);

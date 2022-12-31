@@ -86,7 +86,8 @@ class DBSet extends IQuerySet {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.mapping.name;
-        Reflect.ownKeys(entity).forEach((key) => {
+        let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
+        keys.forEach((key) => {
             let field = this.getKeyField(key);
             if (!field)
                 return;
@@ -141,7 +142,8 @@ class DBSet extends IQuerySet {
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.mapping.name;
         let primaryFields = this.getPrimaryFields();
-        Reflect.ownKeys(entity).forEach((key) => {
+        let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
+        keys.forEach((key) => {
             let field = this.getKeyField(key);
             if (!field)
                 return;
@@ -203,36 +205,24 @@ class DBSet extends IQuerySet {
         stat.where = this.whereExpr(entity);
         await this.context.execute(stat);
     }
-    async get(id) {
-        if (id == null)
+    async get(...idParams) {
+        if (idParams == null)
             throw new Error('Id parameter cannot be null');
         let primaryFields = this.getPrimaryFields();
         if (primaryFields.length == 0) {
             throw new Error('No Primary Field Found in Table: ' + this.mapping.name);
         }
-        else if (primaryFields.length == 1) {
-            if (typeof id === 'object') {
-                let field = primaryFields[0];
-                return this.where((a) => {
-                    return null;
-                }).unique();
-            }
-            else {
-                let field = primaryFields[0];
-                return this.where((a) => {
-                    return null;
-                }).unique();
-            }
+        else if (primaryFields.length != idParams.length) {
+            throw new Error('Invalid Arguments Length');
         }
-        else if (primaryFields.length > 1 && typeof id === 'object') {
-            let whereExpr = new sql.Expression();
-            primaryFields.forEach(priField => {
-                let w1 = new sql.Expression(priField.colName);
-                let w2 = new sql.Expression('?');
-                w2.args.push(id[priField.fieldName]);
-                whereExpr = whereExpr.add(new sql.Expression(null, sql.types.Operator.Equal, w1, w2));
-            });
-            return null;
+        else {
+            return this.where(a => {
+                let expr = new sql.Expression();
+                primaryFields.forEach((pri, idx) => {
+                    expr = expr.add(a.eq(pri.fieldName, idParams[idx]));
+                });
+                return expr;
+            }).unique();
         }
     }
     filterFields(props) {
@@ -258,11 +248,11 @@ class DBSet extends IQuerySet {
         return q.orderBy(func);
     }
     limit(size, index) {
-        let q = this.where();
+        let q = new QuerySet(this);
         return q.limit(size, index);
     }
     list() {
-        let q = this.where();
+        let q = new QuerySet(this);
         return q.list();
     }
     select(TargetType) {

@@ -48,17 +48,12 @@ class JoinQuerySet extends IQuerySet {
             let a = new sql.OperatorEntity();
             res = param(a);
         }
-        if (res) {
-            if (res instanceof Array) {
-                res.forEach(a => {
-                    if (a instanceof sql.Expression && a.exps.length > 0) {
-                        this.stat.groupBy.push(a);
-                    }
-                });
-            }
-            else if (res instanceof sql.Expression && res.exps.length > 0) {
-                this.stat.groupBy.push(res);
-            }
+        if (res && Array.isArray(res)) {
+            res.forEach(a => {
+                if (a instanceof sql.Expression && a.exps.length > 0) {
+                    this.stat.groupBy.push(a);
+                }
+            });
         }
         return this;
     }
@@ -68,17 +63,12 @@ class JoinQuerySet extends IQuerySet {
             let a = new sql.OperatorEntity();
             res = param(a);
         }
-        if (res) {
-            if (res instanceof Array) {
-                res.forEach(a => {
-                    if (a instanceof sql.Expression && a.exps.length > 0) {
-                        this.stat.orderBy.push(a);
-                    }
-                });
-            }
-            else if (res instanceof sql.Expression && res.exps.length > 0) {
-                this.stat.orderBy.push(res);
-            }
+        if (res && Array.isArray(res)) {
+            res.forEach(a => {
+                if (a instanceof sql.Expression && a.exps.length > 0) {
+                    this.stat.orderBy.push(a);
+                }
+            });
         }
         return this;
     }
@@ -93,13 +83,10 @@ class JoinQuerySet extends IQuerySet {
     join(coll, param, joinType) {
         joinType = joinType || sql.types.Join.InnerJoin;
         let temp = null;
-        if (param instanceof Function) {
+        if (param && param instanceof Function) {
             let a = this.getEntity();
             let b = coll.getEntity();
             temp = param(a, b);
-        }
-        else {
-            temp = param;
         }
         let res = null;
         if (temp instanceof sql.Expression && temp.exps.length > 0) {

@@ -1,15 +1,15 @@
-import IEntityType from '../types/IEntityType.js';
 import LinkSet from '../collection/LinkSet.js';
-import * as funcs from '../types/index.js';
+import * as types from '../types/index.js';
 import Context from '../Context.js';
 import OperatorEntity from './OperatorEntity.js';
+import Entity from './Entity.js';
 
-class LinkObject<T> {
+class LinkObject<T extends Entity> {
 	private linkSet: LinkSet<T> = null;
 	private applied: boolean = false;
 	private _value: T = null;
 
-	constructor(entityType: IEntityType<T>, foreignFunc: funcs.IJoinFunc<OperatorEntity<T>, any>) {
+	constructor(entityType: types.IEntityType<T>, foreignFunc: types.IJoinFunc<OperatorEntity<T>, any>) {
 		this.linkSet = new LinkSet<T>(entityType, foreignFunc);
 	}
 
