@@ -1,7 +1,7 @@
 import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
 import Entity from './Entity.js';
-import PropKeys from '../types/PropKeys.js';
+import { PropKeys } from './types.js';
 
 type ValueType = boolean | number | string | Date | Buffer;
 type OperandType = ValueType | Expression;

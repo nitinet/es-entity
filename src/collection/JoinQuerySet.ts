@@ -1,7 +1,7 @@
 import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
 import * as bean from '../bean/index.js';
-import * as types from '../types/index.js';
+import * as types from '../model/types.js';
 import Entity from '../model/Entity.js';
 
 class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
@@ -24,10 +24,11 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 		this.stat.where = this.stat.where.add(expr);
 	}
 
-	getEntity(alias?: string): T & U {
-		let mainObj = this.mainSet.getEntity(alias);
-		let joinObj = this.joinSet.getEntity(alias);
-		return Object.assign(mainObj, joinObj);
+	getEntity(): T & U {
+		// let mainObj = this.mainSet.getEntity(alias);
+		// let joinObj = this.joinSet.getEntity(alias);
+		// return Object.assign(mainObj, joinObj);
+		return null;
 	}
 
 	// Selection Functions
@@ -59,7 +60,7 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 		return null;
 	}
 
-	async select<V extends T & U>(TargetType: types.IEntityType<V>): Promise<V[]> {
+	select<V extends Entity = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
 		// this.stat.command = sql.types.Command.SELECT;
 
 		// let a = this.getEntity();

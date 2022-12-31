@@ -1,6 +1,5 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
-import Connection from '../Connection.js';
 export default class Mysql extends Handler {
     handlerName = 'mysql';
     driver = null;
@@ -36,7 +35,7 @@ export default class Mysql extends Handler {
                     reject(err);
                 }
                 else {
-                    let res = new Connection(this, conn);
+                    let res = new bean.Connection(this, conn);
                     resolve(res);
                 }
             });
@@ -136,7 +135,7 @@ export default class Mysql extends Handler {
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             let conn = connection.conn;
             temp = await new Promise((resolve, reject) => {
                 conn.query(queryObj.query, queryObj.args, function (err, r) {

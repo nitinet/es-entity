@@ -14,10 +14,8 @@ class JoinQuerySet extends IQuerySet {
         this.stat.collection.join = joinType;
         this.stat.where = this.stat.where.add(expr);
     }
-    getEntity(alias) {
-        let mainObj = this.mainSet.getEntity(alias);
-        let joinObj = this.joinSet.getEntity(alias);
-        return Object.assign(mainObj, joinObj);
+    getEntity() {
+        return null;
     }
     async list() {
         return null;
@@ -25,7 +23,7 @@ class JoinQuerySet extends IQuerySet {
     async mapData(input) {
         return null;
     }
-    async select(TargetType) {
+    select(TargetType) {
         return null;
     }
     selectPlain(keys) {

@@ -1,5 +1,5 @@
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
+import Connection from '../bean/Connection.js';
 import Context from '../Context.js';
 
 import * as bean from '../bean/index.js';

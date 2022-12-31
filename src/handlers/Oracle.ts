@@ -1,7 +1,6 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 
 // import * as oracledb from 'oracledb';
 
@@ -29,19 +28,19 @@ export default class Oracle extends Handler {
 
 	}
 
-	async getConnection(): Promise<Connection> {
+	async getConnection(): Promise<bean.Connection> {
 		let conn = await this.driver.getConnection({
 			user: this.config.username,
 			password: this.config.password,
 			connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
 		});
-		return new Connection(this, conn);
+		return new bean.Connection(this, conn);
 	}
 
-	async initTransaction(conn: Connection): Promise<void> { return null; }
-	async commit(conn: Connection): Promise<void> { return conn.conn.commit(); }
-	async rollback(conn: Connection): Promise<void> { return conn.conn.rollback(); }
-	async close(conn: Connection): Promise<void> { return conn.conn.close(); }
+	async initTransaction(conn: bean.Connection): Promise<void> { return null; }
+	async commit(conn: bean.Connection): Promise<void> { return conn.conn.commit(); }
+	async rollback(conn: bean.Connection): Promise<void> { return conn.conn.rollback(); }
+	async close(conn: bean.Connection): Promise<void> { return conn.conn.close(); }
 	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
@@ -76,7 +75,7 @@ export default class Oracle extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
 		let q: string = null;
 		if (typeof query === 'string') {
 			q = query;
@@ -87,7 +86,7 @@ export default class Oracle extends Handler {
 
 		let temp = null;
 
-		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			temp = await connection.conn.execute(q, args);
 		} else {
 			let conn = null;

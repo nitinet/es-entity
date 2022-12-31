@@ -1,11 +1,11 @@
-import DBSet from './collection/DBSet.js';
 import getHandler from './handlers/getHandler.js';
+import TableSet from './collection/TableSet.js';
 export default class Context {
     _handler;
     _entityPath;
     connection = null;
     logger = null;
-    dbSetMap = new Map();
+    tableSetMap = new Map();
     config = null;
     constructor(config) {
         this.config = config;
@@ -25,12 +25,12 @@ export default class Context {
         await this.handler.init();
         await Promise.all(Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
-            return o instanceof DBSet;
+            return o instanceof TableSet;
         }, this).map(async (key) => {
-            let obj = Reflect.get(this, key);
-            obj.context = this;
-            obj = await obj.bind();
-            this.dbSetMap.set(obj.getEntityType(), obj);
+            let table = Reflect.get(this, key);
+            table.context = this;
+            await table.bind();
+            this.tableSetMap.set(table.getEntityType(), table);
         }));
     }
     get handler() {
@@ -58,7 +58,7 @@ export default class Context {
             let keys = Reflect.ownKeys(res);
             keys.forEach((key) => {
                 let prop = Reflect.get(res, key);
-                if (prop instanceof DBSet) {
+                if (prop instanceof TableSet) {
                     prop.context = res;
                 }
             });

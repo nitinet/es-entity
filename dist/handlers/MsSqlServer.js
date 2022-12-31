@@ -1,7 +1,6 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 export default class MsSqlServer extends Handler {
     handlerName = 'mssql';
     connectionPool = null;
@@ -29,7 +28,7 @@ export default class MsSqlServer extends Handler {
             database: this.config.database
         });
         let conn = new this.driver.Request();
-        return new Connection(this, conn);
+        return new bean.Connection(this, conn);
     }
     async initTransaction(conn) { return null; }
     async commit(conn) { return null; }
@@ -82,7 +81,7 @@ export default class MsSqlServer extends Handler {
         }
         let temp = null;
         let conn = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }
         else {

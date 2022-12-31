@@ -1,6 +1,5 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
-import Connection from '../Connection.js';
 export default class PostgreSql extends Handler {
     handlerName = 'postgresql';
     driver = null;
@@ -30,7 +29,7 @@ export default class PostgreSql extends Handler {
         });
         try {
             await conn.connect();
-            return new Connection(this, conn);
+            return new bean.Connection(this, conn);
         }
         catch (err) {
             this.context.log('Connection Creation Failed', err);
@@ -87,7 +86,7 @@ export default class PostgreSql extends Handler {
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await connection.conn.query(queryObj.query, queryObj.args);
         }
         else {

@@ -1,24 +1,22 @@
 import LinkSet from '../collection/LinkSet.js';
 class LinkArray {
+    EntityType = null;
+    foreignFunc = null;
     linkSet = null;
-    applied = false;
     _value = null;
-    constructor(entityType, foreignFunc) {
-        this.linkSet = new LinkSet(entityType, foreignFunc);
+    constructor(EntityType, foreignFunc) {
+        this.EntityType = EntityType;
+        this.foreignFunc = foreignFunc;
     }
     bind(context) {
-        this.linkSet.context = context;
-        let dbSet = context.dbSetMap.get(this.linkSet.entityType);
-        this.linkSet.bind(dbSet);
+        this.linkSet = new LinkSet(context, this.EntityType, this.foreignFunc);
     }
     async apply(parentObj) {
         this.linkSet.apply(parentObj);
     }
     async get() {
-        if (!this.applied) {
+        if (!this._value)
             this._value = await this.linkSet.list();
-            this.applied = true;
-        }
         return this._value;
     }
     toJSON() {

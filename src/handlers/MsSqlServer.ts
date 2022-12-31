@@ -4,7 +4,6 @@ import * as mssql from 'mssql';
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
@@ -28,7 +27,7 @@ export default class MsSqlServer extends Handler {
 		}).connect();
 	}
 
-	async getConnection(): Promise<Connection> {
+	async getConnection(): Promise<bean.Connection> {
 		await this.driver.connect({
 			server: this.config.host,
 			port: this.config.port,
@@ -37,13 +36,13 @@ export default class MsSqlServer extends Handler {
 			database: this.config.database
 		});
 		let conn = new this.driver.Request();
-		return new Connection(this, conn);
+		return new bean.Connection(this, conn);
 	}
 
-	async initTransaction(conn: Connection): Promise<void> { return null; }
-	async commit(conn: Connection): Promise<void> { return null; }
-	async rollback(conn: Connection): Promise<void> { return null; }
-	async close(conn: Connection): Promise<void> { return null; }
+	async initTransaction(conn: bean.Connection): Promise<void> { return null; }
+	async commit(conn: bean.Connection): Promise<void> { return null; }
+	async rollback(conn: bean.Connection): Promise<void> { return null; }
+	async close(conn: bean.Connection): Promise<void> { return null; }
 	async end(): Promise<void> { return null; }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
@@ -79,7 +78,7 @@ export default class MsSqlServer extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
 		let q: string = null;
 		if (typeof query === "string") {
 			q = query;
@@ -91,7 +90,7 @@ export default class MsSqlServer extends Handler {
 		let temp = null;
 		let conn: any = null;
 
-		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			conn = connection.conn;
 		} else {
 			conn = this.connectionPool.request();

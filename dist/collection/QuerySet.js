@@ -5,67 +5,67 @@ import JoinQuerySet from './JoinQuerySet.js';
 class QuerySet extends IQuerySet {
     dbSet = null;
     alias = null;
-    constructor(dbSet) {
+    stat = new sql.Statement();
+    EntityType;
+    constructor(context, dbSet, EntityType) {
         super();
-        if (dbSet) {
-            this.bind(dbSet);
-        }
+        this.context = context;
+        this.bind(dbSet);
+        this.EntityType = EntityType;
     }
     bind(dbSet) {
-        if (dbSet) {
-            this.dbSet = dbSet;
-            this.context = this.dbSet.context;
-            this.stat = new sql.Statement();
-            this.alias = dbSet.mapping.name.charAt(0);
-            this.stat.collection.value = dbSet.mapping.name;
-            this.stat.collection.alias = this.alias;
-        }
+        this.dbSet = dbSet;
+        this.alias = dbSet.tableName.charAt(0);
+        this.stat.collection.value = dbSet.tableName;
+        this.stat.collection.alias = this.alias;
     }
-    getEntity(alias) {
-        alias = alias || this.stat.collection.alias;
-        return this.dbSet.getEntity(alias);
+    getEntity() {
+        let res = new this.EntityType();
+        let keys = Reflect.ownKeys(res);
+        keys.forEach(key => {
+            let field = Reflect.get(res, key);
+            if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+                field.bind(this.context);
+            }
+        });
+        return res;
     }
     async list() {
         this.stat.command = sql.types.Command.SELECT;
-        let temp = new (this.dbSet.getEntityType());
+        let temp = new this.EntityType();
         let targetKeys = Reflect.ownKeys(temp);
         let fields = this.dbSet.filterFields(targetKeys);
-        this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
+        this.stat.columns = this.getColumnExprs(fields, this.alias);
         let result = await this.context.execute(this.stat);
-        return this.mapData(this.dbSet.getEntityType(), result);
+        return this.mapData(result);
     }
-    async select(TargetType) {
-        this.stat.command = sql.types.Command.SELECT;
-        let temp = new TargetType();
-        let targetKeys = Reflect.ownKeys(temp);
-        let fields = this.dbSet.filterFields(targetKeys);
-        this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
-        let result = await this.context.execute(this.stat);
-        return this.mapData(TargetType, result);
+    select(TargetType) {
+        let res = new QuerySet(this.context, this.dbSet, TargetType);
+        return res;
     }
     async selectPlain(keys) {
         this.stat.command = sql.types.Command.SELECT;
         let fields = this.dbSet.filterFields(keys);
-        this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
+        this.stat.columns = this.getColumnExprs(fields, this.alias);
         let input = await this.context.execute(this.stat);
         let data = input.rows.map(row => {
             let obj = {};
-            keys.forEach(key => {
-                let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
-                let colName = fieldMapping.colName;
-                obj[key] = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+            fields.forEach(field => {
+                let colName = field.colName;
+                let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+                Reflect.set(obj, field.fieldName, val);
             });
             return obj;
         });
         return data;
     }
-    async mapData(TargetEntityType, input) {
+    async mapData(input) {
         let data = input.rows.map(row => {
-            let obj = new TargetEntityType();
+            let obj = new this.EntityType();
             let keys = Reflect.ownKeys(obj);
             keys.forEach(key => {
                 let field = Reflect.get(obj, key);
-                let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
+                let fieldMapping = this.dbSet.fieldMap.get(key);
                 if (fieldMapping) {
                     let colName = fieldMapping.colName;
                     let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
@@ -130,16 +130,16 @@ class QuerySet extends IQuerySet {
     }
     async update(param) {
         if (!(param && param instanceof Function)) {
-            throw new Error('Select Function not found');
+            throw new Error('Update Function not found');
         }
         let stat = new sql.Statement();
         stat.command = sql.types.Command.UPDATE;
-        stat.collection.value = this.dbSet.mapping.name;
+        stat.collection.value = this.dbSet.tableName;
         let a = this.getEntity();
         let tempObj = param(a);
         let keys = Reflect.ownKeys(tempObj).filter(k => tempObj.getChangeProps().includes(k));
         keys.forEach((key) => {
-            let field = this.dbSet.getKeyField(key);
+            let field = this.dbSet.getField(key);
             if (!field)
                 return;
             let c1 = new sql.Expression(field.colName);

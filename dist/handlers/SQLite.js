@@ -1,6 +1,5 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
-import Connection from '../Connection.js';
 export default class SQlite extends Handler {
     handlerName = 'sqlite';
     driver = null;
@@ -13,7 +12,7 @@ export default class SQlite extends Handler {
         this.connectionPool = new this.driver.Database(this.config.database);
     }
     async getConnection() {
-        let res = new Connection(this, this.connectionPool);
+        let res = new bean.Connection(this, this.connectionPool);
         return res;
     }
     async initTransaction(conn) { await conn.query('BEGIN TRANSACTION'); }
@@ -50,7 +49,7 @@ export default class SQlite extends Handler {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
         let conn = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }
         else {

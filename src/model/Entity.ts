@@ -1,4 +1,4 @@
-import PropKeys from '../types/PropKeys.js';
+import { PropKeys } from './types.js';
 
 class Entity {
 	private changedProps: Set<string | symbol> = new Set();

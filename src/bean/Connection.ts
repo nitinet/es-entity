@@ -1,10 +1,10 @@
-import Handler from './handlers/Handler.js';
+import Handler from '../handlers/Handler.js';
 
 export default class Connection {
 	private handler: Handler = null;
 	conn: any = null;
 
-	constructor(handler: Handler, conn?:any) {
+	constructor(handler: Handler, conn?: any) {
 		this.handler = handler;
 		this.conn = conn;
 	}

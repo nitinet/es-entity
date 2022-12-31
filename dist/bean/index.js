@@ -1,13 +1,13 @@
 import ResultSet from './ResultSet.js';
+import Connection from './Connection.js';
 import ColumnType from './ColumnType.js';
 import ColumnInfo from './ColumnInfo.js';
 import HandlerType from './HandlerType.js';
-import SqlException from './SqlException.js';
 export default {
     ColumnType,
     ColumnInfo,
+    Connection,
     HandlerType,
-    ResultSet,
-    SqlException
+    ResultSet
 };
-export { ColumnType, ColumnInfo, HandlerType, ResultSet, SqlException };
+export { ColumnType, ColumnInfo, Connection, HandlerType, ResultSet };

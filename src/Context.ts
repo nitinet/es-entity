@@ -1,18 +1,17 @@
 import * as sql from './sql/index.js';
 import * as bean from './bean/index.js';
-import DBSet from './collection/DBSet.js';
 import Handler from './handlers/Handler.js';
-import Connection from './Connection.js';
-import IEntityType from './types/IEntityType.js';
+import * as types from './model/types.js';
 import getHandler from './handlers/getHandler.js';
+import TableSet from './collection/TableSet.js';
 
 export default class Context {
 	private _handler: Handler;
 	private _entityPath: string;
-	private connection: Connection = null;
+	private connection: bean.Connection = null;
 	private logger: any = null;
 
-	public dbSetMap = new Map<IEntityType<any>, DBSet<any>>();
+	public tableSetMap = new Map<types.IEntityType<any>, TableSet<any>>();
 	public config: bean.IConfig = null;
 
 	constructor(config?: bean.IConfig) {
@@ -36,12 +35,12 @@ export default class Context {
 
 		await Promise.all(Reflect.ownKeys(this).filter(key => {
 			let o: any = Reflect.get(this, key);
-			return o instanceof DBSet;
+			return o instanceof TableSet;
 		}, this).map(async key => {
-			let obj = (<DBSet<any>>Reflect.get(this, key));
-			obj.context = this;
-			obj = await obj.bind();
-			this.dbSetMap.set(obj.getEntityType(), obj);
+			let table = (<TableSet<any>>Reflect.get(this, key));
+			table.context = this;
+			await table.bind();
+			this.tableSetMap.set(table.getEntityType(), table);
 		}));
 	}
 
@@ -77,7 +76,7 @@ export default class Context {
 			let keys = Reflect.ownKeys(res);
 			keys.forEach((key) => {
 				let prop = Reflect.get(res, key);
-				if (prop instanceof DBSet) {
+				if (prop instanceof TableSet) {
 					prop.context = res;
 				}
 			});

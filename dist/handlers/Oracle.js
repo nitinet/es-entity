@@ -1,7 +1,6 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 export default class Oracle extends Handler {
     handlerName = 'oracle';
     connectionPool = null;
@@ -24,7 +23,7 @@ export default class Oracle extends Handler {
             password: this.config.password,
             connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
         });
-        return new Connection(this, conn);
+        return new bean.Connection(this, conn);
     }
     async initTransaction(conn) { return null; }
     async commit(conn) { return conn.conn.commit(); }
@@ -75,7 +74,7 @@ export default class Oracle extends Handler {
             args = query.args;
         }
         let temp = null;
-        if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await connection.conn.execute(q, args);
         }
         else {

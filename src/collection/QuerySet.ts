@@ -1,96 +1,97 @@
 import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
-import * as types from '../types/index.js';
+import * as types from '../model/types.js';
 import * as model from '../model/index.js';
 import IQuerySet from './IQuerySet.js';
 import DBSet from './DBSet.js';
 import JoinQuerySet from './JoinQuerySet.js';
+import Context from '../Context.js';
 
 /**
  * QuerySet
  */
-class QuerySet<T extends model.Entity> extends IQuerySet<T> {
+class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityType<T>> extends IQuerySet<U> {
 	protected dbSet: DBSet<T> = null;
 	alias: string = null;
+	stat = new sql.Statement();
 
-	constructor(dbSet?: DBSet<T>) {
+	protected EntityType: types.IEntityType<U>;
+
+	constructor(context: Context, dbSet: DBSet<T>, EntityType: types.IEntityType<U>) {
 		super();
-		if (dbSet) {
-			this.bind(dbSet);
-		}
+
+		this.context = context;
+		this.bind(dbSet);
+		this.EntityType = EntityType;
 	}
 
 	bind(dbSet: DBSet<T>) {
-		if (dbSet) {
-			this.dbSet = dbSet;
-			this.context = this.dbSet.context;
+		this.dbSet = dbSet;
 
-			this.stat = new sql.Statement();
-			this.alias = dbSet.mapping.name.charAt(0);
-			this.stat.collection.value = dbSet.mapping.name;
-			this.stat.collection.alias = this.alias;
-		}
+		this.alias = dbSet.tableName.charAt(0);
+		this.stat.collection.value = dbSet.tableName;
+		this.stat.collection.alias = this.alias;
 	}
 
-	getEntity(alias?: string) {
-		alias = alias || this.stat.collection.alias;
-		return this.dbSet.getEntity(alias);
+	getEntity() {
+		let res = new this.EntityType();
+		let keys = Reflect.ownKeys(res);
+		keys.forEach(key => {
+			let field = Reflect.get(res, key);
+			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+				field.bind(this.context);
+			}
+		});
+		return res;
 	}
 
 	// Selection Functions
 	async list() {
 		this.stat.command = sql.types.Command.SELECT;
-		// Get all Columns
 
-		let temp = new (this.dbSet.getEntityType());
+		// Get all Columns
+		let temp = new this.EntityType();
 		let targetKeys = <string[]>Reflect.ownKeys(temp);
 		let fields = this.dbSet.filterFields(targetKeys);
-		this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
+		this.stat.columns = this.getColumnExprs(fields, this.alias);
 
 		let result = await this.context.execute(this.stat);
-		return this.mapData(this.dbSet.getEntityType(), result);
+		return this.mapData(result);
 	}
 
 	// Selection Functions
-	async select<U extends T>(TargetType: types.IEntityType<U>) {
-		this.stat.command = sql.types.Command.SELECT;
-
-		let temp = new TargetType();
-		let targetKeys = <string[]>Reflect.ownKeys(temp);
-		let fields = this.dbSet.filterFields(targetKeys);
-		this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
-
-		let result = await this.context.execute(this.stat);
-		return this.mapData(TargetType, result);
+	select<V extends model.Entity = types.SubEntityType<U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+		let res = new QuerySet<T, V>(this.context, this.dbSet, TargetType);
+		return res;
 	}
 
-	async selectPlain(keys: (keyof T)[]) {
+	async selectPlain(keys: (keyof U)[]) {
 		this.stat.command = sql.types.Command.SELECT;
 
 		let fields = this.dbSet.filterFields(<string[]>keys);
-		this.stat.columns = this.dbSet.getColumnExprs(fields, this.alias);
+		this.stat.columns = this.getColumnExprs(fields, this.alias);
 
 		let input = await this.context.execute(this.stat);
 		let data = input.rows.map(row => {
-			let obj: types.SelectType<T> = {};
-			keys.forEach(key => {
-				let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
-				let colName = fieldMapping.colName;
-				obj[key] = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+			let obj: types.SelectType<U> = {};
+			fields.forEach(field => {
+				let colName = field.colName;
+				let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+				Reflect.set(obj, field.fieldName, val);
 			});
 			return obj;
 		});
 		return data;
 	}
 
-	private async mapData<U extends Object>(TargetEntityType: types.IEntityType<U>, input: bean.ResultSet): Promise<Array<U>> {
+	private async mapData(input: bean.ResultSet) {
 		let data = input.rows.map(row => {
-			let obj = new TargetEntityType();
+			let obj = new this.EntityType();
 			let keys = (<string[]>Reflect.ownKeys(obj));
 
 			keys.forEach(key => {
 				let field = Reflect.get(obj, key);
-				let fieldMapping = this.dbSet.mapping.fields.find(f => f.fieldName == key);
+				let fieldMapping = this.dbSet.fieldMap.get(key);
 				if (fieldMapping) {
 					let colName = fieldMapping.colName;
 					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
@@ -105,10 +106,10 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 	}
 
 	// Conditional Functions
-	where(param: types.IWhereFunc<sql.OperatorEntity<T>>, ...args: any[]): IQuerySet<T> {
-		let res = null;
+	where(param: types.IWhereFunc<sql.OperatorEntity<U>>, ...args: any[]): IQuerySet<U> {
+		let res: sql.Expression = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity()
+			let a = new sql.OperatorEntity<U>();
 			res = param(a, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
@@ -117,7 +118,7 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		return this;
 	}
 
-	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
@@ -133,7 +134,7 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		return this;
 	}
 
-	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			let a = new sql.OperatorEntity()
@@ -149,7 +150,7 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		return this;
 	}
 
-	limit(size: number, index?: number): IQuerySet<T> {
+	limit(size: number, index?: number): IQuerySet<U> {
 		this.stat.limit = new sql.Expression(null, sql.types.Operator.Limit);
 		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		if (index) {
@@ -158,14 +159,14 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		return this;
 	}
 
-	async update(param: types.IUpdateFunc<T>): Promise<void> {
+	async update(param: types.IUpdateFunc<U>): Promise<void> {
 		if (!(param && param instanceof Function)) {
-			throw new Error('Select Function not found');
+			throw new Error('Update Function not found');
 		}
 
 		let stat = new sql.Statement();
 		stat.command = sql.types.Command.UPDATE;
-		stat.collection.value = this.dbSet.mapping.name;
+		stat.collection.value = this.dbSet.tableName;
 
 		let a = this.getEntity();
 		let tempObj = param(a);
@@ -173,7 +174,7 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		// Dynamic update
 		let keys = Reflect.ownKeys(tempObj).filter(k => tempObj.getChangeProps().includes(k));
 		keys.forEach((key) => {
-			let field = this.dbSet.getKeyField(key);
+			let field = this.dbSet.getField(key);
 			if (!field) return;
 
 			let c1 = new sql.Expression(field.colName);
@@ -192,7 +193,7 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		}
 	}
 
-	join<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
+	join<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<U, A>, joinType?: sql.types.Join): IQuerySet<U & A> {
 		joinType = joinType | sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
@@ -203,7 +204,7 @@ class QuerySet<T extends model.Entity> extends IQuerySet<T> {
 		}
 
 		if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-			return new JoinQuerySet<T, A>(this, coll, joinType, temp);
+			return new JoinQuerySet<U, A>(this, coll, joinType, temp);
 		} else {
 			throw new Error('Invalid Join');
 		}

@@ -4,7 +4,6 @@ import * as mysql from 'mysql';
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 
 export default class Mysql extends Handler {
 	handlerName = 'mysql';
@@ -29,9 +28,9 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	getConnection(): Promise<Connection> {
+	getConnection(): Promise<bean.Connection> {
 		let that = this;
-		return new Promise<Connection>((resolve, reject) => {
+		return new Promise<bean.Connection>((resolve, reject) => {
 			let conn = that.driver.createConnection({
 				host: that.config.host,
 				port: that.config.port,
@@ -44,14 +43,14 @@ export default class Mysql extends Handler {
 					that.context.log('Connection Creation Failed', err);
 					reject(err);
 				} else {
-					let res = new Connection(this, conn);
+					let res = new bean.Connection(this, conn);
 					resolve(res);
 				}
 			});
 		});
 	}
 
-	initTransaction(conn: Connection) {
+	initTransaction(conn: bean.Connection) {
 		let that = this;
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.beginTransaction((err: Error) => {
@@ -65,7 +64,7 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	commit(conn: Connection) {
+	commit(conn: bean.Connection) {
 		let that = this;
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.commit((err: Error) => {
@@ -79,7 +78,7 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	rollback(conn: Connection) {
+	rollback(conn: bean.Connection) {
 		return new Promise<void>((resolve) => {
 			conn.conn.rollback(() => {
 				resolve();
@@ -87,7 +86,7 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	close(conn: Connection) {
+	close(conn: bean.Connection) {
 		let that = this;
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.end((err: Error) => {
@@ -141,12 +140,12 @@ export default class Mysql extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
 		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
-		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			let conn: mysql.Connection = connection.conn;
 			temp = await new Promise<any>((resolve, reject) => {
 				conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
@@ -178,8 +177,7 @@ export default class Mysql extends Handler {
 		}
 
 		let result = new bean.ResultSet();
-		if (temp.insertId)
-			result.id = temp.insertId;
+		if (temp.insertId) result.id = temp.insertId;
 		if (temp.changedRows) {
 			result.rowCount = temp.changedRows;
 		} else if (Array.isArray(temp)) {

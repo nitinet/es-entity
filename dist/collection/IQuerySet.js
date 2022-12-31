@@ -21,5 +21,12 @@ class IQuerySet {
     outerJoin(coll, param) {
         return this.join(coll, param, sql.types.Join.OuterJoin);
     }
+    getColumnExprs(fields, alias) {
+        let exprs = fields.map(field => {
+            let val = alias ? alias + '.' + field.colName : field.colName;
+            return new sql.Expression(val);
+        });
+        return exprs;
+    }
 }
 export default IQuerySet;

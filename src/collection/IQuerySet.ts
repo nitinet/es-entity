@@ -1,5 +1,5 @@
 import * as sql from '../sql/index.js';
-import * as types from '../types/index.js';
+import * as types from '../model/types.js';
 import Context from '../Context.js';
 import * as model from '../model/index.js';
 
@@ -7,7 +7,7 @@ abstract class IQuerySet<T extends model.Entity> {
 	context: Context;
 	stat: sql.Statement = null;
 
-	abstract getEntity(alias?: string): T;
+	abstract getEntity(): T;
 
 	// Selection Functions
 	abstract list(): Promise<Array<T>>;
@@ -18,9 +18,9 @@ abstract class IQuerySet<T extends model.Entity> {
 		else return arr[0];
 	}
 
-	abstract select<U extends T>(TargetType: types.IEntityType<U>): Promise<U[]>;
 	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
 
+	abstract select<U extends model.Entity = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
 	abstract where(func: types.IWhereFunc<model.OperatorEntity<T>>, ...args: any[]): IQuerySet<T>;
 	abstract groupBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
 	abstract orderBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
@@ -42,6 +42,15 @@ abstract class IQuerySet<T extends model.Entity> {
 
 	outerJoin<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.OuterJoin);
+	}
+
+	// Util function
+	getColumnExprs(fields: model.FieldMapping[], alias?: string) {
+		let exprs = fields.map(field => {
+			let val = alias ? alias + '.' + field.colName : field.colName;
+			return new sql.Expression(val);
+		});
+		return exprs;
 	}
 
 }
