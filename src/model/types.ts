@@ -1,5 +1,4 @@
 import Expression from '../sql/Expression.js';
-import Entity from './Entity.js';
 
 interface IArrFieldFunc<T> {
 	(source: T): Expression[];
@@ -10,7 +9,7 @@ interface IJoinFunc<A, B> {
 }
 
 interface IUpdateFunc<T> {
-	(source: T): T;
+	(source: T): { obj: T, updatedKeys: (keyof T)[] };
 }
 
 interface IWhereFunc<T> {
@@ -25,9 +24,13 @@ type SelectType<T> = {
 	[Property in keyof T]?: any;
 };
 
-type PropKeys<T> = Exclude<keyof T, "addChangeProp" | "clearChangeProps" | "getChangeProps">
+// type PropKeys<T> = Exclude<keyof T, "addChangeProps" | "clearChangeProps" | "isPropChanged">
+type PropKeys<T extends Object> = keyof T;
 
-type SubEntityType<T> = Partial<T> & Entity;
+// type SubEntityType<T> = Partial<T> & Entity;
+type SubEntityType<T> = Partial<T> & Object;
+
+type OpderType = 'ASC' | 'DESC';
 
 export {
 	IArrFieldFunc,
@@ -37,5 +40,6 @@ export {
 	IWhereFunc,
 	PropKeys,
 	SelectType,
-	SubEntityType
+	SubEntityType,
+	OpderType
 }

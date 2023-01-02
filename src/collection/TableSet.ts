@@ -1,4 +1,3 @@
-import { Entity } from '../model/index.js';
 import * as sql from '../sql/index.js';
 import * as types from '../model/types.js';
 import * as model from '../model/index.js';
@@ -10,7 +9,7 @@ interface IOptions {
 	tableName?: string;
 }
 
-class TableSet<T extends Entity> extends IQuerySet<T>{
+class TableSet<T extends Object> extends IQuerySet<T>{
 
 	protected EntityType: types.IEntityType<T> = null;
 	protected options: IOptions = null;
@@ -51,17 +50,18 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 		stat.collection.value = this.dbSet.tableName;
 
 		// Dynamic insert
-		let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
-		keys.forEach((key) => {
+		Reflect.ownKeys(entity).forEach((key) => {
 			let field = this.dbSet.getField(key);
 			if (!field) return;
+			let val = Reflect.get(entity, key);
+			if (val == null) return;
 
 			let col = new sql.Collection();
 			col.value = field.colName;
 			stat.columns.push(col);
 
 			let v: sql.Expression = new sql.Expression('?');
-			v.args.push(Reflect.get(entity, key));
+			v.args.push(val);
 			stat.values.push(v);
 		});
 
@@ -100,7 +100,7 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 		return expr;
 	}
 
-	async update(entity: T) {
+	async update(entity: T, updatedKeys: (keyof T)[]) {
 		let stat = new sql.Statement();
 		stat.command = sql.types.Command.UPDATE;
 		stat.collection.value = this.dbSet.tableName;
@@ -108,7 +108,9 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 		let primaryFields = this.dbSet.getPrimaryFields();
 
 		// Dynamic update
-		let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
+		let keys = Reflect.ownKeys(entity).filter(key => primaryFields.some(pri => pri.fieldName == key) == false);
+		if (updatedKeys) keys = keys.filter(key => (<(string | symbol)[]>updatedKeys).includes(key));
+
 		keys.forEach((key) => {
 			let field = this.dbSet.getField(key);
 			if (!field) return;
@@ -151,7 +153,7 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 		let obj = await this.get(...idParams);
 
 		if (obj) {
-			return this.update(entity);
+			return this.update(entity, null);
 		} else {
 			return this.insert(entity);
 		}
@@ -210,7 +212,7 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 		return q.list();
 	}
 
-	select<U extends model.Entity = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
+	select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
 		let q = new QuerySet(this.context, this.dbSet, TargetType);
 		return q.select(TargetType);
 	}
@@ -220,7 +222,7 @@ class TableSet<T extends Entity> extends IQuerySet<T>{
 		return q.selectPlain(keys);
 	}
 
-	join<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
 		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
 		return q.join(coll, param, joinType);
 	}

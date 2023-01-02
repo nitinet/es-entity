@@ -1,21 +1,21 @@
-import Entity from './Entity.js';
 import LinkArray from './LinkArray.js';
 import LinkObject from './LinkObject.js';
 import OperatorEntity from './OperatorEntity.js';
 import FieldMapping from './FieldMapping.js';
+import * as types from './types.js';
 
 export default {
-	Entity,
 	FieldMapping,
 	LinkArray,
 	LinkObject,
-	OperatorEntity
+	OperatorEntity,
+	types
 }
 
 export {
-	Entity,
 	FieldMapping,
 	LinkArray,
 	LinkObject,
-	OperatorEntity
+	OperatorEntity,
+	types
 }

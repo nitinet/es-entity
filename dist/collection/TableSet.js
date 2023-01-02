@@ -34,16 +34,18 @@ class TableSet extends IQuerySet {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.dbSet.tableName;
-        let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
-        keys.forEach((key) => {
+        Reflect.ownKeys(entity).forEach((key) => {
             let field = this.dbSet.getField(key);
             if (!field)
+                return;
+            let val = Reflect.get(entity, key);
+            if (val == null)
                 return;
             let col = new sql.Collection();
             col.value = field.colName;
             stat.columns.push(col);
             let v = new sql.Expression('?');
-            v.args.push(Reflect.get(entity, key));
+            v.args.push(val);
             stat.values.push(v);
         });
         let result = await this.context.execute(stat);
@@ -79,12 +81,14 @@ class TableSet extends IQuerySet {
         });
         return expr;
     }
-    async update(entity) {
+    async update(entity, updatedKeys) {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
         let primaryFields = this.dbSet.getPrimaryFields();
-        let keys = Reflect.ownKeys(entity).filter(k => entity.getChangeProps().includes(k));
+        let keys = Reflect.ownKeys(entity).filter(key => primaryFields.some(pri => pri.fieldName == key) == false);
+        if (updatedKeys)
+            keys = keys.filter(key => updatedKeys.includes(key));
         keys.forEach((key) => {
             let field = this.dbSet.getField(key);
             if (!field)
@@ -123,7 +127,7 @@ class TableSet extends IQuerySet {
         });
         let obj = await this.get(...idParams);
         if (obj) {
-            return this.update(entity);
+            return this.update(entity, null);
         }
         else {
             return this.insert(entity);

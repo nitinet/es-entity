@@ -2,9 +2,8 @@ import LinkSet from '../collection/LinkSet.js';
 import * as types from './types.js';
 import Context from '../Context.js';
 import OperatorEntity from './OperatorEntity.js';
-import Entity from './Entity.js';
 
-class LinkObject<T extends Entity, U extends Entity> {
+class LinkObject<T extends Object, U extends Object> {
 	private EntityType: types.IEntityType<T> = null;
 	private foreignFunc: types.IJoinFunc<OperatorEntity<T>, U> = null;
 

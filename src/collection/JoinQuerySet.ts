@@ -2,9 +2,8 @@ import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
 import * as bean from '../bean/index.js';
 import * as types from '../model/types.js';
-import Entity from '../model/Entity.js';
 
-class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
+class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	mainSet: IQuerySet<T> = null;
 	joinSet: IQuerySet<U> = null;
 
@@ -60,7 +59,7 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 		return null;
 	}
 
-	select<V extends Entity = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+	select<V = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
 		// this.stat.command = sql.types.Command.SELECT;
 
 		// let a = this.getEntity();
@@ -154,7 +153,7 @@ class JoinQuerySet<T extends Entity, U extends Entity> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	join<A extends Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join) {
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join) {
 		joinType = joinType || sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;

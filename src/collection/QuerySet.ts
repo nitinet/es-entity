@@ -10,7 +10,7 @@ import Context from '../Context.js';
 /**
  * QuerySet
  */
-class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityType<T>> extends IQuerySet<U> {
+class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> extends IQuerySet<U> {
 	protected dbSet: DBSet<T> = null;
 	alias: string = null;
 	stat = new sql.Statement();
@@ -60,7 +60,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 	}
 
 	// Selection Functions
-	select<V extends model.Entity = types.SubEntityType<U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+	select<V = types.SubEntityType<U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
 		let res = new QuerySet<T, V>(this.context, this.dbSet, TargetType);
 		return res;
 	}
@@ -172,7 +172,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 		let tempObj = param(a);
 
 		// Dynamic update
-		let keys = Reflect.ownKeys(tempObj).filter(k => tempObj.getChangeProps().includes(k));
+		let keys = Reflect.ownKeys(tempObj.obj).filter(key => (<(string | symbol)[]>tempObj.updatedKeys).includes(key));
 		keys.forEach((key) => {
 			let field = this.dbSet.getField(key);
 			if (!field) return;
@@ -193,7 +193,7 @@ class QuerySet<T extends model.Entity, U extends model.Entity = types.SubEntityT
 		}
 	}
 
-	join<A extends model.Entity>(coll: IQuerySet<A>, param: types.IJoinFunc<U, A>, joinType?: sql.types.Join): IQuerySet<U & A> {
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<U, A>, joinType?: sql.types.Join): IQuerySet<U & A> {
 		joinType = joinType | sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;

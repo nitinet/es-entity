@@ -1,13 +1,12 @@
 import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
-import Entity from './Entity.js';
 import FieldMapping from './FieldMapping.js';
 import { PropKeys } from './types.js';
 
 type ValueType = boolean | number | string | Date | Buffer;
 type OperandType = ValueType | Expression;
 
-class OperatorEntity<T extends Entity> {
+class OperatorEntity<T extends Object> {
 	fieldMap: Map<string | number | symbol, FieldMapping> = null;
 	alias: string = null;
 

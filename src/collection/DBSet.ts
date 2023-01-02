@@ -5,12 +5,7 @@ import * as types from '../model/types.js';
 import * as model from '../model/index.js';
 import Context from '../Context.js';
 
-interface IOptions {
-	entityName?: string;
-	entityPath?: string,
-}
-
-class DBSet<T extends model.Entity>  {
+class DBSet<T extends Object>  {
 	protected entityType: types.IEntityType<T>;
 
 	// mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
@@ -33,8 +28,8 @@ class DBSet<T extends model.Entity>  {
 		let obj = new this.entityType();
 		let keys = (<string[]>Reflect.ownKeys(obj));
 
+		// Bind Fields
 		keys.forEach(key => {
-			// Bind Fields
 			try {
 				this.bindField(key, columns);
 			} catch (err) {

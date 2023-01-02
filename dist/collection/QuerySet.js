@@ -137,7 +137,7 @@ class QuerySet extends IQuerySet {
         stat.collection.value = this.dbSet.tableName;
         let a = this.getEntity();
         let tempObj = param(a);
-        let keys = Reflect.ownKeys(tempObj).filter(k => tempObj.getChangeProps().includes(k));
+        let keys = Reflect.ownKeys(tempObj.obj).filter(key => tempObj.updatedKeys.includes(key));
         keys.forEach((key) => {
             let field = this.dbSet.getField(key);
             if (!field)
