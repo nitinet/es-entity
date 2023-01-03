@@ -4,7 +4,6 @@ import * as sqlite from 'sqlite3';
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 
 export default class SQlite extends Handler {
 	handlerName = 'sqlite';
@@ -21,7 +20,7 @@ export default class SQlite extends Handler {
 	}
 
 	async getConnection() {
-		let res: Connection = new Connection(this, this.connectionPool);
+		let res: bean.Connection = new bean.Connection(this, this.connectionPool);
 		return res;
 	}
 
@@ -60,13 +59,13 @@ export default class SQlite extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
 		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
 		let conn: sqlite.Database = null;
-		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			conn = connection.conn;
 		} else {
 			conn = this.connectionPool;

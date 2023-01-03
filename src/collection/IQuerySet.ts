@@ -1,55 +1,56 @@
-import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
-import * as funcs from '../funcs/index.js';
+import * as types from '../model/types.js';
 import Context from '../Context.js';
+import * as model from '../model/index.js';
 
-abstract class IQuerySet<T> {
+abstract class IQuerySet<T extends Object> {
 	context: Context;
 	stat: sql.Statement = null;
 
-	abstract getEntity(alias?: string): T;
+	abstract getEntity(): T;
 
 	// Selection Functions
 	abstract list(): Promise<Array<T>>;
-	abstract unique(): Promise<T>;
-	abstract select<U extends Object>(param?: funcs.ISelectFunc<T, U>): Promise<U[]>;
 
-	abstract where(func?: funcs.IWhereFunc<T> | sql.Expression, ...args: any[]): IQuerySet<T>;
-	abstract groupBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
-	abstract orderBy(func?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T>;
+	async unique(): Promise<T> {
+		let arr = await this.list();
+		if (arr.length > 1) throw new Error('More than one row found in unique call');
+		else return arr[0];
+	}
+
+	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
+
+	abstract select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
+	abstract where(func: types.IWhereFunc<model.OperatorEntity<T>>, ...args: any[]): IQuerySet<T>;
+	abstract groupBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
+	abstract orderBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
 	abstract limit(size: number, index?: number): IQuerySet<T>;
 
-	abstract mapData(input: bean.ResultSet): Promise<Array<T>>;
+	abstract join<A extends Object>(collection: IQuerySet<A>, func: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A>;
 
-	abstract join<A>(collection: IQuerySet<A>, func: funcs.IJoinFunc<T, A> | sql.Expression, joinType?: sql.types.Join): IQuerySet<T & A>;
-
-	innerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	innerJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.InnerJoin);
 	}
 
-	leftJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	leftJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.LeftJoin);
 	}
 
-	rightJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	rightJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.RightJoin);
 	}
 
-	outerJoin<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T, A> | sql.Expression): IQuerySet<T & A> {
+	outerJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
 		return this.join(coll, param, sql.types.Join.OuterJoin);
 	}
 
-	// utils functions
-	setStatColumns(tempObj:any) {
-		let tempKeys = Reflect.ownKeys(tempObj);
-		tempKeys.forEach(k => {
-			let f = tempObj[k];
-			if (f instanceof sql.Field) {
-				let exp = f.expr();
-				this.stat.columns.push(exp);
-			}
+	// Util function
+	getColumnExprs(fields: model.FieldMapping[], alias?: string) {
+		let exprs = fields.map(field => {
+			let val = alias ? alias + '.' + field.colName : field.colName;
+			return new sql.Expression(val);
 		});
-		return this;
+		return exprs;
 	}
 
 }

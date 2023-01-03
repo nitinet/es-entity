@@ -1,7 +1,7 @@
 import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
-import * as funcs from '../funcs/index.js';
 import * as bean from '../bean/index.js';
+import * as types from '../model/types.js';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	mainSet: IQuerySet<T> = null;
@@ -23,87 +23,78 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		this.stat.where = this.stat.where.add(expr);
 	}
 
-	getEntity(alias?: string): T & U {
-		let mainObj = this.mainSet.getEntity(alias);
-		let joinObj = this.joinSet.getEntity(alias);
-		return Object.assign(mainObj, joinObj);
+	getEntity(): T & U {
+		// let mainObj = this.mainSet.getEntity(alias);
+		// let joinObj = this.joinSet.getEntity(alias);
+		// return Object.assign(mainObj, joinObj);
+		return null;
 	}
 
 	// Selection Functions
 	async list(): Promise<Array<T & U>> {
-		this.stat.command = sql.types.Command.SELECT;
+		// this.stat.command = sql.types.Command.SELECT;
 
-		let tempObj = this.getEntity();
-		this.setStatColumns(tempObj);
+		// let tempObj = this.getEntity();
+		// this.setStatColumns(tempObj);
 
-		let result = await this.context.execute(this.stat);
-		return this.mapData(result);
+		// let result = await this.context.execute(this.stat);
+		// return this.mapData(result);
+		//TODO: implementation
+		return null;
 	}
 
 	async mapData(input: bean.ResultSet): Promise<Array<T & U>> {
-		let resMain = await this.mainSet.mapData(input);
-		let resJoin = await this.joinSet.mapData(input);
+		// let resMain = await this.mainSet.mapData(input);
+		// let resJoin = await this.joinSet.mapData(input);
 
-		let res = new Array<T & U>();
-		for (let i = 0; i < input.rowCount; i++) {
-			let objMain = resMain[i];
-			let objJoin = resJoin[i];
-			let objFinal = Object.assign(objMain, objJoin);
-			res.push(objFinal);
-		}
-		return res;
+		// let res = new Array<T & U>();
+		// for (let i = 0; i < input.rowCount; i++) {
+		// 	let objMain = resMain[i];
+		// 	let objJoin = resJoin[i];
+		// 	let objFinal = Object.assign(objMain, objJoin);
+		// 	res.push(objFinal);
+		// }
+		// return res;
+		//TODO: implement
+		return null;
 	}
 
-	async unique(): Promise<T & U> {
-		let l = await this.list();
-		if (l.length > 1) {
-			throw new Error('More than one row found in unique call');
-		} else {
-			return l[0];
-		}
+	select<V = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+		// this.stat.command = sql.types.Command.SELECT;
+
+		// let a = this.getEntity();
+		// let tempObj = TargetType(a);
+		// this.setStatColumns(tempObj);
+
+		// let result = await this.context.execute(this.stat);
+		// let temps = await this.mapData(result);
+		// let res: V[] = [];
+		// temps.forEach(t => {
+		// 	let r = TargetType(t);
+		// 	res.push(r);
+		// });
+
+		// return res;
+		//TODO: implement
+		return null;
 	}
 
-	// async run() {
-	// 	if (!this.stat.columns.length) {
-	// 		return this.list();
-	// 	}
-
-	// 	let result = await this.context.execute(this.stat);
-	// 	return result.rows;
-	// }
-
-	async select<V extends Object>(param?: funcs.ISelectFunc<T & U, V>): Promise<V[]> {
-		this.stat.command = sql.types.Command.SELECT;
-
-		if (!(param && param instanceof Function)) {
-			throw new Error('Select Function not found');
-		}
-
-		let a = this.getEntity();
-		let tempObj = param(a);
-		this.setStatColumns(tempObj);
-
-		let result = await this.context.execute(this.stat);
-		let temps = await this.mapData(result);
-		let res: V[] = [];
-		temps.forEach(t => {
-			let r = param(t);
-			res.push(r);
-		});
-
-		return res;
+	selectPlain(keys: (keyof T & U)[]): Promise<types.SelectType<T & U>[]> {
+		//TODO: implement
+		return null;
 	}
 
 	// Conditional Functions
-	where(param?: funcs.IWhereFunc<T & U> | sql.Expression, ...args: any[]): IQuerySet<T & U> {
+	where(param: types.IWhereFunc<sql.OperatorEntity<T & U>>, ...args: any[]): IQuerySet<T & U> {
 		let res = null;
-		if (param) {
-			if (param instanceof Function) {
-				let a = this.getEntity();
-				res = param(a, args);
-			} else {
-				res = param;
-			}
+		if (param && param instanceof Function) {
+			//TODO: fix join fieldMap
+			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+
+			let a = new sql.OperatorEntity(finalFieldMap);
+			res = param(a, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
@@ -111,50 +102,44 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	groupBy(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T & U> {
+	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
 		let res = null;
-		if (param) {
-			if (param instanceof Function) {
-				let a = this.getEntity();
-				res = param(a);
-			} else if (param instanceof Array) {
-				res = param;
-			}
+		if (param && param instanceof Function) {
+			//TODO: fix join fieldMap
+			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+
+			let a = new sql.OperatorEntity(finalFieldMap);
+			res = param(a);
 		}
-		if (res) {
-			if (res instanceof Array) {
-				res.forEach(a => {
-					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.groupBy.push(a);
-					}
-				});
-			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.groupBy.push(res);
-			}
+		if (res && Array.isArray(res)) {
+			res.forEach(a => {
+				if (a instanceof sql.Expression && a.exps.length > 0) {
+					this.stat.groupBy.push(a);
+				}
+			});
 		}
 		return this;
 	}
 
-	orderBy(param?: funcs.IArrFieldFunc<T> | sql.Expression | sql.Expression[]): IQuerySet<T & U> {
+	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
 		let res = null;
-		if (param) {
-			if (param instanceof Function) {
-				let a = this.getEntity();
-				res = param(a);
-			} else if (param instanceof Array) {
-				res = param;
-			}
+		if (param && param instanceof Function) {
+			//TODO: fix join fieldMap
+			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+
+			let a = new sql.OperatorEntity(finalFieldMap);
+			res = param(a);
 		}
-		if (res) {
-			if (res instanceof Array) {
-				res.forEach(a => {
-					if (a instanceof sql.Expression && a.exps.length > 0) {
-						this.stat.orderBy.push(a);
-					}
-				});
-			} else if (res instanceof sql.Expression && res.exps.length > 0) {
-				this.stat.orderBy.push(res);
-			}
+		if (res && Array.isArray(res)) {
+			res.forEach(a => {
+				if (a instanceof sql.Expression && a.exps.length > 0) {
+					this.stat.orderBy.push(a);
+				}
+			});
 		}
 		return this;
 	}
@@ -168,16 +153,14 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	join<A>(coll: IQuerySet<A>, param?: funcs.IJoinFunc<T & U, A> | sql.Expression, joinType?: sql.types.Join) {
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join) {
 		joinType = joinType || sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression = null;
-		if (param instanceof Function) {
+		if (param && param instanceof Function) {
 			let a = this.getEntity();
 			let b = coll.getEntity();
 			temp = param(a, b);
-		} else {
-			temp = param;
 		}
 		let res: JoinQuerySet<T & U, A> = null;
 		if (temp instanceof sql.Expression && temp.exps.length > 0) {

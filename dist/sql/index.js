@@ -1,8 +1,8 @@
 import Collection from './Collection.js';
 import Expression from './Expression.js';
-import Field from './Field.js';
 import INode from './INode.js';
 import Statement from './Statement.js';
+import OperatorEntity from '../model/OperatorEntity.js';
 import * as types from './types/index.js';
 export default {
     INode,
@@ -10,6 +10,6 @@ export default {
     Collection,
     Expression,
     Statement,
-    Field
+    OperatorEntity
 };
-export { INode, types, Collection, Expression, Statement, Field };
+export { INode, types, Collection, Expression, Statement, OperatorEntity };

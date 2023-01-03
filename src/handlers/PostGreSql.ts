@@ -4,7 +4,6 @@ import * as pg from 'pg';
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
 
 export default class PostgreSql extends Handler {
 	handlerName = 'postgresql';
@@ -29,7 +28,7 @@ export default class PostgreSql extends Handler {
 		});
 	}
 
-	async getConnection(): Promise<Connection> {
+	async getConnection(): Promise<bean.Connection> {
 		let conn = new this.driver.Client({
 			host: this.config.host,
 			port: this.config.port,
@@ -39,7 +38,7 @@ export default class PostgreSql extends Handler {
 		});
 		try {
 			await conn.connect();
-			return new Connection(this, conn);
+			return new bean.Connection(this, conn);
 		} catch (err) {
 			this.context.log('Connection Creation Failed', err);
 			throw err;
@@ -99,12 +98,12 @@ export default class PostgreSql extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: Connection) {
+	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection) {
 		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
-		if (connection && connection instanceof Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
+		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			temp = await connection.conn.query(queryObj.query, queryObj.args);
 		} else {
 			let con = null;

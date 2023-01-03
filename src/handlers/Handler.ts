@@ -1,5 +1,5 @@
 import * as sql from '../sql/index.js';
-import Connection from '../Connection.js';
+import Connection from '../bean/Connection.js';
 import Context from '../Context.js';
 
 import * as bean from '../bean/index.js';
@@ -25,34 +25,6 @@ export default abstract class Handler {
 
 	convertPlaceHolder(query: string) {
 		return query;
-	}
-
-	mapData(row: any, fieldName: string, type: string) {
-		let val = null;
-		if (row[fieldName] != null && row[fieldName] != undefined) {
-			val = row[fieldName];
-		} else if (row[fieldName.toLowerCase()] != null && row[fieldName.toLowerCase()] != undefined) {
-			val = row[fieldName.toLowerCase()];
-		} else if (row[fieldName.toUpperCase()] != null && row[fieldName.toUpperCase()] != undefined) {
-			val = row[fieldName.toUpperCase()];
-		}
-		let res = null;
-		if (val && type) {
-			if (type == 'boolean') {
-				res = Boolean(val);
-			} else if (type == 'number') {
-				res = Number(val);
-			} else if (type == 'string') {
-				res = String(val);
-			} else if (type == 'date') {
-				res = new Date(val);
-			} else {
-				res = val;
-			}
-		} else {
-			res = val;
-		}
-		return res;
 	}
 
 	prepareQuery(queryStmt: string | sql.INode, args?: Array<any>) {

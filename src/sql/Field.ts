@@ -1,6 +1,7 @@
 import Expression from './Expression.js';
 import Operator from './types/Operator.js';
 
+// Deprecate
 class Field<T>  {
 	protected _value: T = null;
 	_alias: string = '';

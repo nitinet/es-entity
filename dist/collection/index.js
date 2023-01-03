@@ -1,11 +1,11 @@
 import IQuerySet from './IQuerySet.js';
-import DBSet from './DBSet.js';
+import TableSet from './TableSet.js';
 import QuerySet from './QuerySet.js';
 import LinkSet from './LinkSet.js';
 export default {
     IQuerySet,
-    DBSet,
+    TableSet,
     QuerySet,
     LinkSet
 };
-export { IQuerySet, DBSet, QuerySet, LinkSet };
+export { IQuerySet, TableSet, QuerySet, LinkSet };
