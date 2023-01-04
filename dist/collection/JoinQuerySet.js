@@ -35,8 +35,8 @@ class JoinQuerySet extends IQuerySet {
             let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let a = new sql.OperatorEntity(finalFieldMap);
-            res = param(a, args);
+            let op = new sql.OperatorEntity(finalFieldMap);
+            res = param(op, args);
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
             this.stat.where = this.stat.where.add(res);
@@ -49,8 +49,8 @@ class JoinQuerySet extends IQuerySet {
             let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let a = new sql.OperatorEntity(finalFieldMap);
-            res = param(a);
+            let op = new sql.OperatorEntity(finalFieldMap);
+            res = param(op);
         }
         if (res && Array.isArray(res)) {
             res.forEach(a => {
@@ -67,8 +67,8 @@ class JoinQuerySet extends IQuerySet {
             let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let a = new sql.OperatorEntity(finalFieldMap);
-            res = param(a);
+            let op = new sql.OperatorEntity(finalFieldMap);
+            res = param(op);
         }
         if (res && Array.isArray(res)) {
             res.forEach(a => {

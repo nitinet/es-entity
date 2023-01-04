@@ -121,8 +121,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity(this.dbSet.fieldMap);
-			res = param(a);
+			let op = new sql.OperatorEntity<U>(this.dbSet.fieldMap);
+			res = param(op);
 		}
 		if (res && Array.isArray(res)) {
 			res.forEach(a => {
@@ -137,8 +137,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity(this.dbSet.fieldMap);
-			res = param(a);
+			let op = new sql.OperatorEntity<U>(this.dbSet.fieldMap);
+			res = param(op);
 		}
 		if (res && Array.isArray(res)) {
 			res.forEach(a => {

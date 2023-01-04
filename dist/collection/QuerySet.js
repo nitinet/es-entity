@@ -93,8 +93,8 @@ class QuerySet extends IQuerySet {
     groupBy(param) {
         let res = null;
         if (param && param instanceof Function) {
-            let a = new sql.OperatorEntity(this.dbSet.fieldMap);
-            res = param(a);
+            let op = new sql.OperatorEntity(this.dbSet.fieldMap);
+            res = param(op);
         }
         if (res && Array.isArray(res)) {
             res.forEach(a => {
@@ -108,8 +108,8 @@ class QuerySet extends IQuerySet {
     orderBy(param) {
         let res = null;
         if (param && param instanceof Function) {
-            let a = new sql.OperatorEntity(this.dbSet.fieldMap);
-            res = param(a);
+            let op = new sql.OperatorEntity(this.dbSet.fieldMap);
+            res = param(op);
         }
         if (res && Array.isArray(res)) {
             res.forEach(a => {
