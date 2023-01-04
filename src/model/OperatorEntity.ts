@@ -3,8 +3,8 @@ import Operator from '../sql/types/Operator.js';
 import FieldMapping from './FieldMapping.js';
 import { PropKeys } from './types.js';
 
-type ValueType<T> = T[keyof T];
-type OperandType<T> = ValueType<T> | Expression;
+type ValueType = boolean | string | number | Date | Buffer;
+type OperandType = ValueType | Expression;
 
 class OperatorEntity<T extends Object> {
 	fieldMap: Map<string | number | symbol, FieldMapping> = null;
@@ -21,39 +21,34 @@ class OperatorEntity<T extends Object> {
 		return new Expression(name);
 	}
 
-	private _argExp(operand: OperandType<T>) {
+	private _argExp(operand: OperandType) {
 		let res: Expression = null;
 		if (operand instanceof Expression) {
 			res = operand;
 		} else {
-			res = this._createExpr(operand);
+			res = new Expression('?');
+			res.args = res.args.concat(operand);
 		}
 		return res;
 	}
 
-	private _createExpr(operand: any) {
-		let res = new Expression('?');
-		res.args = res.args.concat(operand);
-		return res;
-	}
-
 	// Comparison Operators
-	eq(propName: PropKeys<T>, operand: T[PropKeys<T>]) {
+	eq(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.Equal, this.expr(propName), this._argExp(operand));
 	}
-	neq(propName: PropKeys<T>, operand: OperandType<T>) {
+	neq(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.NotEqual, this.expr(propName), this._argExp(operand));
 	}
-	lt(propName: PropKeys<T>, operand: OperandType<T>) {
+	lt(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.LessThan, this.expr(propName), this._argExp(operand));
 	}
-	gt(propName: PropKeys<T>, operand: OperandType<T>) {
+	gt(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.GreaterThan, this.expr(propName), this._argExp(operand));
 	}
-	lteq(propName: PropKeys<T>, operand: OperandType<T>) {
+	lteq(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.LessThanEqual, this.expr(propName), this._argExp(operand));
 	}
-	gteq(propName: PropKeys<T>, operand: OperandType<T>) {
+	gteq(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.GreaterThanEqual, this.expr(propName), this._argExp(operand));
 	}
 
@@ -69,7 +64,7 @@ class OperatorEntity<T extends Object> {
 	}
 
 	// Inclusion Funtions
-	in(propName: PropKeys<T>, ...operand: ValueType<T>[]) {
+	in(propName: PropKeys<T>, ...operand: ValueType[]) {
 		let vals = operand.map(val => {
 			let arg = new Expression('?');
 			arg.args = arg.args.concat(val);
@@ -78,12 +73,12 @@ class OperatorEntity<T extends Object> {
 		return new Expression(null, Operator.In, this.expr(propName), ...vals);
 	}
 
-	between(propName: PropKeys<T>, first: OperandType<T>, second: OperandType<T>) {
+	between(propName: PropKeys<T>, first: OperandType, second: OperandType) {
 		return new Expression(null, Operator.Between, this.expr(propName), this._argExp(first), this._argExp(second));
 	}
 
 	like(propName: PropKeys<T>, operand: string) {
-		return new Expression(null, Operator.Like, this.expr(propName), this._createExpr(operand));
+		return new Expression(null, Operator.Like, this.expr(propName), this._argExp(operand));
 	}
 
 	// Null Checks
@@ -95,16 +90,16 @@ class OperatorEntity<T extends Object> {
 	}
 
 	// Arithmatic Operators
-	plus(propName: PropKeys<T>, operand: OperandType<T>) {
+	plus(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.Plus, this.expr(propName), this._argExp(operand));
 	}
-	minus(propName: PropKeys<T>, operand: OperandType<T>) {
+	minus(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.Minus, this.expr(propName), this._argExp(operand));
 	}
-	multiply(propName: PropKeys<T>, operand: OperandType<T>) {
+	multiply(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.Multiply, this.expr(propName), this._argExp(operand));
 	}
-	devide(propName: PropKeys<T>, operand: OperandType<T>) {
+	devide(propName: PropKeys<T>, operand: OperandType) {
 		return new Expression(null, Operator.Devide, this.expr(propName), this._argExp(operand));
 	}
 

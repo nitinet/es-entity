@@ -18,13 +18,9 @@ class OperatorEntity {
             res = operand;
         }
         else {
-            res = this._createExpr(operand);
+            res = new Expression('?');
+            res.args = res.args.concat(operand);
         }
-        return res;
-    }
-    _createExpr(operand) {
-        let res = new Expression('?');
-        res.args = res.args.concat(operand);
         return res;
     }
     eq(propName, operand) {
@@ -66,7 +62,7 @@ class OperatorEntity {
         return new Expression(null, Operator.Between, this.expr(propName), this._argExp(first), this._argExp(second));
     }
     like(propName, operand) {
-        return new Expression(null, Operator.Like, this.expr(propName), this._createExpr(operand));
+        return new Expression(null, Operator.Like, this.expr(propName), this._argExp(operand));
     }
     IsNull(propName) {
         return new Expression(null, Operator.IsNull, this.expr(propName));
