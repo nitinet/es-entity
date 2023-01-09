@@ -21,9 +21,9 @@ abstract class IQuerySet<T extends Object> {
 	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
 
 	abstract select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
-	abstract where(func: types.IWhereFunc<model.OperatorEntity<T>>, ...args: any[]): IQuerySet<T>;
-	abstract groupBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
-	abstract orderBy(func: types.IArrFieldFunc<model.OperatorEntity<T>>): IQuerySet<T>;
+	abstract where(func: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T>;
+	abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
+	abstract orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T>;
 	abstract limit(size: number, index?: number): IQuerySet<T>;
 
 	abstract join<A extends Object>(collection: IQuerySet<A>, func: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A>;

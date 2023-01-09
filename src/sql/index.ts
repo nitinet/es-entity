@@ -2,7 +2,6 @@ import Collection from './Collection.js';
 import Expression from './Expression.js';
 import INode from './INode.js';
 import Statement from './Statement.js';
-import OperatorEntity from '../model/OperatorEntity.js';
 import * as types from './types/index.js';
 
 export default {
@@ -10,8 +9,7 @@ export default {
 	types,
 	Collection,
 	Expression,
-	Statement,
-	OperatorEntity
+	Statement
 };
 
 export {
@@ -19,6 +17,5 @@ export {
 	types,
 	Collection,
 	Expression,
-	Statement,
-	OperatorEntity
+	Statement
 };

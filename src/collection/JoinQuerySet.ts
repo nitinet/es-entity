@@ -2,10 +2,11 @@ import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
 import * as bean from '../bean/index.js';
 import * as types from '../model/types.js';
+import * as model from '../model/index.js';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
-	mainSet: IQuerySet<T> = null;
-	joinSet: IQuerySet<U> = null;
+	private mainSet: IQuerySet<T> = null;
+	private joinSet: IQuerySet<U> = null;
 
 	constructor(mainSet: IQuerySet<T>, joinSet: IQuerySet<U>, joinType: sql.types.Join, expr: sql.Expression) {
 		super();
@@ -85,7 +86,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	}
 
 	// Conditional Functions
-	where(param: types.IWhereFunc<sql.OperatorEntity<T & U>>, ...args: any[]): IQuerySet<T & U> {
+	where(param: types.IWhereFunc<model.WhereExprBuilder<T & U>>, ...args: any[]): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			//TODO: fix join fieldMap
@@ -93,8 +94,8 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
 			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
 
-			let a = new sql.OperatorEntity(finalFieldMap);
-			res = param(a, args);
+			let op = new model.WhereExprBuilder<T & U>(finalFieldMap);
+			res = param(op, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
@@ -102,7 +103,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
+	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<T & U>>): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			//TODO: fix join fieldMap
@@ -110,8 +111,8 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
 			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
 
-			let a = new sql.OperatorEntity(finalFieldMap);
-			res = param(a);
+			let op = new model.GroupExprBuilder<T & U>(finalFieldMap);
+			res = param(op);
 		}
 		if (res && Array.isArray(res)) {
 			res.forEach(a => {
@@ -123,7 +124,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<T & U>>): IQuerySet<T & U> {
+	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<T & U>>): IQuerySet<T & U> {
 		let res = null;
 		if (param && param instanceof Function) {
 			//TODO: fix join fieldMap
@@ -131,13 +132,13 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
 			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
 
-			let a = new sql.OperatorEntity(finalFieldMap);
-			res = param(a);
+			let op = new model.OrderExprBuilder<T & U>(finalFieldMap);
+			res = param(op);
 		}
 		if (res && Array.isArray(res)) {
-			res.forEach(a => {
-				if (a instanceof sql.Expression && a.exps.length > 0) {
-					this.stat.orderBy.push(a);
+			res.forEach(expr => {
+				if (expr instanceof sql.Expression && expr.exps.length > 0) {
+					this.stat.orderBy.push(expr);
 				}
 			});
 		}
@@ -158,9 +159,9 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 		let temp: sql.Expression = null;
 		if (param && param instanceof Function) {
-			let a = this.getEntity();
-			let b = coll.getEntity();
-			temp = param(a, b);
+			let mainObj = this.getEntity();
+			let joinObj = coll.getEntity();
+			temp = param(mainObj, joinObj);
 		}
 		let res: JoinQuerySet<T & U, A> = null;
 		if (temp instanceof sql.Expression && temp.exps.length > 0) {
