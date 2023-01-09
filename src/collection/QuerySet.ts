@@ -106,11 +106,11 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	// Conditional Functions
-	where(param: types.IWhereFunc<sql.OperatorEntity<U>>, ...args: any[]): IQuerySet<U> {
+	where(param: types.IWhereFunc<model.WhereExprBuilder<U>>, ...args: any[]): IQuerySet<U> {
 		let res: sql.Expression = null;
 		if (param && param instanceof Function) {
-			let a = new sql.OperatorEntity<U>(this.dbSet.fieldMap);
-			res = param(a, args);
+			let eb = new model.WhereExprBuilder<U>(this.dbSet.fieldMap);
+			res = param(eb, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
@@ -118,27 +118,27 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		return this;
 	}
 
-	groupBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
+	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let op = new sql.OperatorEntity<U>(this.dbSet.fieldMap);
-			res = param(op);
+			let eb = new model.GroupExprBuilder<U>(this.dbSet.fieldMap);
+			res = param(eb);
 		}
 		if (res && Array.isArray(res)) {
-			res.forEach(a => {
-				if (a instanceof sql.Expression && a.exps.length > 0) {
-					this.stat.groupBy.push(a);
+			res.forEach(expr => {
+				if (expr instanceof sql.Expression && expr.exps.length > 0) {
+					this.stat.groupBy.push(expr);
 				}
 			});
 		}
 		return this;
 	}
 
-	orderBy(param: types.IArrFieldFunc<sql.OperatorEntity<U>>): IQuerySet<U> {
+	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let op = new sql.OperatorEntity<U>(this.dbSet.fieldMap);
-			res = param(op);
+			let eb = new model.OrderExprBuilder<U>(this.dbSet.fieldMap);
+			res = param(eb);
 		}
 		if (res && Array.isArray(res)) {
 			res.forEach(a => {
@@ -168,8 +168,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		stat.command = sql.types.Command.UPDATE;
 		stat.collection.value = this.dbSet.tableName;
 
-		let a = this.getEntity();
-		let tempObj = param(a);
+		let obj = this.getEntity();
+		let tempObj = param(obj);
 
 		// Dynamic update
 		let keys = Reflect.ownKeys(tempObj.obj).filter(key => (<(string | symbol)[]>tempObj.updatedKeys).includes(key));
@@ -181,8 +181,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 			let c2 = new sql.Expression('?');
 			c2.args.push(Reflect.get(tempObj, key));
 
-			let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-			stat.columns.push(c);
+			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+			stat.columns.push(expr);
 		});
 
 		if (stat.columns.length > 0) {
@@ -198,9 +198,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 
 		let temp: sql.Expression = null;
 		if (param && param instanceof Function) {
-			let a = this.getEntity();
-			let b = coll.getEntity();
-			temp = param(a, b);
+			let mainObj = this.getEntity();
+			let joinObj = coll.getEntity();
+			temp = param(mainObj, joinObj);
 		}
 
 		if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {

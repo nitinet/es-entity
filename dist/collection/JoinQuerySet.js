@@ -1,5 +1,6 @@
 import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
+import * as model from '../model/index.js';
 class JoinQuerySet extends IQuerySet {
     mainSet = null;
     joinSet = null;
@@ -35,7 +36,7 @@ class JoinQuerySet extends IQuerySet {
             let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let op = new sql.OperatorEntity(finalFieldMap);
+            let op = new model.WhereExprBuilder(finalFieldMap);
             res = param(op, args);
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
@@ -49,7 +50,7 @@ class JoinQuerySet extends IQuerySet {
             let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let op = new sql.OperatorEntity(finalFieldMap);
+            let op = new model.GroupExprBuilder(finalFieldMap);
             res = param(op);
         }
         if (res && Array.isArray(res)) {
@@ -67,13 +68,13 @@ class JoinQuerySet extends IQuerySet {
             let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
             let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let op = new sql.OperatorEntity(finalFieldMap);
+            let op = new model.OrderExprBuilder(finalFieldMap);
             res = param(op);
         }
         if (res && Array.isArray(res)) {
-            res.forEach(a => {
-                if (a instanceof sql.Expression && a.exps.length > 0) {
-                    this.stat.orderBy.push(a);
+            res.forEach(expr => {
+                if (expr instanceof sql.Expression && expr.exps.length > 0) {
+                    this.stat.orderBy.push(expr);
                 }
             });
         }
@@ -91,9 +92,9 @@ class JoinQuerySet extends IQuerySet {
         joinType = joinType || sql.types.Join.InnerJoin;
         let temp = null;
         if (param && param instanceof Function) {
-            let a = this.getEntity();
-            let b = coll.getEntity();
-            temp = param(a, b);
+            let mainObj = this.getEntity();
+            let joinObj = coll.getEntity();
+            temp = param(mainObj, joinObj);
         }
         let res = null;
         if (temp instanceof sql.Expression && temp.exps.length > 0) {

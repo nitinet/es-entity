@@ -1,6 +1,8 @@
 import LinkArray from './LinkArray.js';
 import LinkObject from './LinkObject.js';
-import OperatorEntity from './OperatorEntity.js';
+import WhereExprBuilder from './WhereExprBuilder.js';
+import OrderExprBuilder from './OrderExprBuilder.js';
+import GroupExprBuilder from './GroupExprBuilder.js';
 import FieldMapping from './FieldMapping.js';
 import * as types from './types.js';
 
@@ -8,7 +10,9 @@ export default {
 	FieldMapping,
 	LinkArray,
 	LinkObject,
-	OperatorEntity,
+	WhereExprBuilder,
+	OrderExprBuilder,
+	GroupExprBuilder,
 	types
 }
 
@@ -16,6 +20,8 @@ export {
 	FieldMapping,
 	LinkArray,
 	LinkObject,
-	OperatorEntity,
+	WhereExprBuilder,
+	OrderExprBuilder,
+	GroupExprBuilder,
 	types
 }

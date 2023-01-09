@@ -30,8 +30,6 @@ type PropKeys<T extends Object> = keyof T;
 // type SubEntityType<T> = Partial<T> & Entity;
 type SubEntityType<T> = Partial<T> & Object;
 
-type OpderType = 'ASC' | 'DESC';
-
 export {
 	IArrFieldFunc,
 	IEntityType,
@@ -40,6 +38,5 @@ export {
 	IWhereFunc,
 	PropKeys,
 	SelectType,
-	SubEntityType,
-	OpderType
+	SubEntityType
 }

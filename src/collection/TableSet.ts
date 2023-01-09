@@ -33,15 +33,15 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 	}
 
 	getEntity() {
-		let a = new this.EntityType();
-		let keys = Reflect.ownKeys(a);
+		let obj = new this.EntityType();
+		let keys = Reflect.ownKeys(obj);
 		keys.forEach(key => {
-			let field = Reflect.get(a, key);
+			let field = Reflect.get(obj, key);
 			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
 				field.bind(this.context);
 			}
 		});
-		return a;
+		return obj;
 	}
 
 	async insert(entity: T) {
@@ -60,9 +60,9 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			col.value = field.colName;
 			stat.columns.push(col);
 
-			let v: sql.Expression = new sql.Expression('?');
-			v.args.push(val);
-			stat.values.push(v);
+			let expr = new sql.Expression('?');
+			expr.args.push(val);
+			stat.values.push(expr);
 		});
 
 		let result = await this.context.execute(stat);
@@ -91,11 +91,11 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			throw new Error('Primary Key fields not found');
 		}
 
-		let a = new sql.OperatorEntity<T>(this.dbSet.fieldMap);
+		let eb = new model.WhereExprBuilder<T>(this.dbSet.fieldMap);
 		let expr = new sql.Expression();
 		primaryFields.forEach((pri, idx) => {
 			let temp: any = Reflect.get(entity, pri.fieldName);
-			expr = expr.add(a.eq(<types.PropKeys<T>>pri.fieldName, temp));
+			expr = expr.add(eb.eq(<types.PropKeys<T>>pri.fieldName, temp));
 		});
 		return expr;
 	}
@@ -120,8 +120,8 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 				let c2 = new sql.Expression('?');
 				c2.args.push(Reflect.get(entity, <string>key));
 
-				let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-				stat.columns.push(c);
+				let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+				stat.columns.push(expr);
 			}
 		});
 
@@ -187,17 +187,17 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		}
 	}
 
-	where(param: types.IWhereFunc<sql.OperatorEntity<T>>, ...args: any[]): IQuerySet<T> {
+	where(param: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T> {
 		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
 		return q.where(param, args);
 	}
 
-	groupBy(func: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T> {
 		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
 		return q.groupBy(func);
 	}
 
-	orderBy(func: types.IArrFieldFunc<sql.OperatorEntity<T>>): IQuerySet<T> {
+	orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T> {
 		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
 		return q.orderBy(func);
 	}

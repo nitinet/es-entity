@@ -82,8 +82,8 @@ class QuerySet extends IQuerySet {
     where(param, ...args) {
         let res = null;
         if (param && param instanceof Function) {
-            let a = new sql.OperatorEntity(this.dbSet.fieldMap);
-            res = param(a, args);
+            let eb = new model.WhereExprBuilder(this.dbSet.fieldMap);
+            res = param(eb, args);
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
             this.stat.where = this.stat.where.add(res);
@@ -93,13 +93,13 @@ class QuerySet extends IQuerySet {
     groupBy(param) {
         let res = null;
         if (param && param instanceof Function) {
-            let op = new sql.OperatorEntity(this.dbSet.fieldMap);
-            res = param(op);
+            let eb = new model.GroupExprBuilder(this.dbSet.fieldMap);
+            res = param(eb);
         }
         if (res && Array.isArray(res)) {
-            res.forEach(a => {
-                if (a instanceof sql.Expression && a.exps.length > 0) {
-                    this.stat.groupBy.push(a);
+            res.forEach(expr => {
+                if (expr instanceof sql.Expression && expr.exps.length > 0) {
+                    this.stat.groupBy.push(expr);
                 }
             });
         }
@@ -108,8 +108,8 @@ class QuerySet extends IQuerySet {
     orderBy(param) {
         let res = null;
         if (param && param instanceof Function) {
-            let op = new sql.OperatorEntity(this.dbSet.fieldMap);
-            res = param(op);
+            let eb = new model.OrderExprBuilder(this.dbSet.fieldMap);
+            res = param(eb);
         }
         if (res && Array.isArray(res)) {
             res.forEach(a => {
@@ -135,8 +135,8 @@ class QuerySet extends IQuerySet {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
-        let a = this.getEntity();
-        let tempObj = param(a);
+        let obj = this.getEntity();
+        let tempObj = param(obj);
         let keys = Reflect.ownKeys(tempObj.obj).filter(key => tempObj.updatedKeys.includes(key));
         keys.forEach((key) => {
             let field = this.dbSet.getField(key);
@@ -145,8 +145,8 @@ class QuerySet extends IQuerySet {
             let c1 = new sql.Expression(field.colName);
             let c2 = new sql.Expression('?');
             c2.args.push(Reflect.get(tempObj, key));
-            let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-            stat.columns.push(c);
+            let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+            stat.columns.push(expr);
         });
         if (stat.columns.length > 0) {
             let result = await this.context.execute(stat);
@@ -159,9 +159,9 @@ class QuerySet extends IQuerySet {
         joinType = joinType | sql.types.Join.InnerJoin;
         let temp = null;
         if (param && param instanceof Function) {
-            let a = this.getEntity();
-            let b = coll.getEntity();
-            temp = param(a, b);
+            let mainObj = this.getEntity();
+            let joinObj = coll.getEntity();
+            temp = param(mainObj, joinObj);
         }
         if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
             return new JoinQuerySet(this, coll, joinType, temp);

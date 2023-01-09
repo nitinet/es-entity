@@ -82,12 +82,6 @@ class OperatorEntity {
     devide(propName, operand) {
         return new Expression(null, Operator.Devide, this.expr(propName), this._argExp(operand));
     }
-    asc(propName) {
-        return new Expression(null, Operator.Asc, this.expr(propName));
-    }
-    desc(propName) {
-        return new Expression(null, Operator.Desc, this.expr(propName));
-    }
     sum(propName) {
         return new Expression(null, Operator.Sum, this.expr(propName));
     }

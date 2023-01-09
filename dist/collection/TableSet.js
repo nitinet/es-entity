@@ -20,15 +20,15 @@ class TableSet extends IQuerySet {
         return this.EntityType;
     }
     getEntity() {
-        let a = new this.EntityType();
-        let keys = Reflect.ownKeys(a);
+        let obj = new this.EntityType();
+        let keys = Reflect.ownKeys(obj);
         keys.forEach(key => {
-            let field = Reflect.get(a, key);
+            let field = Reflect.get(obj, key);
             if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
                 field.bind(this.context);
             }
         });
-        return a;
+        return obj;
     }
     async insert(entity) {
         let stat = new sql.Statement();
@@ -44,9 +44,9 @@ class TableSet extends IQuerySet {
             let col = new sql.Collection();
             col.value = field.colName;
             stat.columns.push(col);
-            let v = new sql.Expression('?');
-            v.args.push(val);
-            stat.values.push(v);
+            let expr = new sql.Expression('?');
+            expr.args.push(val);
+            stat.values.push(expr);
         });
         let result = await this.context.execute(stat);
         let primaryFields = this.dbSet.getPrimaryFields();
@@ -73,11 +73,11 @@ class TableSet extends IQuerySet {
         if (!(primaryFields && primaryFields.length)) {
             throw new Error('Primary Key fields not found');
         }
-        let a = new sql.OperatorEntity(this.dbSet.fieldMap);
+        let eb = new model.WhereExprBuilder(this.dbSet.fieldMap);
         let expr = new sql.Expression();
         primaryFields.forEach((pri, idx) => {
             let temp = Reflect.get(entity, pri.fieldName);
-            expr = expr.add(a.eq(pri.fieldName, temp));
+            expr = expr.add(eb.eq(pri.fieldName, temp));
         });
         return expr;
     }
@@ -97,8 +97,8 @@ class TableSet extends IQuerySet {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 c2.args.push(Reflect.get(entity, key));
-                let c = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-                stat.columns.push(c);
+                let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+                stat.columns.push(expr);
             }
         });
         stat.where = this.whereExpr(entity);
