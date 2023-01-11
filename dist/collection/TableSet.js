@@ -81,12 +81,12 @@ class TableSet extends IQuerySet {
         });
         return expr;
     }
-    async update(entity, updatedKeys) {
+    async update(entity, ...updatedKeys) {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
         let primaryFields = this.dbSet.getPrimaryFields();
-        let keys = Reflect.ownKeys(entity).filter(key => primaryFields.some(pri => pri.fieldName == key) == false);
+        let keys = Reflect.ownKeys(entity).filter(key => !primaryFields.some(pri => pri.fieldName == key));
         if (updatedKeys)
             keys = keys.filter(key => updatedKeys.includes(key));
         keys.forEach((key) => {

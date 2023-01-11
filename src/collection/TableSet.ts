@@ -100,7 +100,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		return expr;
 	}
 
-	async update(entity: T, updatedKeys: (keyof T)[]) {
+	async update(entity: T, ...updatedKeys: (keyof T)[]) {
 		let stat = new sql.Statement();
 		stat.command = sql.types.Command.UPDATE;
 		stat.collection.value = this.dbSet.tableName;
@@ -108,7 +108,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let primaryFields = this.dbSet.getPrimaryFields();
 
 		// Dynamic update
-		let keys = Reflect.ownKeys(entity).filter(key => primaryFields.some(pri => pri.fieldName == key) == false);
+		let keys = Reflect.ownKeys(entity).filter(key => !primaryFields.some(pri => pri.fieldName == key));
 		if (updatedKeys) keys = keys.filter(key => (<(string | symbol)[]>updatedKeys).includes(key));
 
 		keys.forEach((key) => {
