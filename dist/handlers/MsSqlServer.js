@@ -3,21 +3,22 @@ import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 export default class MsSqlServer extends Handler {
     handlerName = 'mssql';
-    connectionPool = null;
     driver = null;
+    connectionPool = null;
     constructor(config) {
         super();
         this.config = config;
     }
     async init() {
         this.driver = this.config.driver ?? await import('mssql');
-        this.connectionPool = new this.driver.ConnectionPool({
+        let temp = new this.driver.ConnectionPool({
             server: this.config.host,
             port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
-        }).connect();
+        });
+        this.connectionPool = await temp.connect();
     }
     async getConnection() {
         await this.driver.connect({

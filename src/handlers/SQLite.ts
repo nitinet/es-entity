@@ -1,5 +1,5 @@
 // @ts-ignore
-import * as sqlite from 'sqlite3';
+import sqlite from 'sqlite3';
 
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
@@ -7,7 +7,10 @@ import * as sql from '../sql/index.js';
 
 export default class SQlite extends Handler {
 	handlerName = 'sqlite';
-	driver: sqlite.sqlite3 = null;
+
+	// @ts-ignore
+	driver: typeof import('sqlite3') = null;
+	// @ts-ignore
 	connectionPool: sqlite.Database = null;
 
 	constructor(config: bean.IConnectionConfig) {
@@ -15,7 +18,8 @@ export default class SQlite extends Handler {
 	}
 
 	async init() {
-		this.driver = this.config.driver.verbose() ?? (await import('sqlite3')).verbose();
+		// @ts-ignore
+		this.driver = this.config.driver ?? (await import('sqlite3'));
 		this.connectionPool = new this.driver.Database(this.config.database)
 	}
 

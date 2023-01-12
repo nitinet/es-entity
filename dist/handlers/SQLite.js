@@ -8,7 +8,7 @@ export default class SQlite extends Handler {
         super();
     }
     async init() {
-        this.driver = this.config.driver.verbose() ?? (await import('sqlite3')).verbose();
+        this.driver = this.config.driver ?? (await import('sqlite3'));
         this.connectionPool = new this.driver.Database(this.config.database);
     }
     async getConnection() {

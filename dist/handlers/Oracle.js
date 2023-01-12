@@ -3,8 +3,8 @@ import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 export default class Oracle extends Handler {
     handlerName = 'oracle';
-    connectionPool = null;
     driver = null;
+    connectionPool = null;
     constructor(config) {
         super();
         this.config = config;

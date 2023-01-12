@@ -1,5 +1,5 @@
 // @ts-ignore
-import * as pg from 'pg';
+import pg from 'pg';
 
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
@@ -7,7 +7,10 @@ import * as sql from '../sql/index.js';
 
 export default class PostgreSql extends Handler {
 	handlerName = 'postgresql';
+
+	// @ts-ignore
 	driver: typeof import('pg') = null;
+	// @ts-ignore
 	connectionPool: pg.Pool = null;
 
 	constructor(config: bean.IConnectionConfig) {
@@ -16,6 +19,7 @@ export default class PostgreSql extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
 
 		this.connectionPool = new this.driver.Pool({

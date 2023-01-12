@@ -1,15 +1,17 @@
+// @ts-ignore
+import oracledb from 'oracledb';
+
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 
-// import * as oracledb from 'oracledb';
-
 export default class Oracle extends Handler {
 	handlerName = 'oracle';
-	// connectionPool: oracledb.IConnectionPool = null;
-	connectionPool: any = null;
-	driver: any = null;
-	// driver = oracledb;
+
+	// @ts-ignore
+	driver: typeof import('oracledb') = null;
+	// @ts-ignore
+	connectionPool: oracledb.Pool = null;
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
