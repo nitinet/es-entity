@@ -24,10 +24,10 @@ type SelectType<T> = {
 	[Property in keyof T]?: any;
 };
 
-// type PropKeys<T> = Exclude<keyof T, "addChangeProps" | "clearChangeProps" | "isPropChanged">
-type PropKeys<T extends Object> = keyof T;
+type PropKeys<T> = keyof T;
 
-// type SubEntityType<T> = Partial<T> & Entity;
+type OperandType<T, K extends PropKeys<T>> = T[K] | Expression;
+
 type SubEntityType<T> = Partial<T> & Object;
 
 export {
@@ -37,6 +37,7 @@ export {
 	IUpdateFunc,
 	IWhereFunc,
 	PropKeys,
+	OperandType,
 	SelectType,
 	SubEntityType
 }

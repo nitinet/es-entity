@@ -2,10 +2,7 @@ import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
 import BaseExprBuilder from './BaseExprBuilder.js';
 import FieldMapping from './FieldMapping.js';
-import { PropKeys } from './types.js';
-
-type ValueType = boolean | string | number | Date | Buffer;
-type OperandType = ValueType | Expression;
+import { PropKeys, OperandType } from './types.js';
 
 class WhereExprBuilder<T extends Object> extends BaseExprBuilder<T> {
 
@@ -13,7 +10,7 @@ class WhereExprBuilder<T extends Object> extends BaseExprBuilder<T> {
 		super(fieldMap, alias);
 	}
 
-	private _argExp(operand: OperandType) {
+	private _argExp(operand: OperandType<T, keyof T>) {
 		let res: Expression = null;
 		if (operand instanceof Expression) {
 			res = operand;
@@ -25,38 +22,38 @@ class WhereExprBuilder<T extends Object> extends BaseExprBuilder<T> {
 	}
 
 	// Comparison Operators
-	eq(propName: PropKeys<T>, operand: OperandType) {
+	eq<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.Equal, this._expr(propName), this._argExp(operand));
 	}
-	neq(propName: PropKeys<T>, operand: OperandType) {
+	neq<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.NotEqual, this._expr(propName), this._argExp(operand));
 	}
-	lt(propName: PropKeys<T>, operand: OperandType) {
+	lt<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.LessThan, this._expr(propName), this._argExp(operand));
 	}
-	gt(propName: PropKeys<T>, operand: OperandType) {
+	gt<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.GreaterThan, this._expr(propName), this._argExp(operand));
 	}
-	lteq(propName: PropKeys<T>, operand: OperandType) {
+	lteq<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.LessThanEqual, this._expr(propName), this._argExp(operand));
 	}
-	gteq(propName: PropKeys<T>, operand: OperandType) {
+	gteq<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.GreaterThanEqual, this._expr(propName), this._argExp(operand));
 	}
 
 	// Logical Operators
-	and(propName: PropKeys<T>, operand: Expression) {
+	and<K extends PropKeys<T>>(propName: K, operand: Expression) {
 		return new Expression(null, Operator.And, this._expr(propName), this._argExp(operand));
 	}
-	or(propName: PropKeys<T>, operand: Expression): Expression {
+	or<K extends PropKeys<T>>(propName: K, operand: Expression): Expression {
 		return new Expression(null, Operator.Or, this._expr(propName), this._argExp(operand));
 	}
-	not(propName: PropKeys<T>): Expression {
+	not<K extends PropKeys<T>>(propName: K): Expression {
 		return new Expression(null, Operator.Not, this._expr(propName));
 	}
 
 	// Inclusion Funtions
-	in(propName: PropKeys<T>, ...operand: ValueType[]) {
+	in<K extends PropKeys<T>>(propName: K, ...operand: OperandType<T, K>[]) {
 		let vals = operand.map(val => {
 			let arg = new Expression('?');
 			arg.args = arg.args.concat(val);
@@ -65,50 +62,50 @@ class WhereExprBuilder<T extends Object> extends BaseExprBuilder<T> {
 		return new Expression(null, Operator.In, this._expr(propName), ...vals);
 	}
 
-	between(propName: PropKeys<T>, first: OperandType, second: OperandType) {
+	between<K extends PropKeys<T>>(propName: K, first: OperandType<T, K>, second: OperandType<T, K>) {
 		return new Expression(null, Operator.Between, this._expr(propName), this._argExp(first), this._argExp(second));
 	}
 
-	like(propName: PropKeys<T>, operand: string) {
+	like<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.Like, this._expr(propName), this._argExp(operand));
 	}
 
 	// Null Checks
-	IsNull(propName: PropKeys<T>) {
+	IsNull<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.IsNull, this._expr(propName));
 	}
-	IsNotNull(propName: PropKeys<T>) {
+	IsNotNull<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.IsNotNull, this._expr(propName));
 	}
 
 	// Arithmatic Operators
-	plus(propName: PropKeys<T>, operand: OperandType) {
+	plus<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.Plus, this._expr(propName), this._argExp(operand));
 	}
-	minus(propName: PropKeys<T>, operand: OperandType) {
+	minus<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.Minus, this._expr(propName), this._argExp(operand));
 	}
-	multiply(propName: PropKeys<T>, operand: OperandType) {
+	multiply<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.Multiply, this._expr(propName), this._argExp(operand));
 	}
-	devide(propName: PropKeys<T>, operand: OperandType) {
+	devide<K extends PropKeys<T>>(propName: K, operand: OperandType<T, K>) {
 		return new Expression(null, Operator.Devide, this._expr(propName), this._argExp(operand));
 	}
 
 	// Group Functions
-	sum(propName: PropKeys<T>) {
+	sum<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.Sum, this._expr(propName));
 	}
-	min(propName: PropKeys<T>) {
+	min<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.Min, this._expr(propName));
 	}
-	max(propName: PropKeys<T>) {
+	max<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.Max, this._expr(propName));
 	}
-	count(propName: PropKeys<T>) {
+	count<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.Count, this._expr(propName));
 	}
-	average(propName: PropKeys<T>) {
+	average<K extends PropKeys<T>>(propName: K) {
 		return new Expression(null, Operator.Avg, this._expr(propName));
 	}
 

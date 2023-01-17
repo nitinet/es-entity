@@ -1,5 +1,5 @@
 // @ts-ignore
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
@@ -7,8 +7,11 @@ import * as sql from '../sql/index.js';
 
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
-	connectionPool: any = null;
+
+	// @ts-ignore
 	driver: typeof import('mssql') = null;
+	// @ts-ignore
+	connectionPool: mssql.ConnectionPool = null;
 
 	constructor(config: bean.IConnectionConfig) {
 		super();
@@ -16,15 +19,17 @@ export default class MsSqlServer extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? await import('mssql');
 
-		this.connectionPool = new this.driver.ConnectionPool({
+		let temp = new this.driver.ConnectionPool({
 			server: this.config.host,
 			port: this.config.port,
 			user: this.config.username,
 			password: this.config.password,
 			database: this.config.database
-		}).connect();
+		});
+		this.connectionPool = await temp.connect();
 	}
 
 	async getConnection(): Promise<bean.Connection> {
