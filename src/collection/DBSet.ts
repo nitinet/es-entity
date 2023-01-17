@@ -11,6 +11,7 @@ class DBSet<T extends Object>  {
 	// mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 	tableName: string = null;
 	entityName: string = null;
+	columns: bean.ColumnInfo[] = [];
 	fieldMap = new Map<string | symbol, model.FieldMapping>();
 	private primaryFields: model.FieldMapping[] = [];
 
@@ -23,28 +24,24 @@ class DBSet<T extends Object>  {
 		this.tableName = tableName ?? Case.snake(this.entityName);
 
 		// get info from describe db
-		let columns = await context.handler.getTableInfo(this.tableName);
+		this.columns = await context.handler.getTableInfo(this.tableName);
 
 		let obj = new this.entityType();
 		let keys = (<string[]>Reflect.ownKeys(obj));
 
 		// Bind Fields
 		keys.forEach(key => {
-			try {
-				this.bindField(key, columns);
-			} catch (err) {
-				context.log(err);
-			}
+			this.bindField(key);
 		});
 
 		return this;
 	}
 
-	private bindField(key: string, tableColumns: bean.ColumnInfo[]) {
+	private bindField(key: string) {
 		let snakeCaseKey = Case.snake(key);
-		let column = tableColumns.find(col => col.field == key || col.field == snakeCaseKey);
+		let column = this.columns.find(col => col.field == key || col.field == snakeCaseKey);
 
-		if (!column) throw new Error(`Column: ${key} not found in Table: ${this.tableName}`);
+		if (!column) return;
 
 		let fieldMapping = new model.FieldMapping(key, column.field, column.primaryKey);
 		// fieldMapping.type = this.checkColumnType(column, field);

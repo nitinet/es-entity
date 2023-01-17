@@ -4,6 +4,7 @@ class DBSet {
     entityType;
     tableName = null;
     entityName = null;
+    columns = [];
     fieldMap = new Map();
     primaryFields = [];
     constructor(entityType) {
@@ -12,24 +13,19 @@ class DBSet {
     async bind(context, tableName) {
         this.entityName = this.entityType.name;
         this.tableName = tableName ?? Case.snake(this.entityName);
-        let columns = await context.handler.getTableInfo(this.tableName);
+        this.columns = await context.handler.getTableInfo(this.tableName);
         let obj = new this.entityType();
         let keys = Reflect.ownKeys(obj);
         keys.forEach(key => {
-            try {
-                this.bindField(key, columns);
-            }
-            catch (err) {
-                context.log(err);
-            }
+            this.bindField(key);
         });
         return this;
     }
-    bindField(key, tableColumns) {
+    bindField(key) {
         let snakeCaseKey = Case.snake(key);
-        let column = tableColumns.find(col => col.field == key || col.field == snakeCaseKey);
+        let column = this.columns.find(col => col.field == key || col.field == snakeCaseKey);
         if (!column)
-            throw new Error(`Column: ${key} not found in Table: ${this.tableName}`);
+            return;
         let fieldMapping = new model.FieldMapping(key, column.field, column.primaryKey);
         this.fieldMap.set(key, fieldMapping);
         if (column.primaryKey)
