@@ -82,7 +82,8 @@ class QuerySet extends IQuerySet {
     where(param, ...args) {
         let res = null;
         if (param && param instanceof Function) {
-            let eb = new model.WhereExprBuilder(this.dbSet.fieldMap);
+            let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+            let eb = new model.WhereExprBuilder(fieldMap);
             res = param(eb, args);
         }
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
@@ -93,7 +94,8 @@ class QuerySet extends IQuerySet {
     groupBy(param) {
         let res = null;
         if (param && param instanceof Function) {
-            let eb = new model.GroupExprBuilder(this.dbSet.fieldMap);
+            let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+            let eb = new model.GroupExprBuilder(fieldMap);
             res = param(eb);
         }
         if (res && Array.isArray(res)) {
@@ -108,7 +110,8 @@ class QuerySet extends IQuerySet {
     orderBy(param) {
         let res = null;
         if (param && param instanceof Function) {
-            let eb = new model.OrderExprBuilder(this.dbSet.fieldMap);
+            let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+            let eb = new model.OrderExprBuilder(fieldMap);
             res = param(eb);
         }
         if (res && Array.isArray(res)) {
