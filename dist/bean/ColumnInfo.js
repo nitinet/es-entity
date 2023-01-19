@@ -6,3 +6,4 @@ export default class ColumnInfo {
     default = '';
     extra = '';
 }
+//# sourceMappingURL=ColumnInfo.js.map

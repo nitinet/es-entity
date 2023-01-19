@@ -194,3 +194,4 @@ class TableSet extends IQuerySet {
     }
 }
 export default TableSet;
+//# sourceMappingURL=TableSet.js.map

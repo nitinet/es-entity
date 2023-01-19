@@ -11,3 +11,4 @@ export default {
     Statement
 };
 export { INode, types, Collection, Expression, Statement };
+//# sourceMappingURL=index.js.map

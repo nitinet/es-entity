@@ -9,3 +9,4 @@ export default {
     LinkSet
 };
 export { IQuerySet, TableSet, QuerySet, LinkSet };
+//# sourceMappingURL=index.js.map

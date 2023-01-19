@@ -5,6 +5,7 @@ var ColumnType;
     ColumnType[ColumnType["BOOLEAN"] = 3] = "BOOLEAN";
     ColumnType[ColumnType["BINARY"] = 4] = "BINARY";
     ColumnType[ColumnType["DATE"] = 5] = "DATE";
-    ColumnType[ColumnType["JSON"] = 6] = "JSON";
+    ColumnType[ColumnType["OBJECT"] = 6] = "OBJECT";
 })(ColumnType || (ColumnType = {}));
 export default ColumnType;
+//# sourceMappingURL=ColumnType.js.map

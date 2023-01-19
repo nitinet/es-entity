@@ -132,7 +132,7 @@ export default class Mysql extends Handler {
 				|| columnType.includes('binary')) {
 				col.type = bean.ColumnType.BINARY;
 			} else if (columnType.includes('json')) {
-				col.type = bean.ColumnType.JSON;
+				col.type = bean.ColumnType.OBJECT;
 			}
 
 			col.nullable = row['Null'] == 'YES' ? true : false;

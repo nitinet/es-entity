@@ -30,3 +30,4 @@ class IQuerySet {
     }
 }
 export default IQuerySet;
+//# sourceMappingURL=IQuerySet.js.map

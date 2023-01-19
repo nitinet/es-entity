@@ -74,7 +74,7 @@ export default class PostgreSql extends Handler {
                 col.type = bean.ColumnType.DATE;
             }
             else if (columnType.includes('json')) {
-                col.type = bean.ColumnType.JSON;
+                col.type = bean.ColumnType.OBJECT;
             }
             col.nullable = !row['is_nullable'];
             col.primaryKey = row['primarykey'];
@@ -122,3 +122,4 @@ export default class PostgreSql extends Handler {
         return ' limit ' + size + (index ? ' OFFSET ' + index : '');
     }
 }
+//# sourceMappingURL=PostGreSql.js.map

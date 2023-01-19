@@ -4,3 +4,4 @@ export default class ResultSet {
     rows = null;
     error = null;
 }
+//# sourceMappingURL=ResultSet.js.map

@@ -11,3 +11,4 @@ export default {
     SqlLite
 };
 export { MsSqlServer, Mysql, OracleDb, PostGreSql, SqlLite };
+//# sourceMappingURL=index.js.map

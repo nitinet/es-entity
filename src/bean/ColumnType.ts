@@ -4,7 +4,7 @@ enum ColumnType {
 	BOOLEAN,
 	BINARY,
 	DATE,
-	JSON
+	OBJECT
 }
 
 export default ColumnType;

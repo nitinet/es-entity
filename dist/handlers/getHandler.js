@@ -28,3 +28,4 @@ function getHandler(config) {
     return handler;
 }
 export default getHandler;
+//# sourceMappingURL=getHandler.js.map

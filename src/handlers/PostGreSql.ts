@@ -91,7 +91,7 @@ export default class PostgreSql extends Handler {
 			} else if (columnType.includes('timestamp') || columnType.includes('date')) {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
-				col.type = bean.ColumnType.JSON;
+				col.type = bean.ColumnType.OBJECT;
 			}
 
 			col.nullable = !row['is_nullable'];

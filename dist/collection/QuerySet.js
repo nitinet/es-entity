@@ -172,3 +172,4 @@ class QuerySet extends IQuerySet {
     }
 }
 export default QuerySet;
+//# sourceMappingURL=QuerySet.js.map
