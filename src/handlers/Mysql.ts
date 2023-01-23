@@ -8,6 +8,7 @@ import * as sql from '../sql/index.js';
 export default class Mysql extends Handler {
 	handlerName = 'mysql';
 
+	// @ts-ignore
 	driver!: typeof import('mysql');
 	connectionPool!: mysql.Pool;
 
@@ -16,6 +17,7 @@ export default class Mysql extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? await import('mysql');
 
 		this.connectionPool = this.driver.createPool({

@@ -8,6 +8,7 @@ import * as sql from '../sql/index.js';
 export default class Oracle extends Handler {
 	handlerName = 'oracle';
 
+	// @ts-ignore
 	driver!: typeof import('oracledb');
 	connectionPool!: oracledb.Pool;
 
@@ -16,6 +17,7 @@ export default class Oracle extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? await import('oracledb');
 
 		this.connectionPool = await this.driver.createPool({

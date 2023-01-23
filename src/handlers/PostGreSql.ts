@@ -8,6 +8,7 @@ import * as sql from '../sql/index.js';
 export default class PostgreSql extends Handler {
 	handlerName = 'postgresql';
 
+	// @ts-ignore
 	driver!: typeof import('pg');
 	connectionPool!: pg.Pool;
 
@@ -16,6 +17,7 @@ export default class PostgreSql extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
 
 		this.connectionPool = new this.driver.Pool({

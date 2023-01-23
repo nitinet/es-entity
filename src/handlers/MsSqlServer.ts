@@ -8,6 +8,7 @@ import * as sql from '../sql/index.js';
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
 
+	// @ts-ignore
 	driver!: typeof import('mssql');
 	connectionPool!: mssql.ConnectionPool;
 
@@ -16,6 +17,7 @@ export default class MsSqlServer extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? await import('mssql');
 
 		let temp = new this.driver.ConnectionPool({

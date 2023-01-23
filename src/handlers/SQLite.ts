@@ -8,6 +8,7 @@ import * as sql from '../sql/index.js';
 export default class SQlite extends Handler {
 	handlerName = 'sqlite';
 
+	// @ts-ignore
 	driver!: typeof import('sqlite3');
 	connectionPool!: sqlite.Database;
 
@@ -16,6 +17,7 @@ export default class SQlite extends Handler {
 	}
 
 	async init() {
+		// @ts-ignore
 		this.driver = this.config.driver ?? (await import('sqlite3'));
 		this.connectionPool = new this.driver.Database(this.config.database)
 	}
