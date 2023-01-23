@@ -8,8 +8,7 @@
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
 		"incremental": true,
-		"strict": true,
-		"strictNullChecks": false
+		"strict": true
 	},
 	"include": [
 		"src/**/*"

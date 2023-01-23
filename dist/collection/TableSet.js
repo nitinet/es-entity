@@ -4,17 +4,17 @@ import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
 import DBSet from './DBSet.js';
 class TableSet extends IQuerySet {
-    EntityType = null;
-    options = null;
-    dbSet = null;
+    EntityType;
+    options;
+    dbSet;
     constructor(EntityType, options) {
         super();
         this.EntityType = EntityType;
         this.options = options || {};
-        this.dbSet = new DBSet(EntityType);
+        this.dbSet = new DBSet(EntityType, this.options.tableName);
     }
     async bind() {
-        await this.dbSet.bind(this.context, this.options.tableName);
+        await this.dbSet.bind(this.context);
     }
     getEntityType() {
         return this.EntityType;
@@ -25,7 +25,7 @@ class TableSet extends IQuerySet {
         keys.forEach(key => {
             let field = Reflect.get(obj, key);
             if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-                field.bind(this.context);
+                field.bind(this.context, obj);
             }
         });
         return obj;
@@ -127,7 +127,7 @@ class TableSet extends IQuerySet {
         });
         let obj = await this.get(...idParams);
         if (obj) {
-            return this.update(entity, null);
+            return this.update(entity);
         }
         else {
             return this.insert(entity);

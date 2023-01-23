@@ -5,7 +5,7 @@ import MsSqlServer from './MsSqlServer.js';
 import PostgreSql from './PostGreSql.js';
 import SQLite from './SQLite.js';
 function getHandler(config) {
-    let handler = null;
+    let handler;
     switch (config.handler) {
         case bean.HandlerType.mysql:
             handler = new Mysql(config);

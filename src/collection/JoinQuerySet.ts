@@ -5,8 +5,9 @@ import * as types from '../model/types.js';
 import * as model from '../model/index.js';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
-	private mainSet: IQuerySet<T> = null;
-	private joinSet: IQuerySet<U> = null;
+	private mainSet: IQuerySet<T>;
+	private joinSet: IQuerySet<U>;
+	stat: sql.Statement = new sql.Statement();
 
 	constructor(mainSet: IQuerySet<T>, joinSet: IQuerySet<U>, joinType: sql.types.Join, expr: sql.Expression) {
 		super();
@@ -17,18 +18,18 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 		this.stat = new sql.Statement();
 
-		this.stat.collection.leftColl = this.mainSet.stat.collection;
-		this.stat.collection.rightColl = this.joinSet.stat.collection;
+		// this.stat.collection.leftColl = this.mainSet.stat.collection;
+		// this.stat.collection.rightColl = this.joinSet.stat.collection;
 		this.stat.collection.join = joinType;
 
 		this.stat.where = this.stat.where.add(expr);
 	}
 
 	getEntity(): T & U {
-		// let mainObj = this.mainSet.getEntity(alias);
-		// let joinObj = this.joinSet.getEntity(alias);
-		// return Object.assign(mainObj, joinObj);
-		return null;
+		let mainObj = this.mainSet.getEntity();
+		let joinObj = this.joinSet.getEntity();
+		return Object.assign(mainObj, joinObj);
+		// return null;
 	}
 
 	// Selection Functions
@@ -41,7 +42,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		// let result = await this.context.execute(this.stat);
 		// return this.mapData(result);
 		//TODO: implementation
-		return null;
+		return new Array();
 	}
 
 	async mapData(input: bean.ResultSet): Promise<Array<T & U>> {
@@ -57,10 +58,11 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		// }
 		// return res;
 		//TODO: implement
-		return null;
+		return new Array();
 	}
 
-	select<V = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+	// select<V extends Object = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+	select<V extends Object = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): any {
 		// this.stat.command = sql.types.Command.SELECT;
 
 		// let a = this.getEntity();
@@ -80,68 +82,69 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return null;
 	}
 
-	selectPlain(keys: (keyof T & U)[]): Promise<types.SelectType<T & U>[]> {
+	// selectPlain(keys: (keyof T & U)[]): Promise<types.SelectType<T & U>[]> {
+	selectPlain(keys: (keyof T & U)[]): any {
 		//TODO: implement
 		return null;
 	}
 
 	// Conditional Functions
 	where(param: types.IWhereFunc<model.WhereExprBuilder<T & U>>, ...args: any[]): IQuerySet<T & U> {
-		let res = null;
-		if (param && param instanceof Function) {
-			//TODO: fix join fieldMap
-			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
-			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
-			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+		// let res = null;
+		// if (param && param instanceof Function) {
+		// 	//TODO: fix join fieldMap
+		// 	let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
+		// 	let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
+		// 	let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
 
-			let op = new model.WhereExprBuilder<T & U>(finalFieldMap);
-			res = param(op, args);
-		}
-		if (res && res instanceof sql.Expression && res.exps.length > 0) {
-			this.stat.where = this.stat.where.add(res);
-		}
+		// 	let op = new model.WhereExprBuilder<T & U>(finalFieldMap);
+		// 	res = param(op, args);
+		// }
+		// if (res && res instanceof sql.Expression && res.exps.length > 0) {
+		// 	this.stat.where = this.stat.where.add(res);
+		// }
 		return this;
 	}
 
 	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<T & U>>): IQuerySet<T & U> {
-		let res = null;
-		if (param && param instanceof Function) {
-			//TODO: fix join fieldMap
-			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
-			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
-			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+		// let res = null;
+		// if (param && param instanceof Function) {
+		// 	//TODO: fix join fieldMap
+		// 	let mainFieldMap = this.context.tableSetMap.get(Object)?.fieldMap;
+		// 	let joinFieldMap = this.context.tableSetMap.get(Object)?.fieldMap;
+		// 	let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
 
-			let op = new model.GroupExprBuilder<T & U>(finalFieldMap);
-			res = param(op);
-		}
-		if (res && Array.isArray(res)) {
-			res.forEach(a => {
-				if (a instanceof sql.Expression && a.exps.length > 0) {
-					this.stat.groupBy.push(a);
-				}
-			});
-		}
+		// 	let op = new model.GroupExprBuilder<T & U>(finalFieldMap);
+		// 	res = param(op);
+		// }
+		// if (res && Array.isArray(res)) {
+		// 	res.forEach(a => {
+		// 		if (a instanceof sql.Expression && a.exps.length > 0) {
+		// 			this.stat.groupBy.push(a);
+		// 		}
+		// 	});
+		// }
 		return this;
 	}
 
 	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<T & U>>): IQuerySet<T & U> {
-		let res = null;
-		if (param && param instanceof Function) {
-			//TODO: fix join fieldMap
-			let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
-			let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
-			let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
+		// let res = null;
+		// if (param && param instanceof Function) {
+		// 	//TODO: fix join fieldMap
+		// 	let mainFieldMap = this.context.tableSetMap.get(null)?.fieldMap;
+		// 	let joinFieldMap = this.context.tableSetMap.get(null)?.fieldMap;
+		// 	let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
 
-			let op = new model.OrderExprBuilder<T & U>(finalFieldMap);
-			res = param(op);
-		}
-		if (res && Array.isArray(res)) {
-			res.forEach(expr => {
-				if (expr instanceof sql.Expression && expr.exps.length > 0) {
-					this.stat.orderBy.push(expr);
-				}
-			});
-		}
+		// 	let op = new model.OrderExprBuilder<T & U>(finalFieldMap);
+		// 	res = param(op);
+		// }
+		// if (res && Array.isArray(res)) {
+		// 	res.forEach(expr => {
+		// 		if (expr instanceof sql.Expression && expr.exps.length > 0) {
+		// 			this.stat.orderBy.push(expr);
+		// 		}
+		// 	});
+		// }
 		return this;
 	}
 
@@ -154,18 +157,20 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join) {
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join): IQuerySet<T & U & A> {
 		joinType = joinType || sql.types.Join.InnerJoin;
 
-		let temp: sql.Expression = null;
+		let temp: sql.Expression | null = null;
 		if (param && param instanceof Function) {
 			let mainObj = this.getEntity();
 			let joinObj = coll.getEntity();
 			temp = param(mainObj, joinObj);
 		}
-		let res: JoinQuerySet<T & U, A> = null;
+		let res: JoinQuerySet<T & U, A>;
 		if (temp instanceof sql.Expression && temp.exps.length > 0) {
 			res = new JoinQuerySet<T & U, A>(this, coll, joinType, temp);
+		} else {
+			throw new TypeError('Invalid Join');
 		}
 		return res;
 	}

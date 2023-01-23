@@ -7,7 +7,7 @@ import SQLite from './SQLite.js';
 import Handler from './Handler.js';
 
 function getHandler(config: bean.IConnectionConfig): Handler {
-	let handler: Handler = null;
+	let handler: Handler;
 	switch (config.handler) {
 		case bean.HandlerType.mysql:
 			handler = new Mysql(config);

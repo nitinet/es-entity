@@ -1,6 +1,6 @@
 class FieldMapping {
-    fieldName = null;
-    colName = null;
+    fieldName;
+    colName;
     primaryKey = false;
     constructor(fieldName, colName, primaryKey) {
         this.fieldName = fieldName;

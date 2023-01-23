@@ -1,21 +1,18 @@
+import * as bean from './bean/index.js';
 import getHandler from './handlers/getHandler.js';
 import TableSet from './collection/TableSet.js';
 export default class Context {
     _handler;
-    _entityPath;
     connection = null;
     logger = null;
     tableSetMap = new Map();
-    config = null;
+    config;
     constructor(config) {
         this.config = config;
         if (!this.config.dbConfig) {
             throw new Error('Database Config Not Found');
         }
-        this.handler = getHandler(this.config.dbConfig);
-        if (this.config.entityPath) {
-            this.setEntityPath(this.config.entityPath);
-        }
+        this._handler = getHandler(this.config.dbConfig);
         this.logger = this.config.logger || console;
     }
     log(...arg) {
@@ -38,16 +35,9 @@ export default class Context {
     }
     set handler(handler) {
         this._handler = handler;
-        this._handler.context = this;
-    }
-    getEntityPath() {
-        return this._entityPath;
-    }
-    setEntityPath(entityPath) {
-        this._entityPath = entityPath;
     }
     async execute(query, args) {
-        return this.handler.run(query, args, this.connection);
+        return this.handler.run(query, args);
     }
     flush() { }
     async initTransaction() {
@@ -63,15 +53,20 @@ export default class Context {
                 }
             });
         }
-        res.connection = await res.handler.getConnection();
+        let nativeConn = await res.handler.getConnection();
+        res.connection = new bean.Connection(res.handler, nativeConn);
         await res.connection.initTransaction();
         return res;
     }
     async commit() {
+        if (!this.connection)
+            throw new TypeError('Transaction Not Started');
         await this.connection.commit();
         await this.connection.close();
     }
     async rollback() {
+        if (!this.connection)
+            throw new TypeError('Transaction Not Started');
         await this.connection.rollback();
         await this.connection.close();
     }

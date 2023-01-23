@@ -8,18 +8,14 @@ import * as sql from '../sql/index.js';
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
 
-	// @ts-ignore
-	driver: typeof import('mssql') = null;
-	// @ts-ignore
-	connectionPool: mssql.ConnectionPool = null;
+	driver!: typeof import('mssql');
+	connectionPool!: mssql.ConnectionPool;
 
 	constructor(config: bean.IConnectionConfig) {
-		super();
-		this.config = config;
+		super(config);
 	}
 
 	async init() {
-		// @ts-ignore
 		this.driver = this.config.driver ?? await import('mssql');
 
 		let temp = new this.driver.ConnectionPool({
@@ -32,7 +28,7 @@ export default class MsSqlServer extends Handler {
 		this.connectionPool = await temp.connect();
 	}
 
-	async getConnection(): Promise<bean.Connection> {
+	async getConnection(): Promise<mssql.Request> {
 		await this.driver.connect({
 			server: this.config.host,
 			port: this.config.port,
@@ -40,15 +36,14 @@ export default class MsSqlServer extends Handler {
 			password: this.config.password,
 			database: this.config.database
 		});
-		let conn = new this.driver.Request();
-		return new bean.Connection(this, conn);
+		return new this.driver.Request();
 	}
 
-	async initTransaction(conn: bean.Connection): Promise<void> { return null; }
-	async commit(conn: bean.Connection): Promise<void> { return null; }
-	async rollback(conn: bean.Connection): Promise<void> { return null; }
-	async close(conn: bean.Connection): Promise<void> { return null; }
-	async end(): Promise<void> { return null; }
+	async initTransaction(conn: bean.Connection): Promise<void> { }
+	async commit(conn: bean.Connection): Promise<void> { }
+	async rollback(conn: bean.Connection): Promise<void> { }
+	async close(conn: bean.Connection): Promise<void> { }
+	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
@@ -84,7 +79,7 @@ export default class MsSqlServer extends Handler {
 	}
 
 	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
-		let q: string = null;
+		let q: string;
 		if (typeof query === "string") {
 			q = query;
 		} else if (query instanceof sql.Statement) {

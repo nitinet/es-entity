@@ -12,7 +12,7 @@ class Collection extends INode {
         super();
     }
     eval(handler) {
-        let res = null;
+        let res = '';
         if (this.value) {
             res = this.colAlias ? `${this.colAlias}.${this.value}` : this.value;
         }

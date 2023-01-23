@@ -1,6 +1,6 @@
 class FieldMapping {
-	fieldName: string = null;
-	colName: string = null;
+	fieldName: string;
+	colName: string;
 	// type: string = null;
 	primaryKey: boolean = false;
 

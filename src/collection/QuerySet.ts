@@ -11,22 +11,25 @@ import Context from '../Context.js';
  * QuerySet
  */
 class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> extends IQuerySet<U> {
-	protected dbSet: DBSet<T> = null;
-	alias: string = null;
+	protected dbSet: DBSet<T>;
+	alias: string | undefined;
 	stat = new sql.Statement();
 
 	protected EntityType: types.IEntityType<U>;
 
-	constructor(context: Context, dbSet: DBSet<T>, EntityType: types.IEntityType<U>) {
+	constructor(context: Context, dbSet: DBSet<T> | undefined, EntityType: types.IEntityType<U>) {
 		super();
 
 		this.context = context;
+		if (!dbSet) throw new TypeError('Invalid Entity');
+
+		this.dbSet = dbSet;
 		this.bind(dbSet);
 		this.EntityType = EntityType;
 	}
 
 	private bind(dbSet: DBSet<T>) {
-		this.dbSet = dbSet;
+
 
 		this.alias = dbSet.tableName.charAt(0);
 		this.stat.collection.value = dbSet.tableName;
@@ -35,13 +38,13 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 
 	getEntity() {
 		let res = new this.EntityType();
-		let keys = Reflect.ownKeys(res);
-		keys.forEach(key => {
-			let field = Reflect.get(res, key);
-			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-				field.bind(this.context);
-			}
-		});
+		// let keys = Reflect.ownKeys(res);
+		// keys.forEach(key => {
+		// 	let field = Reflect.get(res, key);
+		// 	if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+		// 		field.bind(this.context);
+		// 	}
+		// });
 		return res;
 	}
 
@@ -60,7 +63,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	// Selection Functions
-	select<V = types.SubEntityType<U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
+	select<V extends Object = types.SubEntityType<U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
 		let res = new QuerySet<T, V>(this.context, this.dbSet, TargetType);
 		return res;
 	}
@@ -97,7 +100,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
 					Reflect.set(obj, key, val);
 				} else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-					field.bind(this.context);
+					field.bind(this.context, obj);
 				}
 			});
 			return obj;
@@ -107,7 +110,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 
 	// Conditional Functions
 	where(param: types.IWhereFunc<model.WhereExprBuilder<U>>, ...args: any[]): IQuerySet<U> {
-		let res: sql.Expression = null;
+		let res: sql.Expression | null = null;
 		if (param && param instanceof Function) {
 			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
 			let eb = new model.WhereExprBuilder<U>(fieldMap);
@@ -197,9 +200,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<U, A>, joinType?: sql.types.Join): IQuerySet<U & A> {
-		joinType = joinType | sql.types.Join.InnerJoin;
+		joinType = joinType ?? sql.types.Join.InnerJoin;
 
-		let temp: sql.Expression = null;
+		let temp: sql.Expression | null = null;
 		if (param && param instanceof Function) {
 			let mainObj = this.getEntity();
 			let joinObj = coll.getEntity();

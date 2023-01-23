@@ -4,8 +4,7 @@ import Context from '../Context.js';
 import * as model from '../model/index.js';
 
 abstract class IQuerySet<T extends Object> {
-	context: Context;
-	stat: sql.Statement = null;
+	context!: Context;
 
 	abstract getEntity(): T;
 
@@ -20,7 +19,7 @@ abstract class IQuerySet<T extends Object> {
 
 	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
 
-	abstract select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
+	abstract select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
 	abstract where(func: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T>;
 	abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
 	abstract orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T>;

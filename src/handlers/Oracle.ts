@@ -8,19 +8,15 @@ import * as sql from '../sql/index.js';
 export default class Oracle extends Handler {
 	handlerName = 'oracle';
 
-	// @ts-ignore
-	driver: typeof import('oracledb') = null;
-	// @ts-ignore
-	connectionPool: oracledb.Pool = null;
+	driver!: typeof import('oracledb');
+	connectionPool!: oracledb.Pool;
 
 	constructor(config: bean.IConnectionConfig) {
-		super();
-		this.config = config;
+		super(config);
 	}
 
 	async init() {
-		// @ts-ignore
-		this.driver = this.config.driver || await import('oracledb');
+		this.driver = this.config.driver ?? await import('oracledb');
 
 		this.connectionPool = await this.driver.createPool({
 			user: this.config.username,
@@ -30,20 +26,20 @@ export default class Oracle extends Handler {
 
 	}
 
-	async getConnection(): Promise<bean.Connection> {
+	async getConnection(): Promise<oracledb.Connection> {
 		let conn = await this.driver.getConnection({
 			user: this.config.username,
 			password: this.config.password,
 			connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
 		});
-		return new bean.Connection(this, conn);
+		return conn;
 	}
 
-	async initTransaction(conn: bean.Connection): Promise<void> { return null; }
+	async initTransaction(conn: bean.Connection): Promise<void> { }
 	async commit(conn: bean.Connection): Promise<void> { return conn.conn.commit(); }
 	async rollback(conn: bean.Connection): Promise<void> { return conn.conn.rollback(); }
 	async close(conn: bean.Connection): Promise<void> { return conn.conn.close(); }
-	async end(): Promise<void> { return null; }
+	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
@@ -78,12 +74,16 @@ export default class Oracle extends Handler {
 	}
 
 	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
-		let q: string = null;
+		let dataArgs = Array<any>();
+		let q: string;
 		if (typeof query === 'string') {
 			q = query;
+			if (args) dataArgs.push(...args);
 		} else if (query instanceof sql.Statement) {
 			q = query.eval(this);
-			args = query.args;
+			dataArgs.push(...query.args);
+		} else {
+			q = '';
 		}
 
 		let temp = null;
@@ -91,10 +91,9 @@ export default class Oracle extends Handler {
 		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			temp = await connection.conn.execute(q, args);
 		} else {
-			let conn = null;
+			let conn = await this.connectionPool.getConnection();
 			try {
-				conn = await this.connectionPool.getConnection();
-				temp = await conn.execute(q, args);
+				temp = await conn.execute(q, dataArgs);
 			} finally {
 				conn.close();
 			}

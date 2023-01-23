@@ -1,5 +1,5 @@
 export default class Connection {
-    handler = null;
+    handler;
     conn = null;
     constructor(handler, conn) {
         this.handler = handler;

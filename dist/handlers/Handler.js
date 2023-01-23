@@ -1,20 +1,26 @@
 import * as sql from '../sql/index.js';
 export default class Handler {
-    context = null;
     config;
-    async getTableInfo(tableName) { return null; }
-    async run(query, args, connetction) { return null; }
+    constructor(config) {
+        this.config = config;
+    }
     convertPlaceHolder(query) {
-        return query;
+        if (!query)
+            throw TypeError('Invalid Placehilder');
+        else
+            return query;
     }
     prepareQuery(queryStmt, args) {
-        let query = null;
+        let query;
         if (typeof queryStmt === 'string') {
             query = queryStmt;
         }
         else if (queryStmt instanceof sql.Statement) {
             query = queryStmt.eval(this);
             args = queryStmt.args;
+        }
+        else {
+            query = '';
         }
         return {
             query, args
@@ -56,8 +62,8 @@ export default class Handler {
         let rhs = values.slice(1).join(', ');
         return `${lhs} in (${rhs})`;
     }
-    between(values) {
-        return `${values[0]} between ${values[1]} and ${values[2]}`;
+    between(val0, val1, val2) {
+        return `${val0} between ${val1} and ${val2}`;
     }
     like(val0, val1) {
         return `${val0} like ${val1}`;

@@ -3,31 +3,26 @@ import * as model from '../model/index.js';
 import IQuerySet from './IQuerySet.js';
 import JoinQuerySet from './JoinQuerySet.js';
 class QuerySet extends IQuerySet {
-    dbSet = null;
-    alias = null;
+    dbSet;
+    alias;
     stat = new sql.Statement();
     EntityType;
     constructor(context, dbSet, EntityType) {
         super();
         this.context = context;
+        if (!dbSet)
+            throw new TypeError('Invalid Entity');
+        this.dbSet = dbSet;
         this.bind(dbSet);
         this.EntityType = EntityType;
     }
     bind(dbSet) {
-        this.dbSet = dbSet;
         this.alias = dbSet.tableName.charAt(0);
         this.stat.collection.value = dbSet.tableName;
         this.stat.collection.alias = this.alias;
     }
     getEntity() {
         let res = new this.EntityType();
-        let keys = Reflect.ownKeys(res);
-        keys.forEach(key => {
-            let field = Reflect.get(res, key);
-            if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-                field.bind(this.context);
-            }
-        });
         return res;
     }
     async list() {
@@ -72,7 +67,7 @@ class QuerySet extends IQuerySet {
                     Reflect.set(obj, key, val);
                 }
                 else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-                    field.bind(this.context);
+                    field.bind(this.context, obj);
                 }
             });
             return obj;
@@ -159,7 +154,7 @@ class QuerySet extends IQuerySet {
         }
     }
     join(coll, param, joinType) {
-        joinType = joinType | sql.types.Join.InnerJoin;
+        joinType = joinType ?? sql.types.Join.InnerJoin;
         let temp = null;
         if (param && param instanceof Function) {
             let mainObj = this.getEntity();

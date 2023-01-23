@@ -2,11 +2,10 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 export default class PostgreSql extends Handler {
     handlerName = 'postgresql';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
-        super();
-        this.config = config;
+        super(config);
     }
     async init() {
         this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
@@ -27,20 +26,14 @@ export default class PostgreSql extends Handler {
             password: this.config.password,
             database: this.config.database
         });
-        try {
-            await conn.connect();
-            return new bean.Connection(this, conn);
-        }
-        catch (err) {
-            this.context.log('Connection Creation Failed', err);
-            throw err;
-        }
+        await conn.connect();
+        return conn;
     }
     async initTransaction(conn) { await conn.query('BEGIN'); }
     async commit(conn) { await conn.query('COMMIT'); }
     async rollback(conn) { await conn.query('ROLLBACK'); }
     async close(conn) { await conn.end(); }
-    async end() { return null; }
+    async end() { }
     async getTableInfo(tableName) {
         let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
 		case when (select count(1) from pg_constraint p where p.conrelid = c.oid and f.ordinal_position = any(p.conkey) and p.contype   = 'p') > 0 then true else false end as primarykey

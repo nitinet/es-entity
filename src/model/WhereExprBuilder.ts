@@ -11,14 +11,13 @@ class WhereExprBuilder<T extends Object> extends BaseExprBuilder<T> {
 	}
 
 	private _argExp(operand: OperandType<T, keyof T>) {
-		let res: Expression = null;
 		if (operand instanceof Expression) {
-			res = operand;
+			return operand;
 		} else {
-			res = new Expression('?');
+			let res = new Expression('?');
 			res.args = res.args.concat(operand);
+			return res;
 		}
-		return res;
 	}
 
 	// Comparison Operators
