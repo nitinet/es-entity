@@ -109,7 +109,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	where(param: types.IWhereFunc<model.WhereExprBuilder<U>>, ...args: any[]): IQuerySet<U> {
 		let res: sql.Expression = null;
 		if (param && param instanceof Function) {
-			let eb = new model.WhereExprBuilder<U>(this.dbSet.fieldMap);
+			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+			let eb = new model.WhereExprBuilder<U>(fieldMap);
 			res = param(eb, args);
 		}
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
@@ -121,7 +122,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let eb = new model.GroupExprBuilder<U>(this.dbSet.fieldMap);
+			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+			let eb = new model.GroupExprBuilder<U>(fieldMap);
 			res = param(eb);
 		}
 		if (res && Array.isArray(res)) {
@@ -137,7 +139,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<U>>): IQuerySet<U> {
 		let res = null;
 		if (param && param instanceof Function) {
-			let eb = new model.OrderExprBuilder<U>(this.dbSet.fieldMap);
+			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+			let eb = new model.OrderExprBuilder<U>(fieldMap);
 			res = param(eb);
 		}
 		if (res && Array.isArray(res)) {

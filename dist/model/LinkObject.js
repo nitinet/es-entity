@@ -29,3 +29,4 @@ class LinkObject {
     }
 }
 export default LinkObject;
+//# sourceMappingURL=LinkObject.js.map

@@ -65,7 +65,7 @@ export default class Oracle extends Handler {
 			} else if (columnType.includes('timestamp')) {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
-				col.type = bean.ColumnType.JSON;
+				col.type = bean.ColumnType.OBJECT;
 			}
 
 			col.nullable = row['IS_NULL'] == 'YES' ? true : false;

@@ -122,7 +122,7 @@ export default class Mysql extends Handler {
                 col.type = bean.ColumnType.BINARY;
             }
             else if (columnType.includes('json')) {
-                col.type = bean.ColumnType.JSON;
+                col.type = bean.ColumnType.OBJECT;
             }
             col.nullable = row['Null'] == 'YES' ? true : false;
             col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
@@ -191,3 +191,4 @@ export default class Mysql extends Handler {
         return result;
     }
 }
+//# sourceMappingURL=Mysql.js.map

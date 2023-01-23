@@ -11,3 +11,4 @@ export default {
     ResultSet
 };
 export { ColumnType, ColumnInfo, Connection, HandlerType, ResultSet };
+//# sourceMappingURL=index.js.map
