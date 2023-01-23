@@ -1,7 +1,10 @@
 import * as sql from '../sql/index.js';
 class IQuerySet {
     context;
-    stat = null;
+    stat = new sql.Statement();
+    constructor(context) {
+        this.context = context;
+    }
     async unique() {
         let arr = await this.list();
         if (arr.length > 1)

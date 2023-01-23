@@ -6,8 +6,7 @@ export default class Oracle extends Handler {
     driver = null;
     connectionPool = null;
     constructor(config) {
-        super();
-        this.config = config;
+        super(config);
     }
     async init() {
         this.driver = this.config.driver || await import('oracledb');
@@ -23,13 +22,13 @@ export default class Oracle extends Handler {
             password: this.config.password,
             connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
         });
-        return new bean.Connection(this, conn);
+        return conn;
     }
-    async initTransaction(conn) { return null; }
+    async initTransaction(conn) { }
     async commit(conn) { return conn.conn.commit(); }
     async rollback(conn) { return conn.conn.rollback(); }
     async close(conn) { return conn.conn.close(); }
-    async end() { return null; }
+    async end() { }
     async getTableInfo(tableName) {
         let r = await this.run('describe ' + tableName);
         let result = new Array();
@@ -65,23 +64,28 @@ export default class Oracle extends Handler {
         return result;
     }
     async run(query, args, connection) {
-        let q = null;
+        let dataArgs = Array();
+        let q;
         if (typeof query === 'string') {
             q = query;
+            if (args)
+                dataArgs.push(...args);
         }
         else if (query instanceof sql.Statement) {
             q = query.eval(this);
-            args = query.args;
+            dataArgs.push(...query.args);
+        }
+        else {
+            q = '';
         }
         let temp = null;
         if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             temp = await connection.conn.execute(q, args);
         }
         else {
-            let conn = null;
+            let conn = await this.connectionPool.getConnection();
             try {
-                conn = await this.connectionPool.getConnection();
-                temp = await conn.execute(q, args);
+                temp = await conn.execute(q, dataArgs);
             }
             finally {
                 conn.close();

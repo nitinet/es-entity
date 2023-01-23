@@ -6,8 +6,7 @@ export default class MsSqlServer extends Handler {
     driver = null;
     connectionPool = null;
     constructor(config) {
-        super();
-        this.config = config;
+        super(config);
     }
     async init() {
         this.driver = this.config.driver ?? await import('mssql');
@@ -28,14 +27,13 @@ export default class MsSqlServer extends Handler {
             password: this.config.password,
             database: this.config.database
         });
-        let conn = new this.driver.Request();
-        return new bean.Connection(this, conn);
+        return new this.driver.Request();
     }
-    async initTransaction(conn) { return null; }
-    async commit(conn) { return null; }
-    async rollback(conn) { return null; }
-    async close(conn) { return null; }
-    async end() { return null; }
+    async initTransaction(conn) { }
+    async commit(conn) { }
+    async rollback(conn) { }
+    async close(conn) { }
+    async end() { }
     async getTableInfo(tableName) {
         let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
         let result = new Array();
@@ -72,7 +70,7 @@ export default class MsSqlServer extends Handler {
         return result;
     }
     async run(query, args, connection) {
-        let q = null;
+        let q;
         if (typeof query === "string") {
             q = query;
         }

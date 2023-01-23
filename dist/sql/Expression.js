@@ -2,22 +2,17 @@ import Operator from './types/Operator.js';
 class Expression {
     args = new Array();
     value = null;
-    exps = null;
     operator = null;
+    exps = new Array();
     constructor(value, operator, ...expressions) {
         this.value = value;
-        this.exps = expressions;
         this.operator = operator;
+        this.exps = expressions;
     }
     add(...expressions) {
-        if (this.operator == Operator.And) {
+        if (!this.operator || this.operator == Operator.And) {
             this.exps = this.exps.concat(expressions);
             return this;
-        }
-        else if (!this.operator && this.exps.length == 0) {
-            let exp = expressions.pop();
-            expressions.forEach(expr => exp.add(expr));
-            return exp;
         }
         else {
             let exp = new Expression(null, Operator.And, this);
@@ -38,14 +33,15 @@ class Expression {
         if (this.value) {
             return this.value;
         }
-        else if (this.exps) {
+        else {
             let values = this.exps.map(exp => {
                 if (exp) {
                     let str = exp.eval(handler);
                     this.args = this.args.concat(exp.args);
                     return str;
                 }
-            });
+                ;
+            }).filter((exp) => exp != null);
             if (!this.operator && this.exps.length > 1) {
                 this.operator = Operator.And;
             }
@@ -93,7 +89,7 @@ class Expression {
                     r = handler.devide(val0, val1);
                     break;
                 case Operator.Between:
-                    r = handler.between(values);
+                    r = handler.between(values[0], values[1], values[2]);
                     break;
                 case Operator.Exists:
                     r = handler.exists(val0);

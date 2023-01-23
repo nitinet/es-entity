@@ -14,8 +14,7 @@ export default class Mysql extends Handler {
 	connectionPool: mysql.Pool = null;
 
 	constructor(config: bean.IConnectionConfig) {
-		super();
-		this.config = config;
+		super(config);
 	}
 
 	async init() {
@@ -32,9 +31,9 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	getConnection(): Promise<bean.Connection> {
+	getConnection(): Promise<mysql.Connection> {
 		let that = this;
-		return new Promise<bean.Connection>((resolve, reject) => {
+		return new Promise<mysql.Connection>((resolve, reject) => {
 			let conn = that.driver.createConnection({
 				host: that.config.host,
 				port: that.config.port,
@@ -44,11 +43,10 @@ export default class Mysql extends Handler {
 			});
 			conn.connect((err: Error) => {
 				if (err) {
-					that.context.log('Connection Creation Failed', err);
+					// that.context.log('Connection Creation Failed', err);
 					reject(err);
 				} else {
-					let res = new bean.Connection(this, conn);
-					resolve(res);
+					resolve(conn);
 				}
 			});
 		});
@@ -59,7 +57,7 @@ export default class Mysql extends Handler {
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.beginTransaction((err: Error) => {
 				if (err) {
-					that.context.log('Initializing Transaction Failed', err);
+					// that.context.log('Initializing Transaction Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -73,7 +71,7 @@ export default class Mysql extends Handler {
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.commit((err: Error) => {
 				if (err) {
-					that.context.log('Commiting Transaction Failed', err);
+					// that.context.log('Commiting Transaction Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -95,7 +93,7 @@ export default class Mysql extends Handler {
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.end((err: Error) => {
 				if (err) {
-					that.context.log('Connection Close Failed', err);
+					// that.context.log('Connection Close Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -104,7 +102,7 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	async end(): Promise<void> { return null; }
+	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
@@ -152,31 +150,28 @@ export default class Mysql extends Handler {
 		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			let conn: mysql.Connection = connection.conn;
 			temp = await new Promise<any>((resolve, reject) => {
-				conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
+				conn.query(queryObj.query, queryObj.args, function (err: Error | null, r) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});
 			});
 		} else {
-			let conn: mysql.PoolConnection = null;
-			try {
-				conn = await new Promise((resolve, reject) => {
-					this.connectionPool.getConnection(function (err, newConn) {
-						if (err) { reject(err); }
-						else { resolve(newConn); }
-					});
+			let conn: mysql.PoolConnection = await new Promise((resolve, reject) => {
+				this.connectionPool.getConnection(function (err, newConn) {
+					if (err) { reject(err); }
+					else { resolve(newConn); }
 				});
+			});
 
+			try {
 				temp = await new Promise<any>((resolve, reject) => {
-					conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
+					conn.query(queryObj.query, queryObj.args, function (err: Error | null, r) {
 						if (err) { reject(err); }
 						else { resolve(r); }
 					});
 				});
 			} finally {
-				if (conn) {
-					conn.release();
-				}
+				if (conn) conn.release();
 			}
 		}
 

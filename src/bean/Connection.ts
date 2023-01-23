@@ -1,7 +1,7 @@
 import Handler from '../handlers/Handler.js';
 
 export default class Connection {
-	private handler: Handler = null;
+	private handler: Handler;
 	conn: any = null;
 
 	constructor(handler: Handler, conn?: any) {

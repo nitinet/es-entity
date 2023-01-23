@@ -1,1 +1,1 @@
-{"version":3,"file":"ResultSet.js","sourceRoot":"","sources":["../../src/bean/ResultSet.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,OAAO,SAAS;IAC7B,QAAQ,GAAW,CAAC,CAAC;IACrB,EAAE,GAAQ,IAAI,CAAC;IACf,IAAI,GAAe,IAAI,CAAC;IACxB,KAAK,GAAW,IAAI,CAAC;CACrB"}
+{"version":3,"file":"ResultSet.js","sourceRoot":"","sources":["../../src/bean/ResultSet.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,OAAO,SAAS;IAC7B,QAAQ,GAAW,CAAC,CAAC;IACrB,EAAE,GAAQ,IAAI,CAAC;IACf,IAAI,GAAe,IAAI,KAAK,EAAE,CAAC;IAC/B,KAAK,GAAkB,IAAI,CAAC;CAC5B"}

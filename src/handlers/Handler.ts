@@ -1,39 +1,46 @@
 import * as sql from '../sql/index.js';
 import Connection from '../bean/Connection.js';
-import Context from '../Context.js';
+// import Context from '../Context.js';
 
 import * as bean from '../bean/index.js';
 
 export default abstract class Handler {
-	context: Context = null;
+	// context: Context | null = null;
 	abstract handlerName: string;
 	abstract driver: any;
 	config: bean.IConnectionConfig;
 
+	constructor(config: bean.IConnectionConfig) {
+		this.config = config;
+	}
+
 	abstract init(): Promise<void>;
 
-	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> { return null; }
-	async run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet> { return null; }
+	abstract getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>
+	abstract run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>
 
 	// Connetion manage functions
-	abstract getConnection(): Promise<Connection>;
+	abstract getConnection(): Promise<any>;
 	abstract initTransaction(conn: any): Promise<void>;
 	abstract commit(conn: any): Promise<void>;
 	abstract rollback(conn: any): Promise<void>;
 	abstract close(conn: any): Promise<void>;
 	abstract end(): Promise<void>;
 
-	convertPlaceHolder(query: string) {
-		return query;
+	convertPlaceHolder(query: string | null) {
+		if (!query) throw TypeError('Invalid Placehilder');
+		else return query;
 	}
 
 	prepareQuery(queryStmt: string | sql.INode, args?: Array<any>) {
-		let query: string = null;
+		let query: string;
 		if (typeof queryStmt === 'string') {
 			query = queryStmt;
 		} else if (queryStmt instanceof sql.Statement) {
 			query = queryStmt.eval(this);
 			args = queryStmt.args;
+		} else {
+			query = '';
 		}
 		return {
 			query, args
@@ -83,8 +90,8 @@ export default abstract class Handler {
 		let rhs = values.slice(1).join(', ');
 		return `${lhs} in (${rhs})`;
 	}
-	between(values: string[]): string {
-		return `${values[0]} between ${values[1]} and ${values[2]}`;
+	between(val0: string, val1: string, val2: string): string {
+		return `${val0} between ${val1} and ${val2}`;
 	}
 	like(val0: string, val1: string): string {
 		return `${val0} like ${val1}`;

@@ -10,22 +10,22 @@ interface IOptions {
 }
 
 class TableSet<T extends Object> extends IQuerySet<T>{
-
-	protected EntityType: types.IEntityType<T> = null;
-	protected options: IOptions = null;
-	dbSet: DBSet<T> = null;
+	protected EntityType: types.IEntityType<T>;
+	protected options: IOptions;
+	dbSet: DBSet<T>;
 
 	constructor(EntityType: types.IEntityType<T>, options?: IOptions) {
-		super();
+		// @ts-ignore
+		super(null);
 
 		this.EntityType = EntityType;
 		this.options = options || {};
 
-		this.dbSet = new DBSet(EntityType);
+		this.dbSet = new DBSet(EntityType, this.options.tableName);
 	}
 
 	async bind() {
-		await this.dbSet.bind(this.context, this.options.tableName);
+		await this.dbSet.bind(this.context);
 	}
 
 	getEntityType() {
@@ -38,7 +38,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		keys.forEach(key => {
 			let field = Reflect.get(obj, key);
 			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-				field.bind(this.context);
+				field.bind(this.context, obj);
 			}
 		});
 		return obj;
@@ -153,7 +153,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let obj = await this.get(...idParams);
 
 		if (obj) {
-			return this.update(entity, null);
+			return this.update(entity);
 		} else {
 			return this.insert(entity);
 		}
@@ -212,7 +212,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		return q.list();
 	}
 
-	select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
+	select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
 		let q = new QuerySet(this.context, this.dbSet, TargetType);
 		return q.select(TargetType);
 	}

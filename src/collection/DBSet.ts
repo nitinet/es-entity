@@ -9,20 +9,19 @@ class DBSet<T extends Object>  {
 	protected entityType: types.IEntityType<T>;
 
 	// mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
-	tableName: string = null;
-	entityName: string = null;
+	tableName: string;
+	entityName: string;
 	columns: bean.ColumnInfo[] = [];
 	fieldMap = new Map<string | symbol, model.FieldMapping>();
 	private primaryFields: model.FieldMapping[] = [];
 
-	constructor(entityType: types.IEntityType<T>) {
+	constructor(entityType: types.IEntityType<T>, tableName?: string) {
 		this.entityType = entityType;
-	}
-
-	async bind(context: Context, tableName?: string) {
 		this.entityName = this.entityType.name;
 		this.tableName = tableName ?? Case.snake(this.entityName);
+	}
 
+	async bind(context: Context) {
 		// get info from describe db
 		this.columns = await context.handler.getTableInfo(this.tableName);
 
