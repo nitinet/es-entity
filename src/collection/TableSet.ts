@@ -67,20 +67,16 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let result = await this.context.execute(stat);
 		let primaryFields = this.dbSet.getPrimaryFields();
 
-		try {
-			if (primaryFields.length == 1) {
-				let primaryField = primaryFields[0];
-				let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
-				return await this.get(id);
-			} else if (primaryFields.length > 1) {
-				let idParams: any[] = [];
-				primaryFields.forEach(field => {
-					idParams.push(Reflect.get(entity, field.fieldName));
-				});
-				return this.get(...idParams);
-			}
-		} catch (err) {
-			return null;
+		if (primaryFields.length == 1) {
+			let primaryField = primaryFields[0];
+			let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
+			return await this.get(id);
+		} else {
+			let idParams: any[] = [];
+			primaryFields.forEach(field => {
+				idParams.push(Reflect.get(entity, field.fieldName));
+			});
+			return this.get(...idParams);
 		}
 	}
 

@@ -50,22 +50,17 @@ class TableSet extends IQuerySet {
         });
         let result = await this.context.execute(stat);
         let primaryFields = this.dbSet.getPrimaryFields();
-        try {
-            if (primaryFields.length == 1) {
-                let primaryField = primaryFields[0];
-                let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
-                return await this.get(id);
-            }
-            else if (primaryFields.length > 1) {
-                let idParams = [];
-                primaryFields.forEach(field => {
-                    idParams.push(Reflect.get(entity, field.fieldName));
-                });
-                return this.get(...idParams);
-            }
+        if (primaryFields.length == 1) {
+            let primaryField = primaryFields[0];
+            let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
+            return await this.get(id);
         }
-        catch (err) {
-            return null;
+        else {
+            let idParams = [];
+            primaryFields.forEach(field => {
+                idParams.push(Reflect.get(entity, field.fieldName));
+            });
+            return this.get(...idParams);
         }
     }
     whereExpr(entity) {
