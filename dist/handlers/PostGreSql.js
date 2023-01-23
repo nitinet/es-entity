@@ -2,8 +2,8 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 export default class PostgreSql extends Handler {
     handlerName = 'postgresql';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
         super(config);
     }

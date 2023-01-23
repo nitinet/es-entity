@@ -3,8 +3,8 @@ import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 export default class MsSqlServer extends Handler {
     handlerName = 'mssql';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
         super(config);
     }

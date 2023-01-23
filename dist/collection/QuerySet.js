@@ -8,7 +8,7 @@ class QuerySet extends IQuerySet {
     stat = new sql.Statement();
     EntityType;
     constructor(context, dbSet, EntityType) {
-        super(context);
+        super();
         this.context = context;
         if (!dbSet)
             throw new TypeError('Invalid Entity');

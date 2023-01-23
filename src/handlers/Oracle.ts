@@ -8,18 +8,15 @@ import * as sql from '../sql/index.js';
 export default class Oracle extends Handler {
 	handlerName = 'oracle';
 
-	// @ts-ignore
-	driver: typeof import('oracledb') = null;
-	// @ts-ignore
-	connectionPool: oracledb.Pool = null;
+	driver!: typeof import('oracledb');
+	connectionPool!: oracledb.Pool;
 
 	constructor(config: bean.IConnectionConfig) {
 		super(config);
 	}
 
 	async init() {
-		// @ts-ignore
-		this.driver = this.config.driver || await import('oracledb');
+		this.driver = this.config.driver ?? await import('oracledb');
 
 		this.connectionPool = await this.driver.createPool({
 			user: this.config.username,

@@ -7,9 +7,10 @@ import * as model from '../model/index.js';
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	private mainSet: IQuerySet<T>;
 	private joinSet: IQuerySet<U>;
+	stat: sql.Statement = new sql.Statement();
 
 	constructor(mainSet: IQuerySet<T>, joinSet: IQuerySet<U>, joinType: sql.types.Join, expr: sql.Expression) {
-		super(mainSet.context);
+		super();
 		this.mainSet = mainSet;
 		this.context = mainSet.context;
 
@@ -17,8 +18,8 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 		this.stat = new sql.Statement();
 
-		this.stat.collection.leftColl = this.mainSet.stat.collection;
-		this.stat.collection.rightColl = this.joinSet.stat.collection;
+		// this.stat.collection.leftColl = this.mainSet.stat.collection;
+		// this.stat.collection.rightColl = this.joinSet.stat.collection;
 		this.stat.collection.join = joinType;
 
 		this.stat.where = this.stat.where.add(expr);

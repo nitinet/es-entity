@@ -15,8 +15,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 	dbSet: DBSet<T>;
 
 	constructor(EntityType: types.IEntityType<T>, options?: IOptions) {
-		// @ts-ignore
-		super(null);
+		super();
 
 		this.EntityType = EntityType;
 		this.options = options || {};

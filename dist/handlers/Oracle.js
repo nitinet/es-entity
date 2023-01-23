@@ -3,13 +3,13 @@ import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 export default class Oracle extends Handler {
     handlerName = 'oracle';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
         super(config);
     }
     async init() {
-        this.driver = this.config.driver || await import('oracledb');
+        this.driver = this.config.driver ?? await import('oracledb');
         this.connectionPool = await this.driver.createPool({
             user: this.config.username,
             password: this.config.password,

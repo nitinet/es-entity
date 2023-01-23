@@ -2,8 +2,8 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 export default class SQlite extends Handler {
     handlerName = 'sqlite';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
         super(config);
     }

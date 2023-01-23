@@ -8,7 +8,7 @@ class TableSet extends IQuerySet {
     options;
     dbSet;
     constructor(EntityType, options) {
-        super(null);
+        super();
         this.EntityType = EntityType;
         this.options = options || {};
         this.dbSet = new DBSet(EntityType, this.options.tableName);

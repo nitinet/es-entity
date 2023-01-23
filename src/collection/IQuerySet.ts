@@ -4,12 +4,7 @@ import Context from '../Context.js';
 import * as model from '../model/index.js';
 
 abstract class IQuerySet<T extends Object> {
-	context: Context;
-	stat: sql.Statement = new sql.Statement();
-
-	constructor(context: Context) {
-		this.context = context;
-	}
+	context!: Context;
 
 	abstract getEntity(): T;
 

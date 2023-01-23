@@ -3,14 +3,13 @@ import * as sql from '../sql/index.js';
 class JoinQuerySet extends IQuerySet {
     mainSet;
     joinSet;
+    stat = new sql.Statement();
     constructor(mainSet, joinSet, joinType, expr) {
-        super(mainSet.context);
+        super();
         this.mainSet = mainSet;
         this.context = mainSet.context;
         this.joinSet = joinSet;
         this.stat = new sql.Statement();
-        this.stat.collection.leftColl = this.mainSet.stat.collection;
-        this.stat.collection.rightColl = this.joinSet.stat.collection;
         this.stat.collection.join = joinType;
         this.stat.where = this.stat.where.add(expr);
     }

@@ -18,7 +18,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	protected EntityType: types.IEntityType<U>;
 
 	constructor(context: Context, dbSet: DBSet<T> | undefined, EntityType: types.IEntityType<U>) {
-		super(context);
+		super();
 
 		this.context = context;
 		if (!dbSet) throw new TypeError('Invalid Entity');

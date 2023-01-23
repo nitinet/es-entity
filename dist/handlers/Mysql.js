@@ -2,8 +2,8 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 export default class Mysql extends Handler {
     handlerName = 'mysql';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
         super(config);
     }

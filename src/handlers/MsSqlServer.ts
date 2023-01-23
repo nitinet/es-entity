@@ -8,17 +8,14 @@ import * as sql from '../sql/index.js';
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
 
-	// @ts-ignore
-	driver: typeof import('mssql') = null;
-	// @ts-ignore
-	connectionPool: mssql.ConnectionPool = null;
+	driver!: typeof import('mssql');
+	connectionPool!: mssql.ConnectionPool;
 
 	constructor(config: bean.IConnectionConfig) {
 		super(config);
 	}
 
 	async init() {
-		// @ts-ignore
 		this.driver = this.config.driver ?? await import('mssql');
 
 		let temp = new this.driver.ConnectionPool({
