@@ -52,12 +52,13 @@ class Expression implements INode {
 				};
 			}).filter((exp): exp is string => exp != null);
 
-			if (!this.operator && this.exps.length > 1) {
-				this.operator = Operator.And;
-			}
-
 			let val0: string = values[0] ? values[0] : '';
 			let val1: string = values[1] ? values[1] : '';
+
+			if (!this.operator) {
+				if (this.exps.length == 1) return val0;
+				else this.operator = Operator.And;
+			}
 
 			let r: string = '';
 			switch (this.operator) {
@@ -142,7 +143,6 @@ class Expression implements INode {
 				case Operator.Avg:
 					r = handler.average(val0);
 					break;
-
 				default:
 					break;
 			}

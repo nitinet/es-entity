@@ -42,11 +42,14 @@ class Expression {
                 }
                 ;
             }).filter((exp) => exp != null);
-            if (!this.operator && this.exps.length > 1) {
-                this.operator = Operator.And;
-            }
             let val0 = values[0] ? values[0] : '';
             let val1 = values[1] ? values[1] : '';
+            if (!this.operator) {
+                if (this.exps.length == 1)
+                    return val0;
+                else
+                    this.operator = Operator.And;
+            }
             let r = '';
             switch (this.operator) {
                 case Operator.Equal:
