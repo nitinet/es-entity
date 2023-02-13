@@ -149,14 +149,14 @@ export default class Mysql extends Handler {
 		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			let conn: mysql.Connection = connection.conn;
 			temp = await new Promise<any>((resolve, reject) => {
-				conn.query(queryObj.query, queryObj.args, function (err: Error | null, r) {
+				conn.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});
 			});
 		} else {
-			let conn: mysql.PoolConnection = await new Promise((resolve, reject) => {
-				this.connectionPool.getConnection(function (err, newConn) {
+			let conn = await new Promise<mysql.PoolConnection>((resolve, reject) => {
+				this.connectionPool.getConnection(function (err: Error | null, newConn: mysql.PoolConnection) {
 					if (err) { reject(err); }
 					else { resolve(newConn); }
 				});
@@ -164,7 +164,7 @@ export default class Mysql extends Handler {
 
 			try {
 				temp = await new Promise<any>((resolve, reject) => {
-					conn.query(queryObj.query, queryObj.args, function (err: Error | null, r) {
+					conn.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
 						if (err) { reject(err); }
 						else { resolve(r); }
 					});
