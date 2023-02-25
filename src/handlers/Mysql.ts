@@ -5,6 +5,17 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 
+let typeCast: mysql.TypeCast = function (field, next) {
+	if (field.type === 'TINY' && field.length === 1) {
+		return (field.string() === '1');
+	} else if (field.type === 'JSON') {
+		let data = field.string();
+		return null != data ? JSON.parse(data) : null;
+	} else {
+		return next();
+	}
+}
+
 export default class Mysql extends Handler {
 	handlerName = 'mysql';
 
@@ -26,7 +37,8 @@ export default class Mysql extends Handler {
 			port: this.config.port,
 			user: this.config.username,
 			password: this.config.password,
-			database: this.config.database
+			database: this.config.database,
+			typeCast
 		});
 	}
 
@@ -38,7 +50,8 @@ export default class Mysql extends Handler {
 				port: that.config.port,
 				user: that.config.username,
 				password: that.config.password,
-				database: that.config.database
+				database: that.config.database,
+				typeCast
 			});
 			conn.connect((err: Error) => {
 				if (err) {
