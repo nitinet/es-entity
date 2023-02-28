@@ -11,9 +11,10 @@ abstract class IQuerySet<T extends Object> {
 	// Selection Functions
 	abstract list(): Promise<Array<T>>;
 
-	async unique(): Promise<T> {
+	async unique(): Promise<T | null> {
 		let arr = await this.list();
 		if (arr.length > 1) throw new Error('More than one row found in unique call');
+		else if (arr.length == 0) return null;
 		else return arr[0];
 	}
 
