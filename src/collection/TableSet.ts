@@ -67,17 +67,20 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let result = await this.context.execute(stat);
 		let primaryFields = this.dbSet.getPrimaryFields();
 
+		let finalObj: T | null = null;
 		if (primaryFields.length == 1) {
 			let primaryField = primaryFields[0];
 			let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
-			return await this.get(id);
+			finalObj = await this.get(id);
 		} else {
 			let idParams: any[] = [];
 			primaryFields.forEach(field => {
 				idParams.push(Reflect.get(entity, field.fieldName));
 			});
-			return this.get(...idParams);
+			finalObj = await this.get(...idParams);
 		}
+		if (!finalObj) throw new Error('Insert Object Not Found');
+		return finalObj;
 	}
 
 	private whereExpr(entity: T) {
@@ -125,13 +128,15 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		if (stat.columns.length > 0) {
 			let result = await this.context.execute(stat);
 			if (result.error) {
-				throw result.error;
+				throw new Error(result.error);
 			} else {
 				let idParams: any[] = [];
 				primaryFields.forEach(field => {
 					idParams.push(Reflect.get(entity, field.fieldName));
 				});
-				return this.get(...idParams);
+				let finalObj = await this.get(...idParams);
+				if (!finalObj) throw new Error('Update Object Not Found');
+				return finalObj;
 			}
 		} else {
 			return entity;

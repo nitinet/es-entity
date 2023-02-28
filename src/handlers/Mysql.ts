@@ -5,7 +5,13 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 
-let typeCast: mysql.TypeCast = function (field, next) {
+let typeCast: mysql.TypeCast = function (field: mysql.UntypedFieldInfo & {
+	type: string;
+	length: number;
+	string(): null | string;
+	buffer(): null | Buffer;
+	geometry(): null | mysql.GeometryType;
+}, next: () => void) {
 	if (field.type === 'TINY' && field.length === 1) {
 		return (field.string() === '1');
 	} else if (field.type === 'JSON') {
