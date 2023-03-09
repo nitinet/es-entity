@@ -49,18 +49,20 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		stat.collection.value = this.dbSet.tableName;
 
 		// Dynamic insert
-		Reflect.ownKeys(entity).forEach((key) => {
-			let field = this.dbSet.getField(key);
-			if (!field) return;
-			let val = Reflect.get(entity, key);
+		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+		fields.forEach((field) => {
+			let val = Reflect.get(entity, field.fieldName);
 			if (val == null) return;
+
+			let serializer = this.context.handler.serializeMap.get(field.columnType);
+			let finalVal = serializer ? serializer(val) : val;
 
 			let col = new sql.Collection();
 			col.value = field.colName;
 			stat.columns.push(col);
 
 			let expr = new sql.Expression('?');
-			expr.args.push(val);
+			expr.args.push(finalVal);
 			stat.values.push(expr);
 		});
 
@@ -106,21 +108,19 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let primaryFields = this.dbSet.getPrimaryFields();
 
 		// Dynamic update
-		let keys = Reflect.ownKeys(entity).filter(key => !primaryFields.some(pri => pri.fieldName == key));
-		if (updatedKeys) keys = keys.filter(key => (<(string | symbol)[]>updatedKeys).includes(key));
+		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+		if (updatedKeys) fields = fields.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
 
-		keys.forEach((key) => {
-			let field = this.dbSet.getField(key);
-			if (!field) return;
+		fields.forEach((field) => {
+			let c1 = new sql.Expression(field.colName);
+			let c2 = new sql.Expression('?');
+			let val = Reflect.get(entity, field.fieldName);
+			let serializer = this.context.handler.serializeMap.get(field.columnType);
+			let finalVal = serializer ? serializer(val) : val;
+			c2.args.push(finalVal);
 
-			if (!primaryFields.find(f => f.fieldName == key)?.primaryKey) {
-				let c1 = new sql.Expression(field.colName);
-				let c2 = new sql.Expression('?');
-				c2.args.push(Reflect.get(entity, <string>key));
-
-				let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-				stat.columns.push(expr);
-			}
+			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+			stat.columns.push(expr);
 		});
 
 		stat.where = this.whereExpr(entity);

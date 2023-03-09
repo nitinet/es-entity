@@ -34,18 +34,18 @@ class TableSet extends IQuerySet {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.dbSet.tableName;
-        Reflect.ownKeys(entity).forEach((key) => {
-            let field = this.dbSet.getField(key);
-            if (!field)
-                return;
-            let val = Reflect.get(entity, key);
+        let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+        fields.forEach((field) => {
+            let val = Reflect.get(entity, field.fieldName);
             if (val == null)
                 return;
+            let serializer = this.context.handler.serializeMap.get(field.columnType);
+            let finalVal = serializer ? serializer(val) : val;
             let col = new sql.Collection();
             col.value = field.colName;
             stat.columns.push(col);
             let expr = new sql.Expression('?');
-            expr.args.push(val);
+            expr.args.push(finalVal);
             stat.values.push(expr);
         });
         let result = await this.context.execute(stat);
@@ -85,20 +85,18 @@ class TableSet extends IQuerySet {
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
         let primaryFields = this.dbSet.getPrimaryFields();
-        let keys = Reflect.ownKeys(entity).filter(key => !primaryFields.some(pri => pri.fieldName == key));
+        let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
-            keys = keys.filter(key => updatedKeys.includes(key));
-        keys.forEach((key) => {
-            let field = this.dbSet.getField(key);
-            if (!field)
-                return;
-            if (!primaryFields.find(f => f.fieldName == key)?.primaryKey) {
-                let c1 = new sql.Expression(field.colName);
-                let c2 = new sql.Expression('?');
-                c2.args.push(Reflect.get(entity, key));
-                let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-                stat.columns.push(expr);
-            }
+            fields = fields.filter(field => updatedKeys.includes(field.fieldName));
+        fields.forEach((field) => {
+            let c1 = new sql.Expression(field.colName);
+            let c2 = new sql.Expression('?');
+            let val = Reflect.get(entity, field.fieldName);
+            let serializer = this.context.handler.serializeMap.get(field.columnType);
+            let finalVal = serializer ? serializer(val) : val;
+            c2.args.push(finalVal);
+            let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+            stat.columns.push(expr);
         });
         stat.where = this.whereExpr(entity);
         if (stat.columns.length > 0) {

@@ -1,10 +1,11 @@
 enum ColumnType {
-	NUMBER = 1,
+	BOOLEAN = 1,
+	NUMBER,
 	STRING,
-	BOOLEAN,
 	BINARY,
 	DATE,
-	OBJECT
+	OBJECT,
+	ARRAY
 }
 
 export default ColumnType;

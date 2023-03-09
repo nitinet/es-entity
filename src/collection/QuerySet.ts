@@ -98,7 +98,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 				if (fieldMapping) {
 					let colName = fieldMapping.colName;
 					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
-					Reflect.set(obj, key, val);
+					let deSerializer = this.context.handler.deSerializeMap.get(fieldMapping.columnType)
+					if (deSerializer) Reflect.set(obj, key, deSerializer(val));
+					else Reflect.set(obj, key, val);
 				} else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
 					field.bind(this.context, obj);
 				}
@@ -110,12 +112,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 
 	// Conditional Functions
 	where(param: types.IWhereFunc<model.WhereExprBuilder<U>>, ...args: any[]): IQuerySet<U> {
-		let res: sql.Expression | null = null;
-		if (param && param instanceof Function) {
-			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-			let eb = new model.WhereExprBuilder<U>(fieldMap);
-			res = param(eb, args);
-		}
+		let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+		let eb = new model.WhereExprBuilder<U>(fieldMap);
+		let res = param(eb, args);
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
 		}
@@ -123,12 +122,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<U>>): IQuerySet<U> {
-		let res = null;
-		if (param && param instanceof Function) {
-			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-			let eb = new model.GroupExprBuilder<U>(fieldMap);
-			res = param(eb);
-		}
+		let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+		let eb = new model.GroupExprBuilder<U>(fieldMap);
+		let res = param(eb);
 		if (res && Array.isArray(res)) {
 			res.forEach(expr => {
 				if (expr instanceof sql.Expression && expr.exps.length > 0) {
@@ -140,12 +136,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<U>>): IQuerySet<U> {
-		let res = null;
-		if (param && param instanceof Function) {
-			let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-			let eb = new model.OrderExprBuilder<U>(fieldMap);
-			res = param(eb);
-		}
+		let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+		let eb = new model.OrderExprBuilder<U>(fieldMap);
+		let res = param(eb);
 		if (res && Array.isArray(res)) {
 			res.forEach(a => {
 				if (a instanceof sql.Expression && a.exps.length > 0) {
@@ -166,10 +159,6 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	async update(param: types.IUpdateFunc<U>): Promise<void> {
-		if (!(param && param instanceof Function)) {
-			throw new Error('Update Function not found');
-		}
-
 		let stat = new sql.Statement();
 		stat.command = sql.types.Command.UPDATE;
 		stat.collection.value = this.dbSet.tableName;
@@ -178,14 +167,15 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		let tempObj = param(obj);
 
 		// Dynamic update
-		let keys = Reflect.ownKeys(tempObj.obj).filter(key => (<(string | symbol)[]>tempObj.updatedKeys).includes(key));
-		keys.forEach((key) => {
-			let field = this.dbSet.getField(key);
-			if (!field) return;
-
+		let fields = this.dbSet.filterFields(Reflect.ownKeys(tempObj.obj))
+			.filter(field => (<(string | symbol)[]>tempObj.updatedKeys).includes(field.fieldName));
+		fields.forEach((field) => {
 			let c1 = new sql.Expression(field.colName);
 			let c2 = new sql.Expression('?');
-			c2.args.push(Reflect.get(tempObj, key));
+			let val = Reflect.get(tempObj, field.fieldName);
+			let serializer = this.context.handler.serializeMap.get(field.columnType);
+			let finalVal = serializer ? serializer(val) : val;
+			c2.args.push(finalVal);
 
 			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
 			stat.columns.push(expr);

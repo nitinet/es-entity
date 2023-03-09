@@ -1,9 +1,9 @@
 export default class ColumnInfo {
-    field = '';
-    type = null;
+    field;
+    type;
     nullable = false;
     primaryKey = false;
-    default = '';
-    extra = '';
+    default = null;
+    extra = null;
 }
 //# sourceMappingURL=ColumnInfo.js.map

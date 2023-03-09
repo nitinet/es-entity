@@ -1,23 +1,15 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
-let typeCast = function (field, next) {
-    if (field.type === 'TINY' && field.length === 1) {
-        return (field.string() === '1');
-    }
-    else if (field.type === 'JSON') {
-        let data = field.string();
-        return null != data ? JSON.parse(data) : null;
-    }
-    else {
-        return next();
-    }
-};
 export default class Mysql extends Handler {
     handlerName = 'mysql';
     driver;
     connectionPool;
     constructor(config) {
         super(config);
+        this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+        this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+        this.serializeMap.set(bean.ColumnType.BOOLEAN, (val) => val ? '1' : '0');
+        this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val === '1');
     }
     async init() {
         this.driver = this.config.driver ?? await import('mysql');
@@ -27,8 +19,7 @@ export default class Mysql extends Handler {
             port: this.config.port,
             user: this.config.username,
             password: this.config.password,
-            database: this.config.database,
-            typeCast
+            database: this.config.database
         });
     }
     getConnection() {
@@ -39,8 +30,7 @@ export default class Mysql extends Handler {
                 port: that.config.port,
                 user: that.config.username,
                 password: that.config.password,
-                database: that.config.database,
-                typeCast
+                database: that.config.database
             });
             conn.connect((err) => {
                 if (err) {
@@ -53,7 +43,6 @@ export default class Mysql extends Handler {
         });
     }
     initTransaction(conn) {
-        let that = this;
         return new Promise((resolve, reject) => {
             conn.conn.beginTransaction((err) => {
                 if (err) {
@@ -66,7 +55,6 @@ export default class Mysql extends Handler {
         });
     }
     commit(conn) {
-        let that = this;
         return new Promise((resolve, reject) => {
             conn.conn.commit((err) => {
                 if (err) {
@@ -86,7 +74,6 @@ export default class Mysql extends Handler {
         });
     }
     close(conn) {
-        let that = this;
         return new Promise((resolve, reject) => {
             conn.conn.end((err) => {
                 if (err) {
@@ -131,6 +118,9 @@ export default class Mysql extends Handler {
             }
             else if (columnType.includes('json')) {
                 col.type = bean.ColumnType.OBJECT;
+            }
+            else {
+                throw new Error(`Invalid Column Type ${columnType} in table ${tableName}`);
             }
             col.nullable = row['Null'] == 'YES' ? true : false;
             col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;

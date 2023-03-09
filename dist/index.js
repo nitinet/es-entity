@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import * as bean from './bean/index.js';
 import * as collection from './collection/index.js';
 import * as handlers from './handlers/index.js';

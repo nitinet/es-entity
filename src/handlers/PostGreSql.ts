@@ -14,6 +14,12 @@ export default class PostgreSql extends Handler {
 
 	constructor(config: bean.IConnectionConfig) {
 		super(config);
+
+		this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+
+		this.serializeMap.set(bean.ColumnType.ARRAY, (val: any[]) => `{${val.join(',')}}`);
+		this.deSerializeMap.set(bean.ColumnType.ARRAY, (val: string) => val.replace('{', '').replace('}', '').split(','));
 	}
 
 	async init() {
@@ -90,6 +96,9 @@ export default class PostgreSql extends Handler {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.OBJECT;
+			} else {
+				console.warn(`Invalid Column Type ${columnType} in table ${tableName}`);
+				col.type = bean.ColumnType.STRING;
 			}
 
 			col.nullable = !row['is_nullable'];

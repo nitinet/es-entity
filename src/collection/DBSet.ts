@@ -12,7 +12,7 @@ class DBSet<T extends Object>  {
 	tableName: string;
 	entityName: string;
 	columns: bean.ColumnInfo[] = [];
-	fieldMap = new Map<string | symbol, model.FieldMapping>();
+	fieldMap = new Map<string, model.FieldMapping>();
 	private primaryFields: model.FieldMapping[] = [];
 
 	constructor(entityType: types.IEntityType<T>, tableName?: string) {
@@ -42,40 +42,33 @@ class DBSet<T extends Object>  {
 
 		if (!column) return;
 
-		let fieldMapping = new model.FieldMapping(key, column.field, column.primaryKey);
-		// fieldMapping.type = this.checkColumnType(column, field);
+		this.checkColumnType(column, key);
+		let fieldMapping = new model.FieldMapping(key, column.field, column.type, column.primaryKey);
 		this.fieldMap.set(key, fieldMapping);
 		if (column.primaryKey) this.primaryFields.push(fieldMapping);
 	}
 
-	// private checkColumnType(column: bean.ColumnInfo, field: sql.Field<any>) {
-	// 	if (column.type == bean.ColumnType.STRING && field instanceof types.String) {
-	// 		return 'string';
-	// 	} else if (column.type == bean.ColumnType.NUMBER && field instanceof types.Number) {
-	// 		return 'number';
-	// 	} else if (column.type == bean.ColumnType.NUMBER && field instanceof types.BigInt) {
-	// 		return 'bigint';
-	// 	} else if (column.type == bean.ColumnType.BOOLEAN && field instanceof types.Boolean) {
-	// 		return 'boolean';
-	// 	} else if (column.type == bean.ColumnType.DATE && field instanceof types.Date) {
-	// 		return 'date';
-	// 	} else if (column.type == bean.ColumnType.BINARY && field instanceof types.Binary) {
-	// 		return 'binary';
-	// 	} else if (column.type == bean.ColumnType.JSON && field instanceof types.Json) {
-	// 		return 'jsonObject';
-	// 	} else if (field instanceof types.String) {
-	// 		this.context.log(`Type not found for Column: ${column.field} in Table:${this.mapping.name}. Using default string type.`);
-	// 		return 'string';
-	// 	} else {
-	// 		throw new Error(`Type mismatch found for Column: ${column.field} in Table:${this.mapping.name}`);
-	// 	}
-	// }
+	private checkColumnType(column: bean.ColumnInfo, key: string) {
+		let obj = new this.entityType();
+		let designType = Reflect.getMetadata('design:type', obj, key);
+		if (designType) {
+			if ((column.type == bean.ColumnType.STRING && designType != String)
+				|| (column.type == bean.ColumnType.NUMBER && designType != Number)
+				|| (column.type == bean.ColumnType.BOOLEAN && designType != Boolean)
+				|| (column.type == bean.ColumnType.DATE && designType != Date)
+				|| (column.type == bean.ColumnType.BINARY && designType != Buffer)
+				|| (column.type == bean.ColumnType.ARRAY && designType != Array)
+				|| (column.type == bean.ColumnType.OBJECT
+					&& (designType != Array || !(designType.prototype instanceof Object))))
+				throw new Error(`Type mismatch found for Column: ${column.field} in Table:${this.tableName}`);
+		}
+	}
 
 	getEntityType() {
 		return this.entityType;
 	}
 
-	getField(key: string | symbol) {
+	getField(key: string) {
 		return this.fieldMap.get(key);
 	}
 
@@ -83,7 +76,7 @@ class DBSet<T extends Object>  {
 		return this.primaryFields;
 	}
 
-	filterFields(props: string[]) {
+	filterFields(props: (string | symbol)[]) {
 		let fields = Array.from(this.fieldMap.values());
 		return fields.filter(f => props.includes(f.fieldName));
 	}

@@ -1,10 +1,10 @@
 import ColumnType from './ColumnType.js';
 
 export default class ColumnInfo {
-	field: string = '';
-	type: ColumnType | null = null;
+	field!: string;
+	type!: ColumnType;
 	nullable: boolean = false;
 	primaryKey: boolean = false;
-	default: string = '';
-	extra: string = '';
+	default: string | null = null;
+	extra: string | null = null;
 }

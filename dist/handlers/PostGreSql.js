@@ -6,6 +6,10 @@ export default class PostgreSql extends Handler {
     connectionPool;
     constructor(config) {
         super(config);
+        this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+        this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+        this.serializeMap.set(bean.ColumnType.ARRAY, (val) => `{${val.join(',')}}`);
+        this.deSerializeMap.set(bean.ColumnType.ARRAY, (val) => val.replace('{', '').replace('}', '').split(','));
     }
     async init() {
         this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
@@ -68,6 +72,10 @@ export default class PostgreSql extends Handler {
             }
             else if (columnType.includes('json')) {
                 col.type = bean.ColumnType.OBJECT;
+            }
+            else {
+                console.warn(`Invalid Column Type ${columnType} in table ${tableName}`);
+                col.type = bean.ColumnType.STRING;
             }
             col.nullable = !row['is_nullable'];
             col.primaryKey = row['primarykey'];

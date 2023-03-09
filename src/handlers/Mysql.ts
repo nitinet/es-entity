@@ -5,22 +5,21 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 
-let typeCast: mysql.TypeCast = function (field: mysql.UntypedFieldInfo & {
-	type: string;
-	length: number;
-	string(): null | string;
-	buffer(): null | Buffer;
-	geometry(): null | mysql.GeometryType;
-}, next: () => void) {
-	if (field.type === 'TINY' && field.length === 1) {
-		return (field.string() === '1');
-	} else if (field.type === 'JSON') {
-		let data = field.string();
-		return null != data ? JSON.parse(data) : null;
-	} else {
-		return next();
-	}
-}
+// let typeCast: mysql.TypeCast = function (field: mysql.UntypedFieldInfo & {
+// 	type: string;
+// 	string(): null | string;
+// 	buffer(): null | Buffer;
+// 	geometry(): null | mysql.GeometryType;
+// }, next: () => void) {
+// 	if (field.type === 'TINY' && field.length === 1) {
+// 		return (field.string() === '1');
+// 	} else if (field.type === 'JSON') {
+// 		let data = field.string();
+// 		return null != data ? JSON.parse(data) : null;
+// 	} else {
+// 		return next();
+// 	}
+// }
 
 export default class Mysql extends Handler {
 	handlerName = 'mysql';
@@ -31,6 +30,12 @@ export default class Mysql extends Handler {
 
 	constructor(config: bean.IConnectionConfig) {
 		super(config);
+
+		this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+
+		this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
+		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val === '1');
 	}
 
 	async init() {
@@ -43,8 +48,7 @@ export default class Mysql extends Handler {
 			port: this.config.port,
 			user: this.config.username,
 			password: this.config.password,
-			database: this.config.database,
-			typeCast
+			database: this.config.database
 		});
 	}
 
@@ -56,8 +60,7 @@ export default class Mysql extends Handler {
 				port: that.config.port,
 				user: that.config.username,
 				password: that.config.password,
-				database: that.config.database,
-				typeCast
+				database: that.config.database
 			});
 			conn.connect((err: Error) => {
 				if (err) {
@@ -71,11 +74,9 @@ export default class Mysql extends Handler {
 	}
 
 	initTransaction(conn: bean.Connection) {
-		let that = this;
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.beginTransaction((err: Error) => {
 				if (err) {
-					// that.context.log('Initializing Transaction Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -85,11 +86,9 @@ export default class Mysql extends Handler {
 	}
 
 	commit(conn: bean.Connection) {
-		let that = this;
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.commit((err: Error) => {
 				if (err) {
-					// that.context.log('Commiting Transaction Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -107,11 +106,9 @@ export default class Mysql extends Handler {
 	}
 
 	close(conn: bean.Connection) {
-		let that = this;
 		return new Promise<void>((resolve, reject) => {
 			conn.conn.end((err: Error) => {
 				if (err) {
-					// that.context.log('Connection Close Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -149,6 +146,8 @@ export default class Mysql extends Handler {
 				col.type = bean.ColumnType.BINARY;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.OBJECT;
+			} else {
+				throw new Error(`Invalid Column Type ${columnType} in table ${tableName}`);
 			}
 
 			col.nullable = row['Null'] == 'YES' ? true : false;

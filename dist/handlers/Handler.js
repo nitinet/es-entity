@@ -1,6 +1,8 @@
 import * as sql from '../sql/index.js';
 export default class Handler {
     config;
+    serializeMap = new Map();
+    deSerializeMap = new Map();
     constructor(config) {
         this.config = config;
     }

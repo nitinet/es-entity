@@ -64,7 +64,11 @@ class QuerySet extends IQuerySet {
                 if (fieldMapping) {
                     let colName = fieldMapping.colName;
                     let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
-                    Reflect.set(obj, key, val);
+                    let deSerializer = this.context.handler.deSerializeMap.get(fieldMapping.columnType);
+                    if (deSerializer)
+                        Reflect.set(obj, key, deSerializer(val));
+                    else
+                        Reflect.set(obj, key, val);
                 }
                 else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
                     field.bind(this.context, obj);
@@ -75,24 +79,18 @@ class QuerySet extends IQuerySet {
         return data;
     }
     where(param, ...args) {
-        let res = null;
-        if (param && param instanceof Function) {
-            let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-            let eb = new model.WhereExprBuilder(fieldMap);
-            res = param(eb, args);
-        }
+        let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+        let eb = new model.WhereExprBuilder(fieldMap);
+        let res = param(eb, args);
         if (res && res instanceof sql.Expression && res.exps.length > 0) {
             this.stat.where = this.stat.where.add(res);
         }
         return this;
     }
     groupBy(param) {
-        let res = null;
-        if (param && param instanceof Function) {
-            let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-            let eb = new model.GroupExprBuilder(fieldMap);
-            res = param(eb);
-        }
+        let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+        let eb = new model.GroupExprBuilder(fieldMap);
+        let res = param(eb);
         if (res && Array.isArray(res)) {
             res.forEach(expr => {
                 if (expr instanceof sql.Expression && expr.exps.length > 0) {
@@ -103,12 +101,9 @@ class QuerySet extends IQuerySet {
         return this;
     }
     orderBy(param) {
-        let res = null;
-        if (param && param instanceof Function) {
-            let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-            let eb = new model.OrderExprBuilder(fieldMap);
-            res = param(eb);
-        }
+        let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
+        let eb = new model.OrderExprBuilder(fieldMap);
+        let res = param(eb);
         if (res && Array.isArray(res)) {
             res.forEach(a => {
                 if (a instanceof sql.Expression && a.exps.length > 0) {
@@ -127,22 +122,20 @@ class QuerySet extends IQuerySet {
         return this;
     }
     async update(param) {
-        if (!(param && param instanceof Function)) {
-            throw new Error('Update Function not found');
-        }
         let stat = new sql.Statement();
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
         let obj = this.getEntity();
         let tempObj = param(obj);
-        let keys = Reflect.ownKeys(tempObj.obj).filter(key => tempObj.updatedKeys.includes(key));
-        keys.forEach((key) => {
-            let field = this.dbSet.getField(key);
-            if (!field)
-                return;
+        let fields = this.dbSet.filterFields(Reflect.ownKeys(tempObj.obj))
+            .filter(field => tempObj.updatedKeys.includes(field.fieldName));
+        fields.forEach((field) => {
             let c1 = new sql.Expression(field.colName);
             let c2 = new sql.Expression('?');
-            c2.args.push(Reflect.get(tempObj, key));
+            let val = Reflect.get(tempObj, field.fieldName);
+            let serializer = this.context.handler.serializeMap.get(field.columnType);
+            let finalVal = serializer ? serializer(val) : val;
+            c2.args.push(finalVal);
             let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
             stat.columns.push(expr);
         });
