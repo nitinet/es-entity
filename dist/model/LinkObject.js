@@ -16,7 +16,7 @@ class LinkObject {
         if (!this.linkSet)
             throw new TypeError('Entity Not Bonded');
         if (!this._value)
-            this._value = await this.linkSet.unique();
+            this._value = await this.linkSet.single();
         return this._value;
     }
     toJSON() {

@@ -183,8 +183,14 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 					expr = expr.add(a.eq(<types.PropKeys<T>>pri.fieldName, idParams[idx]));
 				});
 				return expr;
-			}).unique()
+			}).single()
 		}
+	}
+
+	async getOrThrow(...idParams: any[]) {
+		let val = await this.get(idParams);
+		if (!val) throw new Error('Value Not Found');
+		return val;
 	}
 
 	where(param: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T> {

@@ -157,8 +157,14 @@ class TableSet extends IQuerySet {
                     expr = expr.add(a.eq(pri.fieldName, idParams[idx]));
                 });
                 return expr;
-            }).unique();
+            }).single();
         }
+    }
+    async getOrThrow(...idParams) {
+        let val = await this.get(idParams);
+        if (!val)
+            throw new Error('Value Not Found');
+        return val;
     }
     where(param, ...args) {
         let q = new QuerySet(this.context, this.dbSet, this.EntityType);
