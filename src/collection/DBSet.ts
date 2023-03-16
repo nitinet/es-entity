@@ -42,27 +42,27 @@ class DBSet<T extends Object>  {
 
 		if (!column) return;
 
-		this.checkColumnType(column, key);
+		// this.checkColumnType(column, key);
 		let fieldMapping = new model.FieldMapping(key, column.field, column.type, column.primaryKey);
 		this.fieldMap.set(key, fieldMapping);
 		if (column.primaryKey) this.primaryFields.push(fieldMapping);
 	}
 
-	private checkColumnType(column: bean.ColumnInfo, key: string) {
-		let obj = new this.entityType();
-		let designType = Reflect.getMetadata('design:type', obj, key);
-		if (designType) {
-			if ((column.type == bean.ColumnType.STRING && designType != String)
-				|| (column.type == bean.ColumnType.NUMBER && designType != Number)
-				|| (column.type == bean.ColumnType.BOOLEAN && designType != Boolean)
-				|| (column.type == bean.ColumnType.DATE && designType != Date)
-				|| (column.type == bean.ColumnType.BINARY && designType != Buffer)
-				|| (column.type == bean.ColumnType.ARRAY && designType != Array)
-				|| (column.type == bean.ColumnType.OBJECT
-					&& (designType != Array || !(designType.prototype instanceof Object))))
-				throw new Error(`Type mismatch found for Column: ${column.field} in Table:${this.tableName}`);
-		}
-	}
+	// private checkColumnType(column: bean.ColumnInfo, key: string) {
+	// 	let obj = new this.entityType();
+	// 	let designType = Reflect.getMetadata('design:type', obj, key);
+	// 	if (designType) {
+	// 		if ((column.type == bean.ColumnType.STRING && designType != String)
+	// 			|| (column.type == bean.ColumnType.NUMBER && designType != Number)
+	// 			|| (column.type == bean.ColumnType.BOOLEAN && designType != Boolean)
+	// 			|| (column.type == bean.ColumnType.DATE && designType != Date)
+	// 			|| (column.type == bean.ColumnType.BINARY && designType != Buffer)
+	// 			|| (column.type == bean.ColumnType.ARRAY && designType != Array)
+	// 			|| (column.type == bean.ColumnType.OBJECT
+	// 				&& (designType != Array || !(designType.prototype instanceof Object))))
+	// 			throw new Error(`Type mismatch found for Column: ${column.field} in Table:${this.tableName}`);
+	// 	}
+	// }
 
 	getEntityType() {
 		return this.entityType;
