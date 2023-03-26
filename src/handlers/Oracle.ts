@@ -37,10 +37,10 @@ export default class Oracle extends Handler {
 		return conn;
 	}
 
-	async initTransaction(conn: bean.Connection): Promise<void> { }
-	async commit(conn: bean.Connection): Promise<void> { return conn.conn.commit(); }
-	async rollback(conn: bean.Connection): Promise<void> { return conn.conn.rollback(); }
-	async close(conn: bean.Connection): Promise<void> { return conn.conn.close(); }
+	async initTransaction(conn: oracledb.Connection): Promise<void> { }
+	async commit(conn: oracledb.Connection): Promise<void> { return conn.commit(); }
+	async rollback(conn: oracledb.Connection): Promise<void> { return conn.rollback(); }
+	async close(conn: oracledb.Connection): Promise<void> { return conn.close(); }
 	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
@@ -75,23 +75,21 @@ export default class Oracle extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.Statement, args?: Array<any>, connection?: oracledb.Connection): Promise<bean.ResultSet> {
 		let dataArgs = Array<any>();
 		let q: string;
-		if (typeof query === 'string') {
-			q = query;
-			if (args) dataArgs.push(...args);
-		} else if (query instanceof sql.Statement) {
+		if (query instanceof sql.Statement) {
 			q = query.eval(this);
 			dataArgs.push(...query.args);
 		} else {
-			q = '';
+			q = query;
+			if (args) dataArgs.push(...args);
 		}
 
 		let temp = null;
 
-		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			temp = await connection.conn.execute(q, args);
+		if (connection) {
+			temp = await connection.execute(q);
 		} else {
 			let conn = await this.connectionPool.getConnection();
 			try {
@@ -102,14 +100,15 @@ export default class Oracle extends Handler {
 		}
 
 		let result = new bean.ResultSet();
-		if (temp.insertId)
-			result.id = temp.insertId;
-		if (temp.changedRows) {
-			result.rowCount = temp.changedRows;
-		} else if (Array.isArray(temp)) {
-			result.rows = temp;
-			result.rowCount = temp.length;
-		}
+		// TODO: fix result
+		// if (temp.insertId)
+		// 	result.id = temp.insertId;
+		// if (temp.changedRows) {
+		// 	result.rowCount = temp.changedRows;
+		// } else if (Array.isArray(temp)) {
+		// 	result.rows = temp;
+		// 	result.rowCount = temp.length;
+		// }
 		return result;
 	}
 

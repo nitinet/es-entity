@@ -14,15 +14,12 @@ export default class Handler {
     }
     prepareQuery(queryStmt, args) {
         let query;
-        if (typeof queryStmt === 'string') {
-            query = queryStmt;
-        }
-        else if (queryStmt instanceof sql.Statement) {
+        if (queryStmt instanceof sql.Statement) {
             query = queryStmt.eval(this);
             args = queryStmt.args;
         }
         else {
-            query = '';
+            query = queryStmt;
         }
         return {
             query, args

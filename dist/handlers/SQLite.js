@@ -14,10 +14,10 @@ export default class SQlite extends Handler {
     async getConnection() {
         return this.connectionPool;
     }
-    async initTransaction(conn) { await conn.query('BEGIN TRANSACTION'); }
-    async commit(conn) { await conn.query('COMMIT'); }
-    async rollback(conn) { await conn.query('ROLLBACK'); }
-    async close(conn) { await conn.end(); }
+    async initTransaction(conn) { await conn.run('BEGIN TRANSACTION'); }
+    async commit(conn) { await conn.run('COMMIT'); }
+    async rollback(conn) { await conn.run('ROLLBACK'); }
+    async close(conn) { await conn.close(); }
     async end() { }
     async getTableInfo(tableName) {
         let r = await this.run(`pragma table_info('${tableName}')`);
@@ -48,8 +48,8 @@ export default class SQlite extends Handler {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
         let conn;
-        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            conn = connection.conn;
+        if (connection) {
+            conn = connection;
         }
         else {
             conn = this.connectionPool;

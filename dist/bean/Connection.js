@@ -8,6 +8,9 @@ export default class Connection {
     get Handler() {
         return this.handler;
     }
+    async run(query, args) {
+        return this.handler.run(query, args, this.conn);
+    }
     async initTransaction() {
         await this.handler.initTransaction(this.conn);
     }

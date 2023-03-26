@@ -63,28 +63,29 @@ export default class Context {
 	// }
 
 	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {
-		// return this.handler.run(query, args, this.connection);
-		return this.handler.run(query, args);
+		if (this.connection) {
+			return this.connection.run(query, args);
+		} else {
+			return this.handler.run(query, args);
+		}
 	}
 
 	flush(): void { }
 
-	async initTransaction(): Promise<this> {
-		let res = this;
-		// Create Clone if connection not present
-		if (!this.connection) {
-			res = Object.assign({}, this);
-			Object.setPrototypeOf(res, Object.getPrototypeOf(this));
-			let keys = Reflect.ownKeys(res);
-			keys.forEach((key) => {
-				let prop = Reflect.get(res, key);
-				if (prop instanceof TableSet) {
-					prop.context = res;
-				}
-			});
-		}
+	async initTransaction(): Promise<Context> {
+		// Create Clone
+		let res = Object.assign({}, this);
+		Object.setPrototypeOf(res, Object.getPrototypeOf(this));
+		let keys = Reflect.ownKeys(res);
+		keys.forEach((key) => {
+			let prop = Reflect.get(res, key);
+			if (prop instanceof TableSet) {
+				prop.context = res;
+			}
+		});
+
 		// res.connection = await res.handler.getConnection();
-		let nativeConn = await res.handler.getConnection();
+		let nativeConn = await this.handler.getConnection();
 		res.connection = new bean.Connection(res.handler, nativeConn);
 		await res.connection.initTransaction();
 		return res;

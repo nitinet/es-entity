@@ -71,38 +71,20 @@ export default class MsSqlServer extends Handler {
     }
     async run(query, args, connection) {
         let q;
-        if (typeof query === "string") {
+        if (query instanceof sql.Statement) {
+            q = query.eval(this);
+        }
+        else {
             q = query;
         }
-        else if (query instanceof sql.Statement) {
-            q = query.eval(this);
-            args = (query.args == undefined ? [] : query.args);
-        }
-        let temp = null;
-        let conn = null;
-        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            conn = connection.conn;
+        let conn;
+        if (connection) {
+            conn = connection;
         }
         else {
             conn = this.connectionPool.request();
         }
-        temp = await new Promise((resolve, reject) => {
-            conn.query(q, args, function (err, r) {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(r);
-                }
-            });
-        });
         let result = new bean.ResultSet();
-        if (temp.rowCount)
-            result.rowCount = temp.rowCount;
-        if (Array.isArray(temp.rows))
-            result.rows = temp.rows;
-        if (result.rows && result.rows.length > 0)
-            result.id = result.rows[0].id;
         return result;
     }
 }

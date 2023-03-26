@@ -41,10 +41,10 @@ export default class MsSqlServer extends Handler {
 		return new this.driver.Request();
 	}
 
-	async initTransaction(conn: bean.Connection): Promise<void> { }
-	async commit(conn: bean.Connection): Promise<void> { }
-	async rollback(conn: bean.Connection): Promise<void> { }
-	async close(conn: bean.Connection): Promise<void> { }
+	async initTransaction(conn: mssql.Request): Promise<void> { }
+	async commit(conn: mssql.Request): Promise<void> { }
+	async rollback(conn: mssql.Request): Promise<void> { }
+	async close(conn: mssql.Request): Promise<void> { }
 	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
@@ -80,35 +80,30 @@ export default class MsSqlServer extends Handler {
 		return result;
 	}
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.Statement, args?: Array<any>, connection?: mssql.Request): Promise<bean.ResultSet> {
 		let q: string;
-		if (typeof query === "string") {
-			q = query;
-		} else if (query instanceof sql.Statement) {
+		if (query instanceof sql.Statement) {
 			q = query.eval(this);
-			args = (query.args == undefined ? [] : query.args);
+			// args = (query.args == undefined ? [] : query.args);
+		} else {
+			q = query;
 		}
 
-		let temp = null;
-		let conn: any = null;
+		let conn: mssql.Request;
 
-		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			conn = connection.conn;
+		if (connection) {
+			conn = connection;
 		} else {
 			conn = this.connectionPool.request();
 		}
 
-		temp = await new Promise<any>((resolve, reject) => {
-			conn.query(q, args, function (err: Error, r: any) {
-				if (err) { reject(err); }
-				else { resolve(r); }
-			});
-		});
+		// let temp = await conn.query(q);
 
 		let result: bean.ResultSet = new bean.ResultSet();
-		if (temp.rowCount) result.rowCount = temp.rowCount;
-		if (Array.isArray(temp.rows)) result.rows = temp.rows;
-		if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;
+		// TODO: fix results
+		// if (temp.rowCount) result.rowCount = temp.rowCount;
+		// if (Array.isArray(temp.rows)) result.rows = temp.rows;
+		// if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;
 		return result;
 	}
 
