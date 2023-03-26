@@ -72,7 +72,7 @@ export default class Context {
 
 	flush(): void { }
 
-	async initTransaction(): Promise<Context> {
+	async initTransaction(): Promise<this> {
 		// Create Clone
 		let res = Object.assign({}, this);
 		Object.setPrototypeOf(res, Object.getPrototypeOf(this));
