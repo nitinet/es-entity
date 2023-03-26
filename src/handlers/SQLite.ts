@@ -9,12 +9,11 @@ export default class SQlite extends Handler {
 	handlerName = 'sqlite';
 
 	// @ts-ignore
-	driver: typeof import('sqlite3') = null;
-	// @ts-ignore
-	connectionPool: sqlite.Database = null;
+	driver!: typeof import('sqlite3');
+	connectionPool!: sqlite.Database;
 
 	constructor(config: bean.IConnectionConfig) {
-		super();
+		super(config);
 	}
 
 	async init() {
@@ -24,8 +23,7 @@ export default class SQlite extends Handler {
 	}
 
 	async getConnection() {
-		let res: bean.Connection = new bean.Connection(this, this.connectionPool);
-		return res;
+		return this.connectionPool;
 	}
 
 	async initTransaction(conn: any): Promise<void> { await conn.query('BEGIN TRANSACTION'); }
@@ -36,7 +34,7 @@ export default class SQlite extends Handler {
 
 	async close(conn: any): Promise<void> { await conn.end(); }
 
-	async end(): Promise<void> { return null; }
+	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`pragma table_info('${tableName}')`);
@@ -68,7 +66,7 @@ export default class SQlite extends Handler {
 
 		let temp = null;
 
-		let conn: sqlite.Database = null;
+		let conn: sqlite.Database;
 		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			conn = connection.conn;
 		} else {

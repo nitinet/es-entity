@@ -1,13 +1,20 @@
 import * as sql from '../sql/index.js';
 class IQuerySet {
     context;
-    stat = null;
-    async unique() {
+    async single() {
         let arr = await this.list();
         if (arr.length > 1)
             throw new Error('More than one row found in unique call');
+        else if (arr.length == 0)
+            return null;
         else
             return arr[0];
+    }
+    async singleOrThrow() {
+        let val = await this.single();
+        if (!val)
+            throw new Error('Value Not Found');
+        return val;
     }
     innerJoin(coll, param) {
         return this.join(coll, param, sql.types.Join.InnerJoin);

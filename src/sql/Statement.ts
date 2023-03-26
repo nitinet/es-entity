@@ -8,7 +8,7 @@ import Collection from './Collection.js';
  * SqlStatement
  */
 class Statement extends INode {
-	command: Command = null;
+	command: Command | null = null;
 	columns: Array<INode> = new Array<INode>();
 	values: Array<Expression> = new Array<Expression>();
 	collection: Collection = new Collection();
@@ -26,7 +26,7 @@ class Statement extends INode {
 			throw new Error('No Handler Found');
 		}
 
-		let result: string = null;
+		let result: string | null = null;
 		switch (this.command) {
 			case Command.SELECT:
 				result = this.selectQuery(handler);

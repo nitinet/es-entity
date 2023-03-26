@@ -4,23 +4,29 @@ import Context from '../Context.js';
 import * as model from '../model/index.js';
 
 abstract class IQuerySet<T extends Object> {
-	context: Context;
-	stat: sql.Statement = null;
+	context!: Context;
 
 	abstract getEntity(): T;
 
 	// Selection Functions
 	abstract list(): Promise<Array<T>>;
 
-	async unique(): Promise<T> {
+	async single(): Promise<T | null> {
 		let arr = await this.list();
 		if (arr.length > 1) throw new Error('More than one row found in unique call');
+		else if (arr.length == 0) return null;
 		else return arr[0];
+	}
+
+	async singleOrThrow(): Promise<T> {
+		let val = await this.single();
+		if (!val) throw new Error('Value Not Found');
+		return val;
 	}
 
 	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
 
-	abstract select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
+	abstract select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U>;
 	abstract where(func: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T>;
 	abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
 	abstract orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T>;

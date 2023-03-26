@@ -1,22 +1,22 @@
 import LinkSet from '../collection/LinkSet.js';
 class LinkObject {
-    EntityType = null;
-    foreignFunc = null;
+    EntityType;
+    foreignFunc;
     linkSet = null;
     _value = null;
     constructor(EntityType, foreignFunc) {
         this.EntityType = EntityType;
         this.foreignFunc = foreignFunc;
     }
-    bind(context) {
+    bind(context, parentObj) {
         this.linkSet = new LinkSet(context, this.EntityType, this.foreignFunc);
-    }
-    async apply(parentObj) {
         this.linkSet.apply(parentObj);
     }
     async get() {
+        if (!this.linkSet)
+            throw new TypeError('Entity Not Bonded');
         if (!this._value)
-            this._value = await this.linkSet.unique();
+            this._value = await this.linkSet.single();
         return this._value;
     }
     toJSON() {

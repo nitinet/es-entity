@@ -1,28 +1,28 @@
 import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
-import * as model from '../model/index.js';
 class JoinQuerySet extends IQuerySet {
-    mainSet = null;
-    joinSet = null;
+    mainSet;
+    joinSet;
+    stat = new sql.Statement();
     constructor(mainSet, joinSet, joinType, expr) {
         super();
         this.mainSet = mainSet;
         this.context = mainSet.context;
         this.joinSet = joinSet;
         this.stat = new sql.Statement();
-        this.stat.collection.leftColl = this.mainSet.stat.collection;
-        this.stat.collection.rightColl = this.joinSet.stat.collection;
         this.stat.collection.join = joinType;
         this.stat.where = this.stat.where.add(expr);
     }
     getEntity() {
-        return null;
+        let mainObj = this.mainSet.getEntity();
+        let joinObj = this.joinSet.getEntity();
+        return Object.assign(mainObj, joinObj);
     }
     async list() {
-        return null;
+        return new Array();
     }
     async mapData(input) {
-        return null;
+        return new Array();
     }
     select(TargetType) {
         return null;
@@ -31,53 +31,12 @@ class JoinQuerySet extends IQuerySet {
         return null;
     }
     where(param, ...args) {
-        let res = null;
-        if (param && param instanceof Function) {
-            let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
-            let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
-            let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let op = new model.WhereExprBuilder(finalFieldMap);
-            res = param(op, args);
-        }
-        if (res && res instanceof sql.Expression && res.exps.length > 0) {
-            this.stat.where = this.stat.where.add(res);
-        }
         return this;
     }
     groupBy(param) {
-        let res = null;
-        if (param && param instanceof Function) {
-            let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
-            let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
-            let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let op = new model.GroupExprBuilder(finalFieldMap);
-            res = param(op);
-        }
-        if (res && Array.isArray(res)) {
-            res.forEach(a => {
-                if (a instanceof sql.Expression && a.exps.length > 0) {
-                    this.stat.groupBy.push(a);
-                }
-            });
-        }
         return this;
     }
     orderBy(param) {
-        let res = null;
-        if (param && param instanceof Function) {
-            let mainFieldMap = this.context.tableSetMap.get(null).fieldMap;
-            let joinFieldMap = this.context.tableSetMap.get(null).fieldMap;
-            let finalFieldMap = new Map([...mainFieldMap, ...joinFieldMap]);
-            let op = new model.OrderExprBuilder(finalFieldMap);
-            res = param(op);
-        }
-        if (res && Array.isArray(res)) {
-            res.forEach(expr => {
-                if (expr instanceof sql.Expression && expr.exps.length > 0) {
-                    this.stat.orderBy.push(expr);
-                }
-            });
-        }
         return this;
     }
     limit(size, index) {
@@ -96,9 +55,12 @@ class JoinQuerySet extends IQuerySet {
             let joinObj = coll.getEntity();
             temp = param(mainObj, joinObj);
         }
-        let res = null;
+        let res;
         if (temp instanceof sql.Expression && temp.exps.length > 0) {
             res = new JoinQuerySet(this, coll, joinType, temp);
+        }
+        else {
+            throw new TypeError('Invalid Join');
         }
         return res;
     }

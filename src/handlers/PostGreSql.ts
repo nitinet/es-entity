@@ -9,13 +9,17 @@ export default class PostgreSql extends Handler {
 	handlerName = 'postgresql';
 
 	// @ts-ignore
-	driver: typeof import('pg') = null;
-	// @ts-ignore
-	connectionPool: pg.Pool = null;
+	driver!: typeof import('pg');
+	connectionPool!: pg.Pool;
 
 	constructor(config: bean.IConnectionConfig) {
-		super();
-		this.config = config;
+		super(config);
+
+		this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+
+		this.serializeMap.set(bean.ColumnType.ARRAY, (val: any[]) => `{${val.join(',')}}`);
+		this.deSerializeMap.set(bean.ColumnType.ARRAY, (val: string) => val.replace('{', '').replace('}', '').split(','));
 	}
 
 	async init() {
@@ -32,7 +36,7 @@ export default class PostgreSql extends Handler {
 		});
 	}
 
-	async getConnection(): Promise<bean.Connection> {
+	async getConnection(): Promise<pg.Client> {
 		let conn = new this.driver.Client({
 			host: this.config.host,
 			port: this.config.port,
@@ -40,13 +44,13 @@ export default class PostgreSql extends Handler {
 			password: this.config.password,
 			database: this.config.database
 		});
-		try {
-			await conn.connect();
-			return new bean.Connection(this, conn);
-		} catch (err) {
-			this.context.log('Connection Creation Failed', err);
-			throw err;
-		}
+		// try {
+		await conn.connect();
+		return conn;
+		// } catch (err) {
+		// this.context.log('Connection Creation Failed', err);
+		// throw err;
+		// }
 	}
 
 	async initTransaction(conn: any): Promise<void> { await conn.query('BEGIN'); }
@@ -57,7 +61,7 @@ export default class PostgreSql extends Handler {
 
 	async close(conn: any): Promise<void> { await conn.end(); }
 
-	async end(): Promise<void> { return null; }
+	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string) {
 		let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
@@ -92,6 +96,9 @@ export default class PostgreSql extends Handler {
 				col.type = bean.ColumnType.DATE;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.OBJECT;
+			} else {
+				console.warn(`Invalid Column Type ${columnType} in table ${tableName}`);
+				col.type = bean.ColumnType.STRING;
 			}
 
 			col.nullable = !row['is_nullable'];

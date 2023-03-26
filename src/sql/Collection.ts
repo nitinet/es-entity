@@ -8,23 +8,23 @@ import Join from './types/Join.js';
  * Used for tables and columns
  */
 class Collection extends INode {
-	colAlias: string = null;
-	value: string = null;
+	colAlias: string | null = null;
+	value: string | null = null;
 
-	stat: Statement = null;
+	stat: Statement | null = null;
 
-	leftColl: Collection = null;
-	rightColl: Collection = null;
-	join: Join = null;
+	leftColl: Collection | null = null;
+	rightColl: Collection | null = null;
+	join: Join | null = null;
 
-	alias: string = null;
+	alias: string | null = null;
 
 	constructor() {
 		super()
 	}
 
 	eval(handler: Handler): string {
-		let res: string = null;
+		let res: string = '';
 		if (this.value) {
 			res = this.colAlias ? `${this.colAlias}.${this.value}` : this.value;
 		} else if (this.stat) {

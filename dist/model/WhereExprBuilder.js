@@ -6,15 +6,14 @@ class WhereExprBuilder extends BaseExprBuilder {
         super(fieldMap, alias);
     }
     _argExp(operand) {
-        let res = null;
         if (operand instanceof Expression) {
-            res = operand;
+            return operand;
         }
         else {
-            res = new Expression('?');
+            let res = new Expression('?');
             res.args = res.args.concat(operand);
+            return res;
         }
-        return res;
     }
     eq(propName, operand) {
         return new Expression(null, Operator.Equal, this._expr(propName), this._argExp(operand));

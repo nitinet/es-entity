@@ -2,24 +2,23 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 export default class SQlite extends Handler {
     handlerName = 'sqlite';
-    driver = null;
-    connectionPool = null;
+    driver;
+    connectionPool;
     constructor(config) {
-        super();
+        super(config);
     }
     async init() {
         this.driver = this.config.driver ?? (await import('sqlite3'));
         this.connectionPool = new this.driver.Database(this.config.database);
     }
     async getConnection() {
-        let res = new bean.Connection(this, this.connectionPool);
-        return res;
+        return this.connectionPool;
     }
     async initTransaction(conn) { await conn.query('BEGIN TRANSACTION'); }
     async commit(conn) { await conn.query('COMMIT'); }
     async rollback(conn) { await conn.query('ROLLBACK'); }
     async close(conn) { await conn.end(); }
-    async end() { return null; }
+    async end() { }
     async getTableInfo(tableName) {
         let r = await this.run(`pragma table_info('${tableName}')`);
         let result = new Array();
@@ -48,7 +47,7 @@ export default class SQlite extends Handler {
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        let conn = null;
+        let conn;
         if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
             conn = connection.conn;
         }

@@ -5,17 +5,37 @@ import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
 
+// let typeCast: mysql.TypeCast = function (field: mysql.UntypedFieldInfo & {
+// 	type: string;
+// 	string(): null | string;
+// 	buffer(): null | Buffer;
+// 	geometry(): null | mysql.GeometryType;
+// }, next: () => void) {
+// 	if (field.type === 'TINY' && field.length === 1) {
+// 		return (field.string() === '1');
+// 	} else if (field.type === 'JSON') {
+// 		let data = field.string();
+// 		return null != data ? JSON.parse(data) : null;
+// 	} else {
+// 		return next();
+// 	}
+// }
+
 export default class Mysql extends Handler {
 	handlerName = 'mysql';
 
 	// @ts-ignore
-	driver: typeof import('mysql') = null;
-	// @ts-ignore
-	connectionPool: mysql.Pool = null;
+	driver!: typeof import('mysql');
+	connectionPool!: mysql.Pool;
 
 	constructor(config: bean.IConnectionConfig) {
-		super();
-		this.config = config;
+		super(config);
+
+		this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+
+		this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
+		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val === '1');
 	}
 
 	async init() {
@@ -32,9 +52,9 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	getConnection(): Promise<bean.Connection> {
+	getConnection(): Promise<mysql.Connection> {
 		let that = this;
-		return new Promise<bean.Connection>((resolve, reject) => {
+		return new Promise<mysql.Connection>((resolve, reject) => {
 			let conn = that.driver.createConnection({
 				host: that.config.host,
 				port: that.config.port,
@@ -44,22 +64,19 @@ export default class Mysql extends Handler {
 			});
 			conn.connect((err: Error) => {
 				if (err) {
-					that.context.log('Connection Creation Failed', err);
+					// that.context.log('Connection Creation Failed', err);
 					reject(err);
 				} else {
-					let res = new bean.Connection(this, conn);
-					resolve(res);
+					resolve(conn);
 				}
 			});
 		});
 	}
 
-	initTransaction(conn: bean.Connection) {
-		let that = this;
+	initTransaction(conn: mysql.Connection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.conn.beginTransaction((err: Error) => {
+			conn.beginTransaction((err: Error) => {
 				if (err) {
-					that.context.log('Initializing Transaction Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -68,12 +85,10 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	commit(conn: bean.Connection) {
-		let that = this;
+	commit(conn: mysql.Connection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.conn.commit((err: Error) => {
+			conn.commit((err: Error) => {
 				if (err) {
-					that.context.log('Commiting Transaction Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -82,20 +97,18 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	rollback(conn: bean.Connection) {
+	rollback(conn: mysql.Connection) {
 		return new Promise<void>((resolve) => {
-			conn.conn.rollback(() => {
+			conn.rollback(() => {
 				resolve();
 			});
 		});
 	}
 
-	close(conn: bean.Connection) {
-		let that = this;
+	close(conn: mysql.Connection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.conn.end((err: Error) => {
+			conn.end((err?: Error) => {
 				if (err) {
-					that.context.log('Connection Close Failed', err);
 					reject(err);
 				} else {
 					resolve();
@@ -104,7 +117,7 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	async end(): Promise<void> { return null; }
+	async end(): Promise<void> { }
 
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
@@ -133,6 +146,8 @@ export default class Mysql extends Handler {
 				col.type = bean.ColumnType.BINARY;
 			} else if (columnType.includes('json')) {
 				col.type = bean.ColumnType.OBJECT;
+			} else {
+				throw new Error(`Invalid Column Type ${columnType} in table ${tableName}`);
 			}
 
 			col.nullable = row['Null'] == 'YES' ? true : false;
@@ -152,31 +167,28 @@ export default class Mysql extends Handler {
 		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
 			let conn: mysql.Connection = connection.conn;
 			temp = await new Promise<any>((resolve, reject) => {
-				conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
+				conn.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});
 			});
 		} else {
-			let conn: mysql.PoolConnection = null;
-			try {
-				conn = await new Promise((resolve, reject) => {
-					this.connectionPool.getConnection(function (err, newConn) {
-						if (err) { reject(err); }
-						else { resolve(newConn); }
-					});
+			let conn = await new Promise<mysql.PoolConnection>((resolve, reject) => {
+				this.connectionPool.getConnection(function (err: Error | null, newConn: mysql.PoolConnection) {
+					if (err) { reject(err); }
+					else { resolve(newConn); }
 				});
+			});
 
+			try {
 				temp = await new Promise<any>((resolve, reject) => {
-					conn.query(queryObj.query, queryObj.args, function (err: Error, r) {
+					conn.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
 						if (err) { reject(err); }
 						else { resolve(r); }
 					});
 				});
 			} finally {
-				if (conn) {
-					conn.release();
-				}
+				if (conn) conn.release();
 			}
 		}
 

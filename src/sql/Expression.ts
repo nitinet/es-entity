@@ -8,24 +8,20 @@ import Operator from './types/Operator.js';
 class Expression implements INode {
 	args: Array<any> = new Array<any>();
 
-	value: string = null;
-	exps: Array<Expression> = null;
-	operator: Operator = null;
+	value: string | null | undefined = null;
+	operator: Operator | null | undefined = null;
+	exps: Array<Expression> = new Array<Expression>();
 
-	constructor(value?: string, operator?: Operator, ...expressions: Array<Expression>) {
+	constructor(value?: string | null, operator?: Operator, ...expressions: Array<Expression>) {
 		this.value = value;
-		this.exps = expressions;
 		this.operator = operator;
+		this.exps = expressions;
 	}
 
 	add(...expressions: Array<Expression>): Expression {
-		if (this.operator == Operator.And) {
+		if (!this.operator || this.operator == Operator.And) {
 			this.exps = this.exps.concat(expressions);
 			return this;
-		} else if (!this.operator && this.exps.length == 0) {
-			let exp = expressions.pop();
-			expressions.forEach(expr => exp.add(expr));
-			return exp;
 		} else {
 			let exp: Expression = new Expression(null, Operator.And, this);
 			expressions.forEach(expr => exp.add(expr));
@@ -47,21 +43,22 @@ class Expression implements INode {
 	eval(handler: Handler): string {
 		if (this.value) {
 			return this.value;
-		} else if (this.exps) {
+		} else {
 			let values = this.exps.map(exp => {
 				if (exp) {
 					let str = exp.eval(handler);
 					this.args = this.args.concat(exp.args);
 					return str;
-				}
-			});
-
-			if (!this.operator && this.exps.length > 1) {
-				this.operator = Operator.And;
-			}
+				};
+			}).filter((exp): exp is string => exp != null);
 
 			let val0: string = values[0] ? values[0] : '';
 			let val1: string = values[1] ? values[1] : '';
+
+			if (!this.operator) {
+				if (this.exps.length == 1) return val0;
+				else this.operator = Operator.And;
+			}
 
 			let r: string = '';
 			switch (this.operator) {
@@ -105,7 +102,7 @@ class Expression implements INode {
 					r = handler.devide(val0, val1);
 					break;
 				case Operator.Between:
-					r = handler.between(values);
+					r = handler.between(values[0], values[1], values[2]);
 					break;
 				case Operator.Exists:
 					r = handler.exists(val0);
@@ -146,7 +143,6 @@ class Expression implements INode {
 				case Operator.Avg:
 					r = handler.average(val0);
 					break;
-
 				default:
 					break;
 			}

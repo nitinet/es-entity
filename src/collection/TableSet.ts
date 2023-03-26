@@ -10,10 +10,9 @@ interface IOptions {
 }
 
 class TableSet<T extends Object> extends IQuerySet<T>{
-
-	protected EntityType: types.IEntityType<T> = null;
-	protected options: IOptions = null;
-	dbSet: DBSet<T> = null;
+	protected EntityType: types.IEntityType<T>;
+	protected options: IOptions;
+	dbSet: DBSet<T>;
 
 	constructor(EntityType: types.IEntityType<T>, options?: IOptions) {
 		super();
@@ -21,11 +20,11 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		this.EntityType = EntityType;
 		this.options = options || {};
 
-		this.dbSet = new DBSet(EntityType);
+		this.dbSet = new DBSet(EntityType, this.options.tableName);
 	}
 
 	async bind() {
-		await this.dbSet.bind(this.context, this.options.tableName);
+		await this.dbSet.bind(this.context);
 	}
 
 	getEntityType() {
@@ -38,7 +37,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		keys.forEach(key => {
 			let field = Reflect.get(obj, key);
 			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-				field.bind(this.context);
+				field.bind(this.context, obj);
 			}
 		});
 		return obj;
@@ -50,39 +49,40 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		stat.collection.value = this.dbSet.tableName;
 
 		// Dynamic insert
-		Reflect.ownKeys(entity).forEach((key) => {
-			let field = this.dbSet.getField(key);
-			if (!field) return;
-			let val = Reflect.get(entity, key);
+		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+		fields.forEach((field) => {
+			let val = Reflect.get(entity, field.fieldName);
 			if (val == null) return;
+
+			let serializer = this.context.handler.serializeMap.get(field.columnType);
+			let finalVal = serializer ? serializer(val) : val;
 
 			let col = new sql.Collection();
 			col.value = field.colName;
 			stat.columns.push(col);
 
 			let expr = new sql.Expression('?');
-			expr.args.push(val);
+			expr.args.push(finalVal);
 			stat.values.push(expr);
 		});
 
 		let result = await this.context.execute(stat);
 		let primaryFields = this.dbSet.getPrimaryFields();
 
-		try {
-			if (primaryFields.length == 1) {
-				let primaryField = primaryFields[0];
-				let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
-				return await this.get(id);
-			} else if (primaryFields.length > 1) {
-				let idParams: any[] = [];
-				primaryFields.forEach(field => {
-					idParams.push(Reflect.get(entity, field.fieldName));
-				});
-				return this.get(...idParams);
-			}
-		} catch (err) {
-			return null;
+		let finalObj: T | null = null;
+		if (primaryFields.length == 1) {
+			let primaryField = primaryFields[0];
+			let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
+			finalObj = await this.get(id);
+		} else {
+			let idParams: any[] = [];
+			primaryFields.forEach(field => {
+				idParams.push(Reflect.get(entity, field.fieldName));
+			});
+			finalObj = await this.get(...idParams);
 		}
+		if (!finalObj) throw new Error('Insert Object Not Found');
+		return finalObj;
 	}
 
 	private whereExpr(entity: T) {
@@ -108,21 +108,19 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let primaryFields = this.dbSet.getPrimaryFields();
 
 		// Dynamic update
-		let keys = Reflect.ownKeys(entity).filter(key => !primaryFields.some(pri => pri.fieldName == key));
-		if (updatedKeys) keys = keys.filter(key => (<(string | symbol)[]>updatedKeys).includes(key));
+		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+		if (updatedKeys) fields = fields.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
 
-		keys.forEach((key) => {
-			let field = this.dbSet.getField(key);
-			if (!field) return;
+		fields.forEach((field) => {
+			let c1 = new sql.Expression(field.colName);
+			let c2 = new sql.Expression('?');
+			let val = Reflect.get(entity, field.fieldName);
+			let serializer = this.context.handler.serializeMap.get(field.columnType);
+			let finalVal = serializer ? serializer(val) : val;
+			c2.args.push(finalVal);
 
-			if (!primaryFields.find(f => f.fieldName == key)?.primaryKey) {
-				let c1 = new sql.Expression(field.colName);
-				let c2 = new sql.Expression('?');
-				c2.args.push(Reflect.get(entity, <string>key));
-
-				let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-				stat.columns.push(expr);
-			}
+			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+			stat.columns.push(expr);
 		});
 
 		stat.where = this.whereExpr(entity);
@@ -130,13 +128,15 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		if (stat.columns.length > 0) {
 			let result = await this.context.execute(stat);
 			if (result.error) {
-				throw result.error;
+				throw new Error(result.error);
 			} else {
 				let idParams: any[] = [];
 				primaryFields.forEach(field => {
 					idParams.push(Reflect.get(entity, field.fieldName));
 				});
-				return this.get(...idParams);
+				let finalObj = await this.get(...idParams);
+				if (!finalObj) throw new Error('Update Object Not Found');
+				return finalObj;
 			}
 		} else {
 			return entity;
@@ -153,7 +153,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let obj = await this.get(...idParams);
 
 		if (obj) {
-			return this.update(entity, null);
+			return this.update(entity);
 		} else {
 			return this.insert(entity);
 		}
@@ -183,8 +183,14 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 					expr = expr.add(a.eq(<types.PropKeys<T>>pri.fieldName, idParams[idx]));
 				});
 				return expr;
-			}).unique()
+			}).single()
 		}
+	}
+
+	async getOrThrow(...idParams: any[]) {
+		let val = await this.get(idParams);
+		if (!val) throw new Error('Value Not Found');
+		return val;
 	}
 
 	where(param: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T> {
@@ -212,7 +218,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		return q.list();
 	}
 
-	select<U = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
+	select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
 		let q = new QuerySet(this.context, this.dbSet, TargetType);
 		return q.select(TargetType);
 	}

@@ -2,17 +2,17 @@ import Case from 'case';
 import * as model from '../model/index.js';
 class DBSet {
     entityType;
-    tableName = null;
-    entityName = null;
+    tableName;
+    entityName;
     columns = [];
     fieldMap = new Map();
     primaryFields = [];
-    constructor(entityType) {
+    constructor(entityType, tableName) {
         this.entityType = entityType;
-    }
-    async bind(context, tableName) {
         this.entityName = this.entityType.name;
         this.tableName = tableName ?? Case.snake(this.entityName);
+    }
+    async bind(context) {
         this.columns = await context.handler.getTableInfo(this.tableName);
         let obj = new this.entityType();
         let keys = Reflect.ownKeys(obj);
@@ -26,7 +26,7 @@ class DBSet {
         let column = this.columns.find(col => col.field == key || col.field == snakeCaseKey);
         if (!column)
             return;
-        let fieldMapping = new model.FieldMapping(key, column.field, column.primaryKey);
+        let fieldMapping = new model.FieldMapping(key, column.field, column.type, column.primaryKey);
         this.fieldMap.set(key, fieldMapping);
         if (column.primaryKey)
             this.primaryFields.push(fieldMapping);
