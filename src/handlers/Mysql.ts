@@ -73,9 +73,9 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	initTransaction(conn: bean.Connection) {
+	initTransaction(conn: mysql.Connection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.conn.beginTransaction((err: Error) => {
+			conn.beginTransaction((err: Error) => {
 				if (err) {
 					reject(err);
 				} else {
@@ -85,9 +85,9 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	commit(conn: bean.Connection) {
+	commit(conn: mysql.Connection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.conn.commit((err: Error) => {
+			conn.commit((err: Error) => {
 				if (err) {
 					reject(err);
 				} else {
@@ -97,17 +97,17 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	rollback(conn: bean.Connection) {
+	rollback(conn: mysql.Connection) {
 		return new Promise<void>((resolve) => {
-			conn.conn.rollback(() => {
+			conn.rollback(() => {
 				resolve();
 			});
 		});
 	}
 
-	close(conn: bean.Connection) {
+	close(conn: mysql.Connection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.conn.end((err: Error) => {
+			conn.end((err?: Error) => {
 				if (err) {
 					reject(err);
 				} else {

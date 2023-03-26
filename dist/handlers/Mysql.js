@@ -44,7 +44,7 @@ export default class Mysql extends Handler {
     }
     initTransaction(conn) {
         return new Promise((resolve, reject) => {
-            conn.conn.beginTransaction((err) => {
+            conn.beginTransaction((err) => {
                 if (err) {
                     reject(err);
                 }
@@ -56,7 +56,7 @@ export default class Mysql extends Handler {
     }
     commit(conn) {
         return new Promise((resolve, reject) => {
-            conn.conn.commit((err) => {
+            conn.commit((err) => {
                 if (err) {
                     reject(err);
                 }
@@ -68,14 +68,14 @@ export default class Mysql extends Handler {
     }
     rollback(conn) {
         return new Promise((resolve) => {
-            conn.conn.rollback(() => {
+            conn.rollback(() => {
                 resolve();
             });
         });
     }
     close(conn) {
         return new Promise((resolve, reject) => {
-            conn.conn.end((err) => {
+            conn.end((err) => {
                 if (err) {
                     reject(err);
                 }
