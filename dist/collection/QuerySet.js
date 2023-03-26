@@ -65,7 +65,7 @@ class QuerySet extends IQuerySet {
                     let colName = fieldMapping.colName;
                     let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
                     let deSerializer = this.context.handler.deSerializeMap.get(fieldMapping.columnType);
-                    if (deSerializer)
+                    if (deSerializer && val != null)
                         Reflect.set(obj, key, deSerializer(val));
                     else
                         Reflect.set(obj, key, val);
