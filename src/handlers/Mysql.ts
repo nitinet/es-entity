@@ -35,7 +35,7 @@ export default class Mysql extends Handler {
 		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
 
 		this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
-		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val === '1');
+		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val == '1');
 	}
 
 	async init() {
