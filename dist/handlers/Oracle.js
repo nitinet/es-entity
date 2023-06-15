@@ -29,40 +29,6 @@ export default class Oracle extends Handler {
     async rollback(conn) { return conn.rollback(); }
     async close(conn) { return conn.close(); }
     async end() { }
-    async getTableInfo(tableName) {
-        let r = await this.run('describe ' + tableName);
-        let result = new Array();
-        r.rows.forEach((row) => {
-            let col = new bean.ColumnInfo();
-            col.field = row['Field'];
-            let columnType = row['Type'].toLowerCase();
-            if (columnType.includes('tinyint(1)')) {
-                col.type = bean.ColumnType.BOOLEAN;
-            }
-            else if (columnType.includes('int')
-                || columnType.includes('float')
-                || columnType.includes('double')
-                || columnType.includes('decimal')) {
-                col.type = bean.ColumnType.NUMBER;
-            }
-            else if (columnType.includes('varchar')
-                || columnType.includes('text')) {
-                col.type = bean.ColumnType.STRING;
-            }
-            else if (columnType.includes('timestamp')) {
-                col.type = bean.ColumnType.DATE;
-            }
-            else if (columnType.includes('json')) {
-                col.type = bean.ColumnType.OBJECT;
-            }
-            col.nullable = row['IS_NULL'] == 'YES' ? true : false;
-            col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
-            col.default = row['Default'];
-            col.extra = row['Extra'];
-            result.push(col);
-        });
-        return result;
-    }
     async run(query, args, connection) {
         let dataArgs = Array();
         let q;

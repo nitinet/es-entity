@@ -43,6 +43,7 @@ export default class Oracle extends Handler {
 	async close(conn: oracledb.Connection): Promise<void> { return conn.close(); }
 	async end(): Promise<void> { }
 
+	/*
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run('describe ' + tableName);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
@@ -74,6 +75,7 @@ export default class Oracle extends Handler {
 		});
 		return result;
 	}
+	*/
 
 	async run(query: string | sql.Statement, args?: Array<any>, connection?: oracledb.Connection): Promise<bean.ResultSet> {
 		let dataArgs = Array<any>();

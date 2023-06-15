@@ -2,13 +2,15 @@
 	"compilerOptions": {
 		"module": "ES2022",
 		"target": "ES2022",
-		"moduleResolution": "Node",
-		"outDir": "./dist",
+		"moduleResolution": "nodenext",
 		"sourceMap": true,
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
 		"incremental": true,
-		"strict": true
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"strict": true,
+		"outDir": "./dist"
 	},
 	"include": [
 		"src/**/*"

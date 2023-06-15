@@ -1,51 +1,50 @@
-import Case from 'case';
-
-import * as bean from '../bean/index.js';
+import * as decoratorKeys from '../decorators/Constants.js';
 import * as types from '../model/types.js';
 import * as model from '../model/index.js';
-import Context from '../Context.js';
 
 class DBSet<T extends Object>  {
 	protected entityType: types.IEntityType<T>;
 
 	// mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 	tableName: string;
-	entityName: string;
-	columns: bean.ColumnInfo[] = [];
+	// entityName: string;
+	// columns: bean.ColumnInfo[] = [];
 	fieldMap = new Map<string, model.FieldMapping>();
 	private primaryFields: model.FieldMapping[] = [];
 
-	constructor(entityType: types.IEntityType<T>, tableName?: string) {
+	constructor(entityType: types.IEntityType<T>) {
 		this.entityType = entityType;
-		this.entityName = this.entityType.name;
-		this.tableName = tableName ?? Case.snake(this.entityName);
+		// this.entityName = this.entityType.name;
+		this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType.prototype);
+		this.bind();
 	}
 
-	async bind(context: Context) {
+	bind() {
 		// get info from describe db
-		this.columns = await context.handler.getTableInfo(this.tableName);
+		// this.columns = await context.handler.getTableInfo(this.tableName);
 
 		let obj = new this.entityType();
 		let keys = (<string[]>Reflect.ownKeys(obj));
 
 		// Bind Fields
-		keys.forEach(key => {
-			this.bindField(key);
-		});
-
+		keys.forEach(key => this.bindField(key));
 		return this;
 	}
 
 	private bindField(key: string) {
-		let snakeCaseKey = Case.snake(key);
-		let column = this.columns.find(col => col.field == key || col.field == snakeCaseKey);
+		// let snakeCaseKey = Case.snake(key);
+		// let column = this.columns.find(col => col.field == key || col.field == snakeCaseKey);
 
-		if (!column) return;
+		// if (!column) return;
 
 		// this.checkColumnType(column, key);
-		let fieldMapping = new model.FieldMapping(key, column.field, column.type, column.primaryKey);
+		let columnName: string = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.entityType.prototype, key);
+		let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
+		let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
+
+		let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
 		this.fieldMap.set(key, fieldMapping);
-		if (column.primaryKey) this.primaryFields.push(fieldMapping);
+		if (primaryKey) this.primaryFields.push(fieldMapping);
 	}
 
 	// private checkColumnType(column: bean.ColumnInfo, key: string) {

@@ -47,6 +47,7 @@ export default class MsSqlServer extends Handler {
 	async close(conn: mssql.Request): Promise<void> { }
 	async end(): Promise<void> { }
 
+	/*
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`select Field, Type, Null, Key, Default, Extra from information_schema.columns where table_name = '${tableName}'`);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
@@ -79,6 +80,7 @@ export default class MsSqlServer extends Handler {
 		});
 		return result;
 	}
+	*/
 
 	async run(query: string | sql.Statement, args?: Array<any>, connection?: mssql.Request): Promise<bean.ResultSet> {
 		let q: string;

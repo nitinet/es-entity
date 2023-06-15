@@ -63,12 +63,13 @@ export default class PostgreSql extends Handler {
 
 	async end(): Promise<void> { }
 
+	/*
 	async getTableInfo(tableName: string) {
 		let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
 		case when (select count(1) from pg_constraint p where p.conrelid = c.oid and f.ordinal_position = any(p.conkey) and p.contype   = 'p') > 0 then true else false end as primarykey
-	from information_schema.columns f
+		from information_schema.columns f
 		join pg_class c on c.relname = f.table_name
-	where f.table_name = '${tableName}'`;
+		where f.table_name = '${tableName}'`;
 
 		let tableInfo = await this.run(descQuery);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
@@ -108,6 +109,7 @@ export default class PostgreSql extends Handler {
 		});
 		return result;
 	}
+	*/
 
 	async run(query: string | sql.Statement, args?: Array<any>, connection?: pg.Client) {
 		let queryObj = this.prepareQuery(query, args);

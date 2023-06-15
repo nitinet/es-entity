@@ -1,34 +1,28 @@
-import Case from 'case';
+import * as decoratorKeys from '../decorators/Constants.js';
 import * as model from '../model/index.js';
 class DBSet {
     entityType;
     tableName;
-    entityName;
-    columns = [];
     fieldMap = new Map();
     primaryFields = [];
-    constructor(entityType, tableName) {
+    constructor(entityType) {
         this.entityType = entityType;
-        this.entityName = this.entityType.name;
-        this.tableName = tableName ?? Case.snake(this.entityName);
+        this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType.prototype);
+        this.bind();
     }
-    async bind(context) {
-        this.columns = await context.handler.getTableInfo(this.tableName);
+    bind() {
         let obj = new this.entityType();
         let keys = Reflect.ownKeys(obj);
-        keys.forEach(key => {
-            this.bindField(key);
-        });
+        keys.forEach(key => this.bindField(key));
         return this;
     }
     bindField(key) {
-        let snakeCaseKey = Case.snake(key);
-        let column = this.columns.find(col => col.field == key || col.field == snakeCaseKey);
-        if (!column)
-            return;
-        let fieldMapping = new model.FieldMapping(key, column.field, column.type, column.primaryKey);
+        let columnName = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.entityType.prototype, key);
+        let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
+        let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
+        let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
         this.fieldMap.set(key, fieldMapping);
-        if (column.primaryKey)
+        if (primaryKey)
             this.primaryFields.push(fieldMapping);
     }
     getEntityType() {
