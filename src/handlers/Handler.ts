@@ -1,5 +1,4 @@
 import * as sql from '../sql/index.js';
-import Connection from '../bean/Connection.js';
 // import Context from '../Context.js';
 
 import * as bean from '../bean/index.js';
@@ -20,7 +19,7 @@ export default abstract class Handler {
 	abstract init(): Promise<void>;
 
 	// abstract getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>
-	abstract run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>
+	abstract run(query: string | sql.INode, args?: Array<any>, connetction?: any): Promise<bean.ResultSet>
 
 	// Connetion manage functions
 	abstract getConnection(): Promise<any>;
