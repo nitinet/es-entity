@@ -36,6 +36,7 @@ export default class SQlite extends Handler {
 
 	async end(): Promise<void> { }
 
+	/*
 	async getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>> {
 		let r = await this.run(`pragma table_info('${tableName}')`);
 		let result: Array<bean.ColumnInfo> = new Array<bean.ColumnInfo>();
@@ -60,6 +61,7 @@ export default class SQlite extends Handler {
 		});
 		return result;
 	}
+	*/
 
 	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
 		let queryObj = this.prepareQuery(query, args);

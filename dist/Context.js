@@ -20,15 +20,14 @@ export default class Context {
     }
     async init() {
         await this.handler.init();
-        await Promise.all(Reflect.ownKeys(this).filter(key => {
+        Reflect.ownKeys(this).filter(key => {
             let o = Reflect.get(this, key);
             return o instanceof TableSet;
-        }, this).map(async (key) => {
+        }, this).forEach(key => {
             let table = Reflect.get(this, key);
             table.context = this;
-            await table.bind();
             this.tableSetMap.set(table.getEntityType(), table.dbSet);
-        }));
+        });
     }
     get handler() {
         return this._handler;

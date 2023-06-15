@@ -86,50 +86,6 @@ export default class Mysql extends Handler {
         });
     }
     async end() { }
-    async getTableInfo(tableName) {
-        let r = await this.run('describe ' + tableName);
-        let result = new Array();
-        r.rows.forEach((row) => {
-            let col = new bean.ColumnInfo();
-            col.field = row['Field'];
-            let columnType = row['Type'].toLowerCase();
-            if (columnType.includes('tinyint(1)')) {
-                col.type = bean.ColumnType.BOOLEAN;
-            }
-            else if (columnType.includes('int')
-                || columnType.includes('real')
-                || columnType.includes('float')
-                || columnType.includes('double')
-                || columnType.includes('decimal')) {
-                col.type = bean.ColumnType.NUMBER;
-            }
-            else if (columnType.includes('varchar')
-                || columnType.includes('text')
-                || columnType == 'time') {
-                col.type = bean.ColumnType.STRING;
-            }
-            else if (columnType.includes('timestamp')
-                || columnType.includes('date')) {
-                col.type = bean.ColumnType.DATE;
-            }
-            else if (columnType.includes('blob')
-                || columnType.includes('binary')) {
-                col.type = bean.ColumnType.BINARY;
-            }
-            else if (columnType.includes('json')) {
-                col.type = bean.ColumnType.OBJECT;
-            }
-            else {
-                throw new Error(`Invalid Column Type ${columnType} in table ${tableName}`);
-            }
-            col.nullable = row['Null'] == 'YES' ? true : false;
-            col.primaryKey = row['Key'].indexOf('PRI') >= 0 ? true : false;
-            col.default = row['Default'];
-            col.extra = row['Extra'];
-            result.push(col);
-        });
-        return result;
-    }
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;

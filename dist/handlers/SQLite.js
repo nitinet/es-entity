@@ -19,31 +19,6 @@ export default class SQlite extends Handler {
     async rollback(conn) { await conn.query('ROLLBACK'); }
     async close(conn) { await conn.end(); }
     async end() { }
-    async getTableInfo(tableName) {
-        let r = await this.run(`pragma table_info('${tableName}')`);
-        let result = new Array();
-        r.rows.forEach((row) => {
-            let col = new bean.ColumnInfo();
-            col.field = row['name'];
-            let columnType = row['type'].toLowerCase();
-            if (columnType.includes('integer')
-                || columnType.includes('real')
-                || columnType.includes('numeric')) {
-                col.type = bean.ColumnType.NUMBER;
-            }
-            else if (columnType.includes('text')) {
-                col.type = bean.ColumnType.STRING;
-            }
-            else if (columnType.includes('blob')) {
-                col.type = bean.ColumnType.BINARY;
-            }
-            col.nullable = row['notnull'] == 0 ? true : false;
-            col.primaryKey = row['pk'] == 1 ? true : false;
-            col.default = row['dflt_value'];
-            result.push(col);
-        });
-        return result;
-    }
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;

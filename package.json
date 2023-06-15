@@ -26,7 +26,7 @@
 	},
 	"homepage": "https://github.com/InHeap/es-entity#readme",
 	"dependencies": {
-		"case": "^1.6.3"
+		"reflect-metadata": "^0.1.13"
 	},
 	"devDependencies": {
 		"@types/mssql": "^8.1.1",

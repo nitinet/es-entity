@@ -5,16 +5,11 @@ import QuerySet from './QuerySet.js';
 import DBSet from './DBSet.js';
 class TableSet extends IQuerySet {
     EntityType;
-    options;
     dbSet;
-    constructor(EntityType, options) {
+    constructor(EntityType) {
         super();
         this.EntityType = EntityType;
-        this.options = options || {};
-        this.dbSet = new DBSet(EntityType, this.options.tableName);
-    }
-    async bind() {
-        await this.dbSet.bind(this.context);
+        this.dbSet = new DBSet(EntityType);
     }
     getEntityType() {
         return this.EntityType;

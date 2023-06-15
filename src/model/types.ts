@@ -1,24 +1,14 @@
 import Expression from '../sql/Expression.js';
 
-interface IArrFieldFunc<T> {
-	(source: T): Expression[];
-}
+type IArrFieldFunc<T> = (source: T) => Expression[];
 
-interface IJoinFunc<A, B> {
-	(sourceA: A, sourceB: B): Expression;
-}
+type IJoinFunc<A, B> = (sourceA: A, sourceB: B) => Expression | null;
 
-interface IUpdateFunc<T> {
-	(source: T): { obj: T, updatedKeys: (keyof T)[] };
-}
+type IUpdateFunc<T> = (source: T) => { obj: T, updatedKeys: (keyof T)[] };
 
-interface IWhereFunc<T> {
-	(source: T, ...args: any[]): Expression;
-}
+type IWhereFunc<T> = (source: T, ...args: any[]) => Expression | null;
 
-interface IEntityType<T extends Object> {
-	new(): T;
-}
+type IEntityType<T extends Object> = new() => T;
 
 type SelectType<T> = {
 	[Property in keyof T]?: any;

@@ -19,7 +19,7 @@ export default abstract class Handler {
 
 	abstract init(): Promise<void>;
 
-	abstract getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>
+	// abstract getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>
 	abstract run(query: string | sql.INode, args?: Array<any>, connetction?: Connection): Promise<bean.ResultSet>
 
 	// Connetion manage functions

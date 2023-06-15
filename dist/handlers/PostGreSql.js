@@ -38,52 +38,6 @@ export default class PostgreSql extends Handler {
     async rollback(conn) { await conn.query('ROLLBACK'); }
     async close(conn) { await conn.end(); }
     async end() { }
-    async getTableInfo(tableName) {
-        let descQuery = `select f.ordinal_position, f.column_name, f.data_type, f.is_nullable, f.column_default,
-		case when (select count(1) from pg_constraint p where p.conrelid = c.oid and f.ordinal_position = any(p.conkey) and p.contype   = 'p') > 0 then true else false end as primarykey
-	from information_schema.columns f
-		join pg_class c on c.relname = f.table_name
-	where f.table_name = '${tableName}'`;
-        let tableInfo = await this.run(descQuery);
-        let result = new Array();
-        tableInfo.rows.forEach((row) => {
-            let col = new bean.ColumnInfo();
-            col.field = row['column_name'];
-            let columnType = row['data_type'].toLowerCase();
-            if (columnType.includes('boolean')) {
-                col.type = bean.ColumnType.BOOLEAN;
-            }
-            else if (columnType.includes('int') ||
-                columnType.includes('float') ||
-                columnType.includes('double') ||
-                columnType.includes('decimal') ||
-                columnType.includes('real') ||
-                columnType.includes('numeric')) {
-                col.type = bean.ColumnType.NUMBER;
-            }
-            else if (columnType.includes('varchar') ||
-                columnType.includes('text') ||
-                columnType.includes('character varying') ||
-                columnType.includes('uuid')) {
-                col.type = bean.ColumnType.STRING;
-            }
-            else if (columnType.includes('timestamp') || columnType.includes('date')) {
-                col.type = bean.ColumnType.DATE;
-            }
-            else if (columnType.includes('json')) {
-                col.type = bean.ColumnType.OBJECT;
-            }
-            else {
-                console.warn(`Invalid Column Type ${columnType} in table ${tableName}`);
-                col.type = bean.ColumnType.STRING;
-            }
-            col.nullable = !row['is_nullable'];
-            col.primaryKey = row['primarykey'];
-            col.default = row['column_default'];
-            result.push(col);
-        });
-        return result;
-    }
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
