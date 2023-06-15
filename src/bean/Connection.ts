@@ -1,3 +1,4 @@
+import * as sql from '../sql/index.js';
 import Handler from '../handlers/Handler.js';
 
 export default class Connection {
@@ -11,6 +12,10 @@ export default class Connection {
 
 	get Handler() {
 		return this.handler;
+	}
+
+	async run(query: string | sql.INode, args?: Array<any>) {
+		return this.handler.run(query, args, this.conn);
 	}
 
 	async initTransaction() {

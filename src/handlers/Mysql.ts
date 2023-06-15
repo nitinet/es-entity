@@ -35,7 +35,7 @@ export default class Mysql extends Handler {
 		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
 
 		this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
-		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val === '1');
+		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val == '1');
 	}
 
 	async init() {
@@ -161,37 +161,25 @@ export default class Mysql extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.Statement, args?: Array<any>, connection?: mysql.Connection): Promise<bean.ResultSet> {
 		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
-		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			let conn: mysql.Connection = connection.conn;
+		if (connection) {
 			temp = await new Promise<any>((resolve, reject) => {
-				conn.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
+				connection.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});
 			});
 		} else {
-			let conn = await new Promise<mysql.PoolConnection>((resolve, reject) => {
-				this.connectionPool.getConnection(function (err: Error | null, newConn: mysql.PoolConnection) {
+			temp = await new Promise<any>((resolve, reject) => {
+				this.connectionPool.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
 					if (err) { reject(err); }
-					else { resolve(newConn); }
+					else { resolve(r); }
 				});
 			});
-
-			try {
-				temp = await new Promise<any>((resolve, reject) => {
-					conn.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
-						if (err) { reject(err); }
-						else { resolve(r); }
-					});
-				});
-			} finally {
-				if (conn) conn.release();
-			}
 		}
 
 		let result = new bean.ResultSet();

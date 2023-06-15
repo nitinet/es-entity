@@ -41,8 +41,8 @@ export default class PostgreSql extends Handler {
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            temp = await connection.conn.query(queryObj.query, queryObj.args);
+        if (connection) {
+            temp = await connection.query(queryObj.query, queryObj.args);
         }
         else {
             let con = null;

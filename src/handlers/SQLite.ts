@@ -26,13 +26,13 @@ export default class SQlite extends Handler {
 		return this.connectionPool;
 	}
 
-	async initTransaction(conn: any): Promise<void> { await conn.query('BEGIN TRANSACTION'); }
+	async initTransaction(conn: sqlite.Database): Promise<void> { await conn.run('BEGIN TRANSACTION'); }
 
-	async commit(conn: any): Promise<void> { await conn.query('COMMIT'); }
+	async commit(conn: sqlite.Database): Promise<void> { await conn.run('COMMIT'); }
 
-	async rollback(conn: any): Promise<void> { await conn.query('ROLLBACK'); }
+	async rollback(conn: sqlite.Database): Promise<void> { await conn.run('ROLLBACK'); }
 
-	async close(conn: any): Promise<void> { await conn.end(); }
+	async close(conn: sqlite.Database): Promise<void> { await conn.close(); }
 
 	async end(): Promise<void> { }
 
@@ -63,14 +63,14 @@ export default class SQlite extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.Statement, args?: Array<any>, connection?: sqlite.Database): Promise<bean.ResultSet> {
 		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
 		let conn: sqlite.Database;
-		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			conn = connection.conn;
+		if (connection) {
+			conn = connection;
 		} else {
 			conn = this.connectionPool;
 		}

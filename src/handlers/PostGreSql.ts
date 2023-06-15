@@ -53,13 +53,13 @@ export default class PostgreSql extends Handler {
 		// }
 	}
 
-	async initTransaction(conn: any): Promise<void> { await conn.query('BEGIN'); }
+	async initTransaction(conn: pg.Client): Promise<void> { await conn.query('BEGIN'); }
 
-	async commit(conn: any): Promise<void> { await conn.query('COMMIT'); }
+	async commit(conn: pg.Client): Promise<void> { await conn.query('COMMIT'); }
 
-	async rollback(conn: any): Promise<void> { await conn.query('ROLLBACK'); }
+	async rollback(conn: pg.Client): Promise<void> { await conn.query('ROLLBACK'); }
 
-	async close(conn: any): Promise<void> { await conn.end(); }
+	async close(conn: pg.Client): Promise<void> { await conn.end(); }
 
 	async end(): Promise<void> { }
 
@@ -111,13 +111,13 @@ export default class PostgreSql extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.INode, args?: Array<any>, connection?: bean.Connection) {
+	async run(query: string | sql.Statement, args?: Array<any>, connection?: pg.Client) {
 		let queryObj = this.prepareQuery(query, args);
 
 		let temp = null;
 
-		if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-			temp = await connection.conn.query(queryObj.query, queryObj.args);
+		if (connection) {
+			temp = await connection.query(queryObj.query, queryObj.args);
 		} else {
 			let con = null;
 			try {

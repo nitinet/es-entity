@@ -9,7 +9,7 @@ export default class Mysql extends Handler {
         this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
         this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
         this.serializeMap.set(bean.ColumnType.BOOLEAN, (val) => val ? '1' : '0');
-        this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val === '1');
+        this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val == '1');
     }
     async init() {
         this.driver = this.config.driver ?? await import('mysql');
@@ -89,10 +89,9 @@ export default class Mysql extends Handler {
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);
         let temp = null;
-        if (connection && connection instanceof bean.Connection && connection.Handler.handlerName == this.handlerName && connection.conn) {
-            let conn = connection.conn;
+        if (connection) {
             temp = await new Promise((resolve, reject) => {
-                conn.query(queryObj.query, queryObj.args, function (err, r) {
+                connection.query(queryObj.query, queryObj.args, function (err, r) {
                     if (err) {
                         reject(err);
                     }
@@ -103,32 +102,16 @@ export default class Mysql extends Handler {
             });
         }
         else {
-            let conn = await new Promise((resolve, reject) => {
-                this.connectionPool.getConnection(function (err, newConn) {
+            temp = await new Promise((resolve, reject) => {
+                this.connectionPool.query(queryObj.query, queryObj.args, function (err, r) {
                     if (err) {
                         reject(err);
                     }
                     else {
-                        resolve(newConn);
+                        resolve(r);
                     }
                 });
             });
-            try {
-                temp = await new Promise((resolve, reject) => {
-                    conn.query(queryObj.query, queryObj.args, function (err, r) {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(r);
-                        }
-                    });
-                });
-            }
-            finally {
-                if (conn)
-                    conn.release();
-            }
         }
         let result = new bean.ResultSet();
         if (temp.insertId)

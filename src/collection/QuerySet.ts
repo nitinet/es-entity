@@ -99,7 +99,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 					let colName = fieldMapping.colName;
 					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
 					let deSerializer = this.context.handler.deSerializeMap.get(fieldMapping.columnType)
-					if (deSerializer) Reflect.set(obj, key, deSerializer(val));
+					if (deSerializer && val != null) Reflect.set(obj, key, deSerializer(val));
 					else Reflect.set(obj, key, val);
 				} else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
 					field.bind(this.context, obj);

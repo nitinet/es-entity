@@ -36,23 +36,25 @@ export default class Context {
         this._handler = handler;
     }
     async execute(query, args) {
-        return this.handler.run(query, args);
+        if (this.connection) {
+            return this.connection.run(query, args);
+        }
+        else {
+            return this.handler.run(query, args);
+        }
     }
     flush() { }
     async initTransaction() {
-        let res = this;
-        if (!this.connection) {
-            res = Object.assign({}, this);
-            Object.setPrototypeOf(res, Object.getPrototypeOf(this));
-            let keys = Reflect.ownKeys(res);
-            keys.forEach((key) => {
-                let prop = Reflect.get(res, key);
-                if (prop instanceof TableSet) {
-                    prop.context = res;
-                }
-            });
-        }
-        let nativeConn = await res.handler.getConnection();
+        let res = Object.assign({}, this);
+        Object.setPrototypeOf(res, Object.getPrototypeOf(this));
+        let keys = Reflect.ownKeys(res);
+        keys.forEach((key) => {
+            let prop = Reflect.get(res, key);
+            if (prop instanceof TableSet) {
+                prop.context = res;
+            }
+        });
+        let nativeConn = await this.handler.getConnection();
         res.connection = new bean.Connection(res.handler, nativeConn);
         await res.connection.initTransaction();
         return res;

@@ -35,15 +35,13 @@ export default abstract class Handler {
 		else return query;
 	}
 
-	prepareQuery(queryStmt: string | sql.INode, args?: Array<any>) {
+	prepareQuery(queryStmt: string | sql.Statement, args?: Array<any>) {
 		let query: string;
-		if (typeof queryStmt === 'string') {
-			query = queryStmt;
-		} else if (queryStmt instanceof sql.Statement) {
+		if (queryStmt instanceof sql.Statement) {
 			query = queryStmt.eval(this);
 			args = queryStmt.args;
 		} else {
-			query = '';
+			query = queryStmt;
 		}
 		return {
 			query, args
