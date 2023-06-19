@@ -7,7 +7,7 @@ class DBSet {
     primaryFields = [];
     constructor(entityType) {
         this.entityType = entityType;
-        this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType.prototype);
+        this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
         this.bind();
     }
     bind() {

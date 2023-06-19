@@ -15,7 +15,7 @@ class DBSet<T extends Object>  {
 	constructor(entityType: types.IEntityType<T>) {
 		this.entityType = entityType;
 		// this.entityName = this.entityType.name;
-		this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType.prototype);
+		this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
 		this.bind();
 	}
 
