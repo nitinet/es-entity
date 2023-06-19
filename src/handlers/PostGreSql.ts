@@ -136,11 +136,9 @@ export default class PostgreSql extends Handler {
 	}
 
 	convertPlaceHolder(query: string) {
-		let i = 1
-		while (query.includes('?')) {
+		for (let i = 0; query.includes('?'); i++)
 			query = query.replace('?', `$${i}`);
-			i++;
-		}
+
 		return query;
 	}
 

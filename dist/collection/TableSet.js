@@ -62,9 +62,33 @@ class TableSet extends IQuerySet {
             throw new Error('Insert Object Not Found');
         return finalObj;
     }
+    async insertBulk(entities) {
+        let queries = entities.map(ent => {
+            let stat = new sql.Statement();
+            stat.command = sql.types.Command.INSERT;
+            stat.collection.value = this.dbSet.tableName;
+            let fields = this.dbSet.filterFields(Reflect.ownKeys(ent));
+            fields.forEach((field) => {
+                let val = Reflect.get(ent, field.fieldName);
+                if (val == null)
+                    return;
+                let serializer = this.context.handler.serializeMap.get(field.columnType);
+                let finalVal = serializer ? serializer(val) : val;
+                let col = new sql.Collection();
+                col.value = field.colName;
+                stat.columns.push(col);
+                let expr = new sql.Expression(finalVal);
+                stat.values.push(expr);
+            });
+            let query = stat.eval(this.context.handler);
+            return query;
+        });
+        let bulkQuery = queries.join('; ');
+        await this.context.execute(bulkQuery);
+    }
     whereExpr(entity) {
         let primaryFields = this.dbSet.getPrimaryFields();
-        if (!(primaryFields && primaryFields.length)) {
+        if (!(primaryFields?.length)) {
             throw new Error('Primary Key fields not found');
         }
         let eb = new model.WhereExprBuilder(this.dbSet.fieldMap);
@@ -113,6 +137,32 @@ class TableSet extends IQuerySet {
         else {
             return entity;
         }
+    }
+    async updateBulk(entities, ...updatedKeys) {
+        let primaryFields = this.dbSet.getPrimaryFields();
+        let temp = new this.EntityType();
+        let fields = this.dbSet.filterFields(Reflect.ownKeys(temp)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+        if (updatedKeys)
+            fields = fields.filter(field => updatedKeys.includes(field.fieldName));
+        let queries = entities.map(ent => {
+            let stat = new sql.Statement();
+            stat.command = sql.types.Command.UPDATE;
+            stat.collection.value = this.dbSet.tableName;
+            fields.forEach((field) => {
+                let c1 = new sql.Expression(field.colName);
+                let val = Reflect.get(ent, field.fieldName);
+                let serializer = this.context.handler.serializeMap.get(field.columnType);
+                let finalVal = serializer ? serializer(val) : val;
+                let c2 = new sql.Expression(finalVal);
+                let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
+                stat.columns.push(expr);
+            });
+            stat.where = this.whereExpr(ent);
+            let query = stat.eval(this.context.handler);
+            return query;
+        });
+        let bulkQuery = queries.join('; ');
+        await this.context.execute(bulkQuery);
     }
     async insertOrUpdate(entity) {
         let primaryFields = this.dbSet.getPrimaryFields();

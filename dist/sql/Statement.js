@@ -15,9 +15,6 @@ class Statement extends INode {
         super();
     }
     eval(handler) {
-        if (!handler) {
-            throw new Error('No Handler Found');
-        }
         let result = null;
         switch (this.command) {
             case Command.SELECT:

@@ -22,10 +22,6 @@ class Statement extends INode {
 	}
 
 	eval(handler: Handler): string {
-		if (!handler) {
-			throw new Error('No Handler Found');
-		}
-
 		let result: string | null = null;
 		switch (this.command) {
 			case Command.SELECT:
