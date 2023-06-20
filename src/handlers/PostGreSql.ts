@@ -114,24 +114,21 @@ export default class PostgreSql extends Handler {
 	async run(query: string | sql.Statement, args?: Array<any>, connection?: pg.Client) {
 		let queryObj = this.prepareQuery(query, args);
 
-		let temp = null;
-
+		let temp: pg.QueryResult<any>;
 		if (connection) {
 			temp = await connection.query(queryObj.query, queryObj.args);
 		} else {
-			let con = null;
+			let con = await this.connectionPool.connect();
 			try {
-				con = await this.connectionPool.connect();
 				temp = await con.query(queryObj.query, queryObj.args);
 			} finally {
-				if (con) { con.release(); }
+				con.release();
 			}
 		}
 
-		let result: bean.ResultSet = new bean.ResultSet();
-		if (temp.rowCount) result.rowCount = temp.rowCount;
-		if (Array.isArray(temp.rows)) result.rows = temp.rows;
-		if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;
+		let result = new bean.ResultSet();
+		result.rowCount = temp.rowCount;
+		result.rows = temp.rows;
 		return result;
 	}
 

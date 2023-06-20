@@ -1,7 +1,7 @@
 export default class ResultSet {
     rowCount = 0;
     id = null;
-    rows = new Array();
+    rows = [];
     error = null;
 }
 //# sourceMappingURL=ResultSet.js.map

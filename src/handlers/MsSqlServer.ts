@@ -83,13 +83,7 @@ export default class MsSqlServer extends Handler {
 	*/
 
 	async run(query: string | sql.Statement, args?: Array<any>, connection?: mssql.Request): Promise<bean.ResultSet> {
-		let q: string;
-		if (query instanceof sql.Statement) {
-			q = query.eval(this);
-			// args = (query.args == undefined ? [] : query.args);
-		} else {
-			q = query;
-		}
+		let queryObj = this.prepareQuery(query, args);
 
 		let conn: mssql.Request;
 
@@ -99,13 +93,11 @@ export default class MsSqlServer extends Handler {
 			conn = this.connectionPool.request();
 		}
 
-		// let temp = await conn.query(q);
+		let temp = await conn.query(queryObj.query);
 
 		let result: bean.ResultSet = new bean.ResultSet();
-		// TODO: fix results
-		// if (temp.rowCount) result.rowCount = temp.rowCount;
-		// if (Array.isArray(temp.rows)) result.rows = temp.rows;
-		// if (result.rows && result.rows.length > 0) result.id = result.rows[0].id;
+		result.rowCount = temp.rowsAffected[0] ?? 0;
+		result.rows = temp.recordset;
 		return result;
 	}
 

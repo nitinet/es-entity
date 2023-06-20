@@ -41,7 +41,7 @@ export default class Oracle extends Handler {
             if (args)
                 dataArgs.push(...args);
         }
-        let temp = null;
+        let temp;
         if (connection) {
             temp = await connection.execute(q);
         }
@@ -55,6 +55,8 @@ export default class Oracle extends Handler {
             }
         }
         let result = new bean.ResultSet();
+        result.rows = temp.rows ?? [];
+        result.rowCount = temp.rowsAffected ?? 0;
         return result;
     }
 }

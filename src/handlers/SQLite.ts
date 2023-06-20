@@ -19,7 +19,13 @@ export default class SQlite extends Handler {
 	async init() {
 		// @ts-ignore
 		this.driver = this.config.driver ?? (await import('sqlite3'));
-		this.connectionPool = new this.driver.Database(this.config.database)
+
+		this.connectionPool = await new Promise((res, rej) => {
+			let temp = new this.driver.Database(this.config.database, (err) => {
+				if (err) rej(err);
+			});
+			res(temp);
+		});
 	}
 
 	async getConnection() {
@@ -66,8 +72,6 @@ export default class SQlite extends Handler {
 	async run(query: string | sql.Statement, args?: Array<any>, connection?: sqlite.Database): Promise<bean.ResultSet> {
 		let queryObj = this.prepareQuery(query, args);
 
-		let temp = null;
-
 		let conn: sqlite.Database;
 		if (connection) {
 			conn = connection;
@@ -75,22 +79,16 @@ export default class SQlite extends Handler {
 			conn = this.connectionPool;
 		}
 
-		temp = await new Promise<any>((resolve, reject) => {
-			conn.run(queryObj.query, queryObj.args, function (err: Error, r: any) {
+		let temp: any[] = await new Promise((resolve, reject) => {
+			conn.all(queryObj.query, queryObj.args, function (err, r) {
 				if (err) { reject(err); }
 				else { resolve(r); }
 			});
 		});
 
 		let result = new bean.ResultSet();
-		if (temp.insertId)
-			result.id = temp.insertId;
-		if (temp.changedRows) {
-			result.rowCount = temp.changedRows;
-		} else if (Array.isArray(temp)) {
-			result.rows = temp;
-			result.rowCount = temp.length;
-		}
+		result.rows = temp;
+		result.rowCount = temp.length;
 		return result;
 	}
 

@@ -1,6 +1,5 @@
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
-import * as sql from '../sql/index.js';
 export default class MsSqlServer extends Handler {
     handlerName = 'mssql';
     driver;
@@ -35,13 +34,7 @@ export default class MsSqlServer extends Handler {
     async close(conn) { }
     async end() { }
     async run(query, args, connection) {
-        let q;
-        if (query instanceof sql.Statement) {
-            q = query.eval(this);
-        }
-        else {
-            q = query;
-        }
+        let queryObj = this.prepareQuery(query, args);
         let conn;
         if (connection) {
             conn = connection;
@@ -49,7 +42,10 @@ export default class MsSqlServer extends Handler {
         else {
             conn = this.connectionPool.request();
         }
+        let temp = await conn.query(queryObj.query);
         let result = new bean.ResultSet();
+        result.rowCount = temp.rowsAffected[0] ?? 0;
+        result.rows = temp.recordset;
         return result;
     }
 }

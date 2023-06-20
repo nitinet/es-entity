@@ -77,7 +77,7 @@ export default class Oracle extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.Statement, args?: Array<any>, connection?: oracledb.Connection): Promise<bean.ResultSet> {
+	async run(query: string | sql.Statement, args?: any[], connection?: oracledb.Connection): Promise<bean.ResultSet> {
 		let dataArgs = Array<any>();
 		let q: string;
 		if (query instanceof sql.Statement) {
@@ -88,8 +88,7 @@ export default class Oracle extends Handler {
 			if (args) dataArgs.push(...args);
 		}
 
-		let temp = null;
-
+		let temp: oracledb.Result<any>;
 		if (connection) {
 			temp = await connection.execute(q);
 		} else {
@@ -102,15 +101,8 @@ export default class Oracle extends Handler {
 		}
 
 		let result = new bean.ResultSet();
-		// TODO: fix result
-		// if (temp.insertId)
-		// 	result.id = temp.insertId;
-		// if (temp.changedRows) {
-		// 	result.rowCount = temp.changedRows;
-		// } else if (Array.isArray(temp)) {
-		// 	result.rows = temp;
-		// 	result.rowCount = temp.length;
-		// }
+		result.rows = temp.rows ?? [];
+		result.rowCount = temp.rowsAffected ?? 0;
 		return result;
 	}
 
