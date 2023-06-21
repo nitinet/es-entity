@@ -6,10 +6,6 @@ export default class PostgreSql extends Handler {
     connectionPool;
     constructor(config) {
         super(config);
-        this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
-        this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
-        this.serializeMap.set(bean.ColumnType.ARRAY, (val) => `{${val.join(',')}}`);
-        this.deSerializeMap.set(bean.ColumnType.ARRAY, (val) => val.replace('{', '').replace('}', '').split(','));
     }
     async init() {
         this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
@@ -59,7 +55,7 @@ export default class PostgreSql extends Handler {
         return result;
     }
     convertPlaceHolder(query) {
-        for (let i = 0; query.includes('?'); i++)
+        for (let i = 0; i >= 0 && query.includes('?'); i++)
             query = query.replace('?', `$${i}`);
         return query;
     }

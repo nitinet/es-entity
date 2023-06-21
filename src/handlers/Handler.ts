@@ -9,9 +9,6 @@ export default abstract class Handler {
 	abstract driver: any;
 	config: bean.IConnectionConfig;
 
-	serializeMap: Map<bean.ColumnType, (val: any) => string> = new Map();
-	deSerializeMap: Map<bean.ColumnType, (val: string) => any> = new Map();
-
 	constructor(config: bean.IConnectionConfig) {
 		this.config = config;
 	}

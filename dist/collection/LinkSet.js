@@ -3,7 +3,7 @@ import QuerySet from './QuerySet.js';
 class LinkSet extends QuerySet {
     foreignFunc;
     constructor(context, entityType, foreignFunc) {
-        super(context, context.tableSetMap.get(entityType), entityType);
+        super(context, context.tableSetMap.get(entityType));
         this.foreignFunc = foreignFunc;
     }
     apply(parentObj) {

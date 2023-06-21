@@ -31,11 +31,11 @@ export default class Mysql extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super(config);
 
-		this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
-		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+		// this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+		// this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
 
-		this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
-		this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val == '1');
+		// this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
+		// this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val == '1');
 	}
 
 	async init() {

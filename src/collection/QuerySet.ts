@@ -10,14 +10,14 @@ import Context from '../Context.js';
 /**
  * QuerySet
  */
-class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> extends IQuerySet<U> {
+class QuerySet<T extends Object> extends IQuerySet<T> {
 	protected dbSet: DBSet<T>;
 	alias: string | undefined;
 	stat = new sql.Statement();
 
-	protected EntityType: types.IEntityType<U>;
+	protected EntityType: types.IEntityType<T>;
 
-	constructor(context: Context, dbSet: DBSet<T> | undefined, EntityType: types.IEntityType<U>) {
+	constructor(context: Context, dbSet: DBSet<T> | undefined) {
 		super();
 
 		this.context = context;
@@ -25,12 +25,10 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 
 		this.dbSet = dbSet;
 		this.bind(dbSet);
-		this.EntityType = EntityType;
+		this.EntityType = this.dbSet.getEntityType();
 	}
 
 	private bind(dbSet: DBSet<T>) {
-
-
 		this.alias = dbSet.tableName.charAt(0);
 		this.stat.collection.value = dbSet.tableName;
 		this.stat.collection.alias = this.alias;
@@ -63,12 +61,14 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	// Selection Functions
-	select<V extends Object = types.SubEntityType<U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
-		let res = new QuerySet<T, V>(this.context, this.dbSet, TargetType);
-		return res;
+	async select<V extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<V>): Promise<V[]> {
+		// TODO: implementation
+		// let res = new QuerySet<T, V>(this.context, this.dbSet, TargetType);
+		// return res;
+		return new Array<V>();
 	}
 
-	async selectPlain(keys: (keyof U)[]) {
+	async selectPlain(keys: (keyof T)[]) {
 		this.stat.command = sql.types.Command.SELECT;
 
 		let fields = this.dbSet.filterFields(<string[]>keys);
@@ -76,7 +76,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 
 		let input = await this.context.execute(this.stat);
 		let data = input.rows.map(row => {
-			let obj: types.SelectType<U> = {};
+			let obj: types.SelectType<T> = {};
 			fields.forEach(field => {
 				let colName = field.colName;
 				let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
@@ -98,9 +98,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 				if (fieldMapping) {
 					let colName = fieldMapping.colName;
 					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
-					let deSerializer = this.context.handler.deSerializeMap.get(fieldMapping.columnType)
-					if (deSerializer && val != null) Reflect.set(obj, key, deSerializer(val));
-					else Reflect.set(obj, key, val);
+					Reflect.set(obj, key, val);
 				} else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
 					field.bind(this.context, obj);
 				}
@@ -111,9 +109,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 	}
 
 	// Conditional Functions
-	where(param: types.IWhereFunc<model.WhereExprBuilder<U>>, ...args: any[]): IQuerySet<U> {
+	where(param: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]) {
 		let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-		let eb = new model.WhereExprBuilder<U>(fieldMap);
+		let eb = new model.WhereExprBuilder<T>(fieldMap);
 		let res = param(eb, args);
 		if (res && res instanceof sql.Expression && res.exps.length > 0) {
 			this.stat.where = this.stat.where.add(res);
@@ -121,9 +119,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		return this;
 	}
 
-	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<U>>): IQuerySet<U> {
+	groupBy(param: types.IArrFieldFunc<model.GroupExprBuilder<T>>) {
 		let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-		let eb = new model.GroupExprBuilder<U>(fieldMap);
+		let eb = new model.GroupExprBuilder<T>(fieldMap);
 		let res = param(eb);
 		if (res && Array.isArray(res)) {
 			res.forEach(expr => {
@@ -135,9 +133,9 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		return this;
 	}
 
-	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<U>>): IQuerySet<U> {
+	orderBy(param: types.IArrFieldFunc<model.OrderExprBuilder<T>>) {
 		let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
-		let eb = new model.OrderExprBuilder<U>(fieldMap);
+		let eb = new model.OrderExprBuilder<T>(fieldMap);
 		let res = param(eb);
 		if (res && Array.isArray(res)) {
 			res.forEach(a => {
@@ -149,7 +147,7 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		return this;
 	}
 
-	limit(size: number, index?: number): IQuerySet<U> {
+	limit(size: number, index?: number) {
 		this.stat.limit = new sql.Expression(null, sql.types.Operator.Limit);
 		this.stat.limit.exps.push(new sql.Expression(size.toString()));
 		if (index) {
@@ -158,10 +156,8 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 		return this;
 	}
 
-	async update(param: types.IUpdateFunc<U>): Promise<void> {
-		let stat = new sql.Statement();
-		stat.command = sql.types.Command.UPDATE;
-		stat.collection.value = this.dbSet.tableName;
+	async update(param: types.IUpdateFunc<T>) {
+		this.stat.command = sql.types.Command.UPDATE;
 
 		let obj = this.getEntity();
 		let tempObj = param(obj);
@@ -173,23 +169,26 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 			let c1 = new sql.Expression(field.colName);
 			let c2 = new sql.Expression('?');
 			let val = Reflect.get(tempObj, field.fieldName);
-			let serializer = this.context.handler.serializeMap.get(field.columnType);
-			let finalVal = serializer ? serializer(val) : val;
-			c2.args.push(finalVal);
+			c2.args.push(val);
 
 			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-			stat.columns.push(expr);
+			this.stat.columns.push(expr);
 		});
 
-		if (stat.columns.length > 0) {
-			let result = await this.context.execute(stat);
-			if (result.error) {
-				throw result.error;
-			}
+		if (this.stat.columns.length > 0) {
+			let result = await this.context.execute(this.stat);
+			if (result.error) throw result.error;
 		}
 	}
 
-	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<U, A>, joinType?: sql.types.Join): IQuerySet<U & A> {
+	async delete() {
+		this.stat.command = sql.types.Command.DELETE;
+
+		let result = await this.context.execute(this.stat);
+		if (result.error) throw result.error;
+	}
+
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
 		joinType = joinType ?? sql.types.Join.InnerJoin;
 
 		let temp: sql.Expression | null = null;
@@ -199,11 +198,10 @@ class QuerySet<T extends Object, U extends Object = types.SubEntityType<T>> exte
 			temp = param(mainObj, joinObj);
 		}
 
-		if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-			return new JoinQuerySet<U, A>(this, coll, joinType, temp);
-		} else {
+		if (!(temp && temp instanceof sql.Expression && temp.exps.length > 0))
 			throw new Error('Invalid Join');
-		}
+
+		return new JoinQuerySet<T, A>(this, coll, joinType, temp);
 	}
 
 }

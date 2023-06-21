@@ -4,11 +4,11 @@ import QuerySet from './QuerySet.js'
 import WhereExprBuilder from '../model/WhereExprBuilder.js';
 import Context from '../Context.js';
 
-class LinkSet<T extends Object, U extends Object> extends QuerySet<T, T>{
+class LinkSet<T extends Object, U extends Object> extends QuerySet<T>{
 	private foreignFunc: types.IJoinFunc<WhereExprBuilder<T>, U>;
 
 	constructor(context: Context, entityType: types.IEntityType<T>, foreignFunc: types.IJoinFunc<WhereExprBuilder<T>, U>) {
-		super(context, context.tableSetMap.get(entityType), entityType);
+		super(context, context.tableSetMap.get(entityType));
 		this.foreignFunc = foreignFunc;
 	}
 

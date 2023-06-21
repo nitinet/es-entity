@@ -7,14 +7,14 @@ class QuerySet extends IQuerySet {
     alias;
     stat = new sql.Statement();
     EntityType;
-    constructor(context, dbSet, EntityType) {
+    constructor(context, dbSet) {
         super();
         this.context = context;
         if (!dbSet)
             throw new TypeError('Invalid Entity');
         this.dbSet = dbSet;
         this.bind(dbSet);
-        this.EntityType = EntityType;
+        this.EntityType = this.dbSet.getEntityType();
     }
     bind(dbSet) {
         this.alias = dbSet.tableName.charAt(0);
@@ -34,9 +34,8 @@ class QuerySet extends IQuerySet {
         let result = await this.context.execute(this.stat);
         return this.mapData(result);
     }
-    select(TargetType) {
-        let res = new QuerySet(this.context, this.dbSet, TargetType);
-        return res;
+    async select(TargetType) {
+        return new Array();
     }
     async selectPlain(keys) {
         this.stat.command = sql.types.Command.SELECT;
@@ -64,11 +63,7 @@ class QuerySet extends IQuerySet {
                 if (fieldMapping) {
                     let colName = fieldMapping.colName;
                     let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
-                    let deSerializer = this.context.handler.deSerializeMap.get(fieldMapping.columnType);
-                    if (deSerializer && val != null)
-                        Reflect.set(obj, key, deSerializer(val));
-                    else
-                        Reflect.set(obj, key, val);
+                    Reflect.set(obj, key, val);
                 }
                 else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
                     field.bind(this.context, obj);
@@ -122,9 +117,7 @@ class QuerySet extends IQuerySet {
         return this;
     }
     async update(param) {
-        let stat = new sql.Statement();
-        stat.command = sql.types.Command.UPDATE;
-        stat.collection.value = this.dbSet.tableName;
+        this.stat.command = sql.types.Command.UPDATE;
         let obj = this.getEntity();
         let tempObj = param(obj);
         let fields = this.dbSet.filterFields(Reflect.ownKeys(tempObj.obj))
@@ -133,18 +126,21 @@ class QuerySet extends IQuerySet {
             let c1 = new sql.Expression(field.colName);
             let c2 = new sql.Expression('?');
             let val = Reflect.get(tempObj, field.fieldName);
-            let serializer = this.context.handler.serializeMap.get(field.columnType);
-            let finalVal = serializer ? serializer(val) : val;
-            c2.args.push(finalVal);
+            c2.args.push(val);
             let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-            stat.columns.push(expr);
+            this.stat.columns.push(expr);
         });
-        if (stat.columns.length > 0) {
-            let result = await this.context.execute(stat);
-            if (result.error) {
+        if (this.stat.columns.length > 0) {
+            let result = await this.context.execute(this.stat);
+            if (result.error)
                 throw result.error;
-            }
         }
+    }
+    async delete() {
+        this.stat.command = sql.types.Command.DELETE;
+        let result = await this.context.execute(this.stat);
+        if (result.error)
+            throw result.error;
     }
     join(coll, param, joinType) {
         joinType = joinType ?? sql.types.Join.InnerJoin;
@@ -154,12 +150,9 @@ class QuerySet extends IQuerySet {
             let joinObj = coll.getEntity();
             temp = param(mainObj, joinObj);
         }
-        if (temp && temp instanceof sql.Expression && temp.exps.length > 0) {
-            return new JoinQuerySet(this, coll, joinType, temp);
-        }
-        else {
+        if (!(temp && temp instanceof sql.Expression && temp.exps.length > 0))
             throw new Error('Invalid Join');
-        }
+        return new JoinQuerySet(this, coll, joinType, temp);
     }
 }
 export default QuerySet;

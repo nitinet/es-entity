@@ -42,15 +42,12 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			let val = Reflect.get(entity, field.fieldName);
 			if (val == null) return;
 
-			let serializer = this.context.handler.serializeMap.get(field.columnType);
-			let finalVal = serializer ? serializer(val) : val;
-
 			let col = new sql.Collection();
 			col.value = field.colName;
 			stat.columns.push(col);
 
 			let expr = new sql.Expression('?');
-			expr.args.push(finalVal);
+			expr.args.push(val);
 			stat.values.push(expr);
 		});
 
@@ -85,14 +82,11 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 				let val: any = Reflect.get(ent, field.fieldName);
 				if (val == null) return;
 
-				let serializer = this.context.handler.serializeMap.get(field.columnType);
-				let finalVal = serializer ? serializer(val) : val;
-
 				let col = new sql.Collection();
 				col.value = field.colName;
 				stat.columns.push(col);
 
-				let expr = new sql.Expression(finalVal);
+				let expr = new sql.Expression(val);
 				stat.values.push(expr);
 			});
 			let query = stat.eval(this.context.handler);
@@ -133,9 +127,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			let c1 = new sql.Expression(field.colName);
 			let c2 = new sql.Expression('?');
 			let val = Reflect.get(entity, field.fieldName);
-			let serializer = this.context.handler.serializeMap.get(field.columnType);
-			let finalVal = serializer ? serializer(val) : val;
-			c2.args.push(finalVal);
+			c2.args.push(val);
 
 			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
 			stat.columns.push(expr);
@@ -176,9 +168,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			fields.forEach((field) => {
 				let c1 = new sql.Expression(field.colName);
 				let val: any = Reflect.get(ent, field.fieldName);
-				let serializer = this.context.handler.serializeMap.get(field.columnType);
-				let finalVal = serializer ? serializer(val) : val;
-				let c2 = new sql.Expression(finalVal);
+				let c2 = new sql.Expression(val);
 
 				let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
 				stat.columns.push(expr);
@@ -244,43 +234,43 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		return val;
 	}
 
-	where(param: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	where(param: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.where(param, args);
 	}
 
-	groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.groupBy(func);
 	}
 
-	orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.orderBy(func);
 	}
 
-	limit(size: number, index?: number): IQuerySet<T> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	limit(size: number, index?: number) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.limit(size, index);
 	}
 
-	list(): Promise<T[]> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	list() {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.list();
 	}
 
-	select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): IQuerySet<U> {
-		let q = new QuerySet(this.context, this.dbSet, TargetType);
+	select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.select(TargetType);
 	}
 
-	selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	selectPlain(keys: (keyof T)[]) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.selectPlain(keys);
 	}
 
-	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A> {
-		let q = new QuerySet(this.context, this.dbSet, this.EntityType);
+	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>, joinType?: sql.types.Join) {
+		let q = new QuerySet(this.context, this.dbSet);
 		return q.join(coll, param, joinType);
 	}
 }

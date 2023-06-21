@@ -15,11 +15,11 @@ export default class PostgreSql extends Handler {
 	constructor(config: bean.IConnectionConfig) {
 		super(config);
 
-		this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
-		this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
+		// this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
+		// this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
 
-		this.serializeMap.set(bean.ColumnType.ARRAY, (val: any[]) => `{${val.join(',')}}`);
-		this.deSerializeMap.set(bean.ColumnType.ARRAY, (val: string) => val.replace('{', '').replace('}', '').split(','));
+		// this.serializeMap.set(bean.ColumnType.ARRAY, (val: any[]) => `{${val.join(',')}}`);
+		// this.deSerializeMap.set(bean.ColumnType.ARRAY, (val: string) => val.replace('{', '').replace('}', '').split(','));
 	}
 
 	async init() {
@@ -133,7 +133,7 @@ export default class PostgreSql extends Handler {
 	}
 
 	convertPlaceHolder(query: string) {
-		for (let i = 0; query.includes('?'); i++)
+		for (let i = 0; i >= 0 && query.includes('?'); i++)
 			query = query.replace('?', `$${i}`);
 
 		return query;
