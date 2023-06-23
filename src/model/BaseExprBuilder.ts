@@ -2,7 +2,7 @@ import Expression from '../sql/Expression.js';
 import FieldMapping from './FieldMapping.js';
 import { PropKeys } from './types.js';
 
-class BaseExprBuilder<T extends Object> {
+class BaseExprBuilder<T> {
 	private fieldMap: Map<string | number | symbol, FieldMapping>;
 	private alias: string | undefined;
 

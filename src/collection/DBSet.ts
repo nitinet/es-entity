@@ -14,8 +14,10 @@ class DBSet<T extends Object>  {
 
 	constructor(entityType: types.IEntityType<T>) {
 		this.entityType = entityType;
-		// this.entityName = this.entityType.name;
-		this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
+		let tableName: string | null = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
+		if (!tableName) throw new Error('Table Name Not Found');
+
+		this.tableName = tableName;
 		this.bind();
 	}
 
@@ -38,13 +40,15 @@ class DBSet<T extends Object>  {
 		// if (!column) return;
 
 		// this.checkColumnType(column, key);
-		let columnName: string = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.entityType.prototype, key);
-		let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
-		let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
+		let columnName: string | null = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.entityType.prototype, key);
+		if (columnName) {
+			let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
+			let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
 
-		let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
-		this.fieldMap.set(key, fieldMapping);
-		if (primaryKey) this.primaryFields.push(fieldMapping);
+			let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
+			this.fieldMap.set(key, fieldMapping);
+			if (primaryKey) this.primaryFields.push(fieldMapping);
+		}
 	}
 
 	// private checkColumnType(column: bean.ColumnInfo, key: string) {

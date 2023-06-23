@@ -4,7 +4,7 @@ import BaseExprBuilder from './BaseExprBuilder.js';
 import FieldMapping from './FieldMapping.js';
 import { PropKeys, OperandType } from './types.js';
 
-class WhereExprBuilder<T extends Object> extends BaseExprBuilder<T> {
+class WhereExprBuilder<T> extends BaseExprBuilder<T> {
 
 	constructor(fieldMap: Map<string | symbol, FieldMapping>, alias?: string) {
 		super(fieldMap, alias);

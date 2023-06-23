@@ -88,19 +88,21 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 	}
 
 	private async mapData(input: bean.ResultSet) {
+		let keys = (<string[]>Reflect.ownKeys(new this.EntityType()));
+
 		let data = input.rows.map(row => {
 			let obj = new this.EntityType();
-			let keys = (<string[]>Reflect.ownKeys(obj));
-
 			keys.forEach(key => {
-				let field = Reflect.get(obj, key);
 				let fieldMapping = this.dbSet.fieldMap.get(key);
 				if (fieldMapping) {
 					let colName = fieldMapping.colName;
-					let val = row[colName] ?? row[colName.toLowerCase()] ?? row[colName.toUpperCase()];
+					let val = row[colName];
 					Reflect.set(obj, key, val);
-				} else if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-					field.bind(this.context, obj);
+				} else {
+					let field = Reflect.get(obj, key);
+					if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+						field.bind(this.context, obj);
+					}
 				}
 			});
 			return obj;

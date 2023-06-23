@@ -7,7 +7,10 @@ class DBSet {
     primaryFields = [];
     constructor(entityType) {
         this.entityType = entityType;
-        this.tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
+        let tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
+        if (!tableName)
+            throw new Error('Table Name Not Found');
+        this.tableName = tableName;
         this.bind();
     }
     bind() {
@@ -18,12 +21,14 @@ class DBSet {
     }
     bindField(key) {
         let columnName = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.entityType.prototype, key);
-        let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
-        let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
-        let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
-        this.fieldMap.set(key, fieldMapping);
-        if (primaryKey)
-            this.primaryFields.push(fieldMapping);
+        if (columnName) {
+            let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
+            let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
+            let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
+            this.fieldMap.set(key, fieldMapping);
+            if (primaryKey)
+                this.primaryFields.push(fieldMapping);
+        }
     }
     getEntityType() {
         return this.entityType;
