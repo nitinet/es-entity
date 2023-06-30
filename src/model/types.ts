@@ -8,7 +8,7 @@ type IUpdateFunc<T> = (source: T) => { obj: T, updatedKeys: (keyof T)[] };
 
 type IWhereFunc<T> = (source: T, ...args: any[]) => Expression | null;
 
-type IEntityType<T extends Object> = new () => T;
+type IEntityType<T extends Object> = new (...args: any[]) => T;
 
 type SelectType<T> = {
 	[Property in keyof T]?: any;
