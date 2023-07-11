@@ -17,11 +17,7 @@ export default class Oracle extends Handler {
         });
     }
     async getConnection() {
-        let conn = await this.driver.getConnection({
-            user: this.config.username,
-            password: this.config.password,
-            connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
-        });
+        let conn = await this.connectionPool.getConnection();
         return conn;
     }
     async initTransaction(conn) { }

@@ -52,69 +52,44 @@ export default class Mysql extends Handler {
 		});
 	}
 
-	getConnection(): Promise<mysql.Connection> {
-		let that = this;
-		return new Promise<mysql.Connection>((resolve, reject) => {
-			let conn = that.driver.createConnection({
-				host: that.config.host,
-				port: that.config.port,
-				user: that.config.username,
-				password: that.config.password,
-				database: that.config.database
-			});
-			conn.connect((err: Error) => {
-				if (err) {
-					// that.context.log('Connection Creation Failed', err);
-					reject(err);
-				} else {
-					resolve(conn);
-				}
+	getConnection(): Promise<mysql.PoolConnection> {
+		return new Promise<mysql.PoolConnection>((res, rej) => {
+			this.connectionPool.getConnection((err, c) => {
+				if (err) rej(err);
+				else res(c);
 			});
 		});
 	}
 
-	initTransaction(conn: mysql.Connection) {
+	initTransaction(conn: mysql.PoolConnection) {
 		return new Promise<void>((resolve, reject) => {
 			conn.beginTransaction((err: Error) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve();
-				}
+				if (err) reject(err);
+				else resolve();
 			});
 		});
 	}
 
-	commit(conn: mysql.Connection) {
+	commit(conn: mysql.PoolConnection) {
 		return new Promise<void>((resolve, reject) => {
 			conn.commit((err: Error) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve();
-				}
+				if (err) reject(err);
+				else resolve();
 			});
 		});
 	}
 
-	rollback(conn: mysql.Connection) {
-		return new Promise<void>((resolve) => {
-			conn.rollback(() => {
-				resolve();
-			});
-		});
-	}
-
-	close(conn: mysql.Connection) {
+	rollback(conn: mysql.PoolConnection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.end((err?: Error) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve();
-				}
+			conn.rollback((err) => {
+				if (err) reject(err);
+				else resolve();
 			});
 		});
+	}
+
+	async close(conn: mysql.PoolConnection) {
+		conn.release();
 	}
 
 	async end(): Promise<void> { }

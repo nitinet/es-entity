@@ -19,67 +19,47 @@ export default class Mysql extends Handler {
         });
     }
     getConnection() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let conn = that.driver.createConnection({
-                host: that.config.host,
-                port: that.config.port,
-                user: that.config.username,
-                password: that.config.password,
-                database: that.config.database
-            });
-            conn.connect((err) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(conn);
-                }
+        return new Promise((res, rej) => {
+            this.connectionPool.getConnection((err, c) => {
+                if (err)
+                    rej(err);
+                else
+                    res(c);
             });
         });
     }
     initTransaction(conn) {
         return new Promise((resolve, reject) => {
             conn.beginTransaction((err) => {
-                if (err) {
+                if (err)
                     reject(err);
-                }
-                else {
+                else
                     resolve();
-                }
             });
         });
     }
     commit(conn) {
         return new Promise((resolve, reject) => {
             conn.commit((err) => {
-                if (err) {
+                if (err)
                     reject(err);
-                }
-                else {
+                else
                     resolve();
-                }
             });
         });
     }
     rollback(conn) {
-        return new Promise((resolve) => {
-            conn.rollback(() => {
-                resolve();
+        return new Promise((resolve, reject) => {
+            conn.rollback((err) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
             });
         });
     }
-    close(conn) {
-        return new Promise((resolve, reject) => {
-            conn.end((err) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve();
-                }
-            });
-        });
+    async close(conn) {
+        conn.release();
     }
     async end() { }
     async run(query, args, connection) {

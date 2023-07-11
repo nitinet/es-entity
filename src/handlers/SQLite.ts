@@ -32,13 +32,41 @@ export default class SQlite extends Handler {
 		return this.connectionPool;
 	}
 
-	async initTransaction(conn: sqlite.Database): Promise<void> { await conn.run('BEGIN TRANSACTION'); }
+	async initTransaction(conn: sqlite.Database): Promise<void> {
+		await new Promise((res, rej) => {
+			conn.run('BEGIN TRANSACTION', (data: any, err: any) => {
+				if (err) rej(err);
+				else res(data);
+			});
+		});
+	}
 
-	async commit(conn: sqlite.Database): Promise<void> { await conn.run('COMMIT'); }
+	async commit(conn: sqlite.Database): Promise<void> {
+		await new Promise((res, rej) => {
+			conn.run('COMMIT', (data: any, err: any) => {
+				if (err) rej(err);
+				else res(data);
+			});
+		});
+	}
 
-	async rollback(conn: sqlite.Database): Promise<void> { await conn.run('ROLLBACK'); }
+	async rollback(conn: sqlite.Database): Promise<void> {
+		await new Promise((res, rej) => {
+			conn.run('ROLLBACK', (data: any, err: any) => {
+				if (err) rej(err);
+				else res(data);
+			});
+		});
+	}
 
-	async close(conn: sqlite.Database): Promise<void> { await conn.close(); }
+	async close(conn: sqlite.Database): Promise<void> {
+		// await new Promise<void>((res, rej) => {
+		// 	conn.close((err: any) => {
+		// 		if (err) rej(err);
+		// 		else res();
+		// 	});
+		// });
+	}
 
 	async end(): Promise<void> { }
 

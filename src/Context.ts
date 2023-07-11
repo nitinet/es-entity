@@ -83,7 +83,6 @@ export default class Context {
 			}
 		});
 
-		// res.connection = await res.handler.getConnection();
 		let nativeConn = await this.handler.getConnection();
 		res.connection = new bean.Connection(res.handler, nativeConn);
 		await res.connection.initTransaction();

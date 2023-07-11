@@ -19,20 +19,17 @@ export default class PostgreSql extends Handler {
         });
     }
     async getConnection() {
-        let conn = new this.driver.Client({
-            host: this.config.host,
-            port: this.config.port,
-            user: this.config.username,
-            password: this.config.password,
-            database: this.config.database
-        });
-        await conn.connect();
+        let conn = await this.connectionPool.connect();
         return conn;
     }
     async initTransaction(conn) { await conn.query('BEGIN'); }
-    async commit(conn) { await conn.query('COMMIT'); }
-    async rollback(conn) { await conn.query('ROLLBACK'); }
-    async close(conn) { await conn.end(); }
+    async commit(conn) {
+        await conn.query('COMMIT');
+    }
+    async rollback(conn) {
+        await conn.query('ROLLBACK');
+    }
+    async close(conn) { conn.release(); }
     async end() { }
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);

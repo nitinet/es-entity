@@ -36,30 +36,22 @@ export default class PostgreSql extends Handler {
 		});
 	}
 
-	async getConnection(): Promise<pg.Client> {
-		let conn = new this.driver.Client({
-			host: this.config.host,
-			port: this.config.port,
-			user: this.config.username,
-			password: this.config.password,
-			database: this.config.database
-		});
-		// try {
-		await conn.connect();
+	async getConnection(): Promise<pg.PoolClient> {
+		let conn = await this.connectionPool.connect()
 		return conn;
-		// } catch (err) {
-		// this.context.log('Connection Creation Failed', err);
-		// throw err;
-		// }
 	}
 
 	async initTransaction(conn: pg.Client): Promise<void> { await conn.query('BEGIN'); }
 
-	async commit(conn: pg.Client): Promise<void> { await conn.query('COMMIT'); }
+	async commit(conn: pg.PoolClient): Promise<void> {
+		await conn.query('COMMIT');
+	}
 
-	async rollback(conn: pg.Client): Promise<void> { await conn.query('ROLLBACK'); }
+	async rollback(conn: pg.PoolClient): Promise<void> {
+		await conn.query('ROLLBACK');
+	}
 
-	async close(conn: pg.Client): Promise<void> { await conn.end(); }
+	async close(conn: pg.PoolClient): Promise<void> { conn.release(); }
 
 	async end(): Promise<void> { }
 

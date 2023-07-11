@@ -20,10 +20,38 @@ export default class SQlite extends Handler {
     async getConnection() {
         return this.connectionPool;
     }
-    async initTransaction(conn) { await conn.run('BEGIN TRANSACTION'); }
-    async commit(conn) { await conn.run('COMMIT'); }
-    async rollback(conn) { await conn.run('ROLLBACK'); }
-    async close(conn) { await conn.close(); }
+    async initTransaction(conn) {
+        await new Promise((res, rej) => {
+            conn.run('BEGIN TRANSACTION', (data, err) => {
+                if (err)
+                    rej(err);
+                else
+                    res(data);
+            });
+        });
+    }
+    async commit(conn) {
+        await new Promise((res, rej) => {
+            conn.run('COMMIT', (data, err) => {
+                if (err)
+                    rej(err);
+                else
+                    res(data);
+            });
+        });
+    }
+    async rollback(conn) {
+        await new Promise((res, rej) => {
+            conn.run('ROLLBACK', (data, err) => {
+                if (err)
+                    rej(err);
+                else
+                    res(data);
+            });
+        });
+    }
+    async close(conn) {
+    }
     async end() { }
     async run(query, args, connection) {
         let queryObj = this.prepareQuery(query, args);

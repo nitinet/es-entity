@@ -29,11 +29,12 @@ export default class Oracle extends Handler {
 	}
 
 	async getConnection(): Promise<oracledb.Connection> {
-		let conn = await this.driver.getConnection({
-			user: this.config.username,
-			password: this.config.password,
-			connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
-		});
+		let conn = await this.connectionPool.getConnection();
+		// let conn = await this.driver.getConnection({
+		// 	user: this.config.username,
+		// 	password: this.config.password,
+		// 	connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
+		// });
 		return conn;
 	}
 
