@@ -54,7 +54,7 @@ export default class Mysql extends Handler {
 
 	getConnection(): Promise<mysql.PoolConnection> {
 		return new Promise<mysql.PoolConnection>((res, rej) => {
-			this.connectionPool.getConnection((err, c) => {
+			this.connectionPool.getConnection((err: mysql.MysqlError, c: mysql.PoolConnection) => {
 				if (err) rej(err);
 				else res(c);
 			});
@@ -63,7 +63,7 @@ export default class Mysql extends Handler {
 
 	initTransaction(conn: mysql.PoolConnection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.beginTransaction((err: Error) => {
+			conn.beginTransaction((err: mysql.MysqlError) => {
 				if (err) reject(err);
 				else resolve();
 			});
@@ -72,7 +72,7 @@ export default class Mysql extends Handler {
 
 	commit(conn: mysql.PoolConnection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.commit((err: Error) => {
+			conn.commit((err: mysql.MysqlError) => {
 				if (err) reject(err);
 				else resolve();
 			});
@@ -81,7 +81,7 @@ export default class Mysql extends Handler {
 
 	rollback(conn: mysql.PoolConnection) {
 		return new Promise<void>((resolve, reject) => {
-			conn.rollback((err) => {
+			conn.rollback((err: mysql.MysqlError) => {
 				if (err) reject(err);
 				else resolve();
 			});
