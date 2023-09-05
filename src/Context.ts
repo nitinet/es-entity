@@ -1,10 +1,10 @@
-import * as sql from './sql/index.js';
 import * as bean from './bean/index.js';
-import Handler from './handlers/Handler.js';
-import * as types from './model/types.js';
-import getHandler from './handlers/getHandler.js';
-import TableSet from './collection/TableSet.js';
 import DBSet from './collection/DBSet.js';
+import TableSet from './collection/TableSet.js';
+import Handler from './handlers/Handler.js';
+import getHandler from './handlers/getHandler.js';
+import * as types from './model/types.js';
+import * as sql from './sql/index.js';
 
 export default class Context {
 	private _handler: Handler;
@@ -61,11 +61,11 @@ export default class Context {
 	// 	this._entityPath = entityPath;
 	// }
 
-	async execute(query: string | sql.INode, args?: Array<any>): Promise<bean.ResultSet> {
+	async execute(query: string | sql.Statement | sql.Statement[]) {
 		if (this.connection) {
-			return this.connection.run(query, args);
+			return this.connection.run(query);
 		} else {
-			return this.handler.run(query, args);
+			return this.handler.run(query);
 		}
 	}
 

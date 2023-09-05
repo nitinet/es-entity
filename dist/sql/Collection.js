@@ -8,9 +8,6 @@ class Collection extends INode {
     rightColl = null;
     join = null;
     alias = null;
-    constructor() {
-        super();
-    }
     eval(handler) {
         let res = '';
         if (this.value) {

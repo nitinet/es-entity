@@ -1,7 +1,5 @@
-import * as sql from '../sql/index.js';
-// import Context from '../Context.js';
-
 import * as bean from '../bean/index.js';
+import * as sql from '../sql/index.js';
 
 export default abstract class Handler {
 	// context: Context | null = null;
@@ -16,7 +14,7 @@ export default abstract class Handler {
 	abstract init(): Promise<void>;
 
 	// abstract getTableInfo(tableName: string): Promise<Array<bean.ColumnInfo>>
-	abstract run(query: string | sql.INode, args?: Array<any>, connetction?: any): Promise<bean.ResultSet>
+	abstract run(query: string | sql.Statement | sql.Statement[], connetction?: any): Promise<bean.ResultSet>
 
 	// Connetion manage functions
 	abstract getConnection(): Promise<any>;
@@ -25,24 +23,6 @@ export default abstract class Handler {
 	abstract rollback(conn: any): Promise<void>;
 	abstract close(conn: any): Promise<void>;
 	abstract end(): Promise<void>;
-
-	convertPlaceHolder(query: string | null) {
-		if (!query) throw TypeError('Invalid Placehilder');
-		else return query;
-	}
-
-	prepareQuery(queryStmt: string | sql.Statement, args?: Array<any>) {
-		let query: string;
-		if (queryStmt instanceof sql.Statement) {
-			query = queryStmt.eval(this);
-			args = queryStmt.args;
-		} else {
-			query = queryStmt;
-		}
-		return {
-			query, args
-		}
-	}
 
 	// Comparison Operators
 	eq(val0: string, val1: string): string {

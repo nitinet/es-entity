@@ -1,9 +1,8 @@
 // @ts-ignore
 import sqlite from 'sqlite3';
-
 import * as bean from '../bean/index.js';
-import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
+import Handler from './Handler.js';
 
 export default class SQlite extends Handler {
 	handlerName = 'sqlite';
@@ -11,10 +10,6 @@ export default class SQlite extends Handler {
 	// @ts-ignore
 	driver!: typeof import('sqlite3');
 	connectionPool!: sqlite.Database;
-
-	constructor(config: bean.IConnectionConfig) {
-		super(config);
-	}
 
 	async init() {
 		// @ts-ignore
@@ -97,8 +92,23 @@ export default class SQlite extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.Statement, args?: Array<any>, connection?: sqlite.Database): Promise<bean.ResultSet> {
-		let queryObj = this.prepareQuery(query, args);
+	async run(queryStmt: string | sql.Statement | sql.Statement[], connection?: sqlite.Database): Promise<bean.ResultSet> {
+		let query: string;
+		let dataArgs: any[] = [];
+		if (Array.isArray(queryStmt)) {
+			let tempQueries: string[] = [];
+			queryStmt.forEach(a => {
+				if (!(a instanceof sql.Statement)) throw new Error('Invalid Statement');
+				tempQueries.push(a.eval(this));
+				dataArgs.push(...a.args);
+			});
+			query = tempQueries.join('; ');
+		} else if (queryStmt instanceof sql.Statement) {
+			query = queryStmt.eval(this);
+			dataArgs.push(...queryStmt.args);
+		} else {
+			query = queryStmt;
+		}
 
 		let conn: sqlite.Database;
 		if (connection) {
@@ -108,7 +118,7 @@ export default class SQlite extends Handler {
 		}
 
 		let temp: any[] = await new Promise((resolve, reject) => {
-			conn.all(queryObj.query, queryObj.args, function (err, r) {
+			conn.all(query, dataArgs, function (err, r) {
 				if (err) { reject(err); }
 				else { resolve(r); }
 			});

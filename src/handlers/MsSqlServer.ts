@@ -1,9 +1,8 @@
 // @ts-ignore
 import mssql from 'mssql';
-
 import * as bean from '../bean/index.js';
-import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
+import Handler from './Handler.js';
 
 export default class MsSqlServer extends Handler {
 	handlerName = 'mssql';
@@ -11,10 +10,6 @@ export default class MsSqlServer extends Handler {
 	// @ts-ignore
 	driver!: typeof import('mssql');
 	connectionPool!: mssql.ConnectionPool;
-
-	constructor(config: bean.IConnectionConfig) {
-		super(config);
-	}
 
 	async init() {
 		// @ts-ignore
@@ -82,8 +77,23 @@ export default class MsSqlServer extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.Statement, args?: Array<any>, connection?: mssql.Request): Promise<bean.ResultSet> {
-		let queryObj = this.prepareQuery(query, args);
+	async run(queryStmt: string | sql.Statement | sql.Statement[], connection?: mssql.Request): Promise<bean.ResultSet> {
+		let query: string;
+		let dataArgs: any[] = [];
+		if (Array.isArray(queryStmt)) {
+			let tempQueries: string[] = [];
+			queryStmt.forEach(a => {
+				if (!(a instanceof sql.Statement)) throw new Error('Invalid Statement');
+				tempQueries.push(a.eval(this));
+				dataArgs.push(...a.args);
+			});
+			query = tempQueries.join('; ');
+		} else if (queryStmt instanceof sql.Statement) {
+			query = queryStmt.eval(this);
+			dataArgs.push(...queryStmt.args);
+		} else {
+			query = queryStmt;
+		}
 
 		let conn: mssql.Request;
 
@@ -93,7 +103,7 @@ export default class MsSqlServer extends Handler {
 			conn = this.connectionPool.request();
 		}
 
-		let temp = await conn.query(queryObj.query);
+		let temp = await conn.query(query);
 
 		let result: bean.ResultSet = new bean.ResultSet();
 		result.rowCount = temp.rowsAffected[0] ?? 0;

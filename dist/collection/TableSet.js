@@ -1,8 +1,8 @@
-import * as sql from '../sql/index.js';
 import * as model from '../model/index.js';
+import * as sql from '../sql/index.js';
+import DBSet from './DBSet.js';
 import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
-import DBSet from './DBSet.js';
 class TableSet extends IQuerySet {
     EntityType;
     dbSet;
@@ -61,26 +61,25 @@ class TableSet extends IQuerySet {
         return finalObj;
     }
     async insertBulk(entities) {
-        let queries = entities.map(ent => {
+        let stmts = entities.map(entity => {
             let stat = new sql.Statement();
             stat.command = sql.types.Command.INSERT;
             stat.collection.value = this.dbSet.tableName;
-            let fields = this.dbSet.filterFields(Reflect.ownKeys(ent));
+            let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
             fields.forEach((field) => {
-                let val = Reflect.get(ent, field.fieldName);
+                let val = Reflect.get(entity, field.fieldName);
                 if (val == null)
                     return;
                 let col = new sql.Collection();
                 col.value = field.colName;
                 stat.columns.push(col);
-                let expr = new sql.Expression(val);
+                let expr = new sql.Expression('?');
+                expr.args.push(val);
                 stat.values.push(expr);
             });
-            let query = stat.eval(this.context.handler);
-            return query;
+            return stat;
         });
-        let bulkQuery = queries.join('; ');
-        await this.context.execute(bulkQuery);
+        await this.context.handler.run(stmts);
     }
     whereExpr(entity) {
         let primaryFields = this.dbSet.getPrimaryFields();
@@ -103,6 +102,8 @@ class TableSet extends IQuerySet {
         let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
+        if (fields.length == 0)
+            throw new Error('Update Fields Empty');
         fields.forEach((field) => {
             let c1 = new sql.Expression(field.colName);
             let c2 = new sql.Expression('?');
@@ -112,24 +113,19 @@ class TableSet extends IQuerySet {
             stat.columns.push(expr);
         });
         stat.where = this.whereExpr(entity);
-        if (stat.columns.length > 0) {
-            let result = await this.context.execute(stat);
-            if (result.error) {
-                throw new Error(result.error);
-            }
-            else {
-                let idParams = [];
-                primaryFields.forEach(field => {
-                    idParams.push(Reflect.get(entity, field.fieldName));
-                });
-                let finalObj = await this.get(...idParams);
-                if (!finalObj)
-                    throw new Error('Update Object Not Found');
-                return finalObj;
-            }
+        let result = await this.context.execute(stat);
+        if (result.error) {
+            throw new Error(result.error);
         }
         else {
-            return entity;
+            let idParams = [];
+            primaryFields.forEach(field => {
+                idParams.push(Reflect.get(entity, field.fieldName));
+            });
+            let finalObj = await this.get(...idParams);
+            if (!finalObj)
+                throw new Error('Update Object Not Found');
+            return finalObj;
         }
     }
     async updateBulk(entities, ...updatedKeys) {
@@ -138,7 +134,7 @@ class TableSet extends IQuerySet {
         let fields = this.dbSet.filterFields(Reflect.ownKeys(temp)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
-        let queries = entities.map(ent => {
+        let stmts = entities.map(ent => {
             let stat = new sql.Statement();
             stat.command = sql.types.Command.UPDATE;
             stat.collection.value = this.dbSet.tableName;
@@ -150,11 +146,9 @@ class TableSet extends IQuerySet {
                 stat.columns.push(expr);
             });
             stat.where = this.whereExpr(ent);
-            let query = stat.eval(this.context.handler);
-            return query;
+            return stat;
         });
-        let bulkQuery = queries.join('; ');
-        await this.context.execute(bulkQuery);
+        await this.context.execute(stmts);
     }
     async insertOrUpdate(entity) {
         let primaryFields = this.dbSet.getPrimaryFields();

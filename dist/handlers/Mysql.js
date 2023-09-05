@@ -1,12 +1,10 @@
 import * as bean from '../bean/index.js';
+import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
 export default class Mysql extends Handler {
     handlerName = 'mysql';
     driver;
     connectionPool;
-    constructor(config) {
-        super(config);
-    }
     async init() {
         this.driver = this.config.driver ?? await import('mysql');
         this.connectionPool = this.driver.createPool({
@@ -62,12 +60,30 @@ export default class Mysql extends Handler {
         conn.release();
     }
     async end() { }
-    async run(query, args, connection) {
-        let queryObj = this.prepareQuery(query, args);
+    async run(queryStmt, connection) {
+        let query;
+        let dataArgs = [];
+        if (Array.isArray(queryStmt)) {
+            let tempQueries = [];
+            queryStmt.forEach(a => {
+                if (!(a instanceof sql.Statement))
+                    throw new Error('Invalid Statement');
+                tempQueries.push(a.eval(this));
+                dataArgs.push(...a.args);
+            });
+            query = tempQueries.join('; ');
+        }
+        else if (queryStmt instanceof sql.Statement) {
+            query = queryStmt.eval(this);
+            dataArgs.push(...queryStmt.args);
+        }
+        else {
+            query = queryStmt;
+        }
         let temp = null;
         if (connection) {
             temp = await new Promise((resolve, reject) => {
-                connection.query(queryObj.query, queryObj.args, function (err, r) {
+                connection.query(query, dataArgs, function (err, r) {
                     if (err) {
                         reject(err);
                     }
@@ -79,7 +95,7 @@ export default class Mysql extends Handler {
         }
         else {
             temp = await new Promise((resolve, reject) => {
-                this.connectionPool.query(queryObj.query, queryObj.args, function (err, r) {
+                this.connectionPool.query(query, dataArgs, function (err, r) {
                     if (err) {
                         reject(err);
                     }

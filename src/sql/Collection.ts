@@ -19,10 +19,6 @@ class Collection extends INode {
 
 	alias: string | null = null;
 
-	constructor() {
-		super()
-	}
-
 	eval(handler: Handler): string {
 		let res: string = '';
 		if (this.value) {

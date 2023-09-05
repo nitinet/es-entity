@@ -1,12 +1,10 @@
 import * as bean from '../bean/index.js';
+import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
 export default class SQlite extends Handler {
     handlerName = 'sqlite';
     driver;
     connectionPool;
-    constructor(config) {
-        super(config);
-    }
     async init() {
         this.driver = this.config.driver ?? (await import('sqlite3'));
         this.connectionPool = await new Promise((res, rej) => {
@@ -53,8 +51,26 @@ export default class SQlite extends Handler {
     async close(conn) {
     }
     async end() { }
-    async run(query, args, connection) {
-        let queryObj = this.prepareQuery(query, args);
+    async run(queryStmt, connection) {
+        let query;
+        let dataArgs = [];
+        if (Array.isArray(queryStmt)) {
+            let tempQueries = [];
+            queryStmt.forEach(a => {
+                if (!(a instanceof sql.Statement))
+                    throw new Error('Invalid Statement');
+                tempQueries.push(a.eval(this));
+                dataArgs.push(...a.args);
+            });
+            query = tempQueries.join('; ');
+        }
+        else if (queryStmt instanceof sql.Statement) {
+            query = queryStmt.eval(this);
+            dataArgs.push(...queryStmt.args);
+        }
+        else {
+            query = queryStmt;
+        }
         let conn;
         if (connection) {
             conn = connection;
@@ -63,7 +79,7 @@ export default class SQlite extends Handler {
             conn = this.connectionPool;
         }
         let temp = await new Promise((resolve, reject) => {
-            conn.all(queryObj.query, queryObj.args, function (err, r) {
+            conn.all(query, dataArgs, function (err, r) {
                 if (err) {
                     reject(err);
                 }

@@ -1,9 +1,9 @@
-import * as sql from '../sql/index.js';
-import * as types from '../model/types.js';
 import * as model from '../model/index.js';
+import * as types from '../model/types.js';
+import * as sql from '../sql/index.js';
+import DBSet from './DBSet.js';
 import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
-import DBSet from './DBSet.js';
 
 class TableSet<T extends Object> extends IQuerySet<T>{
 	protected EntityType: types.IEntityType<T>;
@@ -71,30 +71,29 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 	}
 
 	async insertBulk(entities: T[]) {
-		let queries = entities.map(ent => {
-			let stat = new sql.Statement();
+		let stmts = entities.map(entity => {
+			let stat: sql.Statement = new sql.Statement();
 			stat.command = sql.types.Command.INSERT;
 			stat.collection.value = this.dbSet.tableName;
 
 			// Dynamic insert
-			let fields = this.dbSet.filterFields(Reflect.ownKeys(ent));
+			let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
 			fields.forEach((field) => {
-				let val: any = Reflect.get(ent, field.fieldName);
+				let val = Reflect.get(entity, field.fieldName);
 				if (val == null) return;
 
 				let col = new sql.Collection();
 				col.value = field.colName;
 				stat.columns.push(col);
 
-				let expr = new sql.Expression(val);
+				let expr = new sql.Expression('?');
+				expr.args.push(val);
 				stat.values.push(expr);
 			});
-			let query = stat.eval(this.context.handler);
-			return query;
+			return stat;
 		});
 
-		let bulkQuery = queries.join('; ');
-		await this.context.execute(bulkQuery);
+		await this.context.handler.run(stmts);
 	}
 
 	private whereExpr(entity: T) {
@@ -122,6 +121,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		// Dynamic update
 		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
 		if (updatedKeys) fields = fields.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
+		if (fields.length == 0) throw new Error('Update Fields Empty');
 
 		fields.forEach((field) => {
 			let c1 = new sql.Expression(field.colName);
@@ -135,21 +135,17 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 
 		stat.where = this.whereExpr(entity);
 
-		if (stat.columns.length > 0) {
-			let result = await this.context.execute(stat);
-			if (result.error) {
-				throw new Error(result.error);
-			} else {
-				let idParams: any[] = [];
-				primaryFields.forEach(field => {
-					idParams.push(Reflect.get(entity, field.fieldName));
-				});
-				let finalObj = await this.get(...idParams);
-				if (!finalObj) throw new Error('Update Object Not Found');
-				return finalObj;
-			}
+		let result = await this.context.execute(stat);
+		if (result.error) {
+			throw new Error(result.error);
 		} else {
-			return entity;
+			let idParams: any[] = [];
+			primaryFields.forEach(field => {
+				idParams.push(Reflect.get(entity, field.fieldName));
+			});
+			let finalObj = await this.get(...idParams);
+			if (!finalObj) throw new Error('Update Object Not Found');
+			return finalObj;
 		}
 	}
 
@@ -160,7 +156,7 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let fields = this.dbSet.filterFields(Reflect.ownKeys(temp)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
 		if (updatedKeys) fields = fields.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
 
-		let queries = entities.map(ent => {
+		let stmts = entities.map(ent => {
 			let stat = new sql.Statement();
 			stat.command = sql.types.Command.UPDATE;
 			stat.collection.value = this.dbSet.tableName;
@@ -175,13 +171,10 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			});
 
 			stat.where = this.whereExpr(ent);
-
-			let query = stat.eval(this.context.handler);
-			return query;
+			return stat;
 		});
 
-		let bulkQuery = queries.join('; ');
-		await this.context.execute(bulkQuery);
+		await this.context.execute(stmts);
 	}
 
 	async insertOrUpdate(entity: T) {

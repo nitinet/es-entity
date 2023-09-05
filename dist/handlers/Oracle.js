@@ -1,13 +1,10 @@
 import * as bean from '../bean/index.js';
-import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
+import Handler from './Handler.js';
 export default class Oracle extends Handler {
     handlerName = 'oracle';
     driver;
     connectionPool;
-    constructor(config) {
-        super(config);
-    }
     async init() {
         this.driver = this.config.driver ?? await import('oracledb');
         this.connectionPool = await this.driver.createPool({
@@ -25,26 +22,34 @@ export default class Oracle extends Handler {
     async rollback(conn) { return conn.rollback(); }
     async close(conn) { return conn.close(); }
     async end() { }
-    async run(query, args, connection) {
-        let dataArgs = Array();
-        let q;
-        if (query instanceof sql.Statement) {
-            q = query.eval(this);
-            dataArgs.push(...query.args);
+    async run(queryStmt, connection) {
+        let query;
+        let dataArgs = [];
+        if (Array.isArray(queryStmt)) {
+            let tempQueries = [];
+            queryStmt.forEach(a => {
+                if (!(a instanceof sql.Statement))
+                    throw new Error('Invalid Statement');
+                tempQueries.push(a.eval(this));
+                dataArgs.push(...a.args);
+            });
+            query = tempQueries.join('; ');
+        }
+        else if (queryStmt instanceof sql.Statement) {
+            query = queryStmt.eval(this);
+            dataArgs.push(...queryStmt.args);
         }
         else {
-            q = query;
-            if (args)
-                dataArgs.push(...args);
+            query = queryStmt;
         }
         let temp;
         if (connection) {
-            temp = await connection.execute(q);
+            temp = await connection.execute(query, dataArgs);
         }
         else {
             let conn = await this.connectionPool.getConnection();
             try {
-                temp = await conn.execute(q, dataArgs);
+                temp = await conn.execute(query, dataArgs);
             }
             finally {
                 conn.close();

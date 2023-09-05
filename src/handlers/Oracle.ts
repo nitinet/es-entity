@@ -1,9 +1,8 @@
 // @ts-ignore
 import oracledb from 'oracledb';
-
 import * as bean from '../bean/index.js';
-import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
+import Handler from './Handler.js';
 
 export default class Oracle extends Handler {
 	handlerName = 'oracle';
@@ -11,10 +10,6 @@ export default class Oracle extends Handler {
 	// @ts-ignore
 	driver!: typeof import('oracledb');
 	connectionPool!: oracledb.Pool;
-
-	constructor(config: bean.IConnectionConfig) {
-		super(config);
-	}
 
 	async init() {
 		// @ts-ignore
@@ -78,24 +73,31 @@ export default class Oracle extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.Statement, args?: any[], connection?: oracledb.Connection): Promise<bean.ResultSet> {
-		let dataArgs = Array<any>();
-		let q: string;
-		if (query instanceof sql.Statement) {
-			q = query.eval(this);
-			dataArgs.push(...query.args);
+	async run(queryStmt: string | sql.Statement | sql.Statement[], connection?: oracledb.Connection): Promise<bean.ResultSet> {
+		let query: string;
+		let dataArgs: any[] = [];
+		if (Array.isArray(queryStmt)) {
+			let tempQueries: string[] = [];
+			queryStmt.forEach(a => {
+				if (!(a instanceof sql.Statement)) throw new Error('Invalid Statement');
+				tempQueries.push(a.eval(this));
+				dataArgs.push(...a.args);
+			});
+			query = tempQueries.join('; ');
+		} else if (queryStmt instanceof sql.Statement) {
+			query = queryStmt.eval(this);
+			dataArgs.push(...queryStmt.args);
 		} else {
-			q = query;
-			if (args) dataArgs.push(...args);
+			query = queryStmt;
 		}
 
 		let temp: oracledb.Result<any>;
 		if (connection) {
-			temp = await connection.execute(q);
+			temp = await connection.execute(query, dataArgs);
 		} else {
 			let conn = await this.connectionPool.getConnection();
 			try {
-				temp = await conn.execute(q, dataArgs);
+				temp = await conn.execute(query, dataArgs);
 			} finally {
 				conn.close();
 			}

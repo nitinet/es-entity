@@ -1,8 +1,8 @@
 import Handler from '../handlers/Handler.js';
+import Collection from './Collection.js';
+import Expression from './Expression.js';
 import INode from './INode.js';
 import Command from './types/Command.js';
-import Expression from './Expression.js';
-import Collection from './Collection.js';
 
 /**
  * SqlStatement
@@ -17,12 +17,8 @@ class Statement extends INode {
 	orderBy: Array<Expression> = new Array<Expression>();
 	limit: Expression = new Expression();
 
-	constructor() {
-		super();
-	}
-
 	eval(handler: Handler): string {
-		let result: string | null = null;
+		let result: string;
 		switch (this.command) {
 			case Command.SELECT:
 				result = this.selectQuery(handler);
@@ -37,10 +33,8 @@ class Statement extends INode {
 				result = this.deleteQuery(handler);
 				break;
 			default:
-				break;
+				throw new Error('Invalid Statement');
 		}
-
-		result = handler.convertPlaceHolder(result);
 		return result;
 	}
 

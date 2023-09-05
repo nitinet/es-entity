@@ -1,9 +1,8 @@
 // @ts-ignore
 import mysql from 'mysql';
-
 import * as bean from '../bean/index.js';
-import Handler from './Handler.js';
 import * as sql from '../sql/index.js';
+import Handler from './Handler.js';
 
 // let typeCast: mysql.TypeCast = function (field: mysql.UntypedFieldInfo & {
 // 	type: string;
@@ -27,16 +26,6 @@ export default class Mysql extends Handler {
 	// @ts-ignore
 	driver!: typeof import('mysql');
 	connectionPool!: mysql.Pool;
-
-	constructor(config: bean.IConnectionConfig) {
-		super(config);
-
-		// this.serializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.stringify(val));
-		// this.deSerializeMap.set(bean.ColumnType.OBJECT, (val) => JSON.parse(val));
-
-		// this.serializeMap.set(bean.ColumnType.BOOLEAN, (val: boolean) => val ? '1' : '0');
-		// this.deSerializeMap.set(bean.ColumnType.BOOLEAN, (val) => val == '1');
-	}
 
 	async init() {
 		// @ts-ignore
@@ -136,21 +125,36 @@ export default class Mysql extends Handler {
 	}
 	*/
 
-	async run(query: string | sql.Statement, args?: Array<any>, connection?: mysql.Connection): Promise<bean.ResultSet> {
-		let queryObj = this.prepareQuery(query, args);
+	async run(queryStmt: string | sql.Statement | sql.Statement[], connection?: mysql.Connection): Promise<bean.ResultSet> {
+		let query: string;
+		let dataArgs: any[] = [];
+		if (Array.isArray(queryStmt)) {
+			let tempQueries: string[] = [];
+			queryStmt.forEach(a => {
+				if (!(a instanceof sql.Statement)) throw new Error('Invalid Statement');
+				tempQueries.push(a.eval(this));
+				dataArgs.push(...a.args);
+			});
+			query = tempQueries.join('; ');
+		} else if (queryStmt instanceof sql.Statement) {
+			query = queryStmt.eval(this);
+			dataArgs.push(...queryStmt.args);
+		} else {
+			query = queryStmt;
+		}
 
 		let temp = null;
 
 		if (connection) {
 			temp = await new Promise<any>((resolve, reject) => {
-				connection.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
+				connection.query(query, dataArgs, function (err: Error | null, r: any) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});
 			});
 		} else {
 			temp = await new Promise<any>((resolve, reject) => {
-				this.connectionPool.query(queryObj.query, queryObj.args, function (err: Error | null, r: any) {
+				this.connectionPool.query(query, dataArgs, function (err: Error | null, r: any) {
 					if (err) { reject(err); }
 					else { resolve(r); }
 				});

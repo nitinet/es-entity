@@ -1,7 +1,7 @@
+import Collection from './Collection.js';
+import Expression from './Expression.js';
 import INode from './INode.js';
 import Command from './types/Command.js';
-import Expression from './Expression.js';
-import Collection from './Collection.js';
 class Statement extends INode {
     command = null;
     columns = new Array();
@@ -11,11 +11,8 @@ class Statement extends INode {
     groupBy = new Array();
     orderBy = new Array();
     limit = new Expression();
-    constructor() {
-        super();
-    }
     eval(handler) {
-        let result = null;
+        let result;
         switch (this.command) {
             case Command.SELECT:
                 result = this.selectQuery(handler);
@@ -30,9 +27,8 @@ class Statement extends INode {
                 result = this.deleteQuery(handler);
                 break;
             default:
-                break;
+                throw new Error('Invalid Statement');
         }
-        result = handler.convertPlaceHolder(result);
         return result;
     }
     insertQuery(handler) {

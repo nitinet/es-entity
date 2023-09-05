@@ -1,6 +1,6 @@
 import * as bean from './bean/index.js';
-import getHandler from './handlers/getHandler.js';
 import TableSet from './collection/TableSet.js';
+import getHandler from './handlers/getHandler.js';
 export default class Context {
     _handler;
     connection = null;
@@ -35,12 +35,12 @@ export default class Context {
     set handler(handler) {
         this._handler = handler;
     }
-    async execute(query, args) {
+    async execute(query) {
         if (this.connection) {
-            return this.connection.run(query, args);
+            return this.connection.run(query);
         }
         else {
-            return this.handler.run(query, args);
+            return this.handler.run(query);
         }
     }
     flush() { }

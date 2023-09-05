@@ -1,27 +1,7 @@
-import * as sql from '../sql/index.js';
 export default class Handler {
     config;
     constructor(config) {
         this.config = config;
-    }
-    convertPlaceHolder(query) {
-        if (!query)
-            throw TypeError('Invalid Placehilder');
-        else
-            return query;
-    }
-    prepareQuery(queryStmt, args) {
-        let query;
-        if (queryStmt instanceof sql.Statement) {
-            query = queryStmt.eval(this);
-            args = queryStmt.args;
-        }
-        else {
-            query = queryStmt;
-        }
-        return {
-            query, args
-        };
     }
     eq(val0, val1) {
         return `${val0} = ${val1}`;
