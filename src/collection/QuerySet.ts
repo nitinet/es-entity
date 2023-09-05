@@ -158,29 +158,26 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		return this;
 	}
 
-	async update(param: types.IUpdateFunc<T>) {
+	async update(entity: T, ...updatedKeys: (keyof T)[]) {
 		this.stat.command = sql.types.Command.UPDATE;
 
-		let obj = this.getEntity();
-		let tempObj = param(obj);
-
 		// Dynamic update
-		let fields = this.dbSet.filterFields(Reflect.ownKeys(tempObj.obj))
-			.filter(field => (<(string | symbol)[]>tempObj.updatedKeys).includes(field.fieldName));
+		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity))
+			.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
+		if (fields.length == 0) throw new Error('Update Fields Empty');
+
 		fields.forEach((field) => {
 			let c1 = new sql.Expression(field.colName);
 			let c2 = new sql.Expression('?');
-			let val = Reflect.get(tempObj, field.fieldName);
+			let val = Reflect.get(entity, field.fieldName);
 			c2.args.push(val);
 
 			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
 			this.stat.columns.push(expr);
 		});
 
-		if (this.stat.columns.length > 0) {
-			let result = await this.context.execute(this.stat);
-			if (result.error) throw result.error;
-		}
+		let result = await this.context.execute(this.stat);
+		if (result.error) throw result.error;
 	}
 
 	async delete() {

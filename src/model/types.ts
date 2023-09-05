@@ -4,8 +4,6 @@ type IArrFieldFunc<T> = (source: T) => Expression[];
 
 type IJoinFunc<A, B> = (sourceA: A, sourceB: B) => Expression | null;
 
-type IUpdateFunc<T> = (source: T) => { obj: T, updatedKeys: (keyof T)[] };
-
 type IWhereFunc<T> = (source: T, ...args: any[]) => Expression | null;
 
 type IEntityType<T extends Object> = new (...args: any[]) => T;
@@ -24,7 +22,6 @@ export {
 	IArrFieldFunc,
 	IEntityType,
 	IJoinFunc,
-	IUpdateFunc,
 	IWhereFunc,
 	PropKeys,
 	OperandType,

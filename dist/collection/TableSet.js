@@ -134,18 +134,19 @@ class TableSet extends IQuerySet {
         let fields = this.dbSet.filterFields(Reflect.ownKeys(temp)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
-        let stmts = entities.map(ent => {
+        let stmts = entities.map(entity => {
             let stat = new sql.Statement();
             stat.command = sql.types.Command.UPDATE;
             stat.collection.value = this.dbSet.tableName;
             fields.forEach((field) => {
                 let c1 = new sql.Expression(field.colName);
-                let val = Reflect.get(ent, field.fieldName);
-                let c2 = new sql.Expression(val);
+                let c2 = new sql.Expression('?');
+                let val = Reflect.get(entity, field.fieldName);
+                c2.args.push(val);
                 let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
                 stat.columns.push(expr);
             });
-            stat.where = this.whereExpr(ent);
+            stat.where = this.whereExpr(entity);
             return stat;
         });
         await this.context.execute(stmts);
@@ -170,6 +171,16 @@ class TableSet extends IQuerySet {
         stat.collection.value = this.dbSet.tableName;
         stat.where = this.whereExpr(entity);
         await this.context.execute(stat);
+    }
+    async deleteBulk(entities) {
+        let stmts = entities.map(entity => {
+            let stat = new sql.Statement();
+            stat.command = sql.types.Command.DELETE;
+            stat.collection.value = this.dbSet.tableName;
+            stat.where = this.whereExpr(entity);
+            return stat;
+        });
+        await this.context.execute(stmts);
     }
     async get(...idParams) {
         if (idParams == null)
