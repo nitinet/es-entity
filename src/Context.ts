@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import * as bean from './bean/index.js';
 import DBSet from './collection/DBSet.js';
 import TableSet from './collection/TableSet.js';
@@ -8,7 +9,6 @@ import * as sql from './sql/index.js';
 
 export default class Context {
 	private _handler: Handler;
-	// private _entityPath: string;
 	private connection: bean.Connection | null = null;
 	private logger: any = null;
 
@@ -23,7 +23,6 @@ export default class Context {
 		}
 
 		this._handler = getHandler(this.config.dbConfig);
-		// if (this.config.entityPath) { this.setEntityPath(this.config.entityPath); }
 		this.logger = this.config.logger || console;
 	}
 
@@ -50,16 +49,7 @@ export default class Context {
 
 	set handler(handler: Handler) {
 		this._handler = handler;
-		// this._handler.context = this;
 	}
-
-	// getEntityPath() {
-	// 	return this._entityPath;
-	// }
-
-	// setEntityPath(entityPath: string) {
-	// 	this._entityPath = entityPath;
-	// }
 
 	async execute(query: string | sql.Statement | sql.Statement[]) {
 		if (this.connection) {
@@ -73,8 +63,8 @@ export default class Context {
 
 	async initTransaction(): Promise<this> {
 		// Create Clone
-		let res = Object.assign({}, this);
-		Object.setPrototypeOf(res, Object.getPrototypeOf(this));
+		let res = cloneDeep(this);
+
 		let keys = Reflect.ownKeys(res);
 		keys.forEach((key) => {
 			let prop = Reflect.get(res, key);

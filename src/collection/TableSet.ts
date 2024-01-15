@@ -1,3 +1,4 @@
+import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
 import * as sql from '../sql/index.js';
@@ -21,7 +22,8 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 
 	getEntity() {
 		let obj = new this.EntityType();
-		let keys = Reflect.ownKeys(obj);
+
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
 		keys.forEach(key => {
 			let field = Reflect.get(obj, key);
 			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
@@ -37,7 +39,8 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		stat.collection.value = this.dbSet.tableName;
 
 		// Dynamic insert
-		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+		let fields = this.dbSet.filterFields(keys);
 		fields.forEach((field) => {
 			let val = Reflect.get(entity, field.fieldName);
 			if (val == null) return;
@@ -77,7 +80,8 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 			stat.collection.value = this.dbSet.tableName;
 
 			// Dynamic insert
-			let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+			let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+			let fields = this.dbSet.filterFields(keys);
 			fields.forEach((field) => {
 				let val = Reflect.get(entity, field.fieldName);
 				if (val == null) return;
@@ -119,7 +123,8 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 		let primaryFields = this.dbSet.getPrimaryFields();
 
 		// Dynamic update
-		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+		let fields = this.dbSet.filterFields(keys).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
 		if (updatedKeys) fields = fields.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
 		if (fields.length == 0) throw new Error('Update Fields Empty');
 
@@ -152,8 +157,8 @@ class TableSet<T extends Object> extends IQuerySet<T>{
 	async updateBulk(entities: T[], ...updatedKeys: (keyof T)[]) {
 		let primaryFields = this.dbSet.getPrimaryFields();
 
-		let temp = new this.EntityType();
-		let fields = this.dbSet.filterFields(Reflect.ownKeys(temp)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+		let fields = this.dbSet.filterFields(keys).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
 		if (updatedKeys) fields = fields.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
 
 		let stmts = entities.map(entity => {

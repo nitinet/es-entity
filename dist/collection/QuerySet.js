@@ -1,5 +1,6 @@
-import * as sql from '../sql/index.js';
+import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
 import * as model from '../model/index.js';
+import * as sql from '../sql/index.js';
 import IQuerySet from './IQuerySet.js';
 import JoinQuerySet from './JoinQuerySet.js';
 class QuerySet extends IQuerySet {
@@ -23,12 +24,18 @@ class QuerySet extends IQuerySet {
     }
     getEntity() {
         let res = new this.EntityType();
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        keys.forEach(key => {
+            let field = Reflect.get(res, key);
+            if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+                field.bind(this.context, res);
+            }
+        });
         return res;
     }
     async list() {
         this.stat.command = sql.types.Command.SELECT;
-        let temp = new this.EntityType();
-        let targetKeys = Reflect.ownKeys(temp);
+        let targetKeys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
         let fields = this.dbSet.filterFields(targetKeys);
         this.stat.columns = this.getColumnExprs(fields, this.alias);
         let result = await this.context.execute(this.stat);
@@ -54,7 +61,7 @@ class QuerySet extends IQuerySet {
         return data;
     }
     async mapData(input) {
-        let keys = Reflect.ownKeys(new this.EntityType());
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
         let data = input.rows.map(row => {
             let obj = new this.EntityType();
             keys.forEach(key => {
@@ -120,7 +127,8 @@ class QuerySet extends IQuerySet {
     }
     async update(entity, ...updatedKeys) {
         this.stat.command = sql.types.Command.UPDATE;
-        let fields = this.dbSet.filterFields(Reflect.ownKeys(entity))
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, entity.constructor.prototype);
+        let fields = this.dbSet.filterFields(keys)
             .filter(field => updatedKeys.includes(field.fieldName));
         if (fields.length == 0)
             throw new Error('Update Fields Empty');

@@ -1,3 +1,4 @@
+import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
 import * as model from '../model/index.js';
 import * as sql from '../sql/index.js';
 import DBSet from './DBSet.js';
@@ -16,7 +17,7 @@ class TableSet extends IQuerySet {
     }
     getEntity() {
         let obj = new this.EntityType();
-        let keys = Reflect.ownKeys(obj);
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
         keys.forEach(key => {
             let field = Reflect.get(obj, key);
             if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
@@ -29,7 +30,8 @@ class TableSet extends IQuerySet {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.dbSet.tableName;
-        let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        let fields = this.dbSet.filterFields(keys);
         fields.forEach((field) => {
             let val = Reflect.get(entity, field.fieldName);
             if (val == null)
@@ -65,7 +67,8 @@ class TableSet extends IQuerySet {
             let stat = new sql.Statement();
             stat.command = sql.types.Command.INSERT;
             stat.collection.value = this.dbSet.tableName;
-            let fields = this.dbSet.filterFields(Reflect.ownKeys(entity));
+            let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+            let fields = this.dbSet.filterFields(keys);
             fields.forEach((field) => {
                 let val = Reflect.get(entity, field.fieldName);
                 if (val == null)
@@ -99,7 +102,8 @@ class TableSet extends IQuerySet {
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
         let primaryFields = this.dbSet.getPrimaryFields();
-        let fields = this.dbSet.filterFields(Reflect.ownKeys(entity)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        let fields = this.dbSet.filterFields(keys).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
         if (fields.length == 0)
@@ -130,8 +134,8 @@ class TableSet extends IQuerySet {
     }
     async updateBulk(entities, ...updatedKeys) {
         let primaryFields = this.dbSet.getPrimaryFields();
-        let temp = new this.EntityType();
-        let fields = this.dbSet.filterFields(Reflect.ownKeys(temp)).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        let fields = this.dbSet.filterFields(keys).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
         let stmts = entities.map(entity => {

@@ -1,11 +1,12 @@
-import * as bean from '../bean/index.js';
-import * as sql from '../sql/index.js';
-import * as types from '../model/types.js';
-import * as model from '../model/index.js';
-import IQuerySet from './IQuerySet.js';
-import DBSet from './DBSet.js';
-import JoinQuerySet from './JoinQuerySet.js';
 import Context from '../Context.js';
+import * as bean from '../bean/index.js';
+import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
+import * as model from '../model/index.js';
+import * as types from '../model/types.js';
+import * as sql from '../sql/index.js';
+import DBSet from './DBSet.js';
+import IQuerySet from './IQuerySet.js';
+import JoinQuerySet from './JoinQuerySet.js';
 
 /**
  * QuerySet
@@ -36,13 +37,14 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	getEntity() {
 		let res = new this.EntityType();
-		// let keys = Reflect.ownKeys(res);
-		// keys.forEach(key => {
-		// 	let field = Reflect.get(res, key);
-		// 	if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-		// 		field.bind(this.context);
-		// 	}
-		// });
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+		keys.forEach(key => {
+			let field = Reflect.get(res, key);
+			if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+				field.bind(this.context, res);
+			}
+		});
+
 		return res;
 	}
 
@@ -51,8 +53,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		this.stat.command = sql.types.Command.SELECT;
 
 		// Get all Columns
-		let temp = new this.EntityType();
-		let targetKeys = <string[]>Reflect.ownKeys(temp);
+		let targetKeys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
 		let fields = this.dbSet.filterFields(targetKeys);
 		this.stat.columns = this.getColumnExprs(fields, this.alias);
 
@@ -88,7 +89,7 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 	}
 
 	private async mapData(input: bean.ResultSet) {
-		let keys = (<string[]>Reflect.ownKeys(new this.EntityType()));
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
 
 		let data = input.rows.map(row => {
 			let obj = new this.EntityType();
@@ -162,7 +163,8 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		this.stat.command = sql.types.Command.UPDATE;
 
 		// Dynamic update
-		let fields = this.dbSet.filterFields(Reflect.ownKeys(entity))
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, entity.constructor.prototype);
+		let fields = this.dbSet.filterFields(keys)
 			.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
 		if (fields.length == 0) throw new Error('Update Fields Empty');
 

@@ -2,9 +2,6 @@ import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
 import BaseExprBuilder from './BaseExprBuilder.js';
 class WhereExprBuilder extends BaseExprBuilder {
-    constructor(fieldMap, alias) {
-        super(fieldMap, alias);
-    }
     _argExp(operand) {
         if (operand instanceof Expression) {
             return operand;

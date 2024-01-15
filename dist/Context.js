@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import * as bean from './bean/index.js';
 import TableSet from './collection/TableSet.js';
 import getHandler from './handlers/getHandler.js';
@@ -45,8 +46,7 @@ export default class Context {
     }
     flush() { }
     async initTransaction() {
-        let res = Object.assign({}, this);
-        Object.setPrototypeOf(res, Object.getPrototypeOf(this));
+        let res = cloneDeep(this);
         let keys = Reflect.ownKeys(res);
         keys.forEach((key) => {
             let prop = Reflect.get(res, key);

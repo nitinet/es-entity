@@ -1,9 +1,10 @@
 import * as decoratorKeys from '../decorators/Constants.js';
-import * as types from '../model/types.js';
+import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
 import * as model from '../model/index.js';
+import * as types from '../model/types.js';
 
 class DBSet<T extends Object>  {
-	protected entityType: types.IEntityType<T>;
+	protected EntityType: types.IEntityType<T>;
 
 	// mapping: Mapping.EntityMapping = new Mapping.EntityMapping();
 	tableName: string;
@@ -12,9 +13,9 @@ class DBSet<T extends Object>  {
 	fieldMap = new Map<string, model.FieldMapping>();
 	private primaryFields: model.FieldMapping[] = [];
 
-	constructor(entityType: types.IEntityType<T>) {
-		this.entityType = entityType;
-		let tableName: string | null = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.entityType);
+	constructor(EntityType: types.IEntityType<T>) {
+		this.EntityType = EntityType;
+		let tableName: string | null = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.EntityType);
 		if (!tableName) throw new Error('Table Name Not Found');
 
 		this.tableName = tableName;
@@ -25,8 +26,7 @@ class DBSet<T extends Object>  {
 		// get info from describe db
 		// this.columns = await context.handler.getTableInfo(this.tableName);
 
-		let obj = new this.entityType();
-		let keys = (<string[]>Reflect.ownKeys(obj));
+		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
 
 		// Bind Fields
 		keys.forEach(key => this.bindField(key));
@@ -40,10 +40,10 @@ class DBSet<T extends Object>  {
 		// if (!column) return;
 
 		// this.checkColumnType(column, key);
-		let columnName: string | null = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.entityType.prototype, key);
+		let columnName: string | null = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.EntityType.prototype, key);
 		if (columnName) {
-			let columnType = Reflect.getMetadata('design:type', this.entityType.prototype, key);
-			let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.entityType.prototype, key) === true;
+			let columnType = Reflect.getMetadata('design:type', this.EntityType.prototype, key);
+			let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.EntityType.prototype, key) === true;
 
 			let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
 			this.fieldMap.set(key, fieldMapping);
@@ -68,7 +68,7 @@ class DBSet<T extends Object>  {
 	// }
 
 	getEntityType() {
-		return this.entityType;
+		return this.EntityType;
 	}
 
 	getField(key: string) {

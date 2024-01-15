@@ -26,9 +26,11 @@
 	},
 	"homepage": "https://github.com/InHeap/es-entity#readme",
 	"dependencies": {
+		"lodash": "^4.17.21",
 		"reflect-metadata": "^0.1.13"
 	},
 	"devDependencies": {
+		"@types/lodash": "^4.14.202",
 		"@types/mssql": "^8.1.2",
 		"@types/mysql": "^2.15.21",
 		"@types/node": "20.3.1",

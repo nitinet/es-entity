@@ -1,14 +1,9 @@
 import Expression from '../sql/Expression.js';
 import Operator from '../sql/types/Operator.js';
 import BaseExprBuilder from './BaseExprBuilder.js';
-import FieldMapping from './FieldMapping.js';
-import { PropKeys, OperandType } from './types.js';
+import { OperandType, PropKeys } from './types.js';
 
 class WhereExprBuilder<T> extends BaseExprBuilder<T> {
-
-	constructor(fieldMap: Map<string | symbol, FieldMapping>, alias?: string) {
-		super(fieldMap, alias);
-	}
 
 	private _argExp(operand: OperandType<T, keyof T>) {
 		if (operand instanceof Expression) {
