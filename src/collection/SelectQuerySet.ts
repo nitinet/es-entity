@@ -1,22 +1,20 @@
 import Context from '../Context.js';
 import * as bean from '../bean/index.js';
-import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
 import * as sql from '../sql/index.js';
 import DBSet from './DBSet.js';
 import IQuerySet from './IQuerySet.js';
-import SelectQuerySet from './SelectQuerySet.js';
 
 /**
- * QuerySet
+ * SelectQuerySet
  */
-class QuerySet<T extends Object> extends IQuerySet<T> {
+class SelectQuerySet<T extends Object> extends IQuerySet<T> {
 
-	protected EntityType: types.IEntityType<T>;
 	protected dbSet: DBSet;
+	protected EntityType: types.IEntityType<T>;
 
-	alias: string;
+	alias: string | undefined;
 	stat = new sql.Statement();
 
 	constructor(context: Context, EntityType: types.IEntityType<T>, dbSet: DBSet) {
@@ -26,30 +24,18 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		this.EntityType = EntityType;
 		this.dbSet = dbSet;
 
-		this.alias = this.dbSet.tableName.charAt(0);
-		this.stat.collection.value = this.dbSet.tableName;
+		this.alias = dbSet.tableName.charAt(0);
+		this.stat.collection.value = dbSet.tableName;
 		this.stat.collection.alias = this.alias;
 	}
-
-	// getEntity() {
-	// 	let res = new this.EntityType();
-	// 	let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
-	// 	keys.forEach(key => {
-	// 		let field = Reflect.get(res, key);
-	// 		if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-	// 			field.bind(this.context, res);
-	// 		}
-	// 	});
-
-	// 	return res;
-	// }
 
 	// Selection Functions
 	async list() {
 		this.stat.command = sql.types.Command.SELECT;
 
 		// Get all Columns
-		let targetKeys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+		let temp = new this.EntityType();
+		let targetKeys = <string[]>Reflect.ownKeys(temp);
 		let fields = this.dbSet.filterFields(targetKeys);
 		this.stat.columns = this.getColumnExprs(fields, this.alias);
 
@@ -83,7 +69,8 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 	}
 
 	private async mapData(input: bean.ResultSet) {
-		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+		let temp = new this.EntityType();
+		let keys = <string[]>Reflect.ownKeys(temp);
 
 		let data = input.rows.map(row => {
 			let obj = new this.EntityType();
@@ -153,37 +140,6 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 		return this;
 	}
 
-	async update(entity: T, ...updatedKeys: (keyof T)[]) {
-		this.stat.command = sql.types.Command.UPDATE;
-
-		// Dynamic update
-		let keys: string[] = Reflect.getMetadata(TABLE_COLUMN_KEYS, entity.constructor.prototype);
-
-		let fields = this.dbSet.filterFields(keys)
-			.filter(field => (<(string | symbol)[]>updatedKeys).includes(field.fieldName));
-		if (fields.length == 0) throw new Error('Update Fields Empty');
-
-		fields.forEach((field) => {
-			let c1 = new sql.Expression(field.colName);
-			let c2 = new sql.Expression('?');
-			let val = Reflect.get(entity, field.fieldName);
-			c2.args.push(val);
-
-			let expr = new sql.Expression(null, sql.types.Operator.Equal, c1, c2);
-			this.stat.columns.push(expr);
-		});
-
-		let result = await this.context.execute(this.stat);
-		if (result.error) throw result.error;
-	}
-
-	async delete() {
-		this.stat.command = sql.types.Command.DELETE;
-
-		let result = await this.context.execute(this.stat);
-		if (result.error) throw result.error;
-	}
-
 	// join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>, joinType?: sql.types.Join): IQuerySet<T & A> {
 	// 	joinType = joinType ?? sql.types.Join.InnerJoin;
 
@@ -202,4 +158,4 @@ class QuerySet<T extends Object> extends IQuerySet<T> {
 
 }
 
-export default QuerySet;
+export default SelectQuerySet;

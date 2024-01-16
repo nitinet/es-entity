@@ -1,15 +1,14 @@
-import * as sql from '../sql/index.js';
-import * as types from '../model/types.js';
 import Context from '../Context.js';
 import * as model from '../model/index.js';
+import * as types from '../model/types.js';
+import * as sql from '../sql/index.js';
 
 abstract class IQuerySet<T extends Object> {
 	context!: Context;
 
-	abstract getEntity(): T;
-
 	// Selection Functions
-	abstract list(): Promise<Array<T>>;
+	abstract list(): Promise<T[]>;
+	abstract listPlain(keys: (keyof T)[]): Promise<Partial<T>[]>;
 
 	async single(): Promise<T | null> {
 		let arr = await this.list();
@@ -24,31 +23,31 @@ abstract class IQuerySet<T extends Object> {
 		return val;
 	}
 
-	abstract selectPlain(keys: (keyof T)[]): Promise<types.SelectType<T>[]>;
-	abstract select<U extends Object = types.SubEntityType<T>>(TargetType: types.IEntityType<U>): Promise<U[]>;
+	abstract select<U extends Object>(TargetType: types.IEntityType<U>): IQuerySet<U>;
 
 	abstract where(func: types.IWhereFunc<model.WhereExprBuilder<T>>, ...args: any[]): IQuerySet<T>;
-	abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
 	abstract orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T>;
 	abstract limit(size: number, index?: number): IQuerySet<T>;
 
-	abstract join<A extends Object>(collection: IQuerySet<A>, func: types.IJoinFunc<T, A>, joinType?: sql.types.Join): IQuerySet<T & A>;
+	// abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
 
-	innerJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
-		return this.join(coll, param, sql.types.Join.InnerJoin);
-	}
+	// abstract join<A extends Object>(collection: IQuerySet<A>, func: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>, joinType?: sql.types.Join): IQuerySet<T & A>;
 
-	leftJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
-		return this.join(coll, param, sql.types.Join.LeftJoin);
-	}
+	// innerJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>): IQuerySet<T & A> {
+	// 	return this.join(coll, param, sql.types.Join.InnerJoin);
+	// }
 
-	rightJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
-		return this.join(coll, param, sql.types.Join.RightJoin);
-	}
+	// leftJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>): IQuerySet<T & A> {
+	// 	return this.join(coll, param, sql.types.Join.LeftJoin);
+	// }
 
-	outerJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T, A>): IQuerySet<T & A> {
-		return this.join(coll, param, sql.types.Join.OuterJoin);
-	}
+	// rightJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>): IQuerySet<T & A> {
+	// 	return this.join(coll, param, sql.types.Join.RightJoin);
+	// }
+
+	// outerJoin<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>): IQuerySet<T & A> {
+	// 	return this.join(coll, param, sql.types.Join.OuterJoin);
+	// }
 
 	// Util function
 	getColumnExprs(fields: model.FieldMapping[], alias?: string) {

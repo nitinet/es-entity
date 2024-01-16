@@ -1,5 +1,5 @@
-import IQuerySet from './IQuerySet.js';
 import * as sql from '../sql/index.js';
+import IQuerySet from './IQuerySet.js';
 class JoinQuerySet extends IQuerySet {
     mainSet;
     joinSet;
@@ -13,19 +13,17 @@ class JoinQuerySet extends IQuerySet {
         this.stat.collection.join = joinType;
         this.stat.where = this.stat.where.add(expr);
     }
-    getEntity() {
-        let mainObj = this.mainSet.getEntity();
-        let joinObj = this.joinSet.getEntity();
-        return Object.assign(mainObj, joinObj);
-    }
     async list() {
         return new Array();
+    }
+    listPlain(keys) {
+        throw new Error('Method not implemented.');
     }
     async mapData(input) {
         return new Array();
     }
-    select(TargetType) {
-        return null;
+    select(EntityType) {
+        throw new Error('Method not implemented.');
     }
     selectPlain(keys) {
         return null;
@@ -46,23 +44,6 @@ class JoinQuerySet extends IQuerySet {
             this.stat.limit.exps.push(new sql.Expression(index.toString()));
         }
         return this;
-    }
-    join(coll, param, joinType) {
-        joinType = joinType || sql.types.Join.InnerJoin;
-        let temp = null;
-        if (param && param instanceof Function) {
-            let mainObj = this.getEntity();
-            let joinObj = coll.getEntity();
-            temp = param(mainObj, joinObj);
-        }
-        let res;
-        if (temp instanceof sql.Expression && temp.exps.length > 0) {
-            res = new JoinQuerySet(this, coll, joinType, temp);
-        }
-        else {
-            throw new TypeError('Invalid Join');
-        }
-        return res;
     }
 }
 export default JoinQuerySet;
