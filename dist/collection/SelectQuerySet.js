@@ -1,5 +1,6 @@
 import * as model from '../model/index.js';
 import * as sql from '../sql/index.js';
+import DBSet from './DBSet.js';
 import IQuerySet from './IQuerySet.js';
 class SelectQuerySet extends IQuerySet {
     dbSet;
@@ -41,7 +42,11 @@ class SelectQuerySet extends IQuerySet {
         return data;
     }
     select(EntityType) {
-        let res = new SelectQuerySet(this.context, EntityType, this.dbSet);
+        let keys = Reflect.ownKeys(new this.EntityType());
+        let cols = Array.from(this.dbSet.fieldMap.entries()).filter(a => keys.includes(a[0]));
+        let newDbSet = new DBSet();
+        newDbSet.fieldMap = new Map(cols);
+        let res = new SelectQuerySet(this.context, EntityType, newDbSet);
         return res;
     }
     async mapData(input) {

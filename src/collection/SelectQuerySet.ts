@@ -64,7 +64,13 @@ class SelectQuerySet<T extends Object> extends IQuerySet<T> {
 
 	// Selection Functions
 	select<U extends Object>(EntityType: types.IEntityType<U>): IQuerySet<U> {
-		let res = new SelectQuerySet(this.context, EntityType, this.dbSet);
+		let keys = Reflect.ownKeys(new this.EntityType());
+		let cols = Array.from(this.dbSet.fieldMap.entries()).filter(a => keys.includes(a[0]));
+
+		let newDbSet = new DBSet();
+		newDbSet.fieldMap = new Map(cols);
+
+		let res = new SelectQuerySet(this.context, EntityType, newDbSet);
 		return res;
 	}
 
