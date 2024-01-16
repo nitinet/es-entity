@@ -3,8 +3,8 @@ import * as sql from '../sql/index.js';
 import DBSet from './DBSet.js';
 import IQuerySet from './IQuerySet.js';
 class SelectQuerySet extends IQuerySet {
-    dbSet;
     EntityType;
+    dbSet;
     alias;
     stat = new sql.Statement();
     constructor(context, EntityType, dbSet) {

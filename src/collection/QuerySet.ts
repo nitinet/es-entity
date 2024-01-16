@@ -14,7 +14,7 @@ import SelectQuerySet from './SelectQuerySet.js';
 class QuerySet<T extends Object> extends IQuerySet<T> {
 
 	protected EntityType: types.IEntityType<T>;
-	protected dbSet: DBSet;
+	dbSet: DBSet;
 
 	alias: string;
 	stat = new sql.Statement();

@@ -2,9 +2,13 @@ import Context from '../Context.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
 import * as sql from '../sql/index.js';
+import DBSet from './DBSet.js';
 
 abstract class IQuerySet<T extends Object> {
 	context!: Context;
+
+	protected EntityType!: types.IEntityType<T>;
+	dbSet!: DBSet;
 
 	// Selection Functions
 	abstract list(): Promise<T[]>;
@@ -29,7 +33,7 @@ abstract class IQuerySet<T extends Object> {
 	abstract orderBy(func: types.IArrFieldFunc<model.OrderExprBuilder<T>>): IQuerySet<T>;
 	abstract limit(size: number, index?: number): IQuerySet<T>;
 
-	// abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
+	abstract groupBy(func: types.IArrFieldFunc<model.GroupExprBuilder<T>>): IQuerySet<T>;
 
 	// abstract join<A extends Object>(collection: IQuerySet<A>, func: types.IJoinFunc<model.WhereExprBuilder<T>, model.GroupExprBuilder<A>>, joinType?: sql.types.Join): IQuerySet<T & A>;
 

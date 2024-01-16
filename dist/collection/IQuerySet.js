@@ -1,6 +1,8 @@
 import * as sql from '../sql/index.js';
 class IQuerySet {
     context;
+    EntityType;
+    dbSet;
     async single() {
         let arr = await this.list();
         if (arr.length > 1)
