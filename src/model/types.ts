@@ -2,29 +2,22 @@ import Expression from '../sql/Expression.js';
 
 type IArrFieldFunc<T> = (source: T) => Expression[];
 
-type IJoinFunc<A, B> = (sourceA: A, sourceB: B) => Expression | null;
+type IJoinFunc<A, B> = (sourceA: A, sourceB: B) => Expression;
 
-type IWhereFunc<T> = (source: T, ...args: any[]) => Expression | null;
+type IWhereFunc<T> = (source: T, ...args: any[]) => Expression;
 
-type IEntityType<T extends Object> = new (...args: any[]) => T;
+type IEntityType<T> = new (...args: any[]) => T;
 
-type SelectType<T> = {
-	[Property in keyof T]?: any;
-};
+type ColumnType = Boolean | Number | BigInt | String | Buffer | Date;
 
-type PropKeys<T> = keyof T;
+type KeyOf<T> = keyof T;
 
-type OperandType<T, K extends PropKeys<T>> = T[K] | Expression;
-
-type SubEntityType<T> = Partial<T> & Object;
+type OperandType<T, K extends keyof T> = T[K] | Expression;
 
 export {
-	IArrFieldFunc,
+	ColumnType, IArrFieldFunc,
 	IEntityType,
 	IJoinFunc,
-	IWhereFunc,
-	PropKeys,
-	OperandType,
-	SelectType,
-	SubEntityType
-}
+	IWhereFunc, KeyOf, OperandType
+};
+

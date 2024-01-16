@@ -1,7 +1,7 @@
-import LinkSet from '../collection/LinkSet.js';
-import * as types from './types.js';
 import Context from '../Context.js';
+import LinkSet from '../collection/LinkSet.js';
 import WhereExprBuilder from './WhereExprBuilder.js';
+import * as types from './types.js';
 
 class LinkArray<T extends Object, U extends Object> {
 	private EntityType: types.IEntityType<T>;
@@ -16,7 +16,10 @@ class LinkArray<T extends Object, U extends Object> {
 	}
 
 	bind(context: Context, parentObj: U) {
-		this.linkSet = new LinkSet<T, U>(context, this.EntityType, this.foreignFunc);
+		let tableSet = context.tableSetMap.get(this.EntityType);
+		if (!tableSet) throw TypeError('Invalid Type');
+
+		this.linkSet = new LinkSet<T, U>(context, this.EntityType, tableSet.dbSet, this.foreignFunc);
 		this.linkSet.apply(parentObj);
 	}
 
@@ -27,11 +30,7 @@ class LinkArray<T extends Object, U extends Object> {
 	}
 
 	toJSON() {
-		if (this._value != null) {
-			return this._value.valueOf();
-		} else {
-			return null;
-		}
+		return this._value?.valueOf() ?? null;
 	}
 
 }

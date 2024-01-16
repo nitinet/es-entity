@@ -9,7 +9,10 @@ class LinkArray {
         this.foreignFunc = foreignFunc;
     }
     bind(context, parentObj) {
-        this.linkSet = new LinkSet(context, this.EntityType, this.foreignFunc);
+        let tableSet = context.tableSetMap.get(this.EntityType);
+        if (!tableSet)
+            throw TypeError('Invalid Type');
+        this.linkSet = new LinkSet(context, this.EntityType, tableSet.dbSet, this.foreignFunc);
         this.linkSet.apply(parentObj);
     }
     async get() {
@@ -20,12 +23,7 @@ class LinkArray {
         return this._value;
     }
     toJSON() {
-        if (this._value != null) {
-            return this._value.valueOf();
-        }
-        else {
-            return null;
-        }
+        return this._value?.valueOf() ?? null;
     }
 }
 export default LinkArray;

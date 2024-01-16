@@ -1,12 +1,14 @@
-import IQuerySet from './IQuerySet.js';
-import * as sql from '../sql/index.js';
 import * as bean from '../bean/index.js';
-import * as types from '../model/types.js';
 import * as model from '../model/index.js';
+import * as types from '../model/types.js';
+import * as sql from '../sql/index.js';
+import IQuerySet from './IQuerySet.js';
 
 class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
+
 	private mainSet: IQuerySet<T>;
 	private joinSet: IQuerySet<U>;
+
 	stat: sql.Statement = new sql.Statement();
 
 	constructor(mainSet: IQuerySet<T>, joinSet: IQuerySet<U>, joinType: sql.types.Join, expr: sql.Expression) {
@@ -25,12 +27,12 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		this.stat.where = this.stat.where.add(expr);
 	}
 
-	getEntity(): T & U {
-		let mainObj = this.mainSet.getEntity();
-		let joinObj = this.joinSet.getEntity();
-		return Object.assign(mainObj, joinObj);
-		// return null;
-	}
+	// getEntity(): T & U {
+	// 	let mainObj = this.mainSet.getEntity();
+	// 	let joinObj = this.joinSet.getEntity();
+	// 	return Object.assign(mainObj, joinObj);
+	// 	// return null;
+	// }
 
 	// Selection Functions
 	async list(): Promise<Array<T & U>> {
@@ -43,6 +45,10 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		// return this.mapData(result);
 		//TODO: implementation
 		return new Array();
+	}
+
+	listPlain(keys: (keyof T | keyof U)[]): Promise<Partial<T & U>[]> {
+		throw new Error('Method not implemented.');
 	}
 
 	async mapData(input: bean.ResultSet): Promise<Array<T & U>> {
@@ -62,7 +68,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 	}
 
 	// select<V extends Object = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): IQuerySet<V> {
-	select<V extends Object = types.SubEntityType<T & U>>(TargetType: types.IEntityType<V>): any {
+	select<V extends Object>(EntityType: types.IEntityType<V>): IQuerySet<V> {
 		// this.stat.command = sql.types.Command.SELECT;
 
 		// let a = this.getEntity();
@@ -79,7 +85,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 
 		// return res;
 		//TODO: implement
-		return null;
+		throw new Error('Method not implemented.');
 	}
 
 	// selectPlain(keys: (keyof T & U)[]): Promise<types.SelectType<T & U>[]> {
@@ -157,23 +163,23 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U>{
 		return this;
 	}
 
-	join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<T & U, A>, joinType?: sql.types.Join): IQuerySet<T & U & A> {
-		joinType = joinType || sql.types.Join.InnerJoin;
+	// join<A extends Object>(coll: IQuerySet<A>, param: types.IJoinFunc<model.WhereExprBuilder<T & U>, model.GroupExprBuilder<A>>, joinType?: sql.types.Join): IQuerySet<T & U & A> {
+	// 	joinType = joinType || sql.types.Join.InnerJoin;
 
-		let temp: sql.Expression | null = null;
-		if (param && param instanceof Function) {
-			let mainObj = this.getEntity();
-			let joinObj = coll.getEntity();
-			temp = param(mainObj, joinObj);
-		}
-		let res: JoinQuerySet<T & U, A>;
-		if (temp instanceof sql.Expression && temp.exps.length > 0) {
-			res = new JoinQuerySet<T & U, A>(this, coll, joinType, temp);
-		} else {
-			throw new TypeError('Invalid Join');
-		}
-		return res;
-	}
+	// 	let temp: sql.Expression | null = null;
+	// 	if (param && param instanceof Function) {
+	// 		let mainObj = this.getEntity(); new model.WhereExprBuilder<T>(this.dbSet.fieldMap);
+	// 		let joinObj = coll.getEntity();
+	// 		temp = param(mainObj, joinObj);
+	// 	}
+	// 	let res: JoinQuerySet<T & U, A>;
+	// 	if (temp instanceof sql.Expression && temp.exps.length > 0) {
+	// 		res = new JoinQuerySet<T & U, A>(this, coll, joinType, temp);
+	// 	} else {
+	// 		throw new TypeError('Invalid Join');
+	// 	}
+	// 	return res;
+	// }
 
 }
 

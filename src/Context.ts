@@ -1,6 +1,5 @@
 import { cloneDeep } from 'lodash';
 import * as bean from './bean/index.js';
-import DBSet from './collection/DBSet.js';
 import TableSet from './collection/TableSet.js';
 import Handler from './handlers/Handler.js';
 import getHandler from './handlers/getHandler.js';
@@ -12,7 +11,7 @@ export default class Context {
 	private connection: bean.Connection | null = null;
 	private logger: any = null;
 
-	public tableSetMap = new Map<types.IEntityType<any>, DBSet<any>>();
+	public tableSetMap = new Map<types.IEntityType<any>, TableSet<any>>();
 	public config: bean.IConfig;
 
 	constructor(config: bean.IConfig) {
@@ -33,13 +32,12 @@ export default class Context {
 	async init() {
 		await this.handler.init();
 
-		Reflect.ownKeys(this).filter(key => {
-			let o: any = Reflect.get(this, key);
-			return o instanceof TableSet;
-		}, this).forEach(key => {
-			let table = (<TableSet<any>>Reflect.get(this, key));
-			table.context = this;
-			this.tableSetMap.set(table.getEntityType(), table.dbSet);
+		Reflect.ownKeys(this).forEach(key => {
+			let tableSet = Reflect.get(this, key);
+			if (!(tableSet instanceof TableSet)) return;
+
+			tableSet.context = this;
+			this.tableSetMap.set(tableSet.getEntityType(), tableSet);
 		});
 	}
 

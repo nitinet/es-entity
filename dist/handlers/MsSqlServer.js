@@ -42,7 +42,7 @@ export default class MsSqlServer extends Handler {
                 tempQueries.push(a.eval(this));
                 dataArgs.push(...a.args);
             });
-            query = tempQueries.join('; ');
+            query = tempQueries.join('; ').concat(';');
         }
         else if (queryStmt instanceof sql.Statement) {
             query = queryStmt.eval(this);

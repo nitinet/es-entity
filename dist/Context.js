@@ -21,13 +21,12 @@ export default class Context {
     }
     async init() {
         await this.handler.init();
-        Reflect.ownKeys(this).filter(key => {
-            let o = Reflect.get(this, key);
-            return o instanceof TableSet;
-        }, this).forEach(key => {
-            let table = Reflect.get(this, key);
-            table.context = this;
-            this.tableSetMap.set(table.getEntityType(), table.dbSet);
+        Reflect.ownKeys(this).forEach(key => {
+            let tableSet = Reflect.get(this, key);
+            if (!(tableSet instanceof TableSet))
+                return;
+            tableSet.context = this;
+            this.tableSetMap.set(tableSet.getEntityType(), tableSet);
         });
     }
     get handler() {

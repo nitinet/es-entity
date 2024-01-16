@@ -1,36 +1,48 @@
-import { TABLE_COLUMN_KEYS } from '../decorators/Constants.js';
+import * as decoratorKeys from '../decorators/Constants.js';
 import * as model from '../model/index.js';
 import * as sql from '../sql/index.js';
 import DBSet from './DBSet.js';
 import IQuerySet from './IQuerySet.js';
 import QuerySet from './QuerySet.js';
+import SelectQuerySet from './SelectQuerySet.js';
 class TableSet extends IQuerySet {
     EntityType;
     dbSet;
+    primaryFields = [];
     constructor(EntityType) {
         super();
         this.EntityType = EntityType;
-        this.dbSet = new DBSet(EntityType);
+        this.dbSet = this.createDbSet();
     }
     getEntityType() {
         return this.EntityType;
     }
-    getEntity() {
-        let obj = new this.EntityType();
-        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
-        keys.forEach(key => {
-            let field = Reflect.get(obj, key);
-            if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-                field.bind(this.context, obj);
-            }
-        });
-        return obj;
+    createDbSet() {
+        let dbSet = new DBSet();
+        let tableName = Reflect.getMetadata(decoratorKeys.TABLE_KEY, this.EntityType);
+        if (!tableName)
+            throw new Error('Table Name Not Found');
+        dbSet.tableName = tableName;
+        let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        keys.forEach(key => this.bindDbSetField(dbSet, key));
+        return dbSet;
+    }
+    bindDbSetField(dbSet, key) {
+        let columnName = Reflect.getMetadata(decoratorKeys.COLUMN_KEY, this.EntityType.prototype, key);
+        if (columnName) {
+            let columnType = Reflect.getMetadata('design:type', this.EntityType.prototype, key);
+            let primaryKey = Reflect.getMetadata(decoratorKeys.ID_KEY, this.EntityType.prototype, key) === true;
+            let fieldMapping = new model.FieldMapping(key, columnName, columnType, primaryKey);
+            dbSet.fieldMap.set(key, fieldMapping);
+            if (primaryKey)
+                this.primaryFields.push(fieldMapping);
+        }
     }
     async insert(entity) {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.INSERT;
         stat.collection.value = this.dbSet.tableName;
-        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
         let fields = this.dbSet.filterFields(keys);
         fields.forEach((field) => {
             let val = Reflect.get(entity, field.fieldName);
@@ -44,16 +56,15 @@ class TableSet extends IQuerySet {
             stat.values.push(expr);
         });
         let result = await this.context.execute(stat);
-        let primaryFields = this.dbSet.getPrimaryFields();
         let finalObj = null;
-        if (primaryFields.length == 1) {
-            let primaryField = primaryFields[0];
+        if (this.primaryFields.length == 1) {
+            let primaryField = this.primaryFields[0];
             let id = result.id ?? Reflect.get(entity, primaryField.fieldName);
             finalObj = await this.get(id);
         }
         else {
             let idParams = [];
-            primaryFields.forEach(field => {
+            this.primaryFields.forEach(field => {
                 idParams.push(Reflect.get(entity, field.fieldName));
             });
             finalObj = await this.get(...idParams);
@@ -67,7 +78,7 @@ class TableSet extends IQuerySet {
             let stat = new sql.Statement();
             stat.command = sql.types.Command.INSERT;
             stat.collection.value = this.dbSet.tableName;
-            let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
+            let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
             let fields = this.dbSet.filterFields(keys);
             fields.forEach((field) => {
                 let val = Reflect.get(entity, field.fieldName);
@@ -85,13 +96,12 @@ class TableSet extends IQuerySet {
         await this.context.handler.run(stmts);
     }
     whereExpr(entity) {
-        let primaryFields = this.dbSet.getPrimaryFields();
-        if (!(primaryFields?.length)) {
+        if (!(this.primaryFields?.length)) {
             throw new Error('Primary Key fields not found');
         }
         let eb = new model.WhereExprBuilder(this.dbSet.fieldMap);
         let expr = new sql.Expression();
-        primaryFields.forEach((pri, idx) => {
+        this.primaryFields.forEach((pri, idx) => {
             let temp = Reflect.get(entity, pri.fieldName);
             expr = expr.add(eb.eq(pri.fieldName, temp));
         });
@@ -101,9 +111,8 @@ class TableSet extends IQuerySet {
         let stat = new sql.Statement();
         stat.command = sql.types.Command.UPDATE;
         stat.collection.value = this.dbSet.tableName;
-        let primaryFields = this.dbSet.getPrimaryFields();
-        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
-        let fields = this.dbSet.filterFields(keys).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+        let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        let fields = this.dbSet.filterFields(keys).filter(field => !this.primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
         if (fields.length == 0)
@@ -123,7 +132,7 @@ class TableSet extends IQuerySet {
         }
         else {
             let idParams = [];
-            primaryFields.forEach(field => {
+            this.primaryFields.forEach(field => {
                 idParams.push(Reflect.get(entity, field.fieldName));
             });
             let finalObj = await this.get(...idParams);
@@ -133,9 +142,8 @@ class TableSet extends IQuerySet {
         }
     }
     async updateBulk(entities, ...updatedKeys) {
-        let primaryFields = this.dbSet.getPrimaryFields();
-        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
-        let fields = this.dbSet.filterFields(keys).filter(field => !primaryFields.some(pri => pri.fieldName == field.fieldName));
+        let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
+        let fields = this.dbSet.filterFields(keys).filter(field => !this.primaryFields.some(pri => pri.fieldName == field.fieldName));
         if (updatedKeys)
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
         let stmts = entities.map(entity => {
@@ -156,9 +164,8 @@ class TableSet extends IQuerySet {
         await this.context.execute(stmts);
     }
     async insertOrUpdate(entity) {
-        let primaryFields = this.dbSet.getPrimaryFields();
         let idParams = [];
-        primaryFields.forEach(field => {
+        this.primaryFields.forEach(field => {
             idParams.push(Reflect.get(entity, field.fieldName));
         });
         let obj = await this.get(...idParams);
@@ -189,17 +196,16 @@ class TableSet extends IQuerySet {
     async get(...idParams) {
         if (idParams == null)
             throw new Error('Id parameter cannot be null');
-        let primaryFields = this.dbSet.getPrimaryFields();
-        if (primaryFields.length == 0) {
+        if (this.primaryFields.length == 0) {
             throw new Error(`No Primary Field Found in Table: ${this.dbSet.tableName}`);
         }
-        else if (primaryFields.length != idParams.length) {
+        else if (this.primaryFields.length != idParams.length) {
             throw new Error('Invalid Arguments Length');
         }
         else {
             return this.where(a => {
                 let expr = new sql.Expression();
-                primaryFields.forEach((pri, idx) => {
+                this.primaryFields.forEach((pri, idx) => {
                     expr = expr.add(a.eq(pri.fieldName, idParams[idx]));
                 });
                 return expr;
@@ -213,36 +219,32 @@ class TableSet extends IQuerySet {
         return val;
     }
     where(param, ...args) {
-        let q = new QuerySet(this.context, this.dbSet);
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
         return q.where(param, args);
     }
     groupBy(func) {
-        let q = new QuerySet(this.context, this.dbSet);
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
         return q.groupBy(func);
     }
     orderBy(func) {
-        let q = new QuerySet(this.context, this.dbSet);
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
         return q.orderBy(func);
     }
     limit(size, index) {
-        let q = new QuerySet(this.context, this.dbSet);
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
         return q.limit(size, index);
     }
     list() {
-        let q = new QuerySet(this.context, this.dbSet);
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
         return q.list();
     }
-    select(TargetType) {
-        let q = new QuerySet(this.context, this.dbSet);
-        return q.select(TargetType);
+    listPlain(keys) {
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
+        return q.listPlain(keys);
     }
-    selectPlain(keys) {
-        let q = new QuerySet(this.context, this.dbSet);
-        return q.selectPlain(keys);
-    }
-    join(coll, param, joinType) {
-        let q = new QuerySet(this.context, this.dbSet);
-        return q.join(coll, param, joinType);
+    select(EntityType) {
+        let res = new SelectQuerySet(this.context, EntityType, this.dbSet);
+        return res;
     }
 }
 export default TableSet;

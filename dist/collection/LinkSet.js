@@ -2,8 +2,8 @@ import * as model from '../model/index.js';
 import QuerySet from './QuerySet.js';
 class LinkSet extends QuerySet {
     foreignFunc;
-    constructor(context, entityType, foreignFunc) {
-        super(context, context.tableSetMap.get(entityType));
+    constructor(context, entityType, dbSet, foreignFunc) {
+        super(context, entityType, dbSet);
         this.foreignFunc = foreignFunc;
     }
     apply(parentObj) {
