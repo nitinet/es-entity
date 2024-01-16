@@ -1,6 +1,6 @@
 import Expression from '../sql/Expression.js';
 import FieldMapping from './FieldMapping.js';
-import { PropKeys } from './types.js';
+import { KeyOf } from './types.js';
 
 class BaseExprBuilder<T> {
 	private fieldMap: Map<string | number | symbol, FieldMapping>;
@@ -11,7 +11,7 @@ class BaseExprBuilder<T> {
 		this.alias = alias;
 	}
 
-	protected _expr(propName: PropKeys<T>) {
+	protected _expr(propName: KeyOf<T>) {
 		let field = this.fieldMap.get(propName);
 		if (!field) throw new TypeError('Field Not Found');
 		let name = this.alias ? this.alias + '.' + field.colName : field.colName;

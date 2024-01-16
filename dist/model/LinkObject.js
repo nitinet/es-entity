@@ -20,12 +20,7 @@ class LinkObject {
         return this._value;
     }
     toJSON() {
-        if (this._value != null) {
-            return this._value.valueOf();
-        }
-        else {
-            return null;
-        }
+        return this._value?.valueOf() ?? null;
     }
 }
 export default LinkObject;

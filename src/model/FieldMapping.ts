@@ -1,12 +1,12 @@
-import ColumnType from '../bean/ColumnType.js';
+import { ColumnType, IEntityType } from './types.js';
 
 class FieldMapping {
 	fieldName: string;
 	colName: string;
-	columnType: ColumnType;
+	columnType: IEntityType<ColumnType>;
 	primaryKey: boolean = false;
 
-	constructor(fieldName: string, colName: string, columnType: ColumnType, primaryKey: boolean) {
+	constructor(fieldName: string, colName: string, columnType: IEntityType<ColumnType>, primaryKey: boolean) {
 		this.fieldName = fieldName;
 		this.colName = colName;
 		this.columnType = columnType

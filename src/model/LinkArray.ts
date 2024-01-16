@@ -27,11 +27,7 @@ class LinkArray<T extends Object, U extends Object> {
 	}
 
 	toJSON() {
-		if (this._value != null) {
-			return this._value.valueOf();
-		} else {
-			return null;
-		}
+		return this._value?.valueOf() ?? null;
 	}
 
 }
