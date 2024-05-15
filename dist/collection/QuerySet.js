@@ -8,6 +8,7 @@ class QuerySet extends IQuerySet {
     dbSet;
     alias;
     stat = new sql.Statement();
+    selectKeys;
     constructor(context, EntityType, dbSet) {
         super();
         this.context = context;
@@ -16,14 +17,49 @@ class QuerySet extends IQuerySet {
         this.alias = this.dbSet.tableName.charAt(0);
         this.stat.collection.value = this.dbSet.tableName;
         this.stat.collection.alias = this.alias;
+        this.selectKeys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
     }
-    async list() {
+    prepareSelectStatement() {
         this.stat.command = sql.types.Command.SELECT;
         let targetKeys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
         let fields = this.dbSet.filterFields(targetKeys);
         this.stat.columns = this.getColumnExprs(fields, this.alias);
+    }
+    async list() {
+        this.prepareSelectStatement();
         let result = await this.context.execute(this.stat);
-        return this.mapData(result);
+        return result.rows.map(this.transformer);
+    }
+    transformer(row) {
+        let obj = new this.EntityType();
+        this.selectKeys.forEach(key => {
+            let fieldMapping = this.dbSet.fieldMap.get(key);
+            if (fieldMapping) {
+                let colName = fieldMapping.colName;
+                let val = row[colName];
+                Reflect.set(obj, key, val);
+            }
+            else {
+                let field = Reflect.get(obj, key);
+                if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+                    field.bind(this.context, obj);
+                }
+            }
+        });
+        return obj;
+    }
+    async stream() {
+        this.prepareSelectStatement();
+        let dataStream = await this.context.stream(this.stat);
+        let res = dataStream.pipeThrough(new TransformStream({
+            transform: (chunk, controller) => {
+                if (chunk === null)
+                    controller.terminate();
+                else
+                    controller.enqueue(this.transformer(chunk));
+            }
+        }));
+        return res;
     }
     async listPlain(keys) {
         this.stat.command = sql.types.Command.SELECT;
@@ -44,28 +80,6 @@ class QuerySet extends IQuerySet {
     select(EntityType) {
         let res = new SelectQuerySet(this.context, EntityType, this.dbSet);
         return res;
-    }
-    async mapData(input) {
-        let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, this.EntityType.prototype);
-        let data = input.rows.map(row => {
-            let obj = new this.EntityType();
-            keys.forEach(key => {
-                let fieldMapping = this.dbSet.fieldMap.get(key);
-                if (fieldMapping) {
-                    let colName = fieldMapping.colName;
-                    let val = row[colName];
-                    Reflect.set(obj, key, val);
-                }
-                else {
-                    let field = Reflect.get(obj, key);
-                    if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-                        field.bind(this.context, obj);
-                    }
-                }
-            });
-            return obj;
-        });
-        return data;
     }
     where(param, ...args) {
         let fieldMap = new Map(Array.from(this.dbSet.fieldMap));
@@ -113,11 +127,10 @@ class QuerySet extends IQuerySet {
     async update(entity, ...updatedKeys) {
         this.stat.command = sql.types.Command.UPDATE;
         let keys = Reflect.getMetadata(TABLE_COLUMN_KEYS, entity.constructor.prototype);
-        let fields = this.dbSet.filterFields(keys)
-            .filter(field => updatedKeys.includes(field.fieldName));
+        let fields = this.dbSet.filterFields(keys).filter(field => updatedKeys.includes(field.fieldName));
         if (fields.length == 0)
             throw new Error('Update Fields Empty');
-        fields.forEach((field) => {
+        fields.forEach(field => {
             let c1 = new sql.Expression(field.colName);
             let c2 = new sql.Expression('?');
             let val = Reflect.get(entity, field.fieldName);

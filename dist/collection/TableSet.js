@@ -44,7 +44,7 @@ class TableSet extends IQuerySet {
         stat.collection.value = this.dbSet.tableName;
         let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
         let fields = this.dbSet.filterFields(keys);
-        fields.forEach((field) => {
+        fields.forEach(field => {
             let val = Reflect.get(entity, field.fieldName);
             if (val == null)
                 return;
@@ -80,7 +80,7 @@ class TableSet extends IQuerySet {
             stat.collection.value = this.dbSet.tableName;
             let keys = Reflect.getMetadata(decoratorKeys.TABLE_COLUMN_KEYS, this.EntityType.prototype);
             let fields = this.dbSet.filterFields(keys);
-            fields.forEach((field) => {
+            fields.forEach(field => {
                 let val = Reflect.get(entity, field.fieldName);
                 if (val == null)
                     return;
@@ -93,10 +93,10 @@ class TableSet extends IQuerySet {
             });
             return stat;
         });
-        await this.context.handler.run(stmts);
+        await this.context.execute(stmts);
     }
     whereExpr(entity) {
-        if (!(this.primaryFields?.length)) {
+        if (!this.primaryFields?.length) {
             throw new Error('Primary Key fields not found');
         }
         let eb = new model.WhereExprBuilder(this.dbSet.fieldMap);
@@ -117,7 +117,7 @@ class TableSet extends IQuerySet {
             fields = fields.filter(field => updatedKeys.includes(field.fieldName));
         if (fields.length == 0)
             throw new Error('Update Fields Empty');
-        fields.forEach((field) => {
+        fields.forEach(field => {
             let c1 = new sql.Expression(field.colName);
             let c2 = new sql.Expression('?');
             let val = Reflect.get(entity, field.fieldName);
@@ -150,7 +150,7 @@ class TableSet extends IQuerySet {
             let stat = new sql.Statement();
             stat.command = sql.types.Command.UPDATE;
             stat.collection.value = this.dbSet.tableName;
-            fields.forEach((field) => {
+            fields.forEach(field => {
                 let c1 = new sql.Expression(field.colName);
                 let c2 = new sql.Expression('?');
                 let val = Reflect.get(entity, field.fieldName);
@@ -237,6 +237,10 @@ class TableSet extends IQuerySet {
     list() {
         let q = new QuerySet(this.context, this.EntityType, this.dbSet);
         return q.list();
+    }
+    stream() {
+        let q = new QuerySet(this.context, this.EntityType, this.dbSet);
+        return q.stream();
     }
     listPlain(keys) {
         let q = new QuerySet(this.context, this.EntityType, this.dbSet);

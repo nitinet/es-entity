@@ -1,7 +1,30 @@
+import * as sql from '../sql/index.js';
 export default class Handler {
     config;
     constructor(config) {
         this.config = config;
+    }
+    prepareQuery(queryStmt) {
+        let query;
+        let dataArgs = [];
+        if (Array.isArray(queryStmt)) {
+            let tempQueries = [];
+            queryStmt.forEach(a => {
+                if (!(a instanceof sql.Statement))
+                    throw new Error('Invalid Statement');
+                tempQueries.push(a.eval(this));
+                dataArgs.push(...a.args);
+            });
+            query = tempQueries.join('; ').concat(';');
+        }
+        else if (queryStmt instanceof sql.Statement) {
+            query = queryStmt.eval(this);
+            dataArgs.push(...queryStmt.args);
+        }
+        else {
+            query = queryStmt;
+        }
+        return { query, dataArgs };
     }
     eq(val0, val1) {
         return `${val0} = ${val1}`;
@@ -22,14 +45,20 @@ export default class Handler {
         return `${val0} >= ${val1}`;
     }
     and(values) {
-        return values.filter(x => x).map(val => {
+        return values
+            .filter(x => x)
+            .map(val => {
             return `(${val})`;
-        }).join(' and ');
+        })
+            .join(' and ');
     }
     or(values) {
-        return values.filter(x => x).map(val => {
+        return values
+            .filter(x => x)
+            .map(val => {
             return `(${val})`;
-        }).join(' or ');
+        })
+            .join(' or ');
     }
     not(val0) {
         return ` not ${val0}`;

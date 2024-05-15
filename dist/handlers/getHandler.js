@@ -1,26 +1,21 @@
 import * as bean from '../bean/index.js';
-import Mysql from './Mysql.js';
-import OracleHandler from './Oracle.js';
-import MsSqlServer from './MsSqlServer.js';
-import PostgreSql from './PostGreSql.js';
-import SQLite from './SQLite.js';
-function getHandler(config) {
+async function getHandler(config) {
     let handler;
     switch (config.handler) {
         case bean.HandlerType.mysql:
-            handler = new Mysql(config);
+            handler = new (await import('./Mysql.js')).default(config);
             break;
         case bean.HandlerType.oracle:
-            handler = new OracleHandler(config);
+            handler = new (await import('./Oracle.js')).default(config);
             break;
         case bean.HandlerType.postgresql:
-            handler = new PostgreSql(config);
+            handler = new (await import('./PostGreSql.js')).default(config);
             break;
         case bean.HandlerType.mssql:
-            handler = new MsSqlServer(config);
+            handler = new (await import('./MsSqlServer.js')).default(config);
             break;
         case bean.HandlerType.sqlite:
-            handler = new SQLite(config);
+            handler = new (await import('./SQLite.js')).default(config);
             break;
         default:
             throw new Error('No Handler Found');

@@ -1,30 +1,30 @@
 import * as bean from '../bean/index.js';
-import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
+const mssqlDriver = await import('mssql');
 export default class MsSqlServer extends Handler {
-    handlerName = 'mssql';
-    driver;
     connectionPool;
-    async init() {
-        this.driver = this.config.driver ?? await import('mssql');
-        let temp = new this.driver.ConnectionPool({
+    constructor(config) {
+        super(config);
+        this.connectionPool = new mssqlDriver.ConnectionPool({
             server: this.config.host,
             port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
         });
-        this.connectionPool = await temp.connect();
+    }
+    async init() {
+        await this.connectionPool.connect();
     }
     async getConnection() {
-        await this.driver.connect({
+        await mssqlDriver.connect({
             server: this.config.host,
             port: this.config.port,
             user: this.config.username,
             password: this.config.password,
             database: this.config.database
         });
-        return new this.driver.Request();
+        return new mssqlDriver.Request();
     }
     async initTransaction(conn) { }
     async commit(conn) { }
@@ -32,37 +32,20 @@ export default class MsSqlServer extends Handler {
     async close(conn) { }
     async end() { }
     async run(queryStmt, connection) {
-        let query;
-        let dataArgs = [];
-        if (Array.isArray(queryStmt)) {
-            let tempQueries = [];
-            queryStmt.forEach(a => {
-                if (!(a instanceof sql.Statement))
-                    throw new Error('Invalid Statement');
-                tempQueries.push(a.eval(this));
-                dataArgs.push(...a.args);
-            });
-            query = tempQueries.join('; ').concat(';');
-        }
-        else if (queryStmt instanceof sql.Statement) {
-            query = queryStmt.eval(this);
-            dataArgs.push(...queryStmt.args);
-        }
-        else {
-            query = queryStmt;
-        }
-        let conn;
-        if (connection) {
-            conn = connection;
-        }
-        else {
-            conn = this.connectionPool.request();
-        }
-        let temp = await conn.query(query);
+        let { query, dataArgs } = this.prepareQuery(queryStmt);
+        let conn = connection ?? this.connectionPool.request();
+        let data = await conn.query(query);
         let result = new bean.ResultSet();
-        result.rowCount = temp.rowsAffected[0] ?? 0;
-        result.rows = temp.recordset;
+        result.rowCount = data.rowsAffected[0] ?? 0;
+        result.rows = data.recordset;
         return result;
+    }
+    async stream(queryStmt, connection) {
+        let { query, dataArgs } = this.prepareQuery(queryStmt);
+        let conn = connection ?? this.connectionPool.request();
+        conn.stream = true;
+        conn.query(query);
+        return conn.toReadableStream();
     }
 }
 //# sourceMappingURL=MsSqlServer.js.map

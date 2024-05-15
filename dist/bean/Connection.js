@@ -11,6 +11,9 @@ export default class Connection {
     async run(query) {
         return this.handler.run(query, this.conn);
     }
+    stream(query) {
+        return this.handler.stream(query, this.conn);
+    }
     async initTransaction() {
         await this.handler.initTransaction(this.conn);
     }

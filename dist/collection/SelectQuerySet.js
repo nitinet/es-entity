@@ -7,6 +7,7 @@ class SelectQuerySet extends IQuerySet {
     EntityType;
     alias;
     stat = new sql.Statement();
+    selectKeys;
     constructor(context, EntityType, dbSet) {
         super();
         this.context = context;
@@ -15,15 +16,51 @@ class SelectQuerySet extends IQuerySet {
         this.alias = dbSet.tableName.charAt(0);
         this.stat.collection.value = dbSet.tableName;
         this.stat.collection.alias = this.alias;
+        let temp = new this.EntityType();
+        this.selectKeys = Reflect.ownKeys(temp);
     }
-    async list() {
+    prepareSelectStatement() {
         this.stat.command = sql.types.Command.SELECT;
         let temp = new this.EntityType();
         let targetKeys = Reflect.ownKeys(temp);
         let fields = this.dbSet.filterFields(targetKeys);
         this.stat.columns = this.getColumnExprs(fields, this.alias);
+    }
+    async list() {
+        this.prepareSelectStatement();
         let result = await this.context.execute(this.stat);
-        return this.mapData(result);
+        return result.rows.map(this.transformer);
+    }
+    transformer(row) {
+        let obj = new this.EntityType();
+        this.selectKeys.forEach(key => {
+            let fieldMapping = this.dbSet.fieldMap.get(key);
+            if (fieldMapping) {
+                let colName = fieldMapping.colName;
+                let val = row[colName];
+                Reflect.set(obj, key, val);
+            }
+            else {
+                let field = Reflect.get(obj, key);
+                if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
+                    field.bind(this.context, obj);
+                }
+            }
+        });
+        return obj;
+    }
+    async stream() {
+        this.prepareSelectStatement();
+        let dataStream = await this.context.stream(this.stat);
+        let res = dataStream.pipeThrough(new TransformStream({
+            transform: (chunk, controller) => {
+                if (chunk === null)
+                    controller.terminate();
+                else
+                    controller.enqueue(this.transformer(chunk));
+            }
+        }));
+        return res;
     }
     async listPlain(keys) {
         this.stat.command = sql.types.Command.SELECT;
@@ -48,29 +85,6 @@ class SelectQuerySet extends IQuerySet {
         newDbSet.fieldMap = new Map(cols);
         let res = new SelectQuerySet(this.context, EntityType, newDbSet);
         return res;
-    }
-    async mapData(input) {
-        let temp = new this.EntityType();
-        let keys = Reflect.ownKeys(temp);
-        let data = input.rows.map(row => {
-            let obj = new this.EntityType();
-            keys.forEach(key => {
-                let fieldMapping = this.dbSet.fieldMap.get(key);
-                if (fieldMapping) {
-                    let colName = fieldMapping.colName;
-                    let val = row[colName];
-                    Reflect.set(obj, key, val);
-                }
-                else {
-                    let field = Reflect.get(obj, key);
-                    if (field instanceof model.LinkObject || field instanceof model.LinkArray) {
-                        field.bind(this.context, obj);
-                    }
-                }
-            });
-            return obj;
-        });
-        return data;
     }
     where(param, ...args) {
         let fieldMap = new Map(Array.from(this.dbSet.fieldMap));

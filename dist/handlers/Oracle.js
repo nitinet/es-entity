@@ -1,13 +1,10 @@
 import * as bean from '../bean/index.js';
-import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
+const oracledbDriver = await import('oracledb');
 export default class Oracle extends Handler {
-    handlerName = 'oracle';
-    driver;
     connectionPool;
     async init() {
-        this.driver = this.config.driver ?? await import('oracledb');
-        this.connectionPool = await this.driver.createPool({
+        this.connectionPool = await oracledbDriver.createPool({
             user: this.config.username,
             password: this.config.password,
             connectString: `${this.config.host}:${this.config.port}/${this.config.database}`
@@ -18,30 +15,18 @@ export default class Oracle extends Handler {
         return conn;
     }
     async initTransaction(conn) { }
-    async commit(conn) { return conn.commit(); }
-    async rollback(conn) { return conn.rollback(); }
-    async close(conn) { return conn.close(); }
+    async commit(conn) {
+        return conn.commit();
+    }
+    async rollback(conn) {
+        return conn.rollback();
+    }
+    async close(conn) {
+        return conn.close();
+    }
     async end() { }
     async run(queryStmt, connection) {
-        let query;
-        let dataArgs = [];
-        if (Array.isArray(queryStmt)) {
-            let tempQueries = [];
-            queryStmt.forEach(a => {
-                if (!(a instanceof sql.Statement))
-                    throw new Error('Invalid Statement');
-                tempQueries.push(a.eval(this));
-                dataArgs.push(...a.args);
-            });
-            query = tempQueries.join('; ').concat(';');
-        }
-        else if (queryStmt instanceof sql.Statement) {
-            query = queryStmt.eval(this);
-            dataArgs.push(...queryStmt.args);
-        }
-        else {
-            query = queryStmt;
-        }
+        let { query, dataArgs } = this.prepareQuery(queryStmt);
         let temp;
         if (connection) {
             temp = await connection.execute(query, dataArgs);
@@ -59,6 +44,24 @@ export default class Oracle extends Handler {
         result.rows = temp.rows ?? [];
         result.rowCount = temp.rowsAffected ?? 0;
         return result;
+    }
+    async stream(queryStmt, connection) {
+        let { query, dataArgs } = this.prepareQuery(queryStmt);
+        let stream;
+        if (connection) {
+            stream = connection.queryStream(query, dataArgs);
+        }
+        else {
+            let conn = await this.connectionPool.getConnection();
+            stream = conn.queryStream(query, dataArgs);
+            stream.on('end', function () {
+                stream.destroy();
+            });
+            stream.on('close', function () {
+                conn.close();
+            });
+        }
+        return stream;
     }
 }
 //# sourceMappingURL=Oracle.js.map

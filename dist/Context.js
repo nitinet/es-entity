@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash';
 import * as bean from './bean/index.js';
 import TableSet from './collection/TableSet.js';
 import getHandler from './handlers/getHandler.js';
+import { Readable } from 'stream';
 export default class Context {
     _handler;
     connection = null;
@@ -13,14 +14,14 @@ export default class Context {
         if (!this.config.dbConfig) {
             throw new Error('Database Config Not Found');
         }
-        this._handler = getHandler(this.config.dbConfig);
         this.logger = this.config.logger || console;
     }
     log(...arg) {
         this.logger.error(arg);
     }
     async init() {
-        await this.handler.init();
+        this._handler = await getHandler(this.config.dbConfig);
+        await this._handler.init();
         Reflect.ownKeys(this).forEach(key => {
             let tableSet = Reflect.get(this, key);
             if (!(tableSet instanceof TableSet))
@@ -29,32 +30,30 @@ export default class Context {
             this.tableSetMap.set(tableSet.getEntityType(), tableSet);
         });
     }
-    get handler() {
-        return this._handler;
-    }
-    set handler(handler) {
-        this._handler = handler;
-    }
     async execute(query) {
         if (this.connection) {
             return this.connection.run(query);
         }
         else {
-            return this.handler.run(query);
+            return this._handler.run(query);
         }
+    }
+    async stream(query) {
+        let conn = this.connection ?? this._handler;
+        return Readable.toWeb(await conn.stream(query));
     }
     flush() { }
     async initTransaction() {
         let res = cloneDeep(this);
         let keys = Reflect.ownKeys(res);
-        keys.forEach((key) => {
+        keys.forEach(key => {
             let prop = Reflect.get(res, key);
             if (prop instanceof TableSet) {
                 prop.context = res;
             }
         });
-        let nativeConn = await this.handler.getConnection();
-        res.connection = new bean.Connection(res.handler, nativeConn);
+        let nativeConn = await this._handler.getConnection();
+        res.connection = new bean.Connection(res._handler, nativeConn);
         await res.connection.initTransaction();
         return res;
     }
@@ -71,7 +70,7 @@ export default class Context {
         await this.connection.close();
     }
     end() {
-        return this.handler.end();
+        return this._handler.end();
     }
 }
 //# sourceMappingURL=Context.js.map

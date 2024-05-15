@@ -16,6 +16,9 @@ class JoinQuerySet extends IQuerySet {
     async list() {
         return new Array();
     }
+    stream() {
+        throw new Error('Method not implemented.');
+    }
     listPlain(keys) {
         throw new Error('Method not implemented.');
     }

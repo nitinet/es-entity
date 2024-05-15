@@ -5,92 +5,89 @@ import Handler from './handlers/Handler.js';
 import getHandler from './handlers/getHandler.js';
 import * as types from './model/types.js';
 import * as sql from './sql/index.js';
+import { Readable } from 'stream';
 
 export default class Context {
-	private _handler: Handler;
-	private connection: bean.Connection | null = null;
-	private logger: any = null;
+  private _handler!: Handler;
+  private connection: bean.Connection | null = null;
+  private logger: any = null;
 
-	public tableSetMap = new Map<types.IEntityType<any>, TableSet<any>>();
-	public config: bean.IConfig;
+  public tableSetMap = new Map<types.IEntityType<any>, TableSet<any>>();
+  public config: bean.IConfig;
 
-	constructor(config: bean.IConfig) {
-		this.config = config;
+  constructor(config: bean.IConfig) {
+    this.config = config;
 
-		if (!this.config.dbConfig) {
-			throw new Error('Database Config Not Found');
-		}
+    if (!this.config.dbConfig) {
+      throw new Error('Database Config Not Found');
+    }
 
-		this._handler = getHandler(this.config.dbConfig);
-		this.logger = this.config.logger || console;
-	}
+    this.logger = this.config.logger || console;
+  }
 
-	log(...arg: any[]) {
-		this.logger.error(arg);
-	}
+  log(...arg: any[]) {
+    this.logger.error(arg);
+  }
 
-	async init() {
-		await this.handler.init();
+  async init() {
+    this._handler = await getHandler(this.config.dbConfig);
+    await this._handler.init();
 
-		Reflect.ownKeys(this).forEach(key => {
-			let tableSet = Reflect.get(this, key);
-			if (!(tableSet instanceof TableSet)) return;
+    Reflect.ownKeys(this).forEach(key => {
+      let tableSet = Reflect.get(this, key);
+      if (!(tableSet instanceof TableSet)) return;
 
-			tableSet.context = this;
-			this.tableSetMap.set(tableSet.getEntityType(), tableSet);
-		});
-	}
+      tableSet.context = this;
+      this.tableSetMap.set(tableSet.getEntityType(), tableSet);
+    });
+  }
 
-	get handler() {
-		return this._handler;
-	}
+  async execute(query: string | sql.Statement | sql.Statement[]) {
+    if (this.connection) {
+      return this.connection.run(query);
+    } else {
+      return this._handler.run(query);
+    }
+  }
 
-	set handler(handler: Handler) {
-		this._handler = handler;
-	}
+  async stream(query: string | sql.Statement | sql.Statement[]) {
+    let conn = this.connection ?? this._handler;
+    return Readable.toWeb(await conn.stream(query)) as ReadableStream;
+  }
 
-	async execute(query: string | sql.Statement | sql.Statement[]) {
-		if (this.connection) {
-			return this.connection.run(query);
-		} else {
-			return this.handler.run(query);
-		}
-	}
+  flush(): void {}
 
-	flush(): void { }
+  async initTransaction(): Promise<this> {
+    // Create Clone
+    let res = cloneDeep(this);
 
-	async initTransaction(): Promise<this> {
-		// Create Clone
-		let res = cloneDeep(this);
+    let keys = Reflect.ownKeys(res);
+    keys.forEach(key => {
+      let prop = Reflect.get(res, key);
+      if (prop instanceof TableSet) {
+        prop.context = res;
+      }
+    });
 
-		let keys = Reflect.ownKeys(res);
-		keys.forEach((key) => {
-			let prop = Reflect.get(res, key);
-			if (prop instanceof TableSet) {
-				prop.context = res;
-			}
-		});
+    let nativeConn = await this._handler.getConnection();
+    res.connection = new bean.Connection(res._handler, nativeConn);
+    await res.connection.initTransaction();
+    return res;
+  }
 
-		let nativeConn = await this.handler.getConnection();
-		res.connection = new bean.Connection(res.handler, nativeConn);
-		await res.connection.initTransaction();
-		return res;
-	}
+  async commit() {
+    if (!this.connection) throw new TypeError('Transaction Not Started');
+    await this.connection.commit();
+    await this.connection.close();
+  }
 
-	async commit() {
-		if (!this.connection) throw new TypeError('Transaction Not Started');
-		await this.connection.commit();
-		await this.connection.close();
-	}
+  async rollback() {
+    if (!this.connection) throw new TypeError('Transaction Not Started');
+    await this.connection.rollback();
+    await this.connection.close();
+  }
 
-	async rollback() {
-		if (!this.connection) throw new TypeError('Transaction Not Started');
-		await this.connection.rollback();
-		await this.connection.close();
-	}
-
-	end() {
-		return this.handler.end();
-	}
-
+  end() {
+    return this._handler.end();
+  }
 }

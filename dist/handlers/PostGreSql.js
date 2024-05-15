@@ -1,13 +1,12 @@
 import * as bean from '../bean/index.js';
-import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
+const pgDriver = await import('pg');
+const pgQueryStream = await import('pg-query-stream');
 export default class PostgreSql extends Handler {
-    handlerName = 'postgresql';
-    driver;
     connectionPool;
-    async init() {
-        this.driver = this.config.driver ?? (await import('pg')).native ?? await import('pg');
-        this.connectionPool = new this.driver.Pool({
+    constructor(config) {
+        super(config);
+        this.connectionPool = new pgDriver.Pool({
             user: this.config.username,
             password: this.config.password,
             database: this.config.database,
@@ -16,39 +15,27 @@ export default class PostgreSql extends Handler {
             max: this.config.connectionLimit
         });
     }
+    async init() { }
     async getConnection() {
         let conn = await this.connectionPool.connect();
         return conn;
     }
-    async initTransaction(conn) { await conn.query('BEGIN'); }
+    async initTransaction(conn) {
+        await conn.query('BEGIN');
+    }
     async commit(conn) {
         await conn.query('COMMIT');
     }
     async rollback(conn) {
         await conn.query('ROLLBACK');
     }
-    async close(conn) { conn.release(); }
-    async end() { }
+    async close(conn) {
+        conn.release();
+    }
+    async end() {
+    }
     async run(queryStmt, connection) {
-        let query;
-        let dataArgs = [];
-        if (Array.isArray(queryStmt)) {
-            let tempQueries = [];
-            queryStmt.forEach(a => {
-                if (!(a instanceof sql.Statement))
-                    throw new Error('Invalid Statement');
-                tempQueries.push(a.eval(this));
-                dataArgs.push(...a.args);
-            });
-            query = tempQueries.join('; ').concat(';');
-        }
-        else if (queryStmt instanceof sql.Statement) {
-            query = queryStmt.eval(this);
-            dataArgs.push(...queryStmt.args);
-        }
-        else {
-            query = queryStmt;
-        }
+        let { query, dataArgs } = this.prepareQuery(queryStmt);
         query = this.convertPlaceHolder(query);
         let temp;
         if (connection) {
@@ -64,9 +51,26 @@ export default class PostgreSql extends Handler {
             }
         }
         let result = new bean.ResultSet();
-        result.rowCount = temp.rowCount;
+        result.rowCount = temp.rowCount ?? 0;
         result.rows = temp.rows;
         return result;
+    }
+    async stream(queryStmt, connection) {
+        let { query, dataArgs } = this.prepareQuery(queryStmt);
+        query = this.convertPlaceHolder(query);
+        const queryStream = new pgQueryStream.default(query, dataArgs);
+        let stream;
+        if (connection) {
+            stream = connection.query(queryStream);
+        }
+        else {
+            let con = await this.connectionPool.connect();
+            stream = con.query(queryStream);
+            stream.on('end', () => {
+                con.release();
+            });
+        }
+        return stream;
     }
     convertPlaceHolder(query) {
         let i = 1;
