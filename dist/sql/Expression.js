@@ -34,14 +34,15 @@ class Expression {
             return this.value;
         }
         else {
-            let values = this.exps.map(exp => {
+            let values = this.exps
+                .map(exp => {
                 if (exp) {
                     let str = exp.eval(handler);
                     this.args = this.args.concat(exp.args);
                     return str;
                 }
-                ;
-            }).filter((exp) => exp != null);
+            })
+                .filter((exp) => exp != null);
             let val0 = values[0] ? values[0] : '';
             let val1 = values[1] ? values[1] : '';
             if (!this.operator) {

@@ -14,10 +14,4 @@ type KeyOf<T> = keyof T;
 
 type OperandType<T, K extends keyof T> = T[K] | Expression;
 
-export {
-	ColumnType, IArrFieldFunc,
-	IEntityType,
-	IJoinFunc,
-	IWhereFunc, KeyOf, OperandType
-};
-
+export { ColumnType, IArrFieldFunc, IEntityType, IJoinFunc, IWhereFunc, KeyOf, OperandType };

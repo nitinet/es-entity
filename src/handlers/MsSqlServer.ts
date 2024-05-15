@@ -1,6 +1,5 @@
 // @ts-ignore
 import mssql from 'mssql';
-import { Readable } from 'stream';
 import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
 import Handler from './Handler.js';

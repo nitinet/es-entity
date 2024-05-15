@@ -10,5 +10,5 @@ export default {
     Expression,
     Statement
 };
-export { INode, types, Collection, Expression, Statement };
+export { Collection, Expression, INode, Statement, types };
 //# sourceMappingURL=index.js.map

@@ -3,7 +3,6 @@ import mysql from 'mysql';
 import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
-import { Readable } from 'stream';
 
 const mysqlDriver = await import('mysql');
 

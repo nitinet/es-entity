@@ -1,9 +1,9 @@
 // @ts-ignore
 import oracledb from 'oracledb';
+import { Readable } from 'stream';
 import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
-import { Readable } from 'stream';
 
 const oracledbDriver = await import('oracledb');
 

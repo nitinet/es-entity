@@ -63,11 +63,13 @@ class Statement extends INode {
         return collectionStr;
     }
     getColumnStr(handler) {
-        return this.columns.map(ele => {
+        return this.columns
+            .map(ele => {
             let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
             return r;
-        }, this).join(', ');
+        }, this)
+            .join(', ');
     }
     getWhereStr(handler) {
         let whereStr = this.where.eval(handler);
@@ -75,26 +77,32 @@ class Statement extends INode {
         return whereStr ? ` where ${whereStr}` : '';
     }
     getValueStr(handler) {
-        return this.values.map(ele => {
+        return this.values
+            .map(ele => {
             let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
             return r;
-        }, this).join(', ');
+        }, this)
+            .join(', ');
     }
     getGroupByStr(handler) {
-        let groupByStr = this.groupBy.map(ele => {
+        let groupByStr = this.groupBy
+            .map(ele => {
             let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
             return r;
-        }, this).join(', ');
+        }, this)
+            .join(', ');
         return groupByStr ? ` group by ${groupByStr}` : '';
     }
     getOrderByStr(handler) {
-        let orderByStr = this.orderBy.map(ele => {
+        let orderByStr = this.orderBy
+            .map(ele => {
             let r = ele.eval(handler);
             this.args = this.args.concat(ele.args);
             return r;
-        }, this).join(', ');
+        }, this)
+            .join(', ');
         return orderByStr ? ` order by ${orderByStr}` : '';
     }
     getLimitStr(handler) {

@@ -1,9 +1,9 @@
 // @ts-ignore
 import sqlite from 'sqlite3';
+import stream from 'stream';
 import * as bean from '../bean/index.js';
 import * as sql from '../sql/index.js';
 import Handler from './Handler.js';
-import stream from 'stream';
 
 const sqliteDriver = await import('sqlite3');
 

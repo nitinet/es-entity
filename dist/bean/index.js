@@ -1,6 +1,6 @@
-import ResultSet from './ResultSet.js';
 import Connection from './Connection.js';
 import HandlerType from './HandlerType.js';
+import ResultSet from './ResultSet.js';
 export default {
     Connection,
     HandlerType,

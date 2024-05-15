@@ -1,5 +1,4 @@
 import Context from '../Context.js';
-import * as bean from '../bean/index.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
 import * as sql from '../sql/index.js';

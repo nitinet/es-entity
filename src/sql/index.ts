@@ -5,17 +5,12 @@ import Statement from './Statement.js';
 import * as types from './types/index.js';
 
 export default {
-	INode,
-	types,
-	Collection,
-	Expression,
-	Statement
+  INode,
+  types,
+  Collection,
+  Expression,
+  Statement
 };
 
-export {
-	INode,
-	types,
-	Collection,
-	Expression,
-	Statement
-};
+export { Collection, Expression, INode, Statement, types };
+

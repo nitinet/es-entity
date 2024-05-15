@@ -1,11 +1,11 @@
 import { cloneDeep } from 'lodash';
+import { Readable } from 'stream';
 import * as bean from './bean/index.js';
 import TableSet from './collection/TableSet.js';
 import Handler from './handlers/Handler.js';
 import getHandler from './handlers/getHandler.js';
 import * as types from './model/types.js';
 import * as sql from './sql/index.js';
-import { Readable } from 'stream';
 
 export default class Context {
   private _handler!: Handler;

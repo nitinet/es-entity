@@ -4,12 +4,10 @@ import QuerySet from './QuerySet.js';
 import TableSet from './TableSet.js';
 
 export default {
-	IQuerySet,
-	TableSet,
-	QuerySet,
-	LinkSet
+  IQuerySet,
+  TableSet,
+  QuerySet,
+  LinkSet
 };
 
-export {
-	IQuerySet, LinkSet, QuerySet, TableSet
-};
+export { IQuerySet, LinkSet, QuerySet, TableSet };

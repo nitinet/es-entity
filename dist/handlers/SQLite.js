@@ -1,6 +1,6 @@
+import stream from 'stream';
 import * as bean from '../bean/index.js';
 import Handler from './Handler.js';
-import stream from 'stream';
 const sqliteDriver = await import('sqlite3');
 export default class SQlite extends Handler {
     connectionPool;
