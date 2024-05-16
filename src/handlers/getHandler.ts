@@ -24,6 +24,10 @@ async function getHandler(config: bean.IConnectionConfig) {
       handler = new (await import('./SQLite.js')).default(config);
       break;
 
+    case bean.HandlerType.clickhouse:
+      handler = new (await import('./Clickhouse.js')).default(config);
+      break;
+
     default:
       throw new Error('No Handler Found');
   }

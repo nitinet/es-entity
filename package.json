@@ -40,10 +40,10 @@
   "optionalDependencies": {
     "pg": "^8.11.5",
     "pg-query-stream": "^4.5.5",
-    "pg-native": "^3.0.1",
     "mysql": "^2.18.1",
     "mssql": "^10.0.2",
     "oracledb": "^6.5.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "@clickhouse/client": "^1.0.1"
   }
 }

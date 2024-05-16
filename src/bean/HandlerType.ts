@@ -5,7 +5,8 @@ enum HandlerType {
   mssql = 'mssql',
   oracle = 'oracle',
   sqlite = 'sqlite',
-  cassandra = 'cassandra'
+  cassandra = 'cassandra',
+  clickhouse = 'clickhouse'
 }
 
 export default HandlerType;
