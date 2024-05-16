@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import * as bean from '../bean/index.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
@@ -46,7 +47,7 @@ class JoinQuerySet<T extends Object, U extends Object> extends IQuerySet<T & U> 
     return new Array();
   }
 
-  stream(): Promise<ReadableStream<T & U>> {
+  stream(): Promise<Readable> {
     throw new Error('Method not implemented.');
   }
 

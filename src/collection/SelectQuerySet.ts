@@ -1,3 +1,4 @@
+import { Transform } from 'stream';
 import Context from '../Context.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
@@ -70,15 +71,15 @@ class SelectQuerySet<T extends Object> extends IQuerySet<T> {
   async stream() {
     this.prepareSelectStatement();
     let dataStream = await this.context.stream(this.stat);
-    let res = dataStream.pipeThrough(
-      new TransformStream<any, T>({
-        transform: (chunk, controller) => {
-          if (chunk === null) controller.terminate();
-          else controller.enqueue(this.transformer(chunk));
+
+    let that = this;
+    return dataStream.pipe(
+      new Transform({
+        transform(chunk, encoding, callback) {
+          callback(null, that.transformer(chunk));
         }
       })
     );
-    return res;
   }
 
   async listPlain(keys: (keyof T)[]): Promise<Partial<T>[]> {

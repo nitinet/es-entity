@@ -43,16 +43,13 @@ export default class Context {
   }
 
   async execute(query: string | sql.Statement | sql.Statement[]) {
-    if (this.connection) {
-      return this.connection.run(query);
-    } else {
-      return this._handler.run(query);
-    }
+    let conn = this.connection ?? this._handler;
+    return conn.run(query);
   }
 
   async stream(query: string | sql.Statement | sql.Statement[]) {
     let conn = this.connection ?? this._handler;
-    return Readable.toWeb(await conn.stream(query)) as ReadableStream;
+    return await conn.stream(query);
   }
 
   flush(): void {}

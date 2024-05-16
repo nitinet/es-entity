@@ -1,5 +1,4 @@
 import { cloneDeep } from 'lodash';
-import { Readable } from 'stream';
 import * as bean from './bean/index.js';
 import TableSet from './collection/TableSet.js';
 import getHandler from './handlers/getHandler.js';
@@ -31,16 +30,12 @@ export default class Context {
         });
     }
     async execute(query) {
-        if (this.connection) {
-            return this.connection.run(query);
-        }
-        else {
-            return this._handler.run(query);
-        }
+        let conn = this.connection ?? this._handler;
+        return conn.run(query);
     }
     async stream(query) {
         let conn = this.connection ?? this._handler;
-        return Readable.toWeb(await conn.stream(query));
+        return await conn.stream(query);
     }
     flush() { }
     async initTransaction() {

@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import Context from '../Context.js';
 import * as model from '../model/index.js';
 import * as types from '../model/types.js';
@@ -8,7 +9,7 @@ abstract class IQuerySet<T extends Object> {
 
   // Selection Functions
   abstract list(): Promise<T[]>;
-  abstract stream(): Promise<ReadableStream<T>>;
+  abstract stream(): Promise<Readable>;
   abstract listPlain(keys: (keyof T)[]): Promise<Partial<T>[]>;
 
   async single(): Promise<T | null> {

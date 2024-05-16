@@ -1,3 +1,4 @@
+import { Transform } from 'stream';
 import * as model from '../model/index.js';
 import * as sql from '../sql/index.js';
 import DBSet from './DBSet.js';
@@ -52,15 +53,12 @@ class SelectQuerySet extends IQuerySet {
     async stream() {
         this.prepareSelectStatement();
         let dataStream = await this.context.stream(this.stat);
-        let res = dataStream.pipeThrough(new TransformStream({
-            transform: (chunk, controller) => {
-                if (chunk === null)
-                    controller.terminate();
-                else
-                    controller.enqueue(this.transformer(chunk));
+        let that = this;
+        return dataStream.pipe(new Transform({
+            transform(chunk, encoding, callback) {
+                callback(null, that.transformer(chunk));
             }
         }));
-        return res;
     }
     async listPlain(keys) {
         this.stat.command = sql.types.Command.SELECT;
