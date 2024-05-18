@@ -1,5 +1,4 @@
-import { cloneDeep } from 'lodash';
-import { Readable } from 'stream';
+import { cloneDeep } from 'lodash-es';
 import * as bean from './bean/index.js';
 import TableSet from './collection/TableSet.js';
 import Handler from './handlers/Handler.js';
