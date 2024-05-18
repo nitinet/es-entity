@@ -1,10 +1,10 @@
 {
   "name": "es-entity",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "ORM framework for Node js based on Ecmascript 6 and Typescript.",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./src/index.ts",
+  "main": "./index.js",
+  "types": "./index.ts",
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 0"

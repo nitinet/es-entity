@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "NodeNext",
-		"target": "ES2022",
-		"moduleResolution": "NodeNext",
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "Node",
 		"sourceMap": true,
 		"allowSyntheticDefaultImports": true,
 		"removeComments": true,
@@ -10,10 +10,10 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"strict": true,
-		"outDir": "./dist"
+		"outDir": "."
 	},
 	"include": [
-		"src/**/*"
+		"**/*"
 	],
 	"exclude": [
 		"node_modules"
